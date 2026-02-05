@@ -24,8 +24,9 @@
                    <!-- =================== -->
                    <!-- Dashboard -->
                    <!-- =================== -->
-                   <li class="sidebar-item">
-                       <a class="sidebar-link" href="./index.html" aria-expanded="false">
+                   <li class="sidebar-item {{ Route::is('admin.dashboard') ? 'selected' : '' }}">
+                       <a class="sidebar-link {{ Route::is('admin.dashboard') ? 'active' : '' }} "
+                           href="{{ route('admin.dashboard') }}" aria-expanded="false">
                            <span>
                                <i class="ti ti-dashboard"></i>
                            </span>
