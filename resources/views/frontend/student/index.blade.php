@@ -1,57 +1,9 @@
 @extends('frontend.layouts.master')
 @section('content')
-    <section class="pt-5 pb-5">
+    <section class="pt-5">
         <div class="container">
-            <!-- User info -->
-            <div class="row align-items-center">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-12">
-                    <!-- Bg -->
-                    <div class="rounded-top"
-                        style="background: url(/frontend/assets/images/background/profile-bg.jpg) no-repeat; background-size: cover; height: 100px">
-                    </div>
-                    <div class="card px-4 pt-2 pb-4 shadow-sm rounded-top-0 rounded-bottom-0 rounded-bottom-md-2">
-                        <div class="d-flex align-items-end justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="me-2 position-relative d-flex justify-content-end align-items-end mt-n5">
-                                    <img src="/frontend/assets/images/avatar/avatar-3.jpg"
-                                        class="avatar-xl rounded-circle border border-4 border-white" alt="avatar">
-                                </div>
-                                <div class="lh-1">
-                                    <h2 class="mb-0 text-capitalize">
-                                        {{ auth()->user()->name }}
-                                        <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                            aria-label="Beginner" data-bs-original-title="Beginner">
-                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="3" y="8" width="2" height="6" rx="1"
-                                                    fill="#754FFE"></rect>
-                                                <rect x="7" y="5" width="2" height="9" rx="1"
-                                                    fill="#DBD8E9"></rect>
-                                                <rect x="11" y="2" width="2" height="12" rx="1"
-                                                    fill="#DBD8E9"></rect>
-                                            </svg>
-                                        </a>
-                                    </h2>
-                                    <p class="mb-0 d-block">
-                                        {{ auth()->user()->email }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="profile-edit.html" class="btn btn-primary btn-sm d-none d-md-block">Account
-                                    Setting</a>
-                            </div>
-                            {{-- logout --}}
-                            <div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm d-none d-md-block">Logout</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('frontend.student.partials.user-info')
+        </div>
     </section>
     <section class="pb-5 py-md-5">
         <div class="container">
@@ -1224,24 +1176,24 @@
                                                             fill="#754FFE"></rect>
                                                         <rect x="7" y="5" width="2" height="9" rx="1"
                                                             fill="#DBD8E9"></rect>
-                                                        <rect x="11" y="2" width="2" height="12"
-                                                            rx="1" fill="#DBD8E9"></rect>
+                                                        <rect x="11" y="2" width="2" height="12" rx="1"
+                                                            fill="#DBD8E9"></rect>
                                                     </svg>
                                                     Beginner
                                                 </li>
                                             </ul>
                                             <div class="mt-3 d-flex align-baseline lh-1">
                                                 <span class="fs-6">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12"
-                                                        height="12" fill="currentColor"
-                                                        class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                        fill="currentColor" class="bi bi-star-fill text-warning"
+                                                        viewBox="0 0 16 16">
                                                         <path
                                                             d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
                                                         </path>
                                                     </svg>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12"
-                                                        height="12" fill="currentColor"
-                                                        class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                        fill="currentColor" class="bi bi-star-fill text-warning"
+                                                        viewBox="0 0 16 16">
                                                         <path
                                                             d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
                                                         </path>

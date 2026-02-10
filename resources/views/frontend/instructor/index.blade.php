@@ -47,9 +47,7 @@
                     </div>
                 </div>
             </div>
-
             <!-- Content -->
-
             <div class="row mt-0 mt-md-4">
                 <div class="col-lg-3 col-md-4 col-12">
                     <!-- User profile -->
