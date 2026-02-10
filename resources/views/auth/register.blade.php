@@ -92,8 +92,8 @@
                                                 <a href="{{ route('login') }}" class="ms-1">Sign in</a>
                                             </span>
                                         </div>
-                                        <!-- Form -->
-                                        <form method="POST" action="{{ route('register') }}">
+                                        <!-- Student Form -->
+                                        <form method="POST" action="{{ route('register', ['type' => 'student']) }}">
                                             @csrf
                                             <!-- Username -->
                                             <div class="mb-3">
@@ -152,8 +152,9 @@
                                                 <a href="{{ route('login') }}" class="ms-1">Sign in</a>
                                             </span>
                                         </div>
-                                        <!-- Form -->
-                                        <form method="POST" action="{{ route('register') }}">
+                                        <!-- Teacher Form -->
+                                        <form method="POST" action="{{ route('register', ['type' => 'instructor']) }}"
+                                            enctype="multipart/form-data">
                                             @csrf
                                             <!-- Username -->
                                             <div class="mb-3">
@@ -169,6 +170,14 @@
                                                 <input type="email" id="email" class="form-control" name="email"
                                                     placeholder="Email address here" value="{{ old('email') }}" required>
                                                 <x-input-error :messages="$errors->get('email')" class="text-danger mt-2" />
+                                            </div>
+                                            {{-- Document --}}
+                                            <div class="mb-3">
+                                                <label for="document" class="form-label text-capitalize">curriculum
+                                                    vitae</label>
+                                                <input type="file" id="document" class="form-control"
+                                                    name="document" placeholder="Upload your document here" required>
+                                                <x-input-error :messages="$errors->get('document')" class="text-danger mt-2" />
                                             </div>
                                             <!-- Password -->
                                             <div class="mb-3">

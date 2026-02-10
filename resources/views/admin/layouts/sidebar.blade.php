@@ -33,6 +33,18 @@
                            <span class="hide-menu">Dashboard</span>
                        </a>
                    </li>
+
+                   {{-- Instructor Request --}}
+                   <li class="sidebar-item {{ Route::is('admin.instructor-request.index') ? 'selected' : '' }}">
+                       <a class="sidebar-link {{ Route::is('admin.instructor-request.index') ? 'active' : '' }} "
+                           href="{{ route('admin.instructor-request.index') }}" aria-expanded="false">
+                           <span>
+                               <i class="ti ti-user-check"></i>
+                           </span>
+                           <span class="hide-menu">Instructor Request</span>
+                       </a>
+                   </li>
+
                    <li class="sidebar-item">
                        <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
                            <span class="d-flex">

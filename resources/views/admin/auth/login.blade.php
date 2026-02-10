@@ -106,16 +106,17 @@
                                 <form method="POST" action="{{ route('admin.login.store') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
+                                        <label for="email" class="form-label">Email*</label>
                                         <input type="email" id="email" type="email" name="email"
                                             class="form-control" value="{{ old('email') }}" required
-                                            aria-describedby="emailHelp">
+                                            aria-describedby="emailHelp" placeholder="Please enter your email">
                                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
                                     </div>
                                     <div class="mb-4">
-                                        <label for="passwrod" class="form-label">Password</label>
+                                        <label for="passwrod" class="form-label">Password*</label>
                                         <input type="password" class="form-control" id="password" name="password"
-                                            required autocomplete="current-password">
+                                            required autocomplete="current-password"
+                                            placeholder="Please enter your password">
                                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between mb-4">
