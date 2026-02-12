@@ -10,6 +10,9 @@ class InstructorDashboardController extends Controller
 {
     public function index(): View
     {
-        return view('frontend.instructor.index');
+        $data = [
+            'page_title' => 'ICT Center | Dashboard',
+        ];
+        return view('frontend.instructor.index', $data);
     }
 }

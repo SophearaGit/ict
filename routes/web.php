@@ -27,8 +27,6 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
         Route::get('/social-profile', [ProfileController::class, 'socialProfile'])->name('social.profile');
         Route::post('/social-profile-update', [ProfileController::class, 'socialProfileUpdate'])->name('social.profile.update');
 
-
-
     });
 
 // Instructor Routes
@@ -37,6 +35,18 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
     ->name('instructor.')
     ->group(function () {
         Route::get('/dashboard', [InstructorDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/profile-edit', [ProfileController::class, 'teacherProfileEdit'])->name('profile.edit');
+        Route::post('/profile-edit-update', [ProfileController::class, 'teacherProfileUpdate'])->name('profile.edit.update');
+        Route::get('/security', [ProfileController::class, 'teacherSecurity'])->name('security');
+        Route::post('/security-update', [ProfileController::class, 'teacherSecurityUpdate'])->name('security.update');
+        Route::get('/social-profile', [ProfileController::class, 'teacherSocialProfile'])->name('social.profile');
+        Route::post('/social-profile-update', [ProfileController::class, 'teacherSocialProfileUpdate'])->name('social.profile.update');
+
+
+
+
+
     });
 
 // Additional Routes
