@@ -1,62 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <!--  Title -->
-    <title></title>
-    <!--  Required Meta Tag -->
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/frontend/assets/libs/flatpickr/dist/flatpickr.min.css">
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="handheldfriendly" content="true" />
-    <meta name="MobileOptimized" content="width" />
-    <meta name="description" content="Mordenize" />
-    <meta name="author" content="" />
-    <meta name="keywords" content="Mordenize" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!--  Favicon -->
-    <link rel="shortcut icon" type="image/png" href="" />
-    <!-- Owl Carousel  -->
-    <link rel="stylesheet" href="/admin/assets/dist/libs/owl.carousel/dist/assets/owl.carousel.min.css">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="author" content="Codescandy" />
 
-    <!-- Core Css -->
-    <link id="themeColors" rel="stylesheet" href="/admin/assets/dist/css/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/x-icon" href="/frontend/assets/images/favicon/favicon.ico" />
+
+    <!-- darkmode js -->
+    <script src="/frontend/assets/js/vendors/darkMode.js"></script>
+
+    <!-- Libs CSS -->
+    <link href="/frontend/assets/fonts/feather/feather.css" rel="stylesheet" />
+    <link href="/frontend/assets/libs/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="/frontend/assets/libs/simplebar/dist/simplebar.min.css" rel="stylesheet" />
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/frontend/assets/css/theme.min.css">
+
+    <link rel="canonical" href="https://geeksui.codescandy.com/geeks/pages/dashboard/admin-dashboard.html">
+
+    <title>
+        @yield('page_title')
+    </title>
+    @stack('scripts')
 </head>
 
 <body>
-    {{-- @include('admin.layouts.preloader') --}}
-    <!--  Body Wrapper -->
-    <div class="page-wrapper" id="main-wrapper" data-theme="blue_theme" data-layout="vertical" data-sidebartype="full"
-        data-sidebar-position="fixed" data-header-position="fixed">
-        @include('admin.layouts.sidebar')
-        <!--  Main wrapper -->
-        <div class="body-wrapper">
-            @include('admin.layouts.header')
-            <div class="container-fluid">
+    <!-- Wrapper -->
+    <div id="db-wrapper">
+        <!-- navbar vertical -->
+        @include('admin.layouts.partials.sidebar')
+        <!-- Page Content -->
+        <main id="page-content">
+            @include('admin.layouts.partials.header')
+            <!-- Page Header -->
+            <!-- Container fluid -->
+            <section class="container-fluid p-4">
                 @yield('content')
-            </div>
-        </div>
-        <div class="dark-transparent sidebartoggler"></div>
-        <div class="dark-transparent sidebartoggler"></div>
+            </section>
+        </main>
     </div>
-    @include('admin.layouts.mobile-navbar')
-    @include('admin.layouts.customizer')
-    <!--  Import Js Files -->
-    <script src="/admin/assets/dist/libs/jquery/dist/jquery.min.js"></script>
-    <script src="/admin/assets/dist/libs/simplebar/dist/simplebar.min.js"></script>
-    <script src="/admin/assets/dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <!--  core files -->
-    <script src="/admin/assets/dist/js/app.min.js"></script>
-    <script src="/admin/assets/dist/js/app.init.js"></script>
-    <script src="/admin/assets/dist/js/app-style-switcher.js"></script>
-    <script src="/admin/assets/dist/js/sidebarmenu.js"></script>
-    <script src="/admin/assets/dist/js/custom.js"></script>
-    <!--  current page js files -->
-    <script src="/admin/assets/dist/libs/owl.carousel/dist/owl.carousel.min.js"></script>
-    <script src="/admin/assets/dist/libs/apexcharts/dist/apexcharts.min.js"></script>
-    <script src="/admin/assets/dist/js/dashboard.js"></script>
+
+    <!-- Script -->
+
+    <!-- Libs JS -->
+    <script src="/frontend/assets/libs/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="/frontend/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/frontend/assets/libs/simplebar/dist/simplebar.min.js"></script>
+
+    <!-- Theme JS -->
+    <script src="/frontend/assets/js/theme.min.js"></script>
+
+    <script src="/frontend/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="/frontend/assets/js/vendors/chart.js"></script>
+    <script src="/frontend/assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="/frontend/assets/js/vendors/flatpickr.js"></script>
+    @stack('scripts')
 </body>
 
 </html>

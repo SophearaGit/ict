@@ -1,34 +1,31 @@
-<div class="card bg-light-info shadow-none position-relative overflow-hidden">
-    <div class="card-body px-4 py-3">
-        <div class="row align-items-center">
-            <div class="col-9">
-                <h4 class="fw-semibold mb-8">
-                    @if (Route::is('admin.dashboard'))
-                        Dashboard
-                    @elseif (Route::is('admin.instructor-request.index'))
-                        Instructor Request
-                    @endif
-                </h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a class="text-muted " href="{{ route('admin.dashboard') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item" aria-current="page">
-                            @if (Route::is('admin.dashboard'))
-                                Dashboard
-                            @elseif (Route::is('admin.instructor-request.index'))
-                                Instructor Request
-                            @endif
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-3">
-                <div class="text-center mb-n5">
-                    <img src="/admin/assets/dist/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12">
+            <!-- Page Header -->
+            <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="mb-1 h2 fw-bold">
+                        @if (Route::is('admin.instructor.index'))
+                            Instructors
+                        @else
+                        @endif
+                    </h1>
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('admin.instructor.index') }}">
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                @if (Route::is('admin.instructor.index'))
+                                    Instructors
+                                @else
+                                @endif
+                            </li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
-</div>
