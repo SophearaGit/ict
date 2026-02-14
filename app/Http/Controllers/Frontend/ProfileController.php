@@ -57,8 +57,8 @@ class ProfileController extends Controller
         $user->bio = $request->bio;
         $user->save();
 
-        // notyf()->success('Profile updated successfully');
-        return redirect()->back();
+        return redirect()->back()
+            ->with('success', 'Profile updated successfully');
     }
 
     public function teacherProfileUpdate(ProfileUpdateRequest $request): RedirectResponse
@@ -82,8 +82,8 @@ class ProfileController extends Controller
         $user->bio = $request->bio;
         $user->save();
 
-        // notyf()->success('Profile updated successfully');
-        return redirect()->back();
+        return redirect()->back()
+            ->with('success', 'Profile updated successfully');
     }
 
     public function security(): View
@@ -113,8 +113,8 @@ class ProfileController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
-        // notyf()->success('Password updated successfully');
-        return redirect()->back();
+        return redirect()->back()
+            ->with('success', 'Password updated successfully');
     }
 
     public function teacherSecurityUpdate(ProfileUpdatePasswordRequest $request): RedirectResponse
@@ -128,8 +128,8 @@ class ProfileController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
-        // notyf()->success('Password updated successfully');
-        return redirect()->back();
+        return redirect()->back()
+            ->with('success', 'Password updated successfully');
     }
 
     public function socialProfile(): View
@@ -160,8 +160,9 @@ class ProfileController extends Controller
         $user->instagram = $request->instagram;
         $user->youtube = $request->youtube;
         $user->save();
-        // notyf()->success('Social link updated successfully');
-        return redirect()->back();
+
+        return redirect()->back()
+            ->with('success', 'Social link updated successfully');
     }
 
     public function teacherSocialProfileUpdate(ProfileUpdateSocialLink $request): RedirectResponse
@@ -175,8 +176,9 @@ class ProfileController extends Controller
         $user->instagram = $request->instagram;
         $user->youtube = $request->youtube;
         $user->save();
-        // notyf()->success('Social link updated successfully');
-        return redirect()->back();
+
+        return redirect()->back()
+            ->with('success', 'Social link updated successfully');
     }
 
 

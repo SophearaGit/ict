@@ -13,6 +13,14 @@
     <!-- Favicon icon-->
     <link rel="shortcut icon" type="image/x-icon" href="" />
 
+    {{-- iziToast --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"
+        integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"
+        integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <!-- darkmode js -->
     <script src="/frontend/assets/js/vendors/darkMode.js"></script>
 
@@ -63,6 +71,28 @@
     <script src="/frontend/assets/js/vendors/glight.js"></script>
 
     @stack('scripts')
+
+    @if ($errors->any())
+        <script>
+            @foreach ($errors->all() as $error)
+                iziToast.error({
+                    title: '',
+                    message: '{{ $error }}',
+                    position: 'bottomRight'
+                });
+            @endforeach
+        </script>
+    @endif
+
+    @if (session()->get('success'))
+        <script>
+            iziToast.success({
+                title: '',
+                message: '{{ session()->get('success') }}',
+                position: 'bottomRight'
+            });
+        </script>
+    @endif
 
 </body>
 

@@ -37,13 +37,13 @@
                     <div class="card">
                         <!-- card header -->
                         <div class="card-header">
-                            {{-- <input type="search" class="form-control" placeholder="Search Instructor"> --}}
-                            <h4 class="mb-1">
+                            <input type="search" class="form-control" placeholder="Search Instructor">
+                            {{-- <h4 class="mb-1">
                                 Instructor Requests
                             </h4>
                             <p class="mb-0">
                                 Manage all instructor requests from here.
-                            </p>
+                            </p> --}}
                         </div>
                         <!-- table -->
                         <div class="table-responsive">

@@ -49,7 +49,7 @@ class InstructorRequestController extends Controller
 
         self::sendNotification($instructor_request);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Instructor request ' . $request->status . ' successfully.');
     }
 
     public static function sendNotification($instructor_request): void

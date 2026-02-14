@@ -42,7 +42,7 @@
                 <!-- Tab Pane -->
                 <div class="tab-pane fade" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
                     <div class="mb-4">
-                        {{-- <input type="search" class="form-control" placeholder="Search Students"> --}}
+                        <input type="search" class="form-control" placeholder="Search Students">
                     </div>
                     <div class="row">
                         @forelse ($students as $student)
@@ -110,13 +110,13 @@
                     <div class="card">
                         <!-- Card Header -->
                         <div class="card-header">
-                            {{-- <input type="search" class="form-control" placeholder="Search Students"> --}}
-                            <h4 class="mb-1">
+                            <input type="search" class="form-control" placeholder="Search Students">
+                            {{-- <h4 class="mb-1">
                                 Students
                             </h4>
                             <p>
                                 Manage all students from here.
-                            </p>
+                            </p> --}}
                         </div>
                         <!-- Table -->
                         <div class="table-responsive">

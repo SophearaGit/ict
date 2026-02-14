@@ -70,7 +70,8 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         if ($request->user()->role == 'student') {
-            return redirect()->intended(route('student.dashboard', false));
+            return redirect()->intended(route('student.dashboard', false))
+                ->with('success', 'Registration successful! Welcome to the student dashboard, ' . $request->user()->name . '.');
         } elseif ($request->user()->role == 'instructor') {
             return redirect()->intended(route('instructor.dashboard', false));
         }
