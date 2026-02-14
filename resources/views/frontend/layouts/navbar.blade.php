@@ -7,7 +7,7 @@
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid px-0">
         <div class="d-flex">
-            <a class="navbar-brand" href="{{ url('/') }}"><img src="{{  }}" alt="ICT-LOGO" /></a>
+            <a class="navbar-brand" href="{{ route('home') }}"><img src="" alt="ICT-LOGO" /></a>
             <div class="dropdown d-none d-md-block">
                 <button class="btn btn-light-primary text-primary" type="button" id="dropdownMenuButton1"
                     data-bs-toggle="dropdown" aria-expanded="false">
