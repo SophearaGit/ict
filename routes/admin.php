@@ -9,7 +9,9 @@ use App\Http\Controllers\Admin\Auth\NewPasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\CourseCategoryController;
 use App\Http\Controllers\Admin\CourseLanguageController;
+use App\Http\Controllers\Admin\CourseLevelController;
 use App\Http\Controllers\Admin\InstructorRequestController;
 use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
@@ -66,9 +68,14 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
 
     /*******************************************************
-     * COURSE LANGUAGES ROUTES START
+     * COURSE LANGUAGES, LEVELS ROUTES START
      *******************************************************/
     Route::resource('course-language', CourseLanguageController::class);
+    Route::resource('course-level', CourseLevelController::class);
+    Route::resource('course-category', CourseCategoryController::class);
+
+
+
 
 
 

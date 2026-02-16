@@ -18,6 +18,6 @@ class StudentController extends Controller
                 ->orWhere('document', '')
                 ->latest()->get(),
         ];
-        return view('admin.pages.student', $data);
+        return view('admin.pages.user.student', $data);
     }
 }
