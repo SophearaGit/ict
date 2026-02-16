@@ -17,6 +17,6 @@ class InstructorControlller extends Controller
                 ->whereNotNull('document')
                 ->latest()->get(),
         ];
-        return view('admin.pages.instructor', $data);
+        return view('admin.pages.user.instructor', $data);
     }
 }
