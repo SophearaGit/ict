@@ -30,7 +30,8 @@
                     </div>
                 </div>
                 <div>
-                    <a href="add-course.html" class="btn btn-primary d-none d-md-block">Create New Course</a>
+                    <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary d-none d-md-block">Create
+                        New Course</a>
                 </div>
             </div>
         </div>

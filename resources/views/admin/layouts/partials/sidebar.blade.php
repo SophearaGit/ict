@@ -39,7 +39,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Route::is('admin.student.index') ? 'active' : '' }}  "
-                                href="{{ route('admin.student.index') }}">Students</a>
+                                href="{{ route('admin.student.index') }}">Student</a>
                         </li>
                     </ul>
                 </div>
@@ -51,8 +51,6 @@
                         : 'collapsed' || Route::is('admin.course-category.index'))
                     ? ''
                     : 'collapsed' }}
-
-
                 "
                     href="#" data-bs-toggle="collapse" data-bs-target="#navCourseManagement" aria-expanded="false"
                     aria-controls="navCourseManagement">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CourseLanguage;
 use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -14,11 +15,16 @@ class CourseLanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): View
     {
         $data = [
             "page_title" => "ICT Center | Course Languages",
-            "course_languages" => CourseLanguage::latest()->get(),
+            "course_languages" => CourseLanguage::
+                when($request->filled('search'), function ($query) use ($request) {
+                    $query->where('name', 'like', "%{$request->search}%");
+                })->
+
+                latest()->get(),
         ];
         return view("admin.pages.course-language.index", $data);
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Frontend\{
+    CourseController,
     FrontendController,
     InstructorDashboardController,
     ProfileController,
@@ -42,6 +43,17 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::post('/security-update', [ProfileController::class, 'teacherSecurityUpdate'])->name('security.update');
         Route::get('/social-profile', [ProfileController::class, 'teacherSocialProfile'])->name('social.profile');
         Route::post('/social-profile-update', [ProfileController::class, 'teacherSocialProfileUpdate'])->name('social.profile.update');
+
+        Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+        Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
+        Route::post('/courses/create', action: [CourseController::class, 'storeBasicInfo'])->name('courses.store_basic_info');
+        Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+        Route::post('/courses/update', action: [CourseController::class, 'update'])->name('courses.update');
+
+
+
+
+
 
 
 
