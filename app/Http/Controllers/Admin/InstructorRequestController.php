@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\InstructorRequestApprovedMail;
 use App\Mail\InstructorRequestRejectedMail;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -17,13 +18,16 @@ class InstructorRequestController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): View
     {
         $data = [
             "page_title" => "ICT Center | Instructor Requests",
-            "instructor_requests" => User::where('approval_status', 'pending')
-                ->orWhere('approval_status', 'rejected')
-                ->latest()->get(),
+            "instructor_requests" => User::whereIn('approval_status', ['pending', 'rejected'])
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->search . '%');
+                })
+                ->latest()
+                ->paginate(10),
         ];
         return view("admin.pages.instructor-request", $data);
     }

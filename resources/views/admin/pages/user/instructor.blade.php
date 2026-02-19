@@ -42,7 +42,10 @@
                 <!-- Tab pane -->
                 <div class="tab-pane fade" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
                     <div class="mb-4">
-                        <input type="search" class="form-control" placeholder="Search Instructor">
+                        <form action="{{ route('admin.instructor.index') }}" method="GET">
+                            <input type="search" class="form-control" placeholder="Search Instructor" name="search"
+                                value="{{ request()->search ?? '' }}">
+                        </form>
                     </div>
                     <div class="row">
                         @forelse ($instructors as $instructor)
@@ -103,7 +106,6 @@
                             </div>
                         @endforelse
                         <!-- Pagination Below -->
-
                     </div>
                 </div>
                 <!-- tab pane -->
@@ -112,13 +114,10 @@
                     <div class="card">
                         <!-- card header -->
                         <div class="card-header">
-                            <input type="search" class="form-control" placeholder="Search Instructor">
-                            {{-- <h4 class="mb-1">
-                                Instructors
-                            </h4>
-                            <p>
-                                Manage all instructors from here.
-                            </p> --}}
+                            <form action="{{ route('admin.instructor.index') }}" method="GET">
+                                <input type="search" class="form-control" placeholder="Search Instructor" name="search"
+                                    value="{{ request()->search ?? '' }}">
+                            </form>
                         </div>
                         <!-- table -->
                         <div class="table-responsive">

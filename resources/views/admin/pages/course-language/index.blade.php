@@ -9,11 +9,12 @@
                 <!-- Card header -->
                 <div class="card-header border-bottom-0">
                     <!-- Form -->
-                    <form class="d-flex align-items-center">
+                    <form class="d-flex align-items-center" action="{{ route('admin.course-language.index') }}" method="GET">
                         <span class="position-absolute ps-3 search-icon">
                             <i class="fe fe-search"></i>
                         </span>
-                        <input type="search" class="form-control ps-6" placeholder="Search Course Language">
+                        <input type="search" class="form-control ps-6" placeholder="Search Course Language"
+                            value="{{ request()->search ?? '' }}" name="search">
                     </form>
                 </div>
                 <!-- Table -->

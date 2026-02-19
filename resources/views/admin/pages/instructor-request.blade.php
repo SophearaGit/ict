@@ -37,13 +37,10 @@
                     <div class="card">
                         <!-- card header -->
                         <div class="card-header">
-                            <input type="search" class="form-control" placeholder="Search Instructor">
-                            {{-- <h4 class="mb-1">
-                                Instructor Requests
-                            </h4>
-                            <p class="mb-0">
-                                Manage all instructor requests from here.
-                            </p> --}}
+                            <form action="{{ route('admin.instructor-request.index') }}" method="GET">
+                                <input type="search" class="form-control" placeholder="Search Instructor Request" name="search"
+                                    value="{{ request()->search ?? '' }}">
+                            </form>
                         </div>
                         <!-- table -->
                         <div class="table-responsive">

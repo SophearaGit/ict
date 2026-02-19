@@ -19,14 +19,14 @@
                         My Dashboard
                     </a>
                 </li>
-                {{-- <!-- Nav item -->
-                <li class="nav-item  ">
-                    <a class="nav-link" href="instructor-courses.html">
+                <!-- Nav item -->
+                <li class="nav-item {{ Route::is('instructor.courses.index') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('instructor.courses.index') }}">
                         <i class="fe fe-book nav-icon"></i>
                         My Courses
                     </a>
                 </li>
-                <!-- Nav item -->
+                {{-- <!-- Nav item -->
                 <li class="nav-item">
                     <a class="nav-link" href="instructor-reviews.html">
                         <i class="fe fe-star nav-icon"></i>
