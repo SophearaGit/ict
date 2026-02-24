@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ProfileUpdateController extends Controller
 {
-    use FileUpload;
+    use FileUpload;a
 
     public function profile(): View
     {

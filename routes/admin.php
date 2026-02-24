@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\InstructorRequestController;
 use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\CourseController;
-
+use App\Http\Controllers\Admin\ProfileUpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(["middleware" => "guest:admin", "prefix" => "admin", "as" => "admin."], function () {
