@@ -56,7 +56,8 @@
                                                         <a
                                                             href="{{ route('instructor.courses.edit', ['id' => $course->id, 'step' => 1]) }}">
                                                             <img src="{{ asset($course->thumbnail) }}" alt="course"
-                                                                class="rounded img-4by3-lg">
+                                                                class="rounded img-4by3-lg"
+                                                                style="height: 4.5rem !important; object-fit: cover !important;">
                                                         </a>
                                                     </div>
                                                     <div class="ms-3">
@@ -88,18 +89,38 @@
                                                                     {{ $course->duration % 60 }}m
                                                                 </span>
                                                             </li>
+                                                            @php
+                                                                $level = $course->level->name;
+                                                            @endphp
+
                                                             <li class="list-inline-item">
                                                                 <svg class="me-1 mt-n1" width="16" height="16"
                                                                     viewBox="0 0 16 16" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
+
+                                                                    <!-- Bar 1 -->
                                                                     <rect x="3" y="8" width="2" height="6"
-                                                                        rx="1" fill="#754FFE"></rect>
+                                                                        rx="1"
+                                                                        fill="{{ in_array($level, ['Beginner', 'Intermediate', 'Advanced']) ? '#754FFE' : '#DBD8E9' }}">
+                                                                    </rect>
+
+                                                                    <!-- Bar 2 -->
                                                                     <rect x="7" y="5" width="2" height="9"
-                                                                        rx="1" fill="#DBD8E9"></rect>
+                                                                        rx="1"
+                                                                        fill="{{ in_array($level, ['Intermediate', 'Advanced']) ? '#754FFE' : '#DBD8E9' }}">
+                                                                    </rect>
+
+                                                                    <!-- Bar 3 -->
                                                                     <rect x="11" y="2" width="2" height="12"
-                                                                        rx="1" fill="#DBD8E9"></rect>
+                                                                        rx="1"
+                                                                        fill="{{ $level === 'Advanced' ? '#754FFE' : '#DBD8E9' }}">
+                                                                    </rect>
+
                                                                 </svg>
-                                                                Beginner
+
+                                                                <span class="text-muted">
+                                                                    {{ ucfirst($level) }}
+                                                                </span>
                                                             </li>
                                                         </ul>
                                                     </div>

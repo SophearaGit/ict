@@ -7,9 +7,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "intervention/image-laravel": "^1.5",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "sebastian/version": "^6.0"
+        "sebastian/version": "^6.0",
+        "unisharp/laravel-filemanager": "^2.12"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -52,7 +52,7 @@ class CourseController extends Controller
         $course->seo_description = $request->seo_description;
         $course->thumbnail = $thumbnailPath;
         $course->demo_video_storage = $request->demo_video_storage;
-        $course->demo_video_source = $request->filled('demo_video_source_upload') ? $request->demo_video_source_upload : $request->demo_video_source_link;
+        $course->demo_video_source = $request->filled('filepath') ? $request->filepath : $request->demo_video_source_link;
         $course->price = $request->price;
         $course->discount = $request->discount;
         $course->description = $request->description;
@@ -75,6 +75,8 @@ class CourseController extends Controller
             case '1':
                 $data = [
                     'page_title' => 'ICT Center | Edit Course',
+                    'breadcrumb_title' => 'Step 1 | Basic Information 📚',
+                    'breadcrumb_sub_title' => 'Give your course basic information like title, description, price, etc.',
                     'step' => $request->step,
                     'course' => Course::findOrFail($request->id),
                 ];
@@ -82,6 +84,9 @@ class CourseController extends Controller
             case '2':
                 $data = [
                     'page_title' => 'ICT Center | Edit Course',
+                    'breadcrumb_title' => 'Step 2 | More Information 📝',
+                    'breadcrumb_sub_title' => 'Add more details about your course like category, level, language, etc.',
+                    'step' => $request->step,
                     'course' => Course::findOrFail($request->id),
                     'categories' => CourseCategory::where('status', 1)->get(),
                     'languages' => CourseLanguage::all(),
@@ -91,15 +96,25 @@ class CourseController extends Controller
             case '3':
                 $data = [
                     'page_title' => 'ICT Center | Edit Course',
+                    'breadcrumb_title' => 'Step 3 | Course Content 🏗️',
+                    'breadcrumb_sub_title' => 'Structure your course content by adding chapters and lessons.',
+                    'step' => $request->step,
                     'course' => Course::findOrFail($request->id),
+                    'course_id' => $request->id,
+                    'chapters' => CourseChapter::where(['course_id' => $request->id, 'instructor_id' => Auth::user()->id])
+                        ->orderBy('order')->get(),
                 ];
                 return view('frontend.instructor.pages.course.edit.course-content', $data);
             case '4':
                 $data = [
                     'page_title' => 'ICT Center | Edit Course',
+                    'breadcrumb_title' => 'Step 4 | Publish Course 🚀',
+                    'breadcrumb_sub_title' => 'Set your course status and add a message for the reviewer if needed.',
+                    'step' => $request->step,
                     'course_id' => $request->id,
+                    'course' => Course::findOrFail($request->id),
                 ];
-                return view('frontend.instructor.pages.course.create.settings', $data);
+                return view('frontend.instructor.pages.course.edit.finish', $data);
             default:
                 $data = [
                     'page_title' => 'ICT Center | Edit Course',
@@ -133,14 +148,14 @@ class CourseController extends Controller
                 $course->slug = Str::slug($request->title);
                 $course->seo_description = $request->seo_description;
                 $course->demo_video_storage = $request->demo_video_storage;
-                $course->demo_video_source = $request->filled('demo_video_source_upload') ? $request->demo_video_source_upload : $request->demo_video_source_link;
+                $course->demo_video_source = $request->filled('filepath') ? $request->filepath : $request->demo_video_source_link;
                 $course->price = $request->price;
                 $course->discount = $request->discount;
                 $course->description = $request->description;
                 $course->instructor_id = Auth::guard('web')->user()->id;
                 $course->save();
-                // save course id on session
-                Session::put('course_create_id', $course->id);
+
+                Session::put('course_create_id', $course->id); // Update session with current course ID
 
                 return response()->json([
                     'status' => 'success',
@@ -172,25 +187,33 @@ class CourseController extends Controller
                     'redirect' => route('instructor.courses.edit', ['id' => $course->id, 'step' => $request->next_step])
                 ]);
             case '3':
-            // return response()->json([
-            //     'status' => 'success',
-            //     'message' => 'Updated successfully',
-            //     'redirect' => route('instructor.courses.edit_basic_info', ['id' => $request->course_id, 'step' => $request->next_step])
-            // ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Updated successfully',
+                    'redirect' => route('instructor.courses.edit', ['id' => $request->course_id, 'step' => $request->next_step])
+                ]);
             case '4':
-            // $request->validate([
-            //     'message_for_reviewer' => 'nullable|max:1000|string',
-            //     'status' => 'required|in:active,inactive,draft'
-            // ]);
-            // $course = Course::findOrFail($request->course_id);
-            // $course->message_for_reviewer = $request->message_for_reviewer;
-            // $course->status = $request->status;
-            // $course->save();
-            // return response()->json([
-            //     'status' => 'success',
-            //     'message' => 'Updated successfully',
-            //     'redirect' => route('instructor.courses.index')
-            // ]);
+                $request->validate([
+                    'message_for_reviewer' => 'nullable|max:1000|string',
+                    'status' => 'required|in:active,inactive,draft'
+                ]);
+                $course = Course::findOrFail($request->course_id);
+                $course->message_for_reviewer = $request->message_for_reviewer;
+                $course->status = $request->status;
+                $course->save();
+                if ($request->submit_for_review_check == 1) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Updated successfully',
+                        'redirect' => route('instructor.courses.index')
+                    ]);
+                } else if ($request->submit_for_review_check == 0) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Updated successfully',
+                        'redirect' => route('instructor.courses.edit', ['id' => $course->id, 'step' => $request->next_step])
+                    ]);
+                }
             default:
                 return response()->json([
                     'status' => 'error',

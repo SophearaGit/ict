@@ -51,30 +51,33 @@
                         <small>Select your video type for upload.</small>
                     </div>
 
-                    {{-- demo_video_source input file --}}
-                    <div class="mb-3  upload_source">
+                    <div class="mb-3 upload_source d-none">
                         <label for="demo_video_source_upload" class="form-label">Demo Video Source</label>
-                        <input class="form-control" type="file" id="demo_video_source_upload"
-                            name="demo_video_source_upload">
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <a id="lfm" data-input="thumbnail_lfm" data-preview="holder" class="btn btn-primary">
+                                    <i class="fa fa-picture-o"></i> Choose
+                                </a>
+                            </span>
+                            <input id="thumbnail_lfm" class="form-control inps_path" type="text" name="filepath">
+                        </div>
                         <small>Upload a demo video that represents your course.</small>
                     </div>
 
-                    {{-- demo_video_source input text --}}
-                    <div class="mb-3 d-none link_source">
+                    <div class="mb-3 link_source d-none">
                         <label for="demo_video_source_link" class="form-label">Demo Video Source</label>
-                        <input class="form-control" type="text" id="demo_video_source_link" name="demo_video_source_link"
-                            placeholder="Please provide link here.">
+                        <input class="form-control inps_path" type="text" id="demo_video_source_link"
+                            name="demo_video_source_link" placeholder="Please provide link here.">
                         <small>Enter a valid video URL. Students who watch a well-made promo video are 5X more likely to
                             enroll in your course.</small>
                     </div>
 
-                    {{-- price --}}
                     <div class="mb-3">
                         <label for="price" class="form-label">Price <span class="text-danger">*</span></label>
                         <input class="form-control" type="number" id="price" name="price" placeholder="e.g. 9.99">
                         <small>Set a price for your course. You can always change it later.</small>
                     </div>
-                    {{-- discount as percentage --}}
+
                     <div class="mb-3">
                         <label for="discount" class="form-label">Discount (%)</label>
                         <input class="form-control" type="number" id="discount" name="discount" placeholder="e.g. 10">

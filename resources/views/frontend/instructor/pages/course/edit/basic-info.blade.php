@@ -50,17 +50,25 @@
                         <small>Select your video type for upload.</small>
                     </div>
 
-                    <div class="mb-3 upload_source   {{ $course->demo_video_source == 'upload' ? '' : 'd-none' }}">
+                    <div class="mb-3 upload_source {{ $course?->demo_video_storage == 'upload' ? '' : 'd-none' }}">
                         <label for="demo_video_source_upload" class="form-label">Demo Video Source</label>
-                        <input class="form-control" type="file" id="demo_video_source_upload"
-                            name="demo_video_source_upload" value="{{ $course?->demo_video_source }}">
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <a id="lfm" data-input="thumbnail_lfm" data-preview="holder" class="btn btn-primary">
+                                    <i class="fa fa-picture-o"></i> Choose
+                                </a>
+                            </span>
+                            <input id="thumbnail_lfm" class="form-control inps_path" type="text" name="filepath"
+                                value="{{ $course?->demo_video_source }}">
+                        </div>
                         <small>Upload a demo video that represents your course.</small>
                     </div>
 
-                    <div class="mb-3 link_source {{ $course->demo_video_source != 'upload' ? '' : 'd-none' }}">
+                    <div class="mb-3 link_source {{ $course?->demo_video_storage == 'upload' ? 'd-none' : '' }}">
                         <label for="demo_video_source_link" class="form-label">Demo Video Source</label>
-                        <input class="form-control" type="text" id="demo_video_source_link" name="demo_video_source_link"
-                            placeholder="Please provide link here." value="{{ $course?->demo_video_source }}">
+                        <input class="form-control inps_path" type="text" id="demo_video_source_link"
+                            name="demo_video_source_link" placeholder="Please provide link here."
+                            value="{{ $course?->demo_video_source }}">
                         <small>Enter a valid video URL. Students who watch a well-made promo video are 5X more likely to
                             enroll in your course.</small>
                     </div>
@@ -96,20 +104,31 @@
 @endsection
 @push('scripts')
     <script>
-        const update_course_basic_info_url = base_url + '/instructor/courses/update';
+        $('.storage').on('change', function() {
+            let storage_val = $(this).val();
+            $('.inps_path').val('');
+            if (storage_val == 'upload') {
+                $('.upload_source').removeClass('d-none');
+                $('.link_source').addClass('d-none');
+            } else if (storage_val == 'youtube') {
+                $('.upload_source').addClass('d-none');
+                $('.link_source').removeClass('d-none');
+            } else {
+                $('.upload_source').addClass('d-none');
+                $('.link_source').addClass('d-none');
+            }
+        });
 
         $('.update_basic_info_form').on('submit', function(e) {
             e.preventDefault();
             let formData = new FormData(this);
             $.ajax({
                 method: 'POST',
-                url: update_course_basic_info_url,
+                url: base_url + '/instructor/courses/update',
                 data: formData,
                 processData: false,
                 contentType: false,
-                beforeSend: function() {
-
-                },
+                beforeSend: function() {},
                 success: function(data) {
                     if (data.status == 'success') {
                         iziToast.success({
@@ -132,28 +151,8 @@
                         });
                     });
                 },
-                complete: function() {
-
-                }
+                complete: function() {}
             });
-
-
-        });
-
-
-        $('.storage').on('change', function() {
-            let storage_val = $(this).val();
-            $('.inps_path').val('');
-            if (storage_val == 'upload') {
-                $('.upload_source').removeClass('d-none');
-                $('.link_source').addClass('d-none');
-            } else if (storage_val == 'youtube') {
-                $('.upload_source').addClass('d-none');
-                $('.link_source').removeClass('d-none');
-            } else {
-                $('.upload_source').addClass('d-none');
-                $('.link_source').addClass('d-none');
-            }
         });
     </script>
 @endpush
