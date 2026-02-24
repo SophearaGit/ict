@@ -11,14 +11,15 @@ class Course extends Model
     /** @use HasFactory<\Database\Factories\CourseFactory> */
     use HasFactory;
 
+    public function instructor(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'instructor_id');
+    }
+
     public function level(): HasOne
     {
         return $this->hasOne(CourseLevel::class, 'id', 'course_level_id');
     }
-
-
-
-
 
 
 }

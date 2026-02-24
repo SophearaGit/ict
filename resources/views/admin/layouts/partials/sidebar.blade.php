@@ -60,11 +60,16 @@
                 <div id="navCourseManagement"
                     class="collapse {{ Route::is('admin.course-language.index') ||
                     Route::is('admin.course-level.index') ||
-                    Route::is('admin.course-category.index')
+                    Route::is('admin.course-category.index') ||
+                    Route::is('admin.courses.index')
                         ? 'show'
                         : '' }} "
                     data-bs-parent="#sideNavbar">
                     <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::is('admin.courses.index') ? 'active' : '' }} "
+                                href="{{ route('admin.courses.index') }}">Course</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Route::is('admin.course-language.index') ? 'active' : '' }} "
                                 href="{{ route('admin.course-language.index') }}">Course Language</a>

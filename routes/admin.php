@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\CourseLevelController;
 use App\Http\Controllers\Admin\InstructorRequestController;
 use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\CourseController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::group(["middleware" => "guest:admin", "prefix" => "admin", "as" => "admin."], function () {
@@ -74,10 +76,26 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
     Route::resource('course-level', CourseLevelController::class);
     Route::resource('course-category', CourseCategoryController::class);
 
+    /**
+     * ————————————————————————————————————————————————————————————————————————————————
+     * COURSE ROUTE START
+     * ————————————————————————————————————————————————————————————————————————————————
+     */
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 
 
 
 
+
+
+    /**
+     * ————————————————————————————————————————————————————————————————————————————————
+     * ADMIN PROFILE ROUTES
+     * ————————————————————————————————————————————————————————————————————————————————
+     */
+    Route::get('/profile', [ProfileUpdateController::class, 'profile'])->name('profile.index');
+    Route::post('/profile', [ProfileUpdateController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [ProfileUpdateController::class, 'updatePassword'])->name('profile.password.update');
 
 });
 

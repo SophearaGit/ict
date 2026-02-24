@@ -2,6 +2,7 @@
     $isLanguage = Route::is('admin.course-language.*');
     $isLevel = Route::is('admin.course-level.*');
     $isCategory = Route::is('admin.course-category.*');
+    $isCourses = Route::is('admin.courses.*');
 
     if ($isLanguage) {
         $pageTitle = 'Course Language';
@@ -24,6 +25,10 @@
             'target' => '#newCategory',
         ];
         $indexRoute = route('admin.course-category.index');
+    } elseif ($isCourses) {
+        $pageTitle = 'Courses';
+        $pageButton = null;
+        $indexRoute = route('admin.courses.index');
     } else {
         $pageTitle = '';
         $pageButton = null;
@@ -38,14 +43,12 @@
                 <h1 class="mb-1 h2 fw-bold">
                     {{ $pageTitle }}
                 </h1>
-
                 <!-- Breadcrumb -->
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="{{ route('admin.dashboard') }}">Dashboard</a>
                         </li>
-
                         @if ($indexRoute)
                             <li class="breadcrumb-item active">
                                 <a href="{{ $indexRoute }}">
@@ -53,14 +56,12 @@
                                 </a>
                             </li>
                         @endif
-
                         <li class="breadcrumb-item active" aria-current="page">
                             {{ $pageTitle }}
                         </li>
                     </ol>
                 </nav>
             </div>
-
             <div>
                 @if ($pageButton)
                     <a href="#" class="btn btn-primary" data-bs-toggle="modal"

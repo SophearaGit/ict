@@ -88,32 +88,38 @@
             <div class="position-relative z-index-5">
                 <div class="row">
                     <div class="col-xl-7 col-xxl-8">
-                        {{-- <a href="./index.html" class="text-nowrap logo-img d-block px-4 py-9 w-100">
-                            <img src="/admin/assets/dist/images/logos/dark-logo.svg" width="180" alt="">
-                        </a> --}}
+                        <a href="./index.html" class="text-nowrap logo-img d-block px-4 py-9 w-100">
+                            {{-- <img src="/admin/assets/dist/images/logos/dark-logo.svg" width="180" alt=""> --}}
+                        </a>
                         <div class="d-none d-xl-flex align-items-center justify-content-center"
                             style="height: calc(100vh - 80px);">
-                            <img src="/admin/assets/dist/images/backgrounds/login-security.svg" alt=""
-                                class="img-fluid" width="500">
+                            <img src="{{ asset('/admin/assets/dist/images/admin/nhanh_nhim.jpg') }}" alt=""
+                                class="img-fluid rounded-circle" width="580" />
                         </div>
                     </div>
                     <div class="col-xl-5 col-xxl-4">
                         <div
                             class="authentication-login min-vh-100 bg-body row justify-content-center align-items-center p-4">
                             <div class="col-sm-8 col-md-6 col-xl-9">
-                                <h2 class="mb-3 fs-7 fw-bolder">Welcome to ICT Administrator</h2>
-                                <p class=" mb-9">Your Admin Dashboard</p>
+                                <h2 class="mb-3 fs-7 fw-bolder text-dark text-capitalize">
+                                    Welcome to ICT Administration
+                                </h2>
+                                <p class=" mb-9">
+                                    Please provide your credential below.
+                                </p>
                                 <form method="POST" action="{{ route('admin.login.store') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Email*</label>
+                                        <label for="email" class="form-label">Email <span
+                                                class="text-danger">*</span></label>
                                         <input type="email" id="email" type="email" name="email"
                                             class="form-control" value="{{ old('email') }}" required
                                             aria-describedby="emailHelp" placeholder="Please enter your email">
                                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
                                     </div>
                                     <div class="mb-4">
-                                        <label for="passwrod" class="form-label">Password*</label>
+                                        <label for="passwrod" class="form-label">Password <span
+                                                class="text-danger">*</span></label>
                                         <input type="password" class="form-control" id="password" name="password"
                                             required autocomplete="current-password"
                                             placeholder="Please enter your password">

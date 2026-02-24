@@ -90,7 +90,7 @@
                                                                 </span>
                                                             </li>
                                                             @php
-                                                                $level = $course->level->name;
+                                                                $level = $course->level->name ?? 'N/A';
                                                             @endphp
 
                                                             <li class="list-inline-item">
