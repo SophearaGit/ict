@@ -19,6 +19,18 @@
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    {{-- jQueryUI --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"
+        integrity="sha512-MSOo1aY+3pXCOCdGAYoBZ6YGI0aragoQsg1mKKBHXCYPIWxamwOE7Drh+N5CPgGI5SA9IEKJiPjdfqWFWmZtRA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/themes/base/jquery-ui.min.css"
+        integrity="sha512-TFee0335YRJoyiqz8hA8KV3P0tXa5CpRBSoM0Wnkn7JoJx1kaq1yXL/rb8YFpWXkMOjRcv5txv+C6UluttluCQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    {{-- sweetAlert --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.19/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.19/dist/sweetalert2.min.css"rel="stylesheet">
+
     {{-- iziToast --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"
         integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag=="
@@ -26,6 +38,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"
         integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    {{-- lfm --}}
+    <script src="/vendor/laravel-filemanager/js/stand-alone-button.js"></script>
 
     {{-- base_url --}}
     <script>
@@ -69,8 +84,12 @@
                         <div class="d-lg-flex align-items-center justify-content-between">
                             <!-- Content -->
                             <div class="mb-4 mb-lg-0">
-                                <h1 class="text-white mb-1">Add New Course</h1>
-                                <p class="mb-0 text-white lead">Just fill the form and create your courses.</p>
+                                <h1 class="text-white mb-1">
+                                    {{ isset($breadcrumb_title) ? $breadcrumb_title : 'Breadcrumb Title' }}
+                                </h1>
+                                <p class="mb-0 text-white lead">
+                                    {{ isset($breadcrumb_sub_title) ? $breadcrumb_sub_title : 'Page description goes here' }}
+                                </p>
                             </div>
                             <div>
                                 <a href="{{ route('instructor.courses.index') }}" class="btn btn-white">Back to
@@ -138,62 +157,6 @@
         </svg>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="addSectionModal" tabindex="-1" role="dialog" aria-labelledby="addSectionModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addSectionModalLabel">Add New Section</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input class="form-control mb-3" type="text" placeholder="Add new section ">
-                    <button class="btn btn-primary" type="Button">Add New Section</button>
-                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal"
-                        aria-label="Close">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal -->
-
-    <!-- Modal -->
-    <div class="modal fade" id="addLectureModal" tabindex="-1" role="dialog"
-        aria-labelledby="addLectureModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addLectureModalLabel">Add New Lecture</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input class="form-control mb-3" type="text" placeholder="Add new lecture ">
-                    <button class="btn btn-primary" type="Button">Add New Lecture</button>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="addSectionModal" tabindex="-1" role="dialog"
-        aria-labelledby="addSectionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addSectionModalLabel">Add New Section</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input class="form-control mb-3" type="text" placeholder="Add new section ">
-                    <button class="btn btn-primary" type="Button">Add New Section</button>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Scripts -->
 
     <script src="/frontend/assets/libs/file-upload-with-preview/dist/file-upload-with-preview.iife.js"></script>
@@ -221,9 +184,12 @@
     <script src="/frontend/assets/libs/glightbox/dist/js/glightbox.min.js"></script>
     <script src="/frontend/assets/js/vendors/glight.js"></script>
 
+
     @stack('scripts')
 
     <script>
+        $('#lfm').filemanager('file');
+
         // working on step tab trigger
         $('.step-trigger').on('click', function(e) {
             e.preventDefault();
@@ -231,12 +197,13 @@
             $('.course_form').find('input[name="next_step"]').val(step);
             $('.course_form').trigger('submit');
         });
+
         //  working on previous button
         $('.previous_btn').on('click', function(e) {
             e.preventDefault();
-            let previous_step = $(this).closest('form').find('input[name="current_step"]').val() - 1;
-            $(this).closest('form').find('input[name="next_step"]').val(previous_step);
-            $(this).closest('form').trigger('submit');
+            let step = $(this).data('step') - 1;
+            $('.course_form').find('input[name="next_step"]').val(step);
+            $('.course_form').trigger('submit');
         });
     </script>
 

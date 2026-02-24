@@ -66,7 +66,7 @@
                     </div>
                     {{-- languages --}}
                     <div class="mb-3">
-                        <label for="language" class="form-label">Language</label>
+                        <label for="language" class="form-label">Language <span class="text-danger">*</span></label>
                         <select class="form-select" id="language" name="language">
                             <option value="">Select language</option>
                             @foreach ($languages as $language)
@@ -78,7 +78,7 @@
                     </div>
                     {{-- levels loop --}}
                     <div class="mb-3">
-                        <label for="level" class="form-label">Level</label>
+                        <label for="level" class="form-label">Level <span class="text-danger">*</span></label>
                         <select class="form-select" id="level" name="level">
                             <option value="">Select level</option>
                             @foreach ($levels as $level)
@@ -93,23 +93,21 @@
             </div>
             <!-- Button -->
             <div class="d-flex justify-content-between">
-                <button class="btn btn-secondary previous_btn">Previous</button>
+                <button class="btn btn-secondary previous_btn" data-step="{{ request()->step }}">Previous</button>
                 <button type="submit" class="btn btn-primary">Next</button>
             </div>
         </div>
     </form>
-
 @endsection
 @push('scripts')
     <script>
-        const store_course_more_info_url = base_url + '/instructor/courses/update';
 
         $('.more_info_form').on('submit', function(e) {
             e.preventDefault();
             let formData = new FormData(this);
             $.ajax({
                 method: 'POST',
-                url: store_course_more_info_url,
+                url: base_url + '/instructor/courses/update',
                 data: formData,
                 processData: false,
                 contentType: false,
