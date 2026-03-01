@@ -210,6 +210,20 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => 'Channy',
+                'email' => 'staff@gmail.com',
+                'image' => 'no-img.jpg',
+                'email_verified_at' => now(),
+                'password' => bcrypt('12345678'),
+                'role' => 'staff',
+                'approval_status' => 'approved',
+                'document' => 'document.jpg',
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
         ];
         User::insert($user);
     }

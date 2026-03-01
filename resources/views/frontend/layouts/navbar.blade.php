@@ -7,7 +7,8 @@
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid px-0">
         <div class="d-flex">
-            <a class="navbar-brand" href="{{ route('home') }}"><img src="" alt="ICT-LOGO" /></a>
+            <a class="navbar-brand" href="{{ route('home') }}"><img style="width: 35px; height: 35px;"
+                    src="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" alt="ICT-LOGO" /></a>
             <div class="dropdown d-none d-md-block">
                 <button class="btn btn-light-primary text-primary" type="button" id="dropdownMenuButton1"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -383,6 +384,19 @@
                                         </li>
                                         <li>
                                             <a class="dropdown-item" href="{{ route('instructor.profile.edit') }}">
+                                                <i class="fe fe-user me-2"></i>
+                                                Profile
+                                            </a>
+                                        </li>
+                                    @elseif (Auth::user()->role == 'staff')
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('staff.dashboard') }}">
+                                                <i class="fe fe-home me-2"></i>
+                                                Dashboard
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
                                                 <i class="fe fe-user me-2"></i>
                                                 Profile
                                             </a>

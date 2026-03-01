@@ -73,7 +73,8 @@ class RegisteredUserController extends Controller
             return redirect()->intended(route('student.dashboard', false))
                 ->with('success', 'Registration successful! Welcome to the student dashboard, ' . $request->user()->name . '.');
         } elseif ($request->user()->role == 'instructor') {
-            return redirect()->intended(route('instructor.dashboard', false));
+            return redirect()->intended(route('instructor.dashboard', false))
+                ->with('success', 'Registration successful! Your instructor application is pending review. We will notify you once it has been approved, ' . $request->user()->name . '.');
         }
 
         return redirect()->intended(route('dashboard', false));

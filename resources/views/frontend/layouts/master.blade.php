@@ -11,7 +11,7 @@
     <meta name="author" content="Codescandy" />
 
     <!-- Favicon icon-->
-    <link rel="shortcut icon" type="image/x-icon" href="" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
 
     {{-- iziToast --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"

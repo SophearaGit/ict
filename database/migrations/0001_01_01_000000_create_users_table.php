@@ -14,13 +14,14 @@ return new class extends Migration {
             $table->id();
             $table->string('image')->default('no-img.jpg');
             $table->string('name');
+            $table->string('khmer_name')->default('');
             $table->string('email')->unique();
             $table->text(column: 'bio')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('document')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['instructor', 'student'])->default('student');
+            $table->enum('role', ['instructor', 'student', 'staff'])->default('student');
             $table->string(column: 'headline')->nullable();
             $table->string(column: 'facebook')->nullable();
             $table->string(column: 'x')->nullable();
@@ -31,6 +32,7 @@ return new class extends Migration {
             $table->string(column: 'youtube')->nullable();
             $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->enum('login_as', ['student', 'instructor'])->nullable();
+            $table->foreignId('registered_by_staff_id')->nullable()->constrained('users')->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
+use App\Http\Controllers\Admin\StaffController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(["middleware" => "guest:admin", "prefix" => "admin", "as" => "admin."], function () {
@@ -66,33 +67,32 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
     Route::get('instructor-doc-download/{user}', [InstructorRequestController::class, 'download'])->name('instructor-doc-download');
     Route::resource('instructor-request', InstructorRequestController::class);
 
-    Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
-    Route::get('/student', [StudentController::class, 'index'])->name('student.index');
 
     /*******************************************************
-     * COURSE LANGUAGES, LEVELS ROUTES START
+     * INSTRUCTOR & STUDENT & STAFF
+     *******************************************************/
+    Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
+    Route::get('/student', [StudentController::class, 'index'])->name('student.index');
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+
+
+    /*******************************************************
+     * LANGUAGE, LEVEL, CATEGORY
      *******************************************************/
     Route::resource('course-language', CourseLanguageController::class);
     Route::resource('course-level', CourseLevelController::class);
     Route::resource('course-category', CourseCategoryController::class);
 
-    /**
-     * ————————————————————————————————————————————————————————————————————————————————
-     * COURSE ROUTE START
-     * ————————————————————————————————————————————————————————————————————————————————
-     */
+
+    /*******************************************************
+     *  COURSE
+     *******************************************************/
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 
 
-
-
-
-
-    /**
-     * ————————————————————————————————————————————————————————————————————————————————
-     * ADMIN PROFILE ROUTES
-     * ————————————————————————————————————————————————————————————————————————————————
-     */
+    /*******************************************************
+     *  PROFILE
+     *******************************************************/
     Route::get('/profile', [ProfileUpdateController::class, 'profile'])->name('profile.index');
     Route::post('/profile', [ProfileUpdateController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [ProfileUpdateController::class, 'updatePassword'])->name('profile.password.update');
