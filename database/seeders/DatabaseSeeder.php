@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CourseLanguageSeeder::class,
             CourseLevelSeeder::class,
             CourseCategorySeeder::class,
+            ICTScheduleSeeder::class,
         ]);
     }
 }

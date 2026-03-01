@@ -1,48 +1,38 @@
-<section class="py-lg-8 py-5">
+<section class="py-lg-4 py-5">
     <!-- container -->
     <div class="container my-lg-8">
         <!-- row -->
         <div class="row align-items-center">
             <!-- col -->
-            <div class="col-lg-6 mb-6 mb-lg-0">
-                <div>
-                    <!-- heading -->
-                    <h5 class="text-dark mb-4">
-                        <i class="fe fe-check icon-xxs icon-shape bg-light-success text-success rounded-circle me-2"></i>
-                        Most trusted education platform
-                    </h5>
-                    <!-- heading -->
-                    <h1 class="display-3 fw-bold mb-3">Grow your skills and advance career</h1>
-                    <!-- para -->
-                    <p class="pe-lg-10 mb-5">
-                        Start, switch, or advance your career with more than 5,000 courses, Professional
-                        Certificates, and degrees from world-class universities and companies.
-                    </p>
-                    <!-- btn -->
-                    <a href="#" class="btn btn-primary">Join Free Now</a>
-                    <a href="https://www.youtube.com/watch?v=Nfzi7034Kbg" class="glightbox fs-4 text-inherit ms-3">
-                        <img src="/frontend/assets/images/svg/play-btn.svg" alt="play" class="me-2" />
-                        Watch Demo
-                    </a>
-                </div>
-            </div>
-            <!-- col -->
-            <div class="col-lg-6 d-flex justify-content-center">
-                <!-- images -->
-                <div class="position-relative">
-                    <img src="/frontend/assets/images/background/acedamy-img/bg-thumb.svg" alt="img" />
-                    <img src="/frontend/assets/images/background/acedamy-img/girl-image.png" alt="girl"
-                        class="w-100 w-md-auto position-absolute end-0 bottom-0" />
-                    <img src="/frontend/assets/images/background/acedamy-img/frame-1.svg" alt="frame"
-                        class="position-absolute top-0 ms-n8 d-none d-md-inline-block" />
-                    <img src="/frontend/assets/images/background/acedamy-img/frame-2.svg" alt="frame"
-                        class="position-absolute bottom-0 start-0 ms-lg-n8 ms-n6 mb-n7 d-none d-md-inline-block" />
-                    <img src="/frontend/assets/images/background/acedamy-img/target.svg" alt="target"
-                        class="position-absolute bottom-0 mb-8 ms-n8 ms-lg-n1 d-none d-md-inline-block" />
-                    <img src="/frontend/assets/images/background/acedamy-img/sound.svg" alt="sound"
-                        class="position-absolute top-50 mt-n8 ms-n8 d-none d-md-inline-block" style="left: -100px" />
-                    <img src="/frontend/assets/images/background/acedamy-img/trophy.svg" alt="trophy"
-                        class="position-absolute top-0 start-0 ms-n8 d-none d-md-inline-block" />
+            <div class="col-lg-12 mb-6 mb-lg-0">
+                <div class="rounded-4 overflow-hidden shadow-sm">
+                    <!-- Crossfade -->
+                    <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{{ asset('/frontend/assets/images/banner/banner1.png') }}"
+                                    class="d-block w-100 " alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{{ asset('/frontend/assets/images/banner/banner2.jpg') }}"
+                                    class="d-block w-100 " alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{{ asset('/frontend/assets/images/banner/banner3.jpg') }}"
+                                    class="d-block w-100 " alt="...">
+                            </div>
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselExampleFade" role="button"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExampleFade" role="button"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

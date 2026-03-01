@@ -30,7 +30,9 @@
                     User
                 </a>
                 <div id="navProfile"
-                    class="collapse {{ Route::is('admin.instructor.index') || Route::is('admin.student.index') ? 'show' : '' }} "
+                    class="collapse {{ Route::is('admin.instructor.index') || Route::is('admin.student.index') || Route::is('admin.staff.index')
+                        ? 'show'
+                        : '' }} "
                     data-bs-parent="#sideNavbar">
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -40,6 +42,10 @@
                         <li class="nav-item">
                             <a class="nav-link {{ Route::is('admin.student.index') ? 'active' : '' }}  "
                                 href="{{ route('admin.student.index') }}">Student</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::is('admin.staff.index') ? 'active' : '' }}  "
+                                href="{{ route('admin.staff.index') }}">Staff</a>
                         </li>
                     </ul>
                 </div>

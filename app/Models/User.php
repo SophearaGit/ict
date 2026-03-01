@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -24,7 +25,17 @@ class User extends Authenticatable
         'role',
         'approval_status',
         'document',
+        'registered_by_staff_id',
+        'student_type',
     ];
+
+
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(User::class, 'registered_by_staff_id', 'id')->where('role', 'student');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.
