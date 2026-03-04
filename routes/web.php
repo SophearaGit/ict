@@ -137,7 +137,8 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          *******************************************************/
         Route::get('/invoices', [IctInvoiceController::class, 'invoices'])->name('invoices');
         Route::get('/invoice-detail/{invoice_id}', [IctInvoiceController::class, 'getInvoiceDetail'])->name('invoice.detail');
-
+        Route::get('/invoice-confirm-payment/{invoice_id}', [IctInvoiceController::class, 'confirmPayment'])->name('invoice.confirm.payment');
+        Route::put('/invoice/{invoice_id}/confirm-payment', [IctInvoiceController::class, 'updatePayment'])->name('invoice.confirm-payment');
 
         /*******************************************************
          * STUDENT REGISTRATION
@@ -151,8 +152,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses', [IctCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [IctCourseController::class, 'create'])->name('courses.create');
         Route::post('/courses/create', [IctCourseController::class, 'store'])->name('courses.store');
-        Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])->name('courses.edit');
-        Route::post('/courses/{id}/edit', [IctCourseController::class, 'update'])->name('courses.update');
+        Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])
+            ->name('courses.edit');
+        Route::put('/courses/{id}', [IctCourseController::class, 'update'])
+            ->name('courses.update');
         Route::resource('/schedules', IctScheduleController::class);
 
 

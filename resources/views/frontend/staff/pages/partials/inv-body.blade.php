@@ -64,8 +64,8 @@
                                  <td class="ps-0">
                                      <div class="d-flex align-items-center gap-3">
                                          <div class="flex-shrink-0">
-                                             <img src="{{ asset($invoice->course->thumbnail) }}" class="rounded"
-                                                 alt="p1" width="80">
+                                             <img src="{{ asset($invoice->course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $invoice->course->thumbnail) }}"
+                                                 class="rounded" alt="p1" width="80">
                                          </div>
                                          <div>
                                              <h6 class="mb-1 fw-semibold">
@@ -179,6 +179,12 @@
 
                  {{-- ===== ACTION BUTTONS ===== --}}
                  <div class="text-end no-print">
+                     @if ($invoice->payment_status != 'paid')
+                         <a href="javascript:;" class="btn btn-primary btn_confirm_payment"
+                             data-invoice-id="{{ $invoice->id }}">
+                             <i class="ti ti-check fs-5"></i> Confirm Payment
+                         </a>
+                     @endif
                      <button class="btn btn-secondary print-page" type="button">
                          <i class="ti ti-printer fs-5"></i> Print Invoice
                      </button>
@@ -187,3 +193,44 @@
          </div>
      </div>
  </div>
+
+ <div class="modal fade" id="dynamic_invoice_modal" tabindex="-1" aria-labelledby="bs-example-modal-lg"
+     aria-hidden="true">
+     <div class="modal-dialog modal-xl dynamic_invoice_modal_dialog">
+
+         <!-- /.modal-content -->
+     </div>
+     <!-- /.modal-dialog -->
+ </div>
+
+
+
+ <script>
+     $('.btn_confirm_payment').on('click', function(e) {
+         e.preventDefault();
+         $('#dynamic_invoice_modal').modal('show');
+         let invoice_id = $(this).data('invoice-id');
+
+         $.ajax({
+             method: 'GET',
+             url: base_url + `/staff/invoice-confirm-payment/${invoice_id}`,
+             data: {},
+             beforeSend: function() {
+                 $('.dynamic_invoice_modal_dialog').html(
+                     `<div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    `
+                 );
+             },
+             success: function(data) {
+                 $('.dynamic_invoice_modal_dialog').html(data);
+             },
+             error: function(xhr, status, error) {
+
+             },
+         });
+     })
+ </script>

@@ -49,7 +49,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!--  Favicon -->
-    <link rel="shortcut icon" type="image/png" href="/admin/assets/dist/images/logos/favicon.ico" />
+    <link rel="shortcut icon" type="image/png" href="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
     <!-- Owl Carousel  -->
     <link rel="stylesheet" href="/admin/assets/dist/libs/owl.carousel/dist/assets/owl.carousel.min.css">
     <!-- Core Css -->

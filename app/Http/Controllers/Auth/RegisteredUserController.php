@@ -21,7 +21,10 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $data = [
+            'page_title' => 'ICT | Register',
+        ];
+        return view('auth.register', $data);
     }
 
     /**

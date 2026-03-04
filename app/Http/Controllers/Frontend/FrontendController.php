@@ -10,6 +10,9 @@ class FrontendController extends Controller
 {
     public function index(): View
     {
-        return view('frontend.pages.home.index');
+        $data = [
+            'page_title' => 'ICT | Welcome',
+        ];
+        return view('frontend.pages.home.index', $data);
     }
 }

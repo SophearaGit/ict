@@ -23,9 +23,10 @@
                             <!-- ================= STUDENT TYPE ================= -->
                             <h6 class="fw-semibold text-info mb-3">Student Selection</h6>
 
+                            <div class="row g-3 mb-3 align-items-end">
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <!-- Student Type -->
+                                <div class="col-md-4">
                                     <div class="form-floating">
                                         <select class="form-select" id="studentType" name="student_type">
                                             <option value="new" selected>New Student</option>
@@ -36,10 +37,9 @@
                                         </label>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="row g-3 mb-3 d-none" id="existingStudentWrapper">
-                                <div class="col-md-6">
+                                <!-- Existing Student -->
+                                <div class="col-md-8 d-none" id="existingStudentWrapper">
                                     <div class="form-floating">
                                         <select class="form-select select2" name="student_id" id="studentSelect">
                                             <option value="" disabled selected>Select Existing Student</option>
@@ -51,8 +51,8 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
 
+                            </div>
 
                             <div id="newStudentWrapper">
 
@@ -107,7 +107,6 @@
                                 </div>
                             </div>
 
-
                             <hr class="my-4">
 
                             <!-- ================= COURSE & PAYMENT ================= -->
@@ -119,16 +118,36 @@
                                         <select class="form-select" id="courseSelect" name="course_id">
                                             <option value="" disabled selected>Select a course</option>
                                             @foreach ($courses as $course)
+                                                @php
+                                                    $schedule = $course->schedule;
+
+                                                    if ($schedule) {
+                                                        $days = collect(explode('-', $schedule->study_day))
+                                                            ->map(fn($day) => ucfirst($day))
+                                                            ->implode(' • ');
+
+                                                        $shift = ucfirst($schedule->shift);
+
+                                                        $start = \Carbon\Carbon::parse($schedule->start_time)->format(
+                                                            'g:i',
+                                                        );
+                                                        $end = \Carbon\Carbon::parse($schedule->end_time)->format(
+                                                            'g:i A',
+                                                        );
+
+                                                        $startDate = \Carbon\Carbon::parse(
+                                                            $schedule->start_date,
+                                                        )->format('d M, Y');
+                                                    }
+                                                @endphp
+
                                                 <option value="{{ $course->id }}" data-price="{{ $course->price }}">
                                                     ${{ $course->price }} |
                                                     {{ $course->title }} |
-                                                    {{ $course->schedule->study_day }} |
-                                                    {{ $course->schedule->shift }} |
-                                                    {{ \Carbon\Carbon::parse($course->schedule->start_time)->format('h:i A') }}
-                                                    -
-                                                    {{ \Carbon\Carbon::parse($course->schedule->end_time)->format('h:i A') }}
-                                                    |
-                                                    {{ \Carbon\Carbon::parse($course->schedule->start_date)->format('d M, Y') }}
+                                                    {{ $days ?? 'No Schedule' }} |
+                                                    {{ $shift ?? '' }}
+                                                    ({{ $start ?? '' }} – {{ $end ?? '' }})
+                                                    {{-- {{ $startDate ?? '' }} --}}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -225,7 +244,9 @@
         $(document).ready(function() {
 
             $('#courseSelect').select2();
-            $('#studentSelect').select2();
+            $('#studentSelect').select2({
+                width: '100%',
+            });
 
             // Toggle Student Type
             $('#studentType').on('change', function() {

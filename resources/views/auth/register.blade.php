@@ -52,6 +52,7 @@
 </x-guest-layout> --}}
 
 @extends('auth.layouts.master')
+@section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
     <section class="container d-flex flex-column vh-100">
         <div class="row align-items-center justify-content-center g-0 h-lg-100 py-8">
@@ -83,13 +84,14 @@
                                 <div class="card shadow">
                                     <!-- Card body -->
                                     <div class="card-body p-6">
-                                        <div class="mb-4">
-                                            <a href="{{ route('home') }}"><img src="" class="mb-4"
-                                                    alt="ict-logo"></a>
-                                            <h1 class="mb-1 fw-bold">Sign up</h1>
+                                        <div class="mb-4 text-center">
+                                            <a href="{{ route('home') }}"><img style="width: 100px; height: 100px;"
+                                                    src=" {{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }} "
+                                                    class="mb-4" alt="ict-logo-icon"></a>
+                                            <h1 class="mb-1 fw-bold">Register (Student)</h1>
                                             <span>
                                                 Already have an account?
-                                                <a href="{{ route('login') }}" class="ms-1">Sign in</a>
+                                                <a href="{{ route('login') }}" class="ms-1">Login</a>
                                             </span>
                                         </div>
                                         <!-- Student Form -->
@@ -97,7 +99,8 @@
                                             @csrf
                                             <!-- Username -->
                                             <div class="mb-3">
-                                                <label for="name" class="form-label">Name</label>
+                                                <label for="name" class="form-label">Name <span
+                                                        class="text-danger">*</span></label>
                                                 <input value="{{ old('name') }}" type="text" id="name"
                                                     class="form-control" name="name" placeholder="Name here"
                                                     autocomplete="name" required autofocus>
@@ -105,14 +108,16 @@
                                             </div>
                                             <!-- Email -->
                                             <div class="mb-3">
-                                                <label for="email" class="form-label">Email</label>
+                                                <label for="email" class="form-label">Email <span
+                                                        class="text-danger">*</span></label>
                                                 <input type="email" id="email" class="form-control" name="email"
                                                     placeholder="Email address here" value="{{ old('email') }}" required>
                                                 <x-input-error :messages="$errors->get('email')" class="text-danger mt-2" />
                                             </div>
                                             <!-- Password -->
                                             <div class="mb-3">
-                                                <label for="password" class="form-label">Password</label>
+                                                <label for="password" class="form-label">Password <span
+                                                        class="text-danger">*</span></label>
                                                 <input type="password" id="password" class="form-control" name="password"
                                                     placeholder="Password here" autocomplete="new-password" required>
                                                 <x-input-error :messages="$errors->get('password')" class="text-danger mt-2" />
@@ -120,7 +125,7 @@
                                             <!-- Confirm Password -->
                                             <div class="mb-6">
                                                 <label for="password_confirmation" class="form-label">Confirm
-                                                    Password</label>
+                                                    Password <span class="text-danger">*</span></label>
                                                 <input type="password" id="password_confirmation" class="form-control"
                                                     name="password_confirmation" placeholder="Password confirmation here"
                                                     autocomplete="new-password" required>
@@ -143,13 +148,16 @@
                                 <div class="card shadow">
                                     <!-- Card body -->
                                     <div class="card-body p-6">
-                                        <div class="mb-4">
-                                            <a href="{{ route('home') }}"><img src="" class="mb-4"
-                                                    alt="ict-logo"></a>
-                                            <h1 class="mb-1 fw-bold">Sign up</h1>
+                                        <div class="mb-4 text-center">
+                                            <a href="{{ route('home') }}"><img style="width: 100px; height: 100px;"
+                                                    src=" {{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }} "
+                                                    class="mb-4" alt="ict-logo-icon"></a>
+                                            <h1 class="mb-1 fw-bold">
+                                                Register (Teacher)
+                                            </h1>
                                             <span>
                                                 Already have an account?
-                                                <a href="{{ route('login') }}" class="ms-1">Sign in</a>
+                                                <a href="{{ route('login') }}" class="ms-1">Login</a>
                                             </span>
                                         </div>
                                         <!-- Teacher Form -->
@@ -158,7 +166,8 @@
                                             @csrf
                                             <!-- Username -->
                                             <div class="mb-3">
-                                                <label for="name" class="form-label">Name</label>
+                                                <label for="name" class="form-label">Name <span
+                                                        class="text-danger">*</span></label>
                                                 <input value="{{ old('name') }}" type="text" id="name"
                                                     class="form-control" name="name" placeholder="Name here"
                                                     autocomplete="name" required autofocus>
@@ -166,22 +175,25 @@
                                             </div>
                                             <!-- Email -->
                                             <div class="mb-3">
-                                                <label for="email" class="form-label">Email</label>
+                                                <label for="email" class="form-label">Email <span
+                                                        class="text-danger">*</span></label>
                                                 <input type="email" id="email" class="form-control" name="email"
-                                                    placeholder="Email address here" value="{{ old('email') }}" required>
+                                                    placeholder="Email address here" value="{{ old('email') }}"
+                                                    required>
                                                 <x-input-error :messages="$errors->get('email')" class="text-danger mt-2" />
                                             </div>
                                             {{-- Document --}}
                                             <div class="mb-3">
-                                                <label for="document" class="form-label text-capitalize">curriculum
-                                                    vitae</label>
+                                                <label for="document" class="form-label text-capitalize">Resume
+                                                    <span class="text-danger">*</span></label>
                                                 <input type="file" id="document" class="form-control"
                                                     name="document" placeholder="Upload your document here" required>
                                                 <x-input-error :messages="$errors->get('document')" class="text-danger mt-2" />
                                             </div>
                                             <!-- Password -->
                                             <div class="mb-3">
-                                                <label for="password" class="form-label">Password</label>
+                                                <label for="password" class="form-label">Password <span
+                                                        class="text-danger">*</span></label>
                                                 <input type="password" id="password" class="form-control"
                                                     name="password" placeholder="Password here"
                                                     autocomplete="new-password" required>
@@ -190,7 +202,7 @@
                                             <!-- Confirm Password -->
                                             <div class="mb-6">
                                                 <label for="password_confirmation" class="form-label">Confirm
-                                                    Password</label>
+                                                    Password <span class="text-danger">*</span></label>
                                                 <input type="password" id="password_confirmation" class="form-control"
                                                     name="password_confirmation" placeholder="Password confirmation here"
                                                     autocomplete="new-password" required>

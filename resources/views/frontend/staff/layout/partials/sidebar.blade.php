@@ -2,9 +2,12 @@
     <!-- Sidebar scroll-->
     <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-            <a href="./index.html" class="text-nowrap logo-img">
-                <img src="" class="dark-logo" width="180" alt="ict_dark_logo" />
-                <img src="" class="light-logo" width="180" alt="ict_light_logo" />
+            <a href="{{ route('home') }}" class="text-nowrap logo-img">
+                <img src="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" class="dark-logo" width="38"
+                    height="38" alt="ict_dark_logo" />
+                <img src="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" class="light-logo" width="38"
+                    height="38" alt="ict_light_logo" />
+                {{-- <img src="" class="light-logo" width="180" alt="ict_light_logo" /> --}}
             </a>
             <div class="close-btn d-lg-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                 <i class="ti ti-x fs-8 text-muted"></i>

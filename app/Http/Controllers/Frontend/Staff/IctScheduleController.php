@@ -19,7 +19,7 @@ class IctScheduleController extends Controller
     {
         $perPage = request('per_page', 10);
         $data = [
-            'page_title' => 'ICT Center | Schedules',
+            'page_title' => 'ICT | Staff | Schedules',
             // 'schedules' => ICTSchedule::latest()->paginate(10),
             'schedules' => ICTSchedule::orderBy('study_day')
                 ->orderBy('start_time')
@@ -35,7 +35,7 @@ class IctScheduleController extends Controller
     public function create(): View
     {
         $data = [
-            'page_title' => 'ICT Center | Create Schedule',
+            'page_title' => 'ICT | Staff | Create Schedule',
         ];
         return view('frontend.staff.pages.course-management.schedule-managment.create', $data);
     }
@@ -72,7 +72,7 @@ class IctScheduleController extends Controller
     {
         $schedule = ICTSchedule::findOrFail($id);
         $data = [
-            'page_title' => 'ICT Center | Edit Schedule',
+            'page_title' => 'ICT | Staff | Edit Schedule',
             'schedule' => $schedule,
         ];
         return view('frontend.staff.pages.course-management.schedule-managment.edit', $data);

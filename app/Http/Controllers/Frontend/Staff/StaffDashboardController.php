@@ -13,7 +13,7 @@ class StaffDashboardController extends Controller
     public function index(): View
     {
         $data = [
-            'page_title' => 'ICT Center | Dashboard',
+            'page_title' => 'ICT | Staff | Dashboard',
             'students_count' => Auth::user()->students()->count(),
             'students' => User::where('registered_by_staff_id', Auth::id())
                 ->where('role', 'student')

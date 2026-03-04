@@ -19,19 +19,28 @@ class IctCourseController extends Controller
 
     use FileUpload;
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $data = [
-            'page_title' => 'ICT Center | Dashboard',
-            'courses' => ICTCourse::latest()->paginate(10),
-        ];
-        return view('frontend.staff.pages.course-management.course', $data);
+        $perPage = $request->input('per_page', 10);
+
+        $courses = ICTCourse::when($request->filled('search'), function ($query) use ($request) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        })
+            ->orderBy('title', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('frontend.staff.pages.course-management.course', [
+            'page_title' => 'ICT | Staff | Courses',
+            'courses' => $courses,
+        ]);
     }
 
     public function create(): View
     {
         $data = [
-            'page_title' => 'ICT Center | Create Course',
+            'page_title' => 'ICT | Staff | Create Course',
             'instructors' => User::where('role', 'instructor')
                 ->latest()->paginate(10),
             'schedules' => ICTSchedule::latest()->get()->groupBy('study_day'),
@@ -41,26 +50,23 @@ class IctCourseController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // dd($request->all());
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:3000',
         ]);
 
         if ($request->hasFile('thumbnail')) {
-             $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
+            $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
         } else {
-            $thumbnailPath = null; // or set a default thumbnail path if needed
+            $thumbnailPath = ""; // or set a default thumbnail path if needed
         }
-
-        // $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
 
         $course = new ICTCourse();
         $course->title = $request->title;
@@ -82,16 +88,55 @@ class IctCourseController extends Controller
     public function edit($id): View
     {
         $data = [
-            'page_title' => 'ICT Center | Edit Course',
-            // 'course' => Course::findOrFail($id), // Fetch the course data based on ID
+            'page_title' => 'ICT | Staff | Edit Course',
+            'course' => ICTCourse::findOrFail($id),
+            'instructors' => User::where('role', 'instructor')
+                ->latest()->paginate(10),
+            'schedules' => ICTSchedule::latest()->get()->groupBy('study_day'),
         ];
         return view('frontend.staff.pages.course-management.edit', $data);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): RedirectResponse
     {
-        // Validate and update the course data based on ID
-        // Redirect or return response as needed
+        $course = ICTCourse::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'status' => 'required|in:active,inactive',
+            'instructor_id' => 'required|exists:users,id',
+            'schedule_id' => 'required|exists:i_c_t_schedules,id',
+            'description' => 'nullable|string',
+            'thumbnail' => 'nullable|image|max:3000',
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            if ($course->thumbnail != '') {
+                $this->deleteIfImageExist($course->thumbnail);
+            }
+            $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
+        } else {
+            $thumbnailPath = $course->thumbnail; // Keep existing thumbnail if no new file is uploaded
+        }
+
+        $course->title = $request->title;
+        $course->price = $request->price;
+        $course->slug = Str::slug($request->title);
+        $course->thumbnail = $thumbnailPath;
+        $course->start_date = $request->start_date;
+        $course->end_date = $request->end_date;
+        $course->status = $request->status;
+        $course->instructor_id = $request->instructor_id;
+        $course->schedule_id = $request->schedule_id;
+        $course->description = $request->description;
+        $course->save();
+
+        return redirect()->route('staff.courses.index')
+            ->with('success', 'Course updated successfully.');
+
     }
 
 

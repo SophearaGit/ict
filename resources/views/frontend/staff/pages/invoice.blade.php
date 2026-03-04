@@ -91,7 +91,7 @@
                 aria-labelledby="offcanvasExampleLabel">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasExampleLabel">
-                        Invoice
+                        Invoices
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
@@ -104,88 +104,37 @@
                 </div>
                 <div class="app-invoice overflow-auto">
                     <ul class="invoice-users">
-                        <li>
-                            <a href="javascript:void(0)"
-                                class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user bg-light"
-                                id="invoice-123" data-invoice-id="123">
-                                <div
-                                    class="btn btn-primary round rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-user fs-6"></i>
-                                </div>
-                                <div class="ms-3 d-inline-block w-75">
-                                    <h6 class="mb-0 invoice-customer">James Anderson</h6>
+                        @forelse ($invoices as $invoice)
+                            <li>
+                                <a href="javascript:void(0)"
+                                    class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user btn_view_invoice_detail"
+                                    id="invoice-{{ $invoice->id }}" data-invoice-id="{{ $invoice->id }}">
+                                    <div
+                                        class="btn
+                                            {{ $invoice->payment_status == 'paid' ? 'btn-success' : ($invoice->payment_status == 'partial' ? 'btn-warning' : 'btn-danger') }}
+                                            round rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-user fs-6"></i>
+                                    </div>
+                                    <div class="ms-3 d-inline-block w-75">
+                                        <h6 class="mb-0 invoice-customer">{{ $invoice->student->name }}</h6>
+                                        <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">Code:
+                                            {{ $invoice->invoice_code }}</span>
+                                        <span class="fs-3 invoice-date text-nowrap text-body-color d-block">
+                                            {{ $invoice->created_at->format('d M Y') }}
+                                        </span>
+                                    </div>
+                                </a>
 
-                                    <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">Id:
-                                        #123</span>
-                                    <span class="fs-3 invoice-date text-nowrap text-body-color d-block">9 Fab 2020</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)"
-                                class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user"
-                                id="invoice-124" data-invoice-id="124">
-                                <div
-                                    class="btn btn-danger round rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-user fs-6"></i>
-                                </div>
-                                <div class="ms-3 d-inline-block w-75">
-                                    <h6 class="mb-0 invoice-customer">Bianca Doe</h6>
-                                    <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">#124</span>
-                                    <span class="fs-3 invoice-date text-nowrap text-body-color d-block">9 Fab 2020</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)"
-                                class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user"
-                                id="invoice-125" data-invoice-id="125">
-                                <div
-                                    class="btn btn-info round rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-user fs-6"></i>
-                                </div>
-                                <div class="ms-3 d-inline-block w-75">
-                                    <h6 class="mb-0 invoice-customer">Angelina Rhodes</h6>
-                                    <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">#125</span>
-                                    <span class="fs-3 invoice-date text-nowrap text-body-color d-block">9 Fab 2020</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)"
-                                class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user"
-                                id="invoice-126" data-invoice-id="126">
-                                <div
-                                    class="btn btn-warning round rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-user fs-6"></i>
-                                </div>
-                                <div class="ms-3 d-inline-block w-75">
-                                    <h6 class="mb-0 invoice-customer">Samuel Smith</h6>
-                                    <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">#126</span>
-                                    <span class="fs-3 invoice-date text-nowrap text-body-color d-block">9 Fab 2020</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)"
-                                class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user"
-                                id="invoice-127" data-invoice-id="127">
-                                <div
-                                    class="btn btn-primary round rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-user fs-6"></i>
-                                </div>
-                                <div class="ms-3 d-inline-block w-75">
-                                    <h6 class="mb-0 invoice-customer">Gabriel Jobs</h6>
-                                    <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">#127</span>
-                                    <span class="fs-3 invoice-date text-nowrap text-body-color d-block">9 Fab 2020</span>
-                                </div>
-                            </a>
-                        </li>
+
+                            </li>
+                        @empty
+                        @endforelse
                     </ul>
                 </div>
             </div>
         </div>
     </div>
+
 
 @endsection
 @push('scripts')

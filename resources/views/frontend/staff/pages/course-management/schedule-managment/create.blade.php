@@ -9,7 +9,7 @@
                     <div class="d-md-flex align-items-center mb-9">
                         <div>
                             <h5 class="card-title fw-semibold mb-2">
-                                Schedules
+                                Schedule (Create)
                             </h5>
                             <p class="card-subtitle text-muted">
                                 You can create new schedules from this page.

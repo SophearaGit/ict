@@ -9,23 +9,24 @@
     <meta name="keywords" content="" />
     <meta name="author" content="Codescandy" />
 
-
     <!-- Favicon icon-->
-    <link rel="shortcut icon" type="image/x-icon" href="/frontend/assets/images/favicon/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
 
     <!-- darkmode js -->
-    <script src="/frontend/assets/js/vendors/darkMode.js"></script>
+    <script src="{{ asset('/frontend/assets/js/vendors/darkMode.js') }}"></script>
 
     <!-- Libs CSS -->
-    <link href="/frontend/assets/fonts/feather/feather.css" rel="stylesheet" />
-    <link href="/frontend/assets/libs/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" />
-    <link href="/frontend/assets/libs/simplebar/dist/simplebar.min.css" rel="stylesheet" />
+    <link href="{{ asset('/frontend/assets/fonts/feather/feather.css') }}" rel="stylesheet" />
+    <link href="{{ asset('/frontend/assets/fonts/feather/feather.css') }}" rel="stylesheet" />
+    <link href="{{ asset('/frontend/assets/libs/simplebar/dist/simplebar.min.css') }}" rel="stylesheet" />
 
     <!-- Theme CSS -->
-    <link rel="stylesheet" href="/frontend/assets/css/theme.min.css">
+    <link rel="stylesheet" href="{{ asset('/frontend/assets/css/theme.min.css') }}">
 
     <link rel="canonical" href="https://geeksui.codescandy.com/geeks/pages/sign-in.html">
-    <title>ICT | Sign in</title>
+    <title>
+        @yield('page_title')
+    </title>
 </head>
 
 <body>
@@ -36,9 +37,9 @@
     </main>
     <!-- Scripts -->
     <!-- Libs JS -->
-    <script src="/frontend/assets/libs/@popperjs/core/dist/umd/popper.min.js"></script>
-    <script src="/frontend/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/frontend/assets/libs/simplebar/dist/simplebar.min.js"></script>
+    <script src="{{ asset('/frontend/assets/libs/@popperjs/core/dist/umd/popper.min.js') }}"></script>
+    <script src="{{ asset('/frontend/assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('/frontend/assets/libs/simplebar/dist/simplebar.min.js') }}"></script>
 
     <!-- Theme JS -->
     <script src="/frontend/assets/js/theme.min.js"></script>
