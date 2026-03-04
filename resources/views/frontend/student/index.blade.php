@@ -1,4 +1,5 @@
 @extends('frontend.layouts.master')
+@section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
     <section class="pt-5">
         <div class="container">

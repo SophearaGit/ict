@@ -13,47 +13,115 @@ class ICTScheduleSeeder extends Seeder
      */
     public function run(): void
     {
-        $days = [
-            'mon-wed-fri',
-            'tue-thu',
-            'saturday',
-            'sunday',
-        ];
-
-        $shifts = [
+        $schedules = $schedules = [
             [
-                'shift' => 'morning',
+                'study_day' => 'Mon-Wed-Fri',
+                'shift' => 'Morning',
                 'start_time' => '08:30:00',
-                'end_time' => '11:30:00',
+                'end_time' => '10:30:00',
+
             ],
             [
-                'shift' => 'afternoon',
+                'study_day' => 'Mon-Wed-Fri',
+                'shift' => 'Morning',
+                'start_time' => '09:00:00',
+                'end_time' => '11:00:00',
+            ],
+            [
+                'study_day' => 'Mon-Wed-Fri',
+                'shift' => 'Afternoon',
                 'start_time' => '13:30:00',
                 'end_time' => '16:30:00',
             ],
             [
-                'shift' => 'evening',
+                'study_day' => 'Mon-Wed-Fri',
+                'shift' => 'Evening',
                 'start_time' => '18:00:00',
                 'end_time' => '20:00:00',
             ],
+            [
+                'study_day' => 'Tue-Thu',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '11:30:00',
+            ],
+            [
+                'study_day' => 'Tue-Thu',
+                'shift' => 'Afternoon',
+                'start_time' => '13:30:00',
+                'end_time' => '16:30:00',
+            ],
+            [
+                'study_day' => 'Tue-Thu',
+                'shift' => 'Evening',
+                'start_time' => '18:00:00',
+                'end_time' => '20:00:00',
+            ],
+            [
+                'study_day' => 'Saturday',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '11:30:00',
+            ],
+            [
+                'study_day' => 'Saturday',
+                'shift' => 'Afternoon',
+                'start_time' => '13:00:00',
+                'end_time' => '16:30:00',
+            ],
+            [
+                'study_day' => 'Saturday',
+                'shift' => 'Afternoon',
+                'start_time' => '13:30:00',
+                'end_time' => '16:30:00',
+            ],
+            [
+                'study_day' => 'Sunday',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '10:30:00',
+            ],
+            [
+                'study_day' => 'Sunday',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '11:30:00',
+            ],
+            [
+                'study_day' => 'Sunday',
+                'shift' => 'Afternoon',
+                'start_time' => '13:30:00',
+                'end_time' => '16:30:00',
+            ],
+            [
+                'study_day' => 'Tue-Thu',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '10:30:00',
+            ],
+            [
+                'study_day' => 'Saturday',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '10:30:00',
+            ],
+            [
+                'study_day' => 'Mon-Wed-Fri',
+                'shift' => 'Morning',
+                'start_time' => '08:30:00',
+                'end_time' => '11:30:00',
+            ],
         ];
 
-        $data = [];
-
-        foreach ($days as $day) {
-            foreach ($shifts as $shift) {
-                $data[] = [
-                    'study_day' => $day,
-                    'shift' => $shift['shift'],
-                    'start_time' => $shift['start_time'],
-                    'end_time' => $shift['end_time'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+        foreach ($schedules as $schedule) {
+            DB::table('i_c_t_schedules')->insert([
+                'study_day' => $schedule['study_day'],
+                'shift' => $schedule['shift'],
+                'start_time' => $schedule['start_time'],
+                'end_time' => $schedule['end_time'],
+            ]);
         }
 
-        DB::table('i_c_t_schedules')->insert($data);
 
     }
 }

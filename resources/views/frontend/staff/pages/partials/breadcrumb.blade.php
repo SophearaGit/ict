@@ -5,9 +5,9 @@
                 <h4 class="fw-semibold mb-8">
                     @if (Route::is('staff.student.registration'))
                         Student Management
-                    @elseif (Route::is('staff.courses.index') || Route::is('staff.courses.create'))
+                    @elseif (Route::is('staff.courses.index') || Route::is('staff.courses.create') || Route::is('staff.courses.edit'))
                         Course Management
-                    @elseif (Route::is('staff.schedules.index') || Route::is('staff.schedules.create'))
+                    @elseif (Route::is('staff.schedules.index') || Route::is('staff.schedules.create') || Route::is('staff.schedules.edit'))
                         Schedule Management
                     @elseif (Route::is('staff.invoices'))
                         Invoices
@@ -21,9 +21,9 @@
                         <li class="breadcrumb-item" aria-current="page">
                             @if (Route::is('staff.student.registration') || Route::is('staff.student.registration'))
                                 Student Management
-                            @elseif (Route::is('staff.courses.index') || Route::is('staff.courses.create'))
+                            @elseif (Route::is('staff.courses.index') || Route::is('staff.courses.create') || Route::is('staff.courses.edit'))
                                 Course Management
-                            @elseif (Route::is('staff.schedules.index') || Route::is('staff.schedules.create'))
+                            @elseif (Route::is('staff.schedules.index') || Route::is('staff.schedules.create') || Route::is('staff.schedules.edit'))
                                 Schedule Management
                             @elseif (Route::is('staff.invoices'))
                                 Invoices

@@ -16,7 +16,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $data = [
+            'page_title' => 'ICT | Log In',
+        ];
+        return view('auth.login', $data);
     }
 
     /**

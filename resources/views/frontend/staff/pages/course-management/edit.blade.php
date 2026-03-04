@@ -32,10 +32,10 @@
                     <div class="d-md-flex align-items-center mb-9">
                         <div>
                             <h5 class="card-title fw-semibold mb-2">
-                                Course (Create)
+                                Course (Edit)
                             </h5>
                             <p class="card-subtitle text-muted">
-                                You can create new courses from this page.
+                                You can edit course details from this page.
                             </p>
                         </div>
                         <div class="ms-auto mt-4 mt-md-0">
@@ -44,15 +44,23 @@
                             </a>
                         </div>
                     </div>
-                    <form class="" action="{{ route('staff.courses.store') }}" method="POST"
+                    <form action="{{ route('staff.courses.update', $course->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
+                        @method('PUT')
+                        @if ($course->thumbnail)
+                            <div class="mb-3">
+                                <img src="{{ asset($course->thumbnail) }}" style="width:120px; border-radius:10px;"
+                                    class="mb-2">
+                            </div>
+                        @endif
                         <div class="mb-3">
                             <input type="file" class="form-control" name="thumbnail" accept="image/*">
                             <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control " placeholder="Course Title" name="title">
+                            <input type="text" class="form-control " placeholder="Course Title" name="title"
+                                value="{{ old('title', $course->title) }}">
                             <label><i class="ti ti-book me-2 fs-4 text-info"></i><span
                                     class="border-start border-info ps-3">Title</span></label>
                             <x-input-error :messages="$errors->get('title')" class="text-danger mt-2" />
@@ -62,7 +70,10 @@
                                 <select class="form-select" name="instructor_id" id="instructor_id">
                                     <option value="" disabled selected>Select Instructor</option>
                                     @foreach ($instructors as $instructor)
-                                        <option value="{{ $instructor->id }}">{{ $instructor->name }}</option>
+                                        <option value="{{ $instructor->id }}"
+                                            {{ old('instructor_id', $course->instructor_id) == $instructor->id ? 'selected' : '' }}>
+                                            {{ $instructor->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 <label style="padding: 1rem 33px; important;"><i
@@ -78,8 +89,8 @@
                                     @foreach ($schedules as $studyDay => $daySchedules)
                                         <optgroup label="{{ Str::title(str_replace('-', ' • ', $studyDay)) }}">
                                             @foreach ($daySchedules as $schedule)
-                                                <option value="{{ $schedule->id }}"
-                                                    data-shift="{{ strtolower($schedule->shift) }}" {{-- data-room="{{ strtoupper($schedule->room) }}" --}}
+                                                <option value="{{ $schedule->id }}" @selected(old('schedule_id', $course->schedule_id) == $schedule->id)
+                                                    data-shift="{{ strtolower($schedule->shift) }}"
                                                     data-start="{{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i') }}"
                                                     data-end="{{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}">
                                                     {{ ucfirst($schedule->shift) }}
@@ -92,9 +103,13 @@
                             </div>
                             <div class="form-floating mb-3 col-md-2">
                                 <select class="form-select" name="status" id="status">
-                                    <option value="" disabled selected>Select Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
+                                    <option value="" disabled>Select Status</option>
+                                    <option value="active" @selected(old('status', $course->status) == 'active')>
+                                        Active
+                                    </option>
+                                    <option value="inactive" @selected(old('status', $course->status) == 'inactive')>
+                                        Inactive
+                                    </option>
                                 </select>
                                 <label style="padding: 1rem 33px; important;"><i
                                         class="ti ti-flag me-2 fs-4 text-info"></i><span
@@ -106,7 +121,8 @@
 
                             {{-- start_date --}}
                             <div class="form-floating mb-3 col-md-4">
-                                <input type="date" class="form-control " placeholder="Start Date" name="start_date">
+                                <input type="date" class="form-control " placeholder="Start Date" name="start_date"
+                                    value="{{ old('start_date', $course->start_date) }}">
                                 <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">Start Date</span></label>
                                 <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-2" />
@@ -114,14 +130,16 @@
 
                             {{-- end_date --}}
                             <div class="form-floating mb-3 col-md-4">
-                                <input type="date" class="form-control " placeholder="End Date" name="end_date">
+                                <input type="date" class="form-control " placeholder="End Date" name="end_date"
+                                    value="{{ old('end_date', $course->end_date) }}">
                                 <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">End Date</span></label>
+                                        class="border-start border-info ps-3">End
+                                        Date</span></label>
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
                             </div>
                             <div class="form-floating mb-3 col-md-4">
                                 <input type="number" class="form-control " placeholder="Course Price" name="price"
-                                    step="0.01">
+                                    step="0.01" value="{{ old('price', $course->price) }}">
                                 <label style="padding: 1rem 26px; important;"><i
                                         class="ti ti-currency-dollar me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">Price</span></label>
@@ -129,13 +147,9 @@
                             </div>
                         </div>
 
-
-
-
-
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Course Description" name="description" id="description"
-                                style="height: 100px"></textarea>
+                                style="height: 100px">{!! old('description', $course->description) !!}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="text-danger mt-2" />
                         </div>
                         <div class="d-md-flex align-items-center">
@@ -174,14 +188,16 @@
                 }
             });
 
+            $('.select2-schedule').trigger('change');
+
             function formatSchedule(option) {
 
                 if (!option.id) return option.text;
 
                 let shift = $(option.element).data('shift');
-                // let room = $(option.element).data('room');
                 let start = $(option.element).data('start');
                 let end = $(option.element).data('end');
+
 
                 let shiftColor = {
                     morning: 'var(--bs-success)',
@@ -191,23 +207,6 @@
 
                 let color = shiftColor[shift] ?? 'var(--bs-secondary)';
 
-                // return `
-            //     <div class="d-flex justify-content-between align-items-center py-1">
-            //         <div>
-            //             <span class="badge me-2"
-            //                 style="background:${color}; border-radius:var(--bs-border-radius-pill);">
-            //                 ${shift.charAt(0).toUpperCase() + shift.slice(1)}
-            //             </span>
-            //             <strong class="text-body">
-            //                 ${start} – ${end}
-            //             </strong>
-            //         </div>
-            //         <span class="badge border"
-            //             style="background:var(--bs-light); color:var(--bs-heading-color); border-radius:var(--bs-border-radius-pill);">
-            //             Room ${room}
-            //         </span>
-            //     </div>
-            // `;
                 return `
                     <div class="d-flex justify-content-between align-items-center py-1">
                         <div>

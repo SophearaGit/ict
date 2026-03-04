@@ -18,9 +18,9 @@ class StudentDashboardController extends Controller
     public function index(): View
     {
         $data = [
-            'page_title' => 'ICT Center | Student Dashboard',
+            'page_title' => 'ICT | Student Dashboard',
         ];
-        return view('frontend.student.index');
+        return view('frontend.student.index', $data);
     }
 
     public function becomeInstructor(Request $request)
@@ -28,7 +28,7 @@ class StudentDashboardController extends Controller
         if (auth()->guard()->user()->role === 'instructor')
             abort(403);
         $data = [
-            'page_title' => 'ICT Center | Become an Instructor',
+            'page_title' => 'ICT | Become an Instructor',
         ];
         return view('frontend.student.become-instructor', $data);
     }

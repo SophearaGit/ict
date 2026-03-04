@@ -6,7 +6,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-md-flex align-items-center mb-9">
+                    {{-- <div class="d-md-flex align-items-center mb-9">
                         <div>
                             <h5 class="card-title fw-semibold mb-2">
                                 Courses
@@ -17,9 +17,42 @@
                             </p>
                         </div>
                         <div class="ms-auto mt-4 mt-md-0">
-                            {{-- use route instead --}}
+
                             <a href="{{ route('staff.courses.create') }}" class="btn btn-primary">
                                 <i class="ti ti-circle-plus me-1"></i> Create Course
+                            </a>
+                        </div>
+                    </div> --}}
+                    <div class="row">
+                        <div class="col-md-4 col-xl-3">
+                            <form class="position-relative" action="{{ route('staff.courses.index') }}" method="GET">
+                                <input type="search" class="form-control product-search ps-5" id="input-search"
+                                    placeholder="Search Course Title..." name="search"
+                                    value="{{ request()->search ?? '' }}">
+                                <i
+                                    class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+                            </form>
+
+                            {{-- <form action="{{ route('admin.instructor.index') }}" method="GET">
+                                <input type="search" class="form-control" placeholder="Search Instructor" name="search"
+                                    value="{{ request()->search ?? '' }}">
+                            </form> --}}
+
+
+
+
+                        </div>
+                        <div
+                            class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+                            {{-- <div class="action-btn show-btn" >
+                                <a href="javascript:void(0)"
+                                    class="delete-multiple btn-light-danger btn me-2 text-danger d-flex align-items-center font-medium">
+                                    <i class="ti ti-trash text-danger me-1 fs-5"></i> Delete All Row
+                                </a>
+                            </div> --}}
+                            <a href="{{ route('staff.courses.create') }}" id="btn-add-contact"
+                                class="btn btn-info d-flex align-items-center">
+                                <i class="ti ti-circle-plus text-white me-1 fs-5"></i> Add Course
                             </a>
                         </div>
                     </div>
@@ -33,10 +66,7 @@
                                             {{-- <th scope="col" class="ps-0">NO</th> --}}
                                             <th scope="col" class="ps-0">Price</th>
                                             <th scope="col" class="ps-0">Subject</th>
-                                            <th scope="col" class="ps-0">Day</th>
-                                            <th scope="col" class="ps-0">Shift</th>
-                                            <th scope="col" class="ps-0">Time</th>
-                                            <th scope="col" class="ps-0">Class Start</th>
+                                            <th scope="col" class="ps-0">Schedule</th>
                                             <th scope="col" class="text-end ps-0"></th>
                                         </tr>
                                     </thead>
@@ -53,8 +83,8 @@
                                                 <td class="ps-0">
                                                     <div class="d-flex align-items-center gap-3">
                                                         <div class="flex-shrink-0">
-                                                            <img src="{{ asset($course->thumbnail) }}" class="rounded"
-                                                                alt="p1" width="80">
+                                                            <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+                                                                class="rounded" alt="p1" width="80">
                                                         </div>
                                                         <div>
                                                             <h6 class="mb-1 fw-semibold">
@@ -62,7 +92,7 @@
                                                             </h6>
 
                                                             <div class="d-flex align-items-center gap-2">
-                                                                <img src="{{ $course->instructor->image }}"
+                                                                <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor->image) }}"
                                                                     alt="{{ $course->instructor->name }}"
                                                                     class="rounded-circle"
                                                                     style="width: 28px; height: 28px; object-fit: cover;">
@@ -74,20 +104,35 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="ps-0 text-capitalize">
-                                                    {{ $course->schedule->study_day }}
-                                                </td>
-                                                <td class="ps-0 text-capitalize">
-                                                    {{ $course->schedule->shift }}
-                                                </td>
+
                                                 <td class="ps-0">
-                                                    {{ \Carbon\Carbon::parse($course->schedule->start_time)->format('h:i ') }}
-                                                    <i class="ti ti-minus fs-1 mx-0"></i>
-                                                    {{ \Carbon\Carbon::parse($course->schedule->end_time)->format('h:i A') }}
+                                                    @if ($course->schedule)
+                                                        @php
+                                                            $days = collect(explode('-', $course->schedule->study_day))
+                                                                ->map(fn($day) => ucfirst($day))
+                                                                ->implode(' • ');
+
+                                                            $start = \Carbon\Carbon::parse(
+                                                                $course->schedule->start_time,
+                                                            )->format('g:i ');
+                                                            $end = \Carbon\Carbon::parse(
+                                                                $course->schedule->end_time,
+                                                            )->format('g:i A');
+
+                                                            $shift = ucfirst($course->schedule->shift);
+                                                        @endphp
+
+                                                        <strong>
+                                                            {{ $days }} | {{ $shift }} (
+                                                            {{ $start }}
+                                                            –
+                                                            {{ $end }} )
+                                                        </strong>
+                                                    @else
+                                                        <span class="text-muted">No schedule</span>
+                                                    @endif
                                                 </td>
-                                                <td class="ps-0 text-capitalize">
-                                                    {{ \Carbon\Carbon::parse($course->schedule->start_date)->format('d M, Y') }}
-                                                </td>
+
 
                                                 <td class="text-end ps-0">
                                                     <div class="dropdown dropstart">
@@ -99,11 +144,8 @@
                                                             style="">
                                                             <li>
                                                                 <a class="dropdown-item d-flex align-items-center gap-3"
-                                                                    href="#"><i class="fs-4 ti ti-plus"></i>Add</a>
-                                                            </li>
-                                                            <li>
-                                                                <a class="dropdown-item d-flex align-items-center gap-3"
-                                                                    href="#"><i class="fs-4 ti ti-edit"></i>Edit</a>
+                                                                    href="{{ route('staff.courses.edit', $course->id) }}"><i
+                                                                        class="fs-4 ti ti-edit"></i>Edit</a>
                                                             </li>
                                                             <li>
                                                                 <a class="dropdown-item d-flex align-items-center gap-3"
@@ -123,6 +165,12 @@
                                         @endforelse
                                     </tbody>
                                 </table>
+
+                                <div class="d-flex align-items-center justify-content-end py-1">
+                                    <x-ui-pagination :paginator="$courses" />
+                                </div>
+
+
                             </div>
                         </div>
                     </div>

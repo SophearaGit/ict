@@ -24,6 +24,7 @@
     </form>
 </x-guest-layout> --}}
 @extends('auth.layouts.master')
+@section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
     <section class="container d-flex flex-column vh-100">
         <div class="row align-items-center justify-content-center g-0 h-lg-100 py-8">
@@ -32,8 +33,10 @@
                 <div class="card shadow">
                     <!-- Card body -->
                     <div class="card-body p-6">
-                        <div class="mb-4">
-                            <a href="{{ route('home') }}"><img src="" class="mb-4" alt="logo-icon"></a>
+                        <div class="mb-4 text-center">
+                            <a href="{{ route('home') }}"><img style="width: 100px; height: 100px;"
+                                    src=" {{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }} " class="mb-4"
+                                    alt="ict-logo-icon"></a>
                             <h1 class="mb-1 fw-bold">Forgot Password</h1>
                             @if (session('status'))
                                 <x-auth-session-status class="mb-4 text-success" :status="session('status')" />
@@ -48,7 +51,7 @@
                             @csrf
                             <!-- Email -->
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                                 <input type="email" id="email" class="form-control" name="email"
                                     placeholder="Enter Your Email " value="{{ old('email') }}" required autofocus>
                                 <x-input-error :messages="$errors->get('email')" class="text-danger mt-2" />
@@ -59,7 +62,7 @@
                             </div>
                             <span>
                                 Return to
-                                <a href="{{ route('login') }}">sign in</a>
+                                <a href="{{ route('login') }}">Login</a>
                             </span>
                         </form>
                     </div>
