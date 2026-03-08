@@ -43,6 +43,23 @@
                         </span>
                     </a>
                 </li>
+                {{-- reports --}}
+                <li class="sidebar-item {{ request()->is('staff/reports') ? 'selected' : '' }}">
+                    <a class="sidebar-link {{ request()->is('staff/reports') ? 'active' : '' }}"
+                        href="{{ route('staff.reports.index') }}" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-chart-bar"></i>
+                        </span>
+                        <span class="hide-menu">
+                            Reports
+                        </span>
+                    </a>
+                </li>
+
+
+
+
+
 
 
 

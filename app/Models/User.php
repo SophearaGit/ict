@@ -29,6 +29,10 @@ class User extends Authenticatable
         'student_type',
     ];
 
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ICTStaffReport::class, 'reported_by');
+    }
 
 
     public function students(): HasMany

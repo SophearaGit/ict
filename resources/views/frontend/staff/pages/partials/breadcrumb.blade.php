@@ -11,6 +11,8 @@
                         Schedule Management
                     @elseif (Route::is('staff.invoices'))
                         Invoices
+                    @elseif (Route::is('staff.reports.index'))
+                        Reports
                     @else
                     @endif
                 </h4>
@@ -27,6 +29,8 @@
                                 Schedule Management
                             @elseif (Route::is('staff.invoices'))
                                 Invoices
+                            @elseif (Route::is('staff.reports.index'))
+                                Reports
                             @else
                             @endif
                         </li>

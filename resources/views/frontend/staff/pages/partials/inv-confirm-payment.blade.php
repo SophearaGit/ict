@@ -73,7 +73,7 @@
 
             @if ($invoice->remaining_amount > 0)
                 <button type="submit" class="btn btn-info">
-                    Confirm Payment
+                    <i class="ti ti-cash me-2"></i> Confirm
                 </button>
             @endif
 

@@ -29,7 +29,6 @@ class StudentRegisterationController extends Controller
     public function studentRegistrationSubmit(Request $request): RedirectResponse
     {
 
-
         if ($request->student_type === 'new') {
 
             $request->validate([
@@ -47,27 +46,42 @@ class StudentRegisterationController extends Controller
 
         $request->validate([
             'course_id' => ['required', 'exists:i_c_t_courses,id'],
-            'discount' => ['nullable', 'numeric', 'min:0'],
+            'payment_option' => ['required', 'in:full,half'],
             'paid_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
-
 
         DB::beginTransaction();
 
         try {
+
             $course = ICTCourse::findOrFail($request->course_id);
 
             $price = $course->price;
-            $discount = $request->discount ?? 0;
-            $paid = $request->paid_amount ?? 0;
 
-            // Ensure discount does not exceed price
-            if ($discount > $price) {
-                $discount = $price;
+            $discount = 0;
+            $extraCharge = 0;
+
+            // Apply payment option logic
+            if ($request->payment_option === 'full') {
+                $discount = 10;
+                $totalAmount = $price - $discount;
+            } else {
+                $extraCharge = 20;
+                $totalAmount = $price + $extraCharge;
             }
 
-            // Total after fixed discount
-            $totalAmount = $price - $discount;
+            // Auto calculate payment
+            if ($request->payment_option === 'half') {
+
+                // student must pay 50%
+                $paid = $totalAmount / 2;
+
+            } else {
+
+                // full payment option → staff can enter amount
+                $paid = $request->paid_amount ?? 0;
+
+            }
 
             // Prevent overpayment
             if ($paid > $totalAmount) {
@@ -85,12 +99,15 @@ class StudentRegisterationController extends Controller
                 $status = 'half_paid';
             }
 
-            // Create student
+            // Create or select student
             if ($request->student_type === 'existing') {
+
                 $user = User::where('id', $request->student_id)
                     ->where('role', 'student')
                     ->firstOrFail();
+
             } else {
+
                 $user = User::create([
                     'name' => $request->name,
                     'email' => $request->email,
@@ -106,22 +123,35 @@ class StudentRegisterationController extends Controller
                 'staff_id' => Auth::id(),
                 'student_id' => $user->id,
                 'course_id' => $course->id,
+
                 'price' => $price,
                 'discount' => $discount,
+                'extra_charge' => $extraCharge,
+
                 'total_amount' => $totalAmount,
                 'paid_amount' => $paid,
                 'remaining_amount' => $remaining,
-                'invoice_code' => '#' . strtoupper(uniqid()),
+
+                'payment_option' => $request->payment_option,
                 'payment_status' => $status,
+
+                'invoice_code' => 'INV-' . now()->format('Ymd') . '-' . rand(1000, 9999),
+                'paid_at' => $paid > 0 ? now() : null,
             ]);
 
             DB::commit();
 
-            return redirect()->route('staff.invoices')->with('success', 'Student registered successfully!');
+            return redirect()
+                ->route('staff.invoices')
+                ->with('success', 'Student registered successfully!');
 
         } catch (\Exception $e) {
+
             DB::rollBack();
-            return redirect()->back()->with('error', 'Something went wrong!');
+
+            return redirect()
+                ->back()
+                ->with('error', 'Something went wrong!');
         }
     }
 

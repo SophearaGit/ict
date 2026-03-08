@@ -67,6 +67,7 @@
                                             <th scope="col" class="ps-0">Price</th>
                                             <th scope="col" class="ps-0">Subject</th>
                                             <th scope="col" class="ps-0">Schedule</th>
+                                            <th scope="col" class="ps-0">Totala Students</th>
                                             <th scope="col" class="text-end ps-0"></th>
                                         </tr>
                                     </thead>
@@ -131,6 +132,10 @@
                                                     @else
                                                         <span class="text-muted">No schedule</span>
                                                     @endif
+                                                </td>
+
+                                                <td class="ps-0">
+                                                    {{ $course->students()->count() == 0 ? '' : $course->students()->count() }}
                                                 </td>
 
 

@@ -20,6 +20,9 @@
                         <form action="{{ route('staff.student.registration.submit') }}" method="POST">
                             @csrf
 
+                            <input type="hidden" name="discount" id="discountField">
+                            <input type="hidden" name="extra_charge" id="extraChargeField">
+
                             <!-- ================= STUDENT TYPE ================= -->
                             <h6 class="fw-semibold text-info mb-3">Student Selection</h6>
 
@@ -157,23 +160,35 @@
 
                                 <div class="col-md-4">
                                     <div class="form-floating">
+                                        <select class="form-select" id="paymentOption" name="payment_option">
+                                            <option value="" disabled selected>Select Payment Option</option>
+                                            <option value="full">Pay Full (10$ Discount)</option>
+                                            <option value="half">Pay Half (+20$ Charge)</option>
+                                        </select>
+
+                                        <label>
+                                            <i class="ti ti-credit-card me-2 text-info"></i> Payment Option
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="col-md-4">
+                                    <div class="form-floating">
                                         <input type="number" class="form-control" id="discount" placeholder="Discount"
                                             name="discount">
-                                        {{-- <label>
-                                            <i class="ti ti-discount me-2 text-info"></i> Discount % (Optional)
-
-                                        </label> --}}
                                         <label>
                                             <i class="ti ti-discount me-2 text-info"></i> Discount Amount ($ Optional)
                                         </label>
                                         <x-input-error :messages="$errors->get('discount')" class="text-danger mt-2" />
                                     </div>
-                                </div>
+                                </div> --}}
+
+
                             </div>
 
                             <div class="row g-3 mt-1">
                                 <div class="col-md-6">
-                                    <div class="form-floating">
+                                    <div class="form-floating" style="background-color: rgb(234, 239, 244);">
                                         <input type="number" class="form-control" id="totalAmount"
                                             placeholder="Total Amount" name="total_amount" readonly>
                                         <label>
@@ -184,11 +199,11 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <div class="form-floating">
+                                    <div class="form-floating" style="background-color: rgb(234, 239, 244);">
                                         <input type="number" class="form-control" id="paidAmount"
-                                            placeholder="Paid Amount" name="paid_amount">
+                                            placeholder="Paid Amount" name="paid_amount" readonly>
                                         <label>
-                                            <i class="ti ti-cash me-2 text-info"></i> Paid Amount
+                                            <i class="ti ti-cash me-2 text-info"></i> Pay Amount
                                         </label>
                                         <x-input-error :messages="$errors->get('paid_amount')" class="text-danger mt-2" />
                                     </div>
@@ -197,7 +212,7 @@
 
                             <div class="row g-3 mt-1">
                                 <div class="col-md-6">
-                                    <div class="form-floating">
+                                    <div class="form-floating" style="background-color: rgb(234, 239, 244);">
                                         <input type="number" class="form-control" id="remainingAmount"
                                             placeholder="Remaining Amount" readonly>
                                         <label>
@@ -245,7 +260,7 @@
 
             $('#courseSelect').select2();
             $('#studentSelect').select2({
-                width: '100%',
+                width: '100%'
             });
 
             // Toggle Student Type
@@ -255,52 +270,56 @@
                 if (type === 'existing') {
                     $('#existingStudentWrapper').removeClass('d-none');
                     $('#newStudentWrapper').addClass('d-none');
-
-                    // Disable new student inputs
-                    $('#newStudentWrapper input').prop('required', false);
-                    $('#newStudentWrapper input').prop('disabled', true);
+                    $('#newStudentWrapper input').prop('required', false).prop('disabled', true);
                 } else {
                     $('#existingStudentWrapper').addClass('d-none');
                     $('#newStudentWrapper').removeClass('d-none');
                     $('#newStudentWrapper input').prop('disabled', false);
-
                 }
+
+                // Reset payment fields when switching student type
+                $('#paymentOption').val('');
+                $('#totalAmount').val('');
+                $('#paidAmount').val('');
+                $('#remainingAmount').val('');
+                $('#paymentStatusDisplay').val('');
+                $('#paymentStatus').val('');
             });
 
             function calculateAmounts() {
+                let selectedCourse = $('#courseSelect').find(':selected');
+                let price = parseFloat(selectedCourse.data('price')) || 0;
 
-                let selectedOption = $('#courseSelect').find(':selected');
-                let price = parseFloat(selectedOption.data('price')) || 0;
-                let discount = parseFloat($('#discount').val()) || 0;
-                let paid = parseFloat($('#paidAmount').val()) || 0;
+                let paymentOption = $('#paymentOption').val();
 
-                // Prevent negative discount
-                if (discount < 0) discount = 0;
+                let discount = 0;
+                let extraCharge = 0;
+                let total = price;
+                let paid = 0;
 
-                // Prevent discount greater than price
-                if (discount > price) {
-                    discount = price;
-                    $('#discount').val(price.toFixed(2));
+                if (paymentOption === 'full') {
+                    discount = 10;
+                    total = price - discount;
+                    paid = total; // Always full amount
                 }
 
-                // Calculate total after fixed discount
-                let total = price - discount;
-
-                // Prevent paid > total
-                if (paid > total) {
-                    paid = total;
-                    $('#paidAmount').val(total.toFixed(2));
+                if (paymentOption === 'half') {
+                    extraCharge = 20;
+                    total = price + extraCharge;
+                    paid = total / 2; // Half amount
                 }
 
                 let remaining = total - paid;
 
-                // Set calculated values
+                // Update fields
                 $('#totalAmount').val(total.toFixed(2));
+                $('#paidAmount').val(paid.toFixed(2)).prop('readonly', true); // always readonly
                 $('#remainingAmount').val(remaining.toFixed(2));
+                $('#discountField').val(discount);
+                $('#extraChargeField').val(extraCharge);
 
-                // Auto select payment status
+                // Payment status
                 let status = '';
-
                 if (paid == 0) {
                     status = 'unpaid';
                 } else if (remaining == 0) {
@@ -315,8 +334,8 @@
 
             // Trigger events
             $('#courseSelect').on('change', calculateAmounts);
-            $('#discount').on('keyup change', calculateAmounts);
-            $('#paidAmount').on('keyup change', calculateAmounts);
+            $('#paymentOption').on('change', calculateAmounts);
+
         });
     </script>
 @endpush
