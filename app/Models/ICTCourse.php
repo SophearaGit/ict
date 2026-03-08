@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User;
 
 class ICTCourse extends Model
@@ -33,6 +34,12 @@ class ICTCourse extends Model
     public function schedule(): BelongsTo
     {
         return $this->belongsTo(ICTSchedule::class, 'schedule_id');
+    }
+
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'i_c_t_invoices', 'course_id', 'student_id')
+            ->withTimestamps();
     }
 
 

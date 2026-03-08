@@ -29,17 +29,43 @@
                          <h6 class="fw-bold invoice-customer text-capitalize">
                              {{ $invoice->student->name }}
                          </h6>
+
                          <p class="ms-4">
                              107, Phoum 4 ANZ Road Sangkat Boeung, Phnom Penh 120408
                          </p>
-                         <p class="mt-4 mb-1">
-                             <span>Invoice Date :</span>
-                             <i class="ti ti-calendar"></i>
+
+                         <hr>
+
+                         <p class="mb-1">
+                             <strong>Invoice Date :</strong>
                              {{ $invoice->created_at->format('d M Y') }}
                          </p>
-                         <p>
 
-                         </p>
+                         {{-- <p class="mb-1 text-warning">
+                             <strong>Half Paid On :</strong>
+                             {{ $invoice->updated_at->format('d M Y') }}
+                         </p> --}}
+
+                         @if ($invoice->payment_status == 'half_paid')
+                             <p class="mb-1 text-warning">
+                                 <strong>Half Paid On :</strong>
+                                 {{ $invoice->updated_at->format('d M Y') }}
+                             </p>
+                         @endif
+
+                         @if ($invoice->payment_status == 'paid')
+                             @if ($invoice->paid_amount < $invoice->total_amount)
+                                 <p class="mb-1 text-warning">
+                                     <strong>Half Paid On :</strong>
+                                     {{ $invoice->updated_at->format('d M Y') }}
+                                 </p>
+                             @endif
+                             <p class="mb-1 text-success">
+                                 <strong>Fully Paid On :</strong>
+                                 {{ $invoice->updated_at->format('d M Y') }}
+                             </p>
+                         @endif
+
                      </address>
                  </div>
              </div>
@@ -50,10 +76,7 @@
                              <tr class="text-muted fw-semibold">
                                  <th scope="col" class="ps-0">Price</th>
                                  <th scope="col" class="ps-0">Course</th>
-                                 <th scope="col" class="ps-0">
-                                     Schedule
-                                 </th>
-                                 <th scope="col" class="ps-0">Class Start</th>
+                                 <th scope="col" class="ps-0">Schedule</th>
                              </tr>
                          </thead>
                          <tbody>
@@ -63,25 +86,10 @@
                                  </td>
                                  <td class="ps-0">
                                      <div class="d-flex align-items-center gap-3">
-                                         <div class="flex-shrink-0">
-                                             <img src="{{ asset($invoice->course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $invoice->course->thumbnail) }}"
-                                                 class="rounded" alt="p1" width="80">
-                                         </div>
                                          <div>
                                              <h6 class="mb-1 fw-semibold">
                                                  {{ $invoice->course->title }}
                                              </h6>
-
-                                             <div class="d-flex align-items-center gap-2">
-                                                 <img src="{{ $invoice->course->instructor->image }}"
-                                                     alt="{{ $invoice->course->instructor->name }}"
-                                                     class="rounded-circle"
-                                                     style="width: 28px; height: 28px; object-fit: cover;">
-
-                                                 <span class="fs-2 mb-0">
-                                                     {{ $invoice->course->instructor->name }}
-                                                 </span>
-                                             </div>
                                          </div>
                                      </div>
                                  </td>
@@ -91,9 +99,6 @@
                                      {{ \Carbon\Carbon::parse($invoice->course->schedule->start_time)->format('h:i ') }}
                                      -
                                      {{ \Carbon\Carbon::parse($invoice->course->schedule->end_time)->format('h:i A') }}
-                                 </td>
-                                 <td class="ps-0 text-capitalize">
-                                     {{ \Carbon\Carbon::parse($invoice->course->start_date)->format('d M, Y') }}
                                  </td>
                              </tr>
                          </tbody>
@@ -180,9 +185,10 @@
                  {{-- ===== ACTION BUTTONS ===== --}}
                  <div class="text-end no-print">
                      @if ($invoice->payment_status != 'paid')
-                         <a href="javascript:;" class="btn btn-primary btn_confirm_payment"
-                             data-invoice-id="{{ $invoice->id }}">
-                             <i class="ti ti-check fs-5"></i> Confirm Payment
+                         <a href="javascript:void(0)"
+                             data-url="{{ route('staff.invoice.confirm-payment', $invoice->id) }}"
+                             class="btn btn-info btn_confirm_payment">
+                             <i class="ti ti-cash me-2"></i> Confirm Payment
                          </a>
                      @endif
                      <button class="btn btn-secondary print-page" type="button">
@@ -208,29 +214,37 @@
  <script>
      $('.btn_confirm_payment').on('click', function(e) {
          e.preventDefault();
-         $('#dynamic_invoice_modal').modal('show');
-         let invoice_id = $(this).data('invoice-id');
 
-         $.ajax({
-             method: 'GET',
-             url: base_url + `/staff/invoice-confirm-payment/${invoice_id}`,
-             data: {},
-             beforeSend: function() {
-                 $('.dynamic_invoice_modal_dialog').html(
-                     `<div class="d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                    `
-                 );
-             },
-             success: function(data) {
-                 $('.dynamic_invoice_modal_dialog').html(data);
-             },
-             error: function(xhr, status, error) {
+         let url = $(this).data('url');
 
-             },
+         Swal.fire({
+             title: "Are you sure?",
+             text: "You are about to confirm the payment for this invoice.",
+             icon: "warning",
+             showCancelButton: true,
+             confirmButtonColor: "#3085d6",
+             cancelButtonColor: "#d33",
+             confirmButtonText: "Yes, confirm it!"
+         }).then((result) => {
+             if (result.isConfirmed) {
+                 $.ajax({
+                     method: "PUT",
+                     url: url,
+                     data: {
+                         _token: csrf_token,
+                     },
+                     success: function(data) {
+                         iziToast.success({
+                             message: data.message,
+                             position: 'bottomRight'
+                         });
+                         setTimeout(() => {
+                             window.location.reload();
+                         }, 500);
+                     },
+                     error: function(xhr, status, data) {},
+                 })
+             }
          });
      })
  </script>

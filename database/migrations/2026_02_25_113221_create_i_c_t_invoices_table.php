@@ -16,13 +16,23 @@ return new class extends Migration {
             $table->foreignId('staff_id')->constrained('users');
             $table->foreignId('student_id')->constrained('users');
             $table->foreignId('course_id')->constrained('i_c_t_courses');
+
             $table->double('price');
+
             $table->double('discount')->default(0)->nullable();
+            $table->double('extra_charge')->default(0)->nullable();
+
             $table->double('total_amount');
             $table->double('paid_amount')->default(0)->nullable();
             $table->double('remaining_amount')->default(0);
-            $table->string('invoice_code')->unique();
+
+            $table->enum('payment_option', ['full', 'half'])->nullable();
+
             $table->enum('payment_status', ['paid', 'half_paid', 'unpaid'])->default('unpaid');
+
+            $table->string('invoice_code')->unique();
+
+            $table->timestamp('paid_at')->nullable();
 
             $table->timestamps();
         });
