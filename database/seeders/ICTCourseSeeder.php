@@ -22,8 +22,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development ( Frontend )',
                 'slug' => 'web-development-frontend',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:30:18',
@@ -37,8 +37,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development ( Frontend )',
                 'slug' => 'web-development-frontend',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:31:39',
@@ -52,8 +52,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development ( Frontend )',
                 'slug' => 'web-development-frontend',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:32:42',
@@ -67,8 +67,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development ( Backend )',
                 'slug' => 'web-development-backend',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:41:17',
@@ -82,8 +82,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development ( Backend )',
                 'slug' => 'web-development-backend',
                 'description' => '',
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:44:05',
@@ -97,8 +97,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'C++ Programming',
                 'slug' => 'c-programming',
                 'description' => '',
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 89,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:47:16',
@@ -112,8 +112,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'C++ Programming',
                 'slug' => 'c-programming',
                 'description' => '',
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 89,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:48:12',
@@ -127,8 +127,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'C++ Programming',
                 'slug' => 'c-programming',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 89,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:50:15',
@@ -142,8 +142,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'C# Programming',
                 'slug' => 'c-programming',
                 'description' => '',
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:54:20',
@@ -157,8 +157,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'C# Programming',
                 'slug' => 'c-programming',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:02:27',
@@ -172,8 +172,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'UX/UI Design',
                 'slug' => 'uxui-design',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 119,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:06:58',
@@ -187,8 +187,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'UX/UI Design',
                 'slug' => 'uxui-design',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 119,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:15:04',
@@ -202,8 +202,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'UX/UI Design',
                 'slug' => 'uxui-design',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 119,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:16:14',
@@ -217,8 +217,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'UX/UI Design',
                 'slug' => 'uxui-design',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 119,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:17:05',
@@ -232,8 +232,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Mobile App',
                 'slug' => 'mobile-app',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:24:28',
@@ -247,8 +247,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Mobile App',
                 'slug' => 'mobile-app',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:33:04',
@@ -262,8 +262,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Mobile App',
                 'slug' => 'mobile-app',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:33:49',
@@ -277,8 +277,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Graphic Design',
                 'slug' => 'graphic-design',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:44:00',
@@ -292,8 +292,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Graphic Design',
                 'slug' => 'graphic-design',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:44:35',
@@ -307,8 +307,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Python',
                 'slug' => 'python',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:46:25',
@@ -322,8 +322,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Python',
                 'slug' => 'python',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:48:24',
@@ -337,8 +337,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Python',
                 'slug' => 'python',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:48:52',
@@ -352,8 +352,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Data Analysist',
                 'slug' => 'data-analysist',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:53:47',
@@ -367,8 +367,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Data Analysist',
                 'slug' => 'data-analysist',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:54:22',
@@ -382,8 +382,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Java I',
                 'slug' => 'java-i',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:55:47',
@@ -397,8 +397,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Java I',
                 'slug' => 'java-i',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 04:56:35',
@@ -412,8 +412,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development-Backend (  NodeJs )',
                 'slug' => 'web-development-backend-nodejs',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:41:28',
@@ -427,8 +427,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Full Stack Web Development',
                 'slug' => 'full-stack-web-development',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:42:48',
@@ -442,8 +442,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Full Stack Web Development',
                 'slug' => 'full-stack-web-development',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:43:45',
@@ -457,8 +457,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Full Stack Web Development',
                 'slug' => 'full-stack-web-development',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:44:40',
@@ -472,8 +472,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Advance of Excel',
                 'slug' => 'advance-of-excel',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 99,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:45:29',
@@ -487,8 +487,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Database Management System',
                 'slug' => 'database-management-system',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:46:18',
@@ -502,8 +502,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Networking',
                 'slug' => 'networking',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 06:47:19',
@@ -517,8 +517,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Networking',
                 'slug' => 'networking',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:00:06',
@@ -532,8 +532,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Microsoft Office',
                 'slug' => 'microsoft-office',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 79,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:03:45',
@@ -547,8 +547,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Excel VBA',
                 'slug' => 'excel-vba',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:04:38',
@@ -562,8 +562,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Excel VBA',
                 'slug' => 'excel-vba',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:05:20',
@@ -577,8 +577,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Java Backend ( Spring Boot )',
                 'slug' => 'java-backend-spring-boot',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:23:55',
@@ -592,8 +592,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Java Backend ( Spring Boot )',
                 'slug' => 'java-backend-spring-boot',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:24:52',
@@ -607,8 +607,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Cloud Computing',
                 'slug' => 'cloud-computing',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 159,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:25:44',
@@ -622,8 +622,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Digital Marketing',
                 'slug' => 'digital-marketing',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:27:09',
@@ -637,8 +637,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Digital Marketing',
                 'slug' => 'digital-marketing',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 139,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:27:56',
@@ -652,8 +652,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Deep Learning',
                 'slug' => 'deep-learning',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:34:27',
@@ -667,8 +667,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Deep Learning',
                 'slug' => 'deep-learning',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:34:57',
@@ -682,8 +682,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'IT Project Management',
                 'slug' => 'it-project-management',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:36:09',
@@ -697,8 +697,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'IT Project Management',
                 'slug' => 'it-project-management',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:36:46',
@@ -712,8 +712,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Video Editing',
                 'slug' => 'video-editing',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:37:56',
@@ -727,8 +727,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Video Editiing',
                 'slug' => 'video-editiing',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:38:27',
@@ -742,8 +742,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'C Programming',
                 'slug' => 'c-programming',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 119,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:39:23',
@@ -757,8 +757,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'DevOps',
                 'slug' => 'devops',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:40:02',
@@ -772,8 +772,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Microsoft Power BI',
                 'slug' => 'microsoft-power-bi',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:41:09',
@@ -787,8 +787,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Microsoft Power BI',
                 'slug' => 'microsoft-power-bi',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:42:20',
@@ -802,8 +802,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'AI & Machine Learning',
                 'slug' => 'ai-machine-learning',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:43:35',
@@ -817,8 +817,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'AI & Machine Learning',
                 'slug' => 'ai-machine-learning',
                 'description' => null,
-                'start_date' => null,
-                'end_date' => null,
+
+
                 'price' => 149,
                 'status' => 'active',
                 'created_at' => '2026-03-04 07:44:14',
@@ -836,8 +836,6 @@ class ICTCourseSeeder extends Seeder
                 'title' => $course['title'],
                 'slug' => $course['slug'],
                 'description' => $course['description'],
-                'start_date' => $course['start_date'],
-                'end_date' => $course['end_date'],
                 'price' => $course['price'],
                 'status' => $course['status'],
                 'created_at' => $course['created_at'],

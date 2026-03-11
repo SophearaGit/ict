@@ -30,7 +30,7 @@
 
 <head>
     <!--  Title -->
-    <title></title>
+    <title>ICT | ADMIN | FORGET PASSWORD</title>
     <!--  Required Meta Tag -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -41,7 +41,7 @@
     <meta name="keywords" content="Mordenize" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!--  Favicon -->
-    <link rel="shortcut icon" type="image/png" href="" />
+    <link rel="shortcut icon" type="image/png" href="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
 
     <!-- Core Css -->
     <link id="themeColors" rel="stylesheet" href="/admin/assets/dist/css/style.min.css" />

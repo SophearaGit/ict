@@ -12,7 +12,7 @@ class StudentController extends Controller
     public function index(Request $request): View
     {
         $data = [
-            'page_title' => 'ICT Center | Students',
+            'page_title' => 'ICT | ADMIN | STUDENTS',
             'students' => User::where('role', 'student')
                 ->where('approval_status', 'approved')
                 ->whereNull('document')

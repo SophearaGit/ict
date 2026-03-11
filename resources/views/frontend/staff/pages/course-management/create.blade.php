@@ -4,7 +4,7 @@
     <style>
         .select2-container--default .select2-selection--single {
             /* border-radius: var(--bs-border-radius-lg); */
-            height: 42px;
+            /* height: 42px; */
             padding: 6px 12px;
             border: 1px solid var(--bs-border-color);
         }
@@ -47,28 +47,10 @@
                     <form class="" action="{{ route('staff.courses.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-3">
-                            <input type="file" class="form-control" name="thumbnail" accept="image/*">
-                            <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control " placeholder="Course Title" name="title">
-                            <label><i class="ti ti-book me-2 fs-4 text-info"></i><span
-                                    class="border-start border-info ps-3">Title</span></label>
-                            <x-input-error :messages="$errors->get('title')" class="text-danger mt-2" />
-                        </div>
                         <div class="row">
-                            <div class="form-floating mb-3 col-md-4">
-                                <select class="form-select" name="instructor_id" id="instructor_id">
-                                    <option value="" disabled selected>Select Instructor</option>
-                                    @foreach ($instructors as $instructor)
-                                        <option value="{{ $instructor->id }}">{{ $instructor->name }}</option>
-                                    @endforeach
-                                </select>
-                                <label style="padding: 1rem 33px; important;"><i
-                                        class="ti ti-user-circle me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">Instructor</span></label>
-                                <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-2" />
+                            <div class="mb-3 col-md-6">
+                                <input type="file" class="form-control" name="thumbnail" accept="image/*">
+                                <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
                             </div>
                             <div class="form-floating mb-3 col-md-6">
                                 <select class="form-select select2-schedule" name="schedule_id">
@@ -90,7 +72,36 @@
                                 </select>
                                 <x-input-error :messages="$errors->get('schedule_id')" class="text-danger mt-2" />
                             </div>
-                            <div class="form-floating mb-3 col-md-2">
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control " placeholder="Course Title" name="title">
+                            <label><i class="ti ti-book me-2 fs-4 text-info"></i><span
+                                    class="border-start border-info ps-3">Title</span></label>
+                            <x-input-error :messages="$errors->get('title')" class="text-danger mt-2" />
+                        </div>
+                        <div class="row">
+                            <div class="form-floating mb-3 col-md-4">
+                                <input type="number" class="form-control " placeholder="Course Price" name="price"
+                                    step="0.01">
+                                <label style="padding: 1rem 26px; important;"><i
+                                        class="ti ti-currency-dollar me-2 fs-4 text-info"></i><span
+                                        class="border-start border-info ps-3">Price</span></label>
+                                <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
+                            </div>
+
+                            <div class="form-floating mb-3 col-md-4">
+                                <select class="form-select" name="instructor_id" id="instructor_id">
+                                    <option value="" disabled selected>Select Instructor</option>
+                                    @foreach ($instructors as $instructor)
+                                        <option value="{{ $instructor->id }}">{{ $instructor->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label style="padding: 1rem 33px; important;"><i
+                                        class="ti ti-user-circle me-2 fs-4 text-info"></i><span
+                                        class="border-start border-info ps-3">Instructor</span></label>
+                                <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-2" />
+                            </div>
+                            <div class="form-floating mb-3 col-md-4">
                                 <select class="form-select" name="status" id="status">
                                     <option value="" disabled selected>Select Status</option>
                                     <option value="active">Active</option>
@@ -102,36 +113,6 @@
                                 <x-input-error :messages="$errors->get('status')" class="text-danger mt-2" />
                             </div>
                         </div>
-                        <div class="row">
-
-                            {{-- start_date --}}
-                            <div class="form-floating mb-3 col-md-4">
-                                <input type="date" class="form-control " placeholder="Start Date" name="start_date">
-                                <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">Start Date</span></label>
-                                <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-2" />
-                            </div>
-
-                            {{-- end_date --}}
-                            <div class="form-floating mb-3 col-md-4">
-                                <input type="date" class="form-control " placeholder="End Date" name="end_date">
-                                <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">End Date</span></label>
-                                <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
-                            </div>
-                            <div class="form-floating mb-3 col-md-4">
-                                <input type="number" class="form-control " placeholder="Course Price" name="price"
-                                    step="0.01">
-                                <label style="padding: 1rem 26px; important;"><i
-                                        class="ti ti-currency-dollar me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">Price</span></label>
-                                <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
-                            </div>
-                        </div>
-
-
-
-
 
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Course Description" name="description" id="description"

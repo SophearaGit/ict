@@ -20,8 +20,6 @@ class ICTCourse extends Model
         'title',
         'slug',
         'description',
-        'start_date',
-        'end_date',
         'price',
         'status',
     ];

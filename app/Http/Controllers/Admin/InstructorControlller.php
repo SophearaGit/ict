@@ -12,7 +12,7 @@ class InstructorControlller extends Controller
     public function index(Request $request): View
     {
         $data = [
-            'page_title' => 'ICT Center | Instructors',
+            'page_title' => 'ICT | ADMIN | INSTRUCTORS',
             'instructors' => User::where('role', 'instructor')
                 ->where('approval_status', 'approved')
                 ->whereNotNull('document')

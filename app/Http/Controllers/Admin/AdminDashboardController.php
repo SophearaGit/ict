@@ -10,7 +10,10 @@ class AdminDashboardController extends Controller
 {
     public function index(): View
     {
-        return view('admin.pages.dashboard');
+        $data = [
+            'page_title' => 'ICT | ADMIN | DASHBOARD',
+        ];
+        return view('admin.pages.dashboard', $data);
     }
 
 }

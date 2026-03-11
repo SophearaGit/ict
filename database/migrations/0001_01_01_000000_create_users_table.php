@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('document')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['instructor', 'student', 'staff'])->default('student');
+            $table->enum('role', ['instructor', 'student', 'staff', 'unknown'])->default('student');
             $table->string(column: 'headline')->nullable();
             $table->string(column: 'facebook')->nullable();
             $table->string(column: 'x')->nullable();
@@ -37,13 +37,13 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
+        Schema::create('password_reset_tokens', function (Blueprint $table): void {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::create('sessions', function (Blueprint $table): void {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();

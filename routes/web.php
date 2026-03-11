@@ -20,6 +20,7 @@ use App\Http\Controllers\Frontend\Staff\{
 };
 
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 /*******************************************************
  * GLOBAL
@@ -33,7 +34,7 @@ Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::middleware(['auth:web', 'verified', 'check_role:student'])
     ->prefix('student')
     ->name('student.')
-    ->group(function () {
+    ->group(function (): void {
 
 
         /*******************************************************
@@ -130,7 +131,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
 Route::middleware(['auth:web', 'verified', 'check_role:staff'])
     ->prefix('staff')
     ->name('staff.')
-    ->group(function () {
+    ->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
 
         /*******************************************************
@@ -165,17 +166,19 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::resource('/reports', IctStaffReportController::class);
 
 
-
-
-
-
-
-
-
-
-
-
     });
+
+/*******************************************************
+ * 404 NOT FOUND
+ *******************************************************/
+Route::fallback(function (): Response {
+    $data = [
+        'page_title' => 'ICT | Page Not Found',
+    ];
+    return response()->view('errors.404', $data, Response::HTTP_NOT_FOUND);
+})->name('404');
+
+
 
 
 // Additional Routes

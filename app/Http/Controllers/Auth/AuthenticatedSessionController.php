@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('staff.dashboard', absolute: false));
         }
 
-        return abort(404);
+        abort(404);
     }
 
     /**
