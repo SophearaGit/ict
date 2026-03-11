@@ -6,23 +6,6 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    {{-- <div class="d-md-flex align-items-center mb-9">
-                        <div>
-                            <h5 class="card-title fw-semibold mb-2">
-                                Courses
-                            </h5>
-                            <p class="card-subtitle text-muted">
-                                You can view details, edit, or delete
-                                courses from this page.
-                            </p>
-                        </div>
-                        <div class="ms-auto mt-4 mt-md-0">
-
-                            <a href="{{ route('staff.courses.create') }}" class="btn btn-primary">
-                                <i class="ti ti-circle-plus me-1"></i> Create Course
-                            </a>
-                        </div>
-                    </div> --}}
                     <div class="row">
                         <div class="col-md-4 col-xl-3">
                             <form class="position-relative" action="{{ route('staff.courses.index') }}" method="GET">
@@ -32,24 +15,9 @@
                                 <i
                                     class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                             </form>
-
-                            {{-- <form action="{{ route('admin.instructor.index') }}" method="GET">
-                                <input type="search" class="form-control" placeholder="Search Instructor" name="search"
-                                    value="{{ request()->search ?? '' }}">
-                            </form> --}}
-
-
-
-
                         </div>
                         <div
                             class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                            {{-- <div class="action-btn show-btn" >
-                                <a href="javascript:void(0)"
-                                    class="delete-multiple btn-light-danger btn me-2 text-danger d-flex align-items-center font-medium">
-                                    <i class="ti ti-trash text-danger me-1 fs-5"></i> Delete All Row
-                                </a>
-                            </div> --}}
                             <a href="{{ route('staff.courses.create') }}" id="btn-add-contact"
                                 class="btn btn-info d-flex align-items-center">
                                 <i class="ti ti-circle-plus text-white me-1 fs-5"></i> Add Course
@@ -63,20 +31,15 @@
                                 <table class="table align-middle mb-0 text-nowrap">
                                     <thead>
                                         <tr class="text-muted fw-semibold">
-                                            {{-- <th scope="col" class="ps-0">NO</th> --}}
                                             <th scope="col" class="ps-0">Price</th>
                                             <th scope="col" class="ps-0">Subject</th>
                                             <th scope="col" class="ps-0">Schedule</th>
-                                            <th scope="col" class="ps-0">Totala Students</th>
                                             <th scope="col" class="text-end ps-0"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse ($courses as $course)
                                             <tr>
-                                                {{-- <td class="ps-0">
-                                                    {{ $loop->iteration }}
-                                                </td> --}}
                                                 <td class="ps-0">
                                                     <i
                                                         class="ti ti-currency-dollar fs-3 fw-semibold"></i>{{ $course->price }}
@@ -112,7 +75,6 @@
                                                             $days = collect(explode('-', $course->schedule->study_day))
                                                                 ->map(fn($day) => ucfirst($day))
                                                                 ->implode(' • ');
-
                                                             $start = \Carbon\Carbon::parse(
                                                                 $course->schedule->start_time,
                                                             )->format('g:i ');
@@ -122,7 +84,6 @@
 
                                                             $shift = ucfirst($course->schedule->shift);
                                                         @endphp
-
                                                         <strong>
                                                             {{ $days }} | {{ $shift }} (
                                                             {{ $start }}
@@ -133,12 +94,6 @@
                                                         <span class="text-muted">No schedule</span>
                                                     @endif
                                                 </td>
-
-                                                <td class="ps-0">
-                                                    {{ $course->students()->count() == 0 ? '' : $course->students()->count() }}
-                                                </td>
-
-
                                                 <td class="text-end ps-0">
                                                     <div class="dropdown dropstart">
                                                         <a href="#" class="text-muted show" id="dropdownMenuButton"
@@ -170,12 +125,9 @@
                                         @endforelse
                                     </tbody>
                                 </table>
-
                                 <div class="d-flex align-items-center justify-content-end py-1">
                                     <x-ui-pagination :paginator="$courses" />
                                 </div>
-
-
                             </div>
                         </div>
                     </div>

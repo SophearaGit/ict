@@ -31,6 +31,10 @@
                         data-bs-target="#tabPaneList">
                         <span class="fe fe-list"></span>
                     </button>
+                    <button class="btn btn-primary add_staff_btn">
+                        <span class="fe fe-plus"></span>
+                        Add Staff
+                    </button>
                 </div>
             </div>
         </div>
@@ -48,12 +52,10 @@
                         </form>
                     </div>
                     <div class="row">
-                        @forelse ($staffs as $instructor)
+                        @forelse ($staffs as $staff)
                             @php
                                 $isImgChecked =
-                                    $instructor->image == 'no-img.jpg'
-                                        ? '/default-images/user/both.jpg'
-                                        : $instructor->image;
+                                    $staff->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $staff->image;
                             @endphp
                             <div class="col-xl-3 col-lg-6 col-md-6 col-12">
                                 <!-- Card -->
@@ -64,31 +66,42 @@
                                             <img src="{{ $isImgChecked }}" class="rounded-circle avatar-xl mb-3"
                                                 alt="">
                                             <h4 class="mb-0">
-                                                {{ $instructor->name }}
+                                                {{ $staff->name }}
                                             </h4>
                                             <p class="mb-0">
-                                                {{ $instructor->headline ?? 'No headline provided' }}
+                                                {{ $staff->email }}
                                             </p>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2 mt-4">
-                                            <span>Students</span>
+                                            <span>
+                                                Reports
+                                            </span>
                                             <span class="text-dark">
-                                                {{ rand(10, 20) }}
+                                                {{ $staff->reports->count() }}
                                             </span>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
-                                            <span>Instructor Rating</span>
-                                            <span class="text-warning">
-                                                {{ number_format(rand(30, 50) / 10, 1) }}
-                                                <span>
-                                                    <i class="fe fe-star"></i>
-                                                </span>
+                                            <span>
+                                                Approval Status
+                                            </span>
+                                            <span class="text-dark">
+                                                @if ($staff->role == 'unknown')
+                                                    <span class="badge bg-danger">
+                                                        Disabled
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-success">
+                                                        Enabled
+                                                    </span>
+                                                @endif
                                             </span>
                                         </div>
-                                        <div class="d-flex justify-content-between pt-2">
-                                            <span>Courses</span>
+                                        <div class="d-flex justify-content-between border-bottom py-2">
+                                            <span>
+                                                Joined
+                                            </span>
                                             <span class="text-dark">
-                                                {{ rand(1, 5) }}
+                                                {{ $staff->created_at->format('d M, Y') }}
                                             </span>
                                         </div>
                                     </div>
@@ -126,19 +139,19 @@
                                     <tr>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Headline</th>
-                                        <th>Students</th>
+                                        <th>Reports</th>
+                                        <th>Approval Status</th>
                                         <th>Joined</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($staffs as $instructor)
+                                    @forelse ($staffs as $staff)
                                         @php
                                             $isImgChecked =
-                                                $instructor->image == 'no-img.jpg'
+                                                $staff->image == 'no-img.jpg'
                                                     ? '/default-images/user/both.jpg'
-                                                    : $instructor->image;
+                                                    : $staff->image;
                                         @endphp
                                         <tr>
                                             <td>
@@ -146,21 +159,29 @@
                                                     <img src="{{ $isImgChecked }}" alt=""
                                                         class="rounded-circle avatar-md me-2">
                                                     <h5 class="mb-0">
-                                                        {{ $instructor->name }}
+                                                        {{ $staff->name }}
                                                     </h5>
                                                 </div>
                                             </td>
                                             <td>
-                                                {{ $instructor->email }}
+                                                {{ $staff->email }}
                                             </td>
                                             <td>
-                                                {{ $instructor->headline ?? 'N/A' }}
+                                                {{ $staff->reports->count() }}
                                             </td>
                                             <td>
-                                                {{ rand(10, 20) }}
+                                                @if ($staff->role == 'unknown')
+                                                    <span class="badge bg-danger">
+                                                        Disabled
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-success">
+                                                        Enabled
+                                                    </span>
+                                                @endif
                                             </td>
                                             <td>
-                                                {{ $instructor->created_at->format('d M, Y') }}
+                                                {{ $staff->created_at->format('d M, Y') }}
                                             </td>
                                             <td>
                                                 <div class="hstack gap-4">
@@ -172,16 +193,39 @@
                                                         </a>
                                                         <span class="dropdown-menu">
                                                             <span class="dropdown-header">Settings</span>
-                                                            {{-- view --}}
-                                                            <a class="dropdown-item" href="#">
-                                                                <i class="fe fe-eye dropdown-item-icon"></i>
-                                                                View
-                                                            </a>
-                                                            <a class="dropdown-item" href="#">
+                                                            {{-- disable --}}
+                                                            @if ($staff->role == 'unknown')
+                                                                <form
+                                                                    action="{{ route('admin.staff.toggle', $staff->id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PATCH')
+                                                                    <button type="submit" class="dropdown-item">
+                                                                        <i class="fe fe-check dropdown-item-icon"></i>
+                                                                        Enable
+                                                                    </button>
+                                                                </form>
+                                                            @else
+                                                                <form
+                                                                    action="{{ route('admin.staff.toggle', $staff->id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PATCH')
+
+                                                                    <button type="submit" class="dropdown-item">
+                                                                        <i class="fe fe-x dropdown-item-icon"></i>
+                                                                        Disable
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                            <a class="dropdown-item edit_staff_btn"
+                                                                href="javascript:void(0)" data-id="{{ $staff->id }}">
                                                                 <i class="fe fe-edit dropdown-item-icon"></i>
                                                                 Edit
                                                             </a>
-                                                            <a class="dropdown-item" href="#">
+                                                            <a class="dropdown-item del_staff_btn"
+                                                                href="javascript:void(0)"
+                                                                data-url="{{ route('admin.staff.destroy', $staff->id) }}">
                                                                 <i class="fe fe-trash dropdown-item-icon"></i>
                                                                 Remove
                                                             </a>
@@ -208,17 +252,109 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="dynamic_staff_modal" tabindex="-1" aria-labelledby="addStaffModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog dynamic_staff_modal_content">
+
+        </div>
+    </div>
 @endsection
 @push('scripts')
     <script>
+        $('.add_staff_btn').on('click', function(e) {
+            e.preventDefault();
+            $('#dynamic_staff_modal').modal('show');
+            $.ajax({
+                method: 'GET',
+                url: base_url + `/staff/create`,
+                data: {},
+                beforeSend: function() {
+                    $('.dynamic_staff_modal_content').html(
+                        `<div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>`
+                    );
+                },
+                success: function(data) {
+                    $('.dynamic_staff_modal_content').html(data);
+                },
+                error: function(xhr, status, error) {
+
+                },
+            })
+        })
+
+        $('.edit_staff_btn').on('click', function(e) {
+            e.preventDefault();
+            $('#dynamic_staff_modal').modal('show');
+            let staff_id = $(this).data('id');
+            $.ajax({
+                method: 'GET',
+                url: base_url + `/staff/edit/${staff_id}`,
+                data: {},
+                beforeSend: function() {
+                    $('.dynamic_staff_modal_content').html(
+                        `<div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>`
+                    );
+                },
+                success: function(data) {
+                    $('.dynamic_staff_modal_content').html(data);
+                },
+                error: function(xhr, status, error) {
+
+                },
+            })
+        })
+
+        $('.del_staff_btn').on('click', function(e) {
+            e.preventDefault();
+            let url = $(this).data('url');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method: "DELETE",
+                        url: url,
+                        data: {
+                            _token: csrf_token,
+                        },
+                        success: function(data) {
+                            iziToast.success({
+                                message: data.message,
+                                position: 'bottomRight'
+                            });
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 500);
+                        },
+                        error: function(xhr, status, data) {},
+                    })
+                }
+            });
+        })
+
         document.addEventListener('DOMContentLoaded', function() {
             const activeTab = localStorage.getItem('staff_active_tab') || 'grid';
-
             const trigger = document.querySelector(`[data-tab="${activeTab}"]`);
             if (trigger) {
                 new bootstrap.Tab(trigger).show();
             }
         });
+
         document.querySelectorAll('[data-tab]').forEach(btn => {
             btn.addEventListener('click', function() {
                 localStorage.setItem('staff_active_tab', this.dataset.tab);

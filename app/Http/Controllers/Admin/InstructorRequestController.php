@@ -21,7 +21,7 @@ class InstructorRequestController extends Controller
     public function index(Request $request): View
     {
         $data = [
-            "page_title" => "ICT Center | Instructor Requests",
+            "page_title" => "ICT | ADMIN | INSTRUCTOR REQUESTS",
             "instructor_requests" => User::whereIn('approval_status', ['pending', 'rejected'])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $query->where('name', 'like', '%' . $request->search . '%');

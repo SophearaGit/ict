@@ -73,7 +73,21 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
      *******************************************************/
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
+
+
     Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+    Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
+    Route::put('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
+    Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
+    Route::patch('/staff/{id}/toggle', [StaffController::class, 'toggle'])
+        ->name('staff.toggle');
+
+
+
+
+
 
 
     /*******************************************************

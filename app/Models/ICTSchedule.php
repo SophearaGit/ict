@@ -11,8 +11,6 @@ class ICTSchedule extends Model
     /** @use HasFactory<\Database\Factories\ICTScheduleFactory> */
     use HasFactory;
 
-  
-
     public function courses(): HasMany
     {
         return $this->hasMany(ICTCourse::class, 'schedule_id');

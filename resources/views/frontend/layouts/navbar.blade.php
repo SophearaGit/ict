@@ -401,6 +401,13 @@
                                                 Profile
                                             </a>
                                         </li>
+                                    @elseif (Auth::user()->role == 'unknown')
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                <i class="fe fe-x me-2"></i>
+                                                Your account has been disabled. Please contact support.
+                                            </a>
+                                        </li>
                                     @endif
                                 </ul>
                                 <div class="dropdown-divider"></div>

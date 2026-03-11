@@ -3,7 +3,8 @@
     <div class="vh-100" data-simplebar>
         <!-- Brand logo -->
         <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-            <img src="" alt="ICT-LOGO" />
+            <img src="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" style="width: 40px; height: 40px;"
+                alt="ICT-LOGO" />
         </a>
         <!-- Navbar nav -->
         <ul class="navbar-nav flex-column" id="sideNavbar">
