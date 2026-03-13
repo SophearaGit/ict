@@ -53,8 +53,6 @@ class IctCourseController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
@@ -73,8 +71,6 @@ class IctCourseController extends Controller
         $course->price = $request->price;
         $course->slug = Str::slug($request->title);
         $course->thumbnail = $thumbnailPath;
-        $course->start_date = $request->start_date;
-        $course->end_date = $request->end_date;
         $course->status = $request->status;
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
@@ -104,8 +100,6 @@ class IctCourseController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
@@ -126,8 +120,6 @@ class IctCourseController extends Controller
         $course->price = $request->price;
         $course->slug = Str::slug($request->title);
         $course->thumbnail = $thumbnailPath;
-        $course->start_date = $request->start_date;
-        $course->end_date = $request->end_date;
         $course->status = $request->status;
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;

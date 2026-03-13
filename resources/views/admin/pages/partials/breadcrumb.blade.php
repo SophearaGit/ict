@@ -3,6 +3,7 @@
     $isLevel = Route::is('admin.course-level.*');
     $isCategory = Route::is('admin.course-category.*');
     $isCourses = Route::is('admin.courses.*');
+    $isRealTimeCourses = Route::is('admin.courses.realtime.index');
 
     if ($isLanguage) {
         $pageTitle = 'Course Language';
@@ -29,6 +30,10 @@
         $pageTitle = 'Courses';
         $pageButton = null;
         $indexRoute = route('admin.courses.index');
+    } elseif ($isRealTimeCourses) {
+        $pageTitle = 'Real Time Courses';
+        $pageButton = null;
+        $indexRoute = route('admin.courses.realtime.index');
     } else {
         $pageTitle = '';
         $pageButton = null;

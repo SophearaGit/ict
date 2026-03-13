@@ -59,10 +59,16 @@
                     ? ''
                     : 'collapsed' }}
                 "
-                    href="#" data-bs-toggle="collapse" data-bs-target="#navCourseManagement" aria-expanded="false"
+                    href="#" data-bs-toggle="collapse" data-bs-target="#navCourseManagement"
+                    aria-expanded="{{ Route::is('admin.course-language.index') ||
+                    Route::is('admin.course-level.index') ||
+                    Route::is('admin.course-category.index') ||
+                    Route::is('admin.courses.index')
+                        ? 'true'
+                        : 'false' }}"
                     aria-controls="navCourseManagement">
                     <i class="nav-icon fe fe-book me-2"></i>
-                    Course Management
+                    Course ( Online )
                 </a>
                 <div id="navCourseManagement"
                     class="collapse {{ Route::is('admin.course-language.index') ||
@@ -92,10 +98,28 @@
                     </ul>
                 </div>
             </li>
-
-
-
-
+            {{-- Course real time dropdown  --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Route::is('admin.courses.realtime.index') ? '' : 'collapsed' }}" href="#"
+                    data-bs-toggle="collapse" data-bs-target="#navCourseRealTime"
+                    aria-expanded="
+                    {{ Route::is('admin.courses.realtime.index') ? 'true' : 'false' }}
+                    "
+                    aria-controls="navCourseRealTime">
+                    <i class="nav-icon fe fe-book me-2"></i>
+                    Course ( Real Time )
+                </a>
+                <div id="navCourseRealTime"
+                    class="collapse {{ Route::is('admin.courses.realtime.index') ? 'show' : '' }} "
+                    data-bs-parent="#sideNavbar">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::is('admin.courses.realtime.index') ? 'active' : '' }} "
+                                href="{{ route('admin.courses.realtime.index') }}">All</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         </ul>
     </div>
 </nav>

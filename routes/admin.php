@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
+use App\Http\Controllers\Admin\RealTimeCoursesController;
 use App\Http\Controllers\Admin\StaffController;
 use Illuminate\Support\Facades\Route;
 
@@ -99,9 +100,15 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
 
 
     /*******************************************************
-     *  COURSE
+     *  COURSE ONLINE
      *******************************************************/
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+
+    /*******************************************************
+     *  COURSE REAL TIME
+     *******************************************************/
+    Route::get('/realtime-courses', [RealTimeCoursesController::class, 'realtimeIndex'])->name('courses.realtime.index');
+
 
 
     /*******************************************************
