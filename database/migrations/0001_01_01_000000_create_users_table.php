@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('image')->default('no-img.jpg');
             $table->string('name');
-            $table->string('khmer_name')->default('');
+            $table->string('khmer_name')->nullable();
             $table->string('email')->unique();
             $table->text(column: 'bio')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();

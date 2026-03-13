@@ -34,5 +34,10 @@ class ICTInvoice extends Model
         return $this->belongsTo(ICTCourse::class, 'course_id');
     }
 
+    public function payments()
+    {
+        return $this->hasMany(ICTPayments::class, 'invoice_id');
+    }
+
 
 }

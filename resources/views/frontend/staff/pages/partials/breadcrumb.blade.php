@@ -13,6 +13,8 @@
                         Invoices
                     @elseif (Route::is('staff.reports.index'))
                         Reports
+                    @elseif (Route::is('staff.profile.edit'))
+                        Account Settings
                     @else
                     @endif
                 </h4>
@@ -31,6 +33,8 @@
                                 Invoices
                             @elseif (Route::is('staff.reports.index'))
                                 Reports
+                            @elseif (Route::is('staff.profile.edit'))
+                                Account Settings
                             @else
                             @endif
                         </li>

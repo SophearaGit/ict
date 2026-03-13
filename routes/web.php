@@ -135,6 +135,13 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
 
         /*******************************************************
+         * PROFILE
+         *******************************************************/
+        Route::get('/profile-edit', [ProfileController::class, 'StaffProfileEdit'])->name('profile.edit');
+        Route::post('/profile-edit-update', [ProfileController::class, 'StaffProfileUpdate'])->name('profile.edit.update');
+        Route::post('/social-profile-update', [ProfileController::class, 'StaffSocialProfileUpdate'])->name('social.profile.update');
+
+        /*******************************************************
          * INVOICES
          *******************************************************/
         Route::get('/invoices', [IctInvoiceController::class, 'invoices'])->name('invoices');

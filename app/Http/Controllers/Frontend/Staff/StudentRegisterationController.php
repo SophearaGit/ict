@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Frontend\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\ICTCourse;
+use App\Models\ICTCourseEnrollments;
 use App\Models\ICTInvoice;
+use App\Models\ICTPayments;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -54,6 +57,7 @@ class StudentRegisterationController extends Controller
 
         try {
 
+
             $course = ICTCourse::findOrFail($request->course_id);
 
             $price = $course->price;
@@ -62,19 +66,16 @@ class StudentRegisterationController extends Controller
             $extraCharge = 0;
 
             // Apply payment option logic
-            if ($request->payment_option === 'full') {
-                $discount = 10;
-                $totalAmount = $price - $discount;
-            } else {
-                $extraCharge = 20;
-                $totalAmount = $price + $extraCharge;
-            }
+            $discount = $request->payment_option === 'full' ? 10 : 0;
+            $extraCharge = $request->payment_option === 'half' ? 20 : 0;
+
+            $totalAmount = $price - $discount + $extraCharge;
 
             // Auto calculate payment
             if ($request->payment_option === 'half') {
 
                 // student must pay 50%
-                $paid = $totalAmount / 2;
+                $paid = round($totalAmount / 2, 2);
 
             } else {
 
@@ -111,15 +112,34 @@ class StudentRegisterationController extends Controller
                 $user = User::create([
                     'name' => $request->name,
                     'email' => $request->email,
-                    'password' => bcrypt($request->password),
+                    'password' => Hash::make($request->password),
                     'role' => 'student',
                     'approval_status' => 'approved',
                     'registered_by_staff_id' => Auth::id(),
                 ]);
+
             }
 
+            $existing = ICTCourseEnrollments::where([
+                'student_id' => $user->id,
+                'course_id' => $course->id
+            ])->exists();
+
+            if ($existing) {
+                throw new \Exception('Student already enrolled in this course.');
+            }
+
+            // Create enrollment
+            ICTCourseEnrollments::create([
+                'student_id' => $user->id,
+                'course_id' => $course->id,
+                'enrolled_by' => Auth::id(),
+                'status' => 'active',
+                'enrolled_at' => now(),
+            ]);
+
             // Create invoice
-            ICTInvoice::create([
+            $invoice = ICTInvoice::create([
                 'staff_id' => Auth::id(),
                 'student_id' => $user->id,
                 'course_id' => $course->id,
@@ -135,9 +155,20 @@ class StudentRegisterationController extends Controller
                 'payment_option' => $request->payment_option,
                 'payment_status' => $status,
 
-                'invoice_code' => 'INV-' . now()->format('Ymd') . '-' . rand(1000, 9999),
+                'invoice_code' => 'INV-' . now()->format('YmdHis') . '-' . mt_rand(100, 999),
                 'paid_at' => $paid > 0 ? now() : null,
             ]);
+
+            if ($paid > 0) {
+                ICTPayments::create([
+                    'invoice_id' => $invoice->id,
+                    'amount' => $paid,
+                    'payment_method' => 'cash',
+                    'paid_by' => Auth::id(),
+                    'paid_at' => now(),
+                    'note' => 'Initial payment during registration'
+                ]);
+            }
 
             DB::commit();
 
@@ -151,7 +182,7 @@ class StudentRegisterationController extends Controller
 
             return redirect()
                 ->back()
-                ->with('error', 'Something went wrong!');
+                ->with('error', $e->getMessage());
         }
     }
 
