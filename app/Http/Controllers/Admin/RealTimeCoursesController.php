@@ -11,20 +11,40 @@ class RealTimeCoursesController extends Controller
 {
     public function realtimeIndex(Request $request)
     {
+        $courses = ICTCourse::query();
 
+        // Search
+        if ($request->filled('search_query')) {
+            $courses->where('title', 'like', '%' . $request->search_query . '%');
+        }
 
+        // Schedule filter
+        if ($request->filled('schedule_ids')) {
+            $courses->whereHas('schedule', function ($q) use ($request) {
+                $q->whereIn('id', $request->schedule_ids);
+            });
+        }
 
-        $data = [
+        // ✅ Status filter
+        if ($request->filled('status')) {
+            $courses->where('status', $request->status);
+        }
+
+        $courses = $courses
+            ->withCount('enrollments')
+            ->orderBy('title', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(6)
+            ->withQueryString();
+
+        $groupedSchedules = ICTSchedule::all()->groupBy('study_day');
+
+        return view('admin.pages.real-time-courses.real-time-courses', [
             'page_title' => 'ICT | ADMIN | REAL TIME COURSES',
-            'courses' => ICTCourse::when($request->filled('search'), function ($query) use ($request) {
-                $query->where('title', 'like', '%' . $request->search . '%');
-            })
-                ->withCount('enrollments')
-                ->orderBy('title', 'asc')
-                ->orderBy('created_at', 'desc')
-                ->paginate(6),
+            'courses' => $courses,
             'schedules' => ICTSchedule::all(),
-        ];
-        return view('admin.pages.real-time-courses.real-time-courses', $data);
+            'selected_schedule_ids' => $request->schedule_ids ?? [],
+            'groupedSchedules' => $groupedSchedules,
+        ]);
     }
 }

@@ -56,7 +56,7 @@
     <title>
         @yield('page_title')
     </title>
-    @stack('scripts')
+    @stack('styles')
 </head>
 
 <body>

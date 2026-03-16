@@ -22,6 +22,8 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['instructor', 'student', 'staff', 'unknown'])->default('student');
+            $table->string(column: 'phone')->nullable();
+            $table->string(column: 'alternate_phone')->nullable();
             $table->string(column: 'headline')->nullable();
             $table->string(column: 'facebook')->nullable();
             $table->string(column: 'x')->nullable();
