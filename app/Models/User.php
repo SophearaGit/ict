@@ -27,6 +27,8 @@ class User extends Authenticatable
         'document',
         'registered_by_staff_id',
         'student_type',
+        'phone',
+        'alternate_phone',
     ];
 
     public function reports(): HasMany

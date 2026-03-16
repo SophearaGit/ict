@@ -1,720 +1,672 @@
-   <div class="row">
-       <div class="col-lg-12 col-md-12 col-12">
-           <!-- Tab -->
-           <div class="tab-content">
-               <!-- Tab pane -->
-               <div class="tab-pane fade show active" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
-                   <div class="mb-4">
-                       <input type="search" class="form-control" placeholder="Search Course">
-                   </div>
-                   <div class="row">
-                       @forelse ($courses as $course)
-                           <div class="col-lg-3 col-md-6 col-12">
-                               <!-- Card -->
-                               <div class="card mb-4 card-hover">
-                                   <a href="course-single.html"><img
-                                           src="{{ asset($course->thumbnail == '' ? '/default-images/noImg/no-thumbnail.jpg' : $course->thumbnail) }}"
-                                           alt="course" class="card-img-top"
-                                           style="height: 230px; object-fit: cover;"></a>
-                                   <!-- Card body -->
-                                   <div class="card-body">
-                                       <h4 class="mb-2 text-truncate-line-2">
-                                           <a href="course-single.html" class="text-inherit">
-                                               {{ $course->title }}
-                                           </a>
-                                       </h4>
-                                       <div class="d-flex justify-content-between border-bottom py-2 mt-2">
-                                           <span>
-                                               Created At
-                                           </span>
-                                           <span class="text-dark">
-                                               {{ $course->created_at->format('d M, Y') }}
-                                           </span>
-                                       </div>
-                                       <div class="d-flex justify-content-between border-bottom py-2 mt-2">
-                                           <span>
-                                               Scehdule
-                                           </span>
-                                           <span class="text-dark">
-                                               @php
-                                                   $days = collect(explode('-', $course->schedule->study_day))
-                                                       ->map(
-                                                           fn($d) => \Illuminate\Support\Str::of($d)
-                                                               ->ucfirst()
-                                                               ->substr(0, 3),
-                                                       )
-                                                       ->join(' • ');
+@extends('admin.layouts.master')
+@section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@push('styles')
+    <style>
+        .schedule-card {
+            border: var(--gk-card-border-width) solid var(--gk-card-border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
-                                                   $start = \Carbon\Carbon::parse(
-                                                       $course->schedule->start_time,
-                                                   )->format('g:i');
-                                                   $end = \Carbon\Carbon::parse($course->schedule->end_time)->format(
-                                                       'g:i A',
-                                                   );
-                                                   $shift = ucfirst($course->schedule->shift);
-                                               @endphp
-                                               <div>
-                                                   <div class="fw-semibold">{{ $days }}</div>
-                                                   <div class="text-muted small">
-                                                       <span class="badge bg-light text-dark">{{ $shift }}</span>
-                                                       {{ $start }} – {{ $end }}
-                                                   </div>
-                                               </div>
-                                           </span>
-                                       </div>
-                                       <div class="d-flex justify-content-between border-bottom py-2 ">
-                                           <span>
-                                               Status
-                                           </span>
-                                           <span class="text-dark">
-                                               {{ ucfirst($course->status) }}
-                                           </span>
-                                       </div>
-                                       {{-- students amount --}}
-                                       <div class="d-flex justify-content-between border-bottom  py-2 ">
-                                           <span>
-                                               Students
-                                           </span>
-                                           <span class="text-dark">
-                                               {{ $course->enrollments_count }}
-                                           </span>
-                                       </div>
-                                       <div class="d-flex justify-content-between border-bottom py-2 ">
-                                           <span>
-                                               Price
-                                           </span>
-                                           <span class="text-dark">
-                                               ${{ $course->price }}
-                                           </span>
-                                       </div>
-                                       {{-- earning --}}
-                                       <div class="d-flex justify-content-between pt-2 ">
-                                           <span>
-                                               Revenue
-                                           </span>
-                                           <span class="text-dark">
-                                               ${{ $course->payments->sum('amount') }}
-                                           </span>
-                                       </div>
-                                   </div>
-                                   <!-- Card footer -->
-                                   <div class="card-footer">
-                                       <div class="row align-items-center g-0">
-                                           <div class="col-auto">
-                                               <img src="{{ $course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
-                                                   class="rounded-circle avatar-xs" alt="avatar">
-                                           </div>
-                                           <div class="col ms-2">
-                                               <span>
-                                                   {{ $course->instructor ? $course->instructor->name : 'N/A' }}
-                                               </span>
-                                           </div>
-                                           <div class="col-auto">
-                                               <a href="javascript:void;" class="btn btn-sm btn-outline-secondary">
-                                                   <i class="fe fe-phone"></i>
-                                               </a>
-                                           </div>
-                                       </div>
-                                   </div>
-                               </div>
-                           </div>
-                       @empty
-                       @endforelse
+        .schedule-header {
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            /* background: #fafafa; */
+        }
 
-                       <div class="col-lg-12 col-md-12 col-12">
-                           <div class="pt-4">
-                               <!-- Pagination -->
-                               <nav>
-                                   <ul class="pagination justify-content-center mb-0">
-                                       <li class="page-item disabled">
-                                           <a class="page-link mx-1 rounded" href="#">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                   fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                                                   <path fill-rule="evenodd"
-                                                       d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z">
-                                                   </path>
-                                               </svg>
-                                           </a>
-                                       </li>
-                                       <li class="page-item active">
-                                           <a class="page-link mx-1 rounded" href="#">1</a>
-                                       </li>
-                                       <li class="page-item">
-                                           <a class="page-link mx-1 rounded" href="#">2</a>
-                                       </li>
-                                       <li class="page-item">
-                                           <a class="page-link mx-1 rounded" href="#">3</a>
-                                       </li>
-                                       <li class="page-item">
-                                           <a class="page-link mx-1 rounded" href="#">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                   fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                                                   <path fill-rule="evenodd"
-                                                       d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z">
-                                                   </path>
-                                               </svg>
-                                           </a>
-                                       </li>
-                                   </ul>
-                               </nav>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-               <!-- tab pane -->
-               <div class="tab-pane fade" id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
-                   <!-- card -->
-                   <div class="card">
-                       <!-- card header -->
-                       <div class="card-header">
-                           <input type="search" class="form-control" placeholder="Search Course">
-                       </div>
-                       <!-- table -->
-                       <div class="table-responsive">
-                           <table class="table mb-0 text-nowrap table-hover table-centered">
-                               <thead class="table-light">
-                                   <tr>
-                                       <th>Name</th>
-                                       <th>Topic</th>
-                                       <th>Courses</th>
-                                       <th>Joined</th>
-                                       <th>Students</th>
-                                       <th>Rating</th>
+        .schedule-body {
+            padding: 12px 16px;
+        }
 
-                                       <th>Action</th>
-                                   </tr>
-                               </thead>
-                               <tbody>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-12.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Guy Hawkins</h5>
-                                           </div>
-                                       </td>
-                                       <td>Engineering Architect</td>
-                                       <td>6 Courses</td>
-                                       <td>7 July, 2020</td>
-                                       <td>50,274</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+        .shift-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            color: #6b7280;
+        }
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-13.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Dianna Smiley</h5>
-                                           </div>
-                                       </td>
-                                       <td>Front End Developer</td>
-                                       <td>3 Courses</td>
-                                       <td>6 July, 2020</td>
-                                       <td>26,060</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 14px;
+        }
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-17.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Nia Sikhone</h5>
-                                           </div>
-                                       </td>
-                                       <td>Web Developer, Designer, and Teacher</td>
-                                       <td>12 Courses</td>
-                                       <td>12 June, 2020</td>
-                                       <td>8,234</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+        .arrow {
+            transition: transform .25s;
+        }
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-14.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Jacob Jones</h5>
-                                           </div>
-                                       </td>
-                                       <td>Bootstrap Expert</td>
-                                       <td>7 Courses</td>
-                                       <td>2 July, 2020</td>
-                                       <td>14,944</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+        .schedule-header[aria-expanded="true"] .arrow {
+            transform: rotate(180deg);
+        }
+    </style>
+@endpush
+@section('content')
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12">
+            <!-- Page Header -->
+            <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="mb-1 h2 fw-bold">
+                        Courses ( Real Time )
+                    </h1>
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item active">
+                                <a href="javascript:void;">
+                                    Courses ( Real Time )
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">All</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="nav btn-group" role="tablist">
+                    <a href="javascript:void;" class="btn btn-primary">Add New Courses</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-12 mb-4">
+            <div class="row d-md-flex justify-content-between align-items-center">
+                <div class="col-md-6 col-lg-8 col-xl-9">
+                    <h4 class="mb-3 mb-md-0">Displaying {{ $courses->count() }} out of {{ $courses->total() }} courses
+                        @if (request()->filled('schedule_ids'))
+                            <span class="badge bg-primary">{{ count(request()->schedule_ids) }} filters</span>
+                        @endif
+                    </h4>
+                </div>
+                <div class="d-inline-flex col-md-6 col-lg-4 col-xl-3">
+                    <div class="me-2">
+                        <!-- Nav -->
+                        <div class="nav btn-group flex-nowrap" role="tablist">
+                            <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneGrid"
+                                role="tab" aria-controls="tabPaneGrid" aria-selected="true" data-tab="grid">
+                                <span class="fe fe-grid"></span>
+                            </button>
+                            <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList"
+                                role="tab" aria-controls="tabPaneList" aria-selected="false" tabindex="-1"
+                                data-tab="list">
+                                <span class="fe fe-list"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- List  -->
+                    <select class="form-select">
+                        <option value="">Sort by</option>
+                        <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Open</option>
+                        <option value="close" {{ request('status') == 'close' ? 'selected' : '' }}>Close</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-4 col-12 mb-4 mb-lg-0">
+            <!-- Card -->
+            <div class="card">
+                <!-- Card header -->
+                <div class="card-header">
+                    <h4 class="mb-0">Filter</h4>
+                </div>
+                <!-- Card body -->
+                <div class="card-body">
+                    <span class="dropdown-header px-0 mb-3">Schedules</span>
+                    @if (request()->filled('search_query') || !empty(request('schedule_ids', [])))
+                        <div class="my-3">
+                            <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-danger w-100">
+                                Reset Filters
+                            </a>
+                        </div>
+                    @endif
+                    @php
+                        $grouped = collect($schedules)->groupBy('study_day');
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-15.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Kristin Watson</h5>
-                                           </div>
-                                       </td>
-                                       <td>Web Development</td>
-                                       <td>5 Courses</td>
-                                       <td>1 July, 2020</td>
-                                       <td>6,845</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+                        $shiftOrder = [
+                            'morning' => 1,
+                            'afternoon' => 2,
+                            'evening' => 3,
+                        ];
+                    @endphp
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-17.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Nia Sikhone</h5>
-                                           </div>
-                                       </td>
-                                       <td>Web Developer, Designer, and Teacher</td>
-                                       <td>12 Courses</td>
-                                       <td>12 June, 2020</td>
-                                       <td>8,234</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+                    <form id="scheduleFilterForm" method="GET" action="{{ route('admin.courses.realtime.index') }}">
+                        @foreach ($grouped as $day => $items)
+                            @php
+                                $collapseId = 'schedule-' . md5($day);
+                                $shiftGroups = collect($items)->groupBy('shift');
+                            @endphp
+                            <div class="schedule-card mb-2">
+                                <div class="schedule-header" data-bs-toggle="collapse"
+                                    data-bs-target="#{{ $collapseId }}">
+                                    <div class="fw-bold">{{ ucfirst($day) }}</div>
+                                    <i class="fe fe-chevron-down arrow"></i>
+                                </div>
+                                <div class="collapse schedule-body" id="{{ $collapseId }}">
+                                    {{-- <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted small">Select all</span>
+                                        <input type="checkbox" class="form-check-input select-day">
+                                    </div> --}}
+                                    @foreach ($shiftGroups as $shift => $shiftSchedules)
+                                        <div class="shift-title">{{ ucfirst($shift) }}</div>
+                                        @foreach ($shiftSchedules as $schedule)
+                                            <label class="schedule-item">
+                                                <span>{{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i') }} –
+                                                    {{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}</span>
+                                                <input type="checkbox" name="schedule_ids[]" value="{{ $schedule->id }}"
+                                                    class="schedule-checkbox"
+                                                    onchange="document.getElementById('scheduleFilterForm').submit()"
+                                                    {{ in_array($schedule->id, $selected_schedule_ids) ? 'checked' : '' }}>
+                                            </label>
+                                        @endforeach
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Tab content -->
+        <div class="col-xl-9 col-lg-9 col-md-8 col-12">
+            <div class="tab-content">
+                <!-- Tab pane -->
+                <div class="tab-pane fade pb-4" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
+                    <div class="card rounded-3">
+                        <!-- Card header -->
+                        <div class="p-4 row">
+                            <!-- Form -->
+                            <form method="GET" action="{{ route('admin.courses.realtime.index') }}"
+                                class="d-flex align-items-center col-12 col-md-12 col-lg-12">
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-16.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Rivao Luke</h5>
-                                           </div>
-                                       </td>
-                                       <td>Web Development</td>
-                                       <td>5 Courses</td>
-                                       <td>1 July, 2020</td>
-                                       <td>6,845</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+                                <span class="position-absolute ps-3 search-icon">
+                                    <i class="fe fe-search"></i>
+                                </span>
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-17.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
-                                               <h5 class="mb-0">Nia Sikhone</h5>
-                                           </div>
-                                       </td>
-                                       <td>Web Developer, Designer, and Teacher</td>
-                                       <td>12 Courses</td>
-                                       <td>12 June, 2020</td>
-                                       <td>8,234</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+                                <input type="search" name="search_query" value="{{ request('search_query') }}"
+                                    class="form-control ps-6" placeholder="Search Course">
+                                <!-- Hidden inputs for selected schedule IDs -->
+                                @foreach (request('schedule_ids', []) as $scheduleId)
+                                    <input type="hidden" name="schedule_ids[]" value="{{ $scheduleId }}">
+                                @endforeach
+                            </form>
+                        </div>
+                        <div class="px-4">
+                            <div class="row">
+                                @forelse ($courses as $course)
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <!-- Card -->
+                                        <div class="card mb-4 card-hover">
+                                            <a href="course-single.html"><img
+                                                    src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+                                                    alt="course" class="card-img-top"
+                                                    style="height: 230px; object-fit: cover;"></a>
+                                            <!-- Card body -->
+                                            <div class="card-body">
+                                                <h4 class="mb-2 text-truncate-line-2">
+                                                    <a href="course-single.html" class="text-inherit">
+                                                        {{ $course->title }}
+                                                    </a>
+                                                </h4>
+                                                <div class="d-flex justify-content-between border-bottom py-2 mt-2">
+                                                    <span>
+                                                        Created At
+                                                    </span>
+                                                    <span class="text-dark">
+                                                        {{ $course->created_at->format('d M, Y') }}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between border-bottom py-2 mt-2">
+                                                    <span>
+                                                        Scehdule
+                                                    </span>
+                                                    <span class="text-dark">
+                                                        @php
+                                                            $days = collect(explode('-', $course->schedule->study_day))
+                                                                ->map(
+                                                                    fn($d) => \Illuminate\Support\Str::of($d)
+                                                                        ->ucfirst()
+                                                                        ->substr(0, 3),
+                                                                )
+                                                                ->join(' • ');
+                                                            $start = \Carbon\Carbon::parse(
+                                                                $course->schedule->start_time,
+                                                            )->format('g:i');
+                                                            $end = \Carbon\Carbon::parse(
+                                                                $course->schedule->end_time,
+                                                            )->format('g:i A');
+                                                            $shift = ucfirst($course->schedule->shift);
+                                                        @endphp
+                                                        <div>
+                                                            <div class="fw-semibold">{{ $days }}</div>
+                                                            <div class="text-muted small">
+                                                                <span
+                                                                    class="badge bg-light text-dark">{{ $shift }}</span>
+                                                                {{ $start }} – {{ $end }}
+                                                            </div>
+                                                        </div>
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between border-bottom py-2 ">
+                                                    <span>
+                                                        Status
+                                                    </span>
+                                                    <span class="text-dark">
+                                                        @if ($course->status == 'pending')
+                                                            <span
+                                                                class="badge-dot bg-warning me-1 d-inline-block align-middle"></span>
+                                                            CLOSE
+                                                        @elseif ($course->status == 'active')
+                                                            <span
+                                                                class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
+                                                            OPEN
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                                {{-- students amount --}}
+                                                <div class="d-flex justify-content-between border-bottom  py-2 ">
+                                                    <span>
+                                                        Students
+                                                    </span>
+                                                    <span class="text-dark">
+                                                        {{ $course->enrollments_count }}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between border-bottom py-2 ">
+                                                    <span>
+                                                        Price
+                                                    </span>
+                                                    <span class="text-dark">
+                                                        ${{ $course->price }}
+                                                    </span>
+                                                </div>
+                                                {{-- earning --}}
+                                                <div class="d-flex justify-content-between pt-2 ">
+                                                    <span>
+                                                        Revenue
+                                                    </span>
+                                                    <span class="text-dark">
+                                                        ${{ $course->payments->sum('amount') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <!-- Card footer -->
+                                            <div class="card-footer">
+                                                <div class="row align-items-center g-0">
+                                                    <div class="col-auto">
+                                                        <img src="{{ $course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
+                                                            class="rounded-circle avatar-xs" alt="avatar">
+                                                    </div>
+                                                    <div class="col ms-2">
+                                                        <span>
+                                                            {{ $course->instructor ? $course->instructor->name : 'N/A' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <a href="javascript:void;"
+                                                            class="btn btn-sm btn-outline-secondary">
+                                                            <i class="fe fe-phone"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="card mb-4 card-hover">
+                                            <div class="card-body text-center">
+                                                <h3 class="mb-2">No courses found.</h3>
+                                                <p class="mb-4">Try adjusting your search or filter to find what you're
+                                                    looking
+                                                    for.</p>
+                                                @if (request()->filled('search_query') || !empty(request('schedule_ids', [])))
+                                                    <a href="{{ route('admin.courses.realtime.index') }}"
+                                                        class="btn btn-outline-danger ms-2">
+                                                        Reset Filters
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforelse
+                            </div>
+                            <div class="card-footer">
+                                <nav>
+                                    <ul class="pagination justify-content-center mb-0">
+                                        {{-- Previous Page Link --}}
+                                        <li class="page-item {{ $courses->onFirstPage() ? 'disabled' : '' }}">
+                                            <a class="page-link mx-1 rounded"
+                                                href="{{ $courses->previousPageUrl() ?? '#' }}" aria-label="Previous">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                                    fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd"
+                                                        d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        {{-- Page Numbers --}}
+                                        @foreach ($courses->getUrlRange(1, $courses->lastPage()) as $page => $url)
+                                            <li class="page-item {{ $courses->currentPage() == $page ? 'active' : '' }}">
+                                                <a class="page-link mx-1 rounded"
+                                                    href="{{ $url }}">{{ $page }}</a>
+                                            </li>
+                                        @endforeach
+                                        {{-- Next Page Link --}}
+                                        <li class="page-item {{ $courses->hasMorePages() ? '' : 'disabled' }}">
+                                            <a class="page-link mx-1 rounded" href="{{ $courses->nextPageUrl() ?? '#' }}"
+                                                aria-label="Next">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                                    fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd"
+                                                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tab pane -->
+                <div class="tab-pane fade pb-4 " id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
+                    <div class="card rounded-3">
+                        <!-- Card header -->
+                        <div class="p-4 row">
+                            <!-- Form -->
+                            <form method="GET" action="{{ route('admin.courses.realtime.index') }}"
+                                class="d-flex align-items-center col-12 col-md-12 col-lg-12">
+                                <span class="position-absolute ps-3 search-icon">
+                                    <i class="fe fe-search"></i>
+                                </span>
+                                <input type="search" name="search_query" value="{{ request('search_query') }}"
+                                    class="form-control ps-6" placeholder="Search Course">
+                                <!-- Hidden inputs for selected schedule IDs -->
+                                @foreach (request('schedule_ids', []) as $scheduleId)
+                                    <input type="hidden" name="schedule_ids[]" value="{{ $scheduleId }}">
+                                @endforeach
+                            </form>
+                        </div>
+                        <div>
+                            <!-- Table -->
+                            <div class="tab-content" id="tabContent">
+                                <!--Tab pane -->
+                                <div class="tab-pane fade active show" id="courses" role="tabpanel"
+                                    aria-labelledby="courses-tab">
+                                    <div class="table-responsive border-0 overflow-y-hidden">
+                                        <table class="table mb-0 text-nowrap table-centered table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Courses</th>
+                                                    {{-- <th>Instructor</th> --}}
+                                                    <th>Schedule</th>
+                                                    <th>Students</th>
+                                                    {{-- <th>Price</th> --}}
+                                                    <th>Revenue</th>
+                                                    <th>STATUS</th>
+                                                    <th>ACTION</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($courses as $course)
+                                                    <tr>
+                                                        <td>
+                                                            <a href="javascript:void;" class="text-inherit">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div>
+                                                                        <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+                                                                            alt="" class="img-4by3-lg rounded">
+                                                                    </div>
+                                                                    <div class="ms-3">
+                                                                        <h4 class="mb-1 text-primary-hover">
+                                                                            {{ $course->title }}
+                                                                        </h4>
+                                                                        <span>Created At
+                                                                            {{ $course->created_at->format('d M, Y') }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </td>
+                                                        {{-- <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}"
+                                                                    alt="" class="rounded-circle avatar-xs me-2"
+                                                                    style="height: 25px; object-fit: cover;">
+                                                                <h5 class="mb-0">
+                                                                    {{ $course->instructor ? $course->instructor->name : 'N/A' }}
+                                                                </h5>
+                                                            </div>
+                                                        </td> --}}
+                                                        {{-- schedule --}}
+                                                        <td>
+                                                            @php
+                                                                $days = collect(
+                                                                    explode('-', $course->schedule->study_day),
+                                                                )
+                                                                    ->map(
+                                                                        fn($d) => \Illuminate\Support\Str::of($d)
+                                                                            ->ucfirst()
+                                                                            ->substr(0, 3),
+                                                                    )
+                                                                    ->join(' • ');
+                                                                $start = \Carbon\Carbon::parse(
+                                                                    $course->schedule->start_time,
+                                                                )->format('g:i');
+                                                                $end = \Carbon\Carbon::parse(
+                                                                    $course->schedule->end_time,
+                                                                )->format('g:i A');
+                                                                $shift = ucfirst($course->schedule->shift);
+                                                            @endphp
+                                                            <div>
+                                                                <div class="fw-semibold">{{ $days }}</div>
+                                                                <div class="text-muted small">
+                                                                    <span
+                                                                        class="badge bg-light text-dark">{{ $shift }}</span>
+                                                                    {{ $start }} – {{ $end }}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            {{ $course->enrollments_count }}
+                                                        </td>
+                                                        {{-- <td>
+                                                            ${{ $course->price }}
+                                                        </td> --}}
+                                                        <td>
+                                                            ${{ $course->payments->sum('amount') }}
+                                                        </td>
+                                                        <td>
+                                                            @if ($course->status == 'pending')
+                                                                <span
+                                                                    class="badge-dot bg-warning me-1 d-inline-block align-middle"></span>
+                                                                CLOSE
+                                                            @elseif ($course->status == 'active')
+                                                                <span
+                                                                    class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
+                                                                OPEN
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <a href="javascript:void;"
+                                                                class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fe fe-edit"></i>
+                                                            </a>
+                                                            <a href="javascript:void;"
+                                                                class="btn btn-sm btn-outline-danger">
+                                                                <i class="fe fe-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="5" class="text-center">
+                                                            <div class="py-4">
+                                                                <h3 class="mb-2">No courses found.</h3>
+                                                                <p class="mb-4">Try adjusting your search or filter to
+                                                                    find
+                                                                    what you're looking for.</p>
+                                                                @if (request()->filled('search_query') || !empty(request('schedule_ids', [])))
+                                                                    <a href="{{ route('admin.courses.realtime.index') }}"
+                                                                        class="btn btn-outline-danger ms-2">
+                                                                        Reset Filters
+                                                                    </a>
+                                                                @endif
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card Footer -->
+                        <div class="card-footer">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0">
+                                    {{-- Previous Page Link --}}
+                                    <li class="page-item {{ $courses->onFirstPage() ? 'disabled' : '' }}">
+                                        <a class="page-link mx-1 rounded" href="{{ $courses->previousPageUrl() ?? '#' }}"
+                                            aria-label="Previous">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                                fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                    d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                    {{-- Page Numbers --}}
+                                    @foreach ($courses->getUrlRange(1, $courses->lastPage()) as $page => $url)
+                                        <li class="page-item {{ $courses->currentPage() == $page ? 'active' : '' }}">
+                                            <a class="page-link mx-1 rounded"
+                                                href="{{ $url }}">{{ $page }}</a>
+                                        </li>
+                                    @endforeach
+                                    {{-- Next Page Link --}}
+                                    <li class="page-item {{ $courses->hasMorePages() ? '' : 'disabled' }}">
+                                        <a class="page-link mx-1 rounded" href="{{ $courses->nextPageUrl() ?? '#' }}"
+                                            aria-label="Next">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                                fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd"
+                                                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+@push('scripts')
+    <script>
+        // document.querySelector('input[name="search_query"]').addEventListener('keyup', function() {
+        //     this.form.submit();
+        // });
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                                   <tr>
-                                       <td>
-                                           <div class="d-flex align-items-center">
-                                               <img src="../../assets/images/avatar/avatar-18.jpg" alt=""
-                                                   class="rounded-circle avatar-md me-2">
+        document.addEventListener('DOMContentLoaded', function() {
 
-                                               <h5 class="mb-0">Xiaon Merry</h5>
-                                           </div>
-                                       </td>
-                                       <td>Web Developer, Designer, and Teacher</td>
-                                       <td>9 Courses</td>
-                                       <td>8 June, 2020</td>
-                                       <td>3,242</td>
-                                       <td>
-                                           4.5
-                                           <span class="fs-6 align-top">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
-                                                   fill="currentColor" class="bi bi-star-fill text-secondary"
-                                                   viewBox="0 0 16 16">
-                                                   <path
-                                                       d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                   </path>
-                                               </svg>
-                                           </span>
-                                       </td>
+            // Initialize all collapse elements
+            document.querySelectorAll('.schedule-card .collapse').forEach(el => {
+                new bootstrap.Collapse(el, {
+                    toggle: false
+                });
+            });
 
-                                       <td>
-                                           <div class="hstack gap-4">
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Message" data-bs-original-title="Message"><i
-                                                       class="fe fe-mail"></i></a>
-                                               <a href="#" data-bs-toggle="tooltip" data-placement="top"
-                                                   aria-label="Delete" data-bs-original-title="Delete"><i
-                                                       class="fe fe-trash"></i></a>
-                                               <span class="dropdown dropstart">
-                                                   <a class="btn-icon btn btn-ghost btn-sm rounded-circle"
-                                                       href="#" role="button" data-bs-toggle="dropdown"
-                                                       data-bs-offset="-20,20" aria-expanded="false">
-                                                       <i class="fe fe-more-vertical"></i>
-                                                   </a>
-                                                   <span class="dropdown-menu">
-                                                       <span class="dropdown-header">Settings</span>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-edit dropdown-item-icon"></i>
-                                                           Edit
-                                                       </a>
-                                                       <a class="dropdown-item" href="#">
-                                                           <i class="fe fe-trash dropdown-item-icon"></i>
-                                                           Remove
-                                                       </a>
-                                                   </span>
-                                               </span>
-                                           </div>
-                                       </td>
-                                   </tr>
-                               </tbody>
-                           </table>
-                           <!-- Pagination -->
-                           <div class="card-footer">
-                               <nav>
-                                   <ul class="pagination justify-content-center mb-0">
-                                       <li class="page-item disabled">
-                                           <a class="page-link mx-1 rounded" href="#">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                   fill="currentColor" class="bi bi-chevron-left"
-                                                   viewBox="0 0 16 16">
-                                                   <path fill-rule="evenodd"
-                                                       d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z">
-                                                   </path>
-                                               </svg>
-                                           </a>
-                                       </li>
-                                       <li class="page-item active">
-                                           <a class="page-link mx-1 rounded" href="#">1</a>
-                                       </li>
-                                       <li class="page-item">
-                                           <a class="page-link mx-1 rounded" href="#">2</a>
-                                       </li>
-                                       <li class="page-item">
-                                           <a class="page-link mx-1 rounded" href="#">3</a>
-                                       </li>
-                                       <li class="page-item">
-                                           <a class="page-link mx-1 rounded" href="#">
-                                               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                   fill="currentColor" class="bi bi-chevron-right"
-                                                   viewBox="0 0 16 16">
-                                                   <path fill-rule="evenodd"
-                                                       d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z">
-                                                   </path>
-                                               </svg>
-                                           </a>
-                                       </li>
-                                   </ul>
-                               </nav>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </div>
+            // Open collapse if any checkbox is checked
+            document.querySelectorAll('.schedule-card').forEach(card => {
+                const collapseBody = card.querySelector('.collapse');
+                const header = card.querySelector('.schedule-header');
+                if (collapseBody.querySelector('.schedule-checkbox:checked')) {
+                    const collapseInstance = bootstrap.Collapse.getOrCreateInstance(collapseBody);
+                    collapseInstance.show();
+                    header.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            // Toggle collapse on header click
+            document.querySelectorAll('.schedule-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const target = document.querySelector(this.dataset.bsTarget);
+                    if (target) {
+                        const collapseInstance = bootstrap.Collapse.getOrCreateInstance(target);
+                        collapseInstance.toggle();
+                        // Update aria-expanded manually
+                        this.setAttribute('aria-expanded', target.classList.contains('show') ?
+                            'true' : 'false');
+                    }
+                });
+            });
+
+            // Select all functionality
+            document.querySelectorAll('.select-day').forEach(selectAll => {
+                selectAll.addEventListener('change', function() {
+                    let container = this.closest('.schedule-body');
+                    container.querySelectorAll('.schedule-checkbox')
+                        .forEach(cb => cb.checked = this.checked);
+                });
+            });
+
+            // Persist active tab
+            const savedTab = localStorage.getItem('courses_active_tab');
+            if (savedTab) {
+                const trigger = document.querySelector(`[data-tab="${savedTab}"]`);
+                if (trigger) new bootstrap.Tab(trigger).show();
+            }
+
+            document.querySelectorAll('[data-tab]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    localStorage.setItem('courses_active_tab', this.dataset.tab);
+                });
+            });
+
+        });
+
+        document.querySelectorAll('.select-day').forEach(selectAll => {
+
+            selectAll.addEventListener('change', function() {
+
+                let container = this.closest('.schedule-body');
+
+                container.querySelectorAll('.schedule-checkbox')
+                    .forEach(cb => cb.checked = this.checked);
+
+            });
+
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const savedTab = localStorage.getItem('courses_active_tab');
+
+            if (savedTab) {
+                const trigger = document.querySelector(`[data-tab="${savedTab}"]`);
+                if (trigger) {
+                    new bootstrap.Tab(trigger).show();
+                }
+            }
+
+            document.querySelectorAll('[data-tab]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    localStorage.setItem('courses_active_tab', this.dataset.tab);
+                });
+            });
+
+        });
+    </script>
+@endpush

@@ -69,6 +69,7 @@
                                                 name="name">
                                             <label>
                                                 <i class="ti ti-user me-2 text-info"></i> Username
+                                                <span class="text-danger"><strong>*</strong></span>
                                             </label>
                                             <x-input-error :messages="$errors->get('name')" class="text-danger mt-2" />
                                         </div>
@@ -79,6 +80,8 @@
                                             <input type="email" class="form-control" placeholder="Email" name="email">
                                             <label>
                                                 <i class="ti ti-mail me-2 text-info"></i> Email Address
+                                                <span class="text-danger"><strong>*</strong></span>
+
                                             </label>
                                             <x-input-error :messages="$errors->get('email')" class="text-danger mt-2" />
                                         </div>
@@ -92,6 +95,7 @@
                                                 name="password">
                                             <label>
                                                 <i class="ti ti-lock me-2 text-info"></i> Password
+                                                <span class="text-danger"><strong>*</strong></span>
                                             </label>
                                             <x-input-error :messages="$errors->get('password')" class="text-danger mt-2" />
                                         </div>
@@ -103,10 +107,40 @@
                                                 name="password_confirmation">
                                             <label>
                                                 <i class="ti ti-lock me-2 text-info"></i> Confirm Password
+                                                <span class="text-danger"><strong>*</strong></span>
                                             </label>
                                             <x-input-error :messages="$errors->get('password_confirmation')" class="text-danger mt-2" />
                                         </div>
                                     </div>
+
+                                    {{-- phone 1  --}}
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" placeholder="Phone Number"
+                                                name="phone">
+                                            <label>
+                                                <i class="ti ti-phone me-2 text-info"></i> Phone Number
+                                                <span class="text-danger"><strong>*</strong></span>
+                                            </label>
+                                            <x-input-error :messages="$errors->get('phone')" class="text-danger mt-2" />
+                                        </div>
+                                    </div>
+
+                                    {{-- phone 2 --}}
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" placeholder="Alternate Phone Number"
+                                                name="alternate_phone">
+                                            <label>
+                                                <i class="ti ti-phone me-2 text-info"></i> Alternate Phone
+                                            </label>
+                                            <x-input-error :messages="$errors->get('alternate_phone')" class="text-danger mt-2" />
+                                        </div>
+                                    </div>
+
+
+
+
                                 </div>
                             </div>
 
@@ -168,6 +202,7 @@
 
                                         <label>
                                             <i class="ti ti-credit-card me-2 text-info"></i> Payment Option
+                                            <span class="text-danger"><strong>*</strong></span>
                                         </label>
                                     </div>
                                 </div>

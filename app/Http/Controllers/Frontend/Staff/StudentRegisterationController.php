@@ -38,6 +38,7 @@ class StudentRegisterationController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'email', 'unique:users,email'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'phone' => ['required', 'string', 'max:20'],
             ]);
 
         } else {
@@ -116,6 +117,8 @@ class StudentRegisterationController extends Controller
                     'role' => 'student',
                     'approval_status' => 'approved',
                     'registered_by_staff_id' => Auth::id(),
+                    'phone' => $request->phone,
+                    'alternate_phone' => $request->alternate_phone ?? null,
                 ]);
 
             }
