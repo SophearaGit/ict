@@ -49,8 +49,9 @@ class StudentRegisterationController extends Controller
         }
 
         $request->validate([
-            'course_id' => ['required', 'exists:i_c_t_courses,id'],
-            'payment_option' => ['required', 'in:full,half'],
+            'course_ids' => ['required', 'array', 'min:1'],
+            'course_ids.*' => ['exists:i_c_t_courses,id'],
+            'payment_option' => ['required', 'in:normal,full,half,multi'],
             'paid_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
 
@@ -59,31 +60,38 @@ class StudentRegisterationController extends Controller
         try {
 
 
-            $course = ICTCourse::findOrFail($request->course_id);
+            $courseIds = $request->course_ids ?? [];
 
-            $price = $course->price;
+            if (empty($courseIds)) {
+                throw new \Exception('Please select at least one course.');
+            }
+
+            $courses = ICTCourse::whereIn('id', $courseIds)->get();
+
+            $totalPrice = $courses->sum('price');
 
             $discount = 0;
             $extraCharge = 0;
 
-            // Apply payment option logic
-            $discount = $request->payment_option === 'full' ? 10 : 0;
-            $extraCharge = $request->payment_option === 'half' ? 20 : 0;
+            // 🎯 Multi-course discount
+            if ($request->payment_option === 'multi' && $courses->count() >= 2) {
+                $discount += 25;
+            }
+            // Payment option logic
+            if ($request->payment_option === 'full') {
+                $discount += 10;
+            }
 
-            $totalAmount = $price - $discount + $extraCharge;
+            if ($request->payment_option === 'half') {
+                $extraCharge += 20;
+            }
+
+            $totalAmount = $totalPrice - $discount + $extraCharge;
 
             // Auto calculate payment
-            if ($request->payment_option === 'half') {
-
-                // student must pay 50%
-                $paid = round($totalAmount / 2, 2);
-
-            } else {
-
-                // full payment option → staff can enter amount
-                $paid = $request->paid_amount ?? 0;
-
-            }
+            $paid = $request->payment_option === 'half'
+                ? round($totalAmount / 2, 2)
+                : $totalAmount;
 
             // Prevent overpayment
             if ($paid > $totalAmount) {
@@ -93,13 +101,11 @@ class StudentRegisterationController extends Controller
             $remaining = $totalAmount - $paid;
 
             // Determine payment status
-            if ($paid == 0) {
-                $status = 'unpaid';
-            } elseif ($remaining == 0) {
-                $status = 'paid';
-            } else {
-                $status = 'half_paid';
-            }
+            $status = match (true) {
+                $paid == 0 => 'unpaid',
+                $remaining == 0 => 'paid',
+                default => 'half_paid',
+            };
 
             // Create or select student
             if ($request->student_type === 'existing') {
@@ -123,43 +129,83 @@ class StudentRegisterationController extends Controller
 
             }
 
-            $existing = ICTCourseEnrollments::where([
-                'student_id' => $user->id,
-                'course_id' => $course->id
-            ])->exists();
+            foreach ($courses as $course) {
 
-            if ($existing) {
-                throw new \Exception('Student already enrolled in this course.');
+                $exists = ICTCourseEnrollments::where([
+                    'student_id' => $user->id,
+                    'course_id' => $course->id
+                ])->exists();
+
+                if ($exists) {
+                    throw new \Exception("Student already enrolled in {$course->title}");
+                }
+
+                ICTCourseEnrollments::create([
+                    'student_id' => $user->id,
+                    'course_id' => $course->id,
+                    'enrolled_by' => Auth::id(),
+                    'status' => 'active',
+                    'enrolled_at' => now(),
+                ]);
             }
-
-            // Create enrollment
-            ICTCourseEnrollments::create([
-                'student_id' => $user->id,
-                'course_id' => $course->id,
-                'enrolled_by' => Auth::id(),
-                'status' => 'active',
-                'enrolled_at' => now(),
-            ]);
 
             // Create invoice
             $invoice = ICTInvoice::create([
                 'staff_id' => Auth::id(),
                 'student_id' => $user->id,
-                'course_id' => $course->id,
+                'course_id' => $courses->first()->id, // fallback
 
-                'price' => $price,
+                'price' => $totalPrice,
                 'discount' => $discount,
                 'extra_charge' => $extraCharge,
 
                 'total_amount' => $totalAmount,
                 'paid_amount' => $paid,
-                'remaining_amount' => $remaining,
+                'remaining_amount' => $totalAmount - $paid,
 
                 'payment_option' => $request->payment_option,
                 'payment_status' => $status,
 
                 'invoice_code' => 'INV-' . now()->format('YmdHis') . '-' . mt_rand(100, 999),
                 'paid_at' => $paid > 0 ? now() : null,
+            ]);
+
+
+            // Create invoice items FIRST
+            foreach ($courses as $course) {
+
+                $itemDiscount = 0;
+                $itemExtra = 0;
+
+                if ($courses->count() >= 2) {
+                    $itemDiscount = round(25 / $courses->count(), 2);
+                }
+
+                if ($request->payment_option === 'full') {
+                    $itemDiscount += round(10 / $courses->count(), 2);
+                }
+
+                if ($request->payment_option === 'half') {
+                    $itemExtra += round(20 / $courses->count(), 2);
+                }
+
+                $itemTotal = $course->price - $itemDiscount + $itemExtra;
+
+                $invoice->items()->create([
+                    'course_id' => $course->id,
+                    'price' => $course->price,
+                    'discount' => $itemDiscount,
+                    'extra_charge' => $itemExtra,
+                    'total' => $itemTotal,
+                ]);
+            }
+
+            // ✅ NOW recalculate total safely
+            $itemTotalSum = $invoice->items()->sum('total');
+
+            $invoice->update([
+                'total_amount' => $itemTotalSum,
+                'remaining_amount' => $itemTotalSum - $paid,
             ]);
 
             if ($paid > 0) {
