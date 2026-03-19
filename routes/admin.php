@@ -108,6 +108,11 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
      *  COURSE REAL TIME
      *******************************************************/
     Route::get('/realtime-courses', [RealTimeCoursesController::class, 'realtimeIndex'])->name('courses.realtime.index');
+    Route::get('/realtime-courses/create', [RealTimeCoursesController::class, 'create'])->name('courses.realtime.create');
+    Route::post('/realtime-courses', [RealTimeCoursesController::class, 'store'])->name('courses.realtime.store');
+    Route::get('/realtime-courses/{id}/edit', [RealTimeCoursesController::class, 'edit'])->name('courses.realtime.edit');
+    Route::put('/realtime-courses/{id}', [RealTimeCoursesController::class, 'update'])->name('courses.realtime.update');
+    Route::delete('/realtime-courses/{id}', [RealTimeCoursesController::class, 'destroy'])->name('courses.realtime.destroy');
 
 
 

@@ -17,10 +17,12 @@ class ICTInvoice extends Model
         'course_id',
         'price',
         'discount',
+        'extra_charge',
         'total_amount',
         'paid_amount',
         'remaining_amount',
         'payment_status',
+        'paid_at',
         'invoice_code',
     ];
 

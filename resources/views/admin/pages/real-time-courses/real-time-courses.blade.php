@@ -71,7 +71,9 @@
                     </nav>
                 </div>
                 <div class="nav btn-group" role="tablist">
-                    <a href="javascript:void;" class="btn btn-primary">Add New Courses</a>
+                    <button class="btn btn-primary add_new_course_btn">
+                        Add New Course
+                    </button>
                 </div>
             </div>
         </div>
@@ -140,6 +142,8 @@
                     @endphp
 
                     <form id="scheduleFilterForm" method="GET" action="{{ route('admin.courses.realtime.index') }}">
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                        <input type="hidden" name="search_query" value="{{ request('search_query') }}">
                         @foreach ($groupedSchedules as $day => $items)
                             @php
                                 $collapseId = 'schedule-' . md5($day);
@@ -249,9 +253,9 @@
                                                         Status
                                                     </span>
                                                     <span class="text-dark">
-                                                        @if ($course->status == 'pending')
+                                                        @if ($course->status == 'inactive')
                                                             <span
-                                                                class="badge-dot bg-warning me-1 d-inline-block align-middle"></span>
+                                                                class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
                                                             CLOSE
                                                         @elseif ($course->status == 'active')
                                                             <span
@@ -302,8 +306,13 @@
                                                     </div>
                                                     <div class="col-auto">
                                                         <a href="javascript:void;"
-                                                            class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fe fe-phone"></i>
+                                                            class="btn btn-sm btn-outline-secondary edit_course_btn"
+                                                            data-course-id="{{ $course->id }}">
+                                                            <i class="fe fe-edit"></i>
+                                                        </a>
+                                                        <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}"
+                                                            class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
+                                                            <i class="fe fe-trash"></i>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -430,9 +439,9 @@
                                                             ${{ $course->payments->sum('amount') }}
                                                         </td>
                                                         <td>
-                                                            @if ($course->status == 'pending')
+                                                            @if ($course->status == 'inactive')
                                                                 <span
-                                                                    class="badge-dot bg-warning me-1 d-inline-block align-middle"></span>
+                                                                    class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
                                                                 CLOSE
                                                             @elseif ($course->status == 'active')
                                                                 <span
@@ -442,11 +451,12 @@
                                                         </td>
                                                         <td>
                                                             <a href="javascript:void;"
-                                                                class="btn btn-sm btn-outline-secondary">
+                                                                class="btn btn-sm btn-outline-secondary edit_course_btn"
+                                                                data-course-id="{{ $course->id }}">
                                                                 <i class="fe fe-edit"></i>
                                                             </a>
-                                                            <a href="javascript:void;"
-                                                                class="btn btn-sm btn-outline-danger">
+                                                            <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}"
+                                                                class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
                                                                 <i class="fe fe-trash"></i>
                                                             </a>
                                                         </td>
@@ -484,11 +494,106 @@
             </div>
         </div>
     </div>
+
+    <!-- Add Course Modal -->
+    <div class="modal fade" id="addCourseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg dynamic_course_modal_content">
+
+        </div>
+    </div>
 @endsection
+
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        $('.btn_dynamic_delete_course').on('click', function(e) {
+            e.preventDefault();
+            let url = $(this).attr('href');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method: "DELETE",
+                        url: url,
+                        data: {
+                            _token: csrf_token,
+                        },
+                        success: function(data) {
+                            iziToast.success({
+                                message: data.message,
+                                position: 'bottomRight'
+                            });
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url;
+                            }, 1000);
+                        },
+                        error: function(xhr, status, data) {},
+                    })
+                }
+            });
+        })
 
+        $('.add_new_course_btn').on('click', function(e) {
+            e.preventDefault();
+            $('#addCourseModal').modal('show');
+            $.ajax({
+                method: 'GET',
+                url: base_url + `/realtime-courses/create`,
+                data: {},
+                beforeSend: function() {
+                    $('.dynamic_course_modal_content').html(`
+    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    `);
+                },
+                success: function(data) {
+                    $('.dynamic_course_modal_content').html(data);
+                },
+
+                error: function(xhr, status, error) {
+
+                },
+            })
+        });
+
+        $('.edit_course_btn').on('click', function(e) {
+            e.preventDefault();
+            $('#addCourseModal').modal('show');
+            const course_id = $(this).data('course-id');
+            $.ajax({
+                method: 'GET',
+                url: base_url + `/realtime-courses/${course_id}/edit`,
+                data: {},
+                beforeSend: function() {
+                    $('.dynamic_staff_modal_content').html(
+                        `
+    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    `
+                    );
+                },
+                success: function(data) {
+                    $('.dynamic_course_modal_content').html(data);
+                },
+                error: function(xhr, status, error) {
+
+                },
+            })
+        })
+
+        document.addEventListener('DOMContentLoaded', function() {
             // Status filter
             document.getElementById('statusFilter')?.addEventListener('change', function() {
 
