@@ -18,7 +18,7 @@ class IctInvoiceController extends Controller
     public function getInvoiceDetail(string $invoice_id): string
     {
         $data = [
-            'invoice' => ICTInvoice::with(['student', 'course.schedule', 'payments'])->findOrFail($invoice_id),
+            'invoice' => ICTInvoice::with(['student', 'course.schedule', 'payments', 'items'])->findOrFail($invoice_id),
         ];
         return view('frontend.staff.pages.partials.inv-body', $data)->render();
     }

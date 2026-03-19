@@ -7,7 +7,6 @@
             <div class="card">
                 <div class="card shadow-sm border-0 rounded-4">
                     <div class="card-body p-4">
-
                         <!-- Header -->
                         <div class="mb-4">
                             <h4 class="fw-bold mb-1">Student Registration</h4>
@@ -16,18 +15,13 @@
                             </p>
                             <hr class="mt-3">
                         </div>
-
                         <form action="{{ route('staff.student.registration.submit') }}" method="POST">
                             @csrf
-
                             <input type="hidden" name="discount" id="discountField">
                             <input type="hidden" name="extra_charge" id="extraChargeField">
-
                             <!-- ================= STUDENT TYPE ================= -->
                             <h6 class="fw-semibold text-info mb-3">Student Selection</h6>
-
                             <div class="row g-3 mb-3 align-items-end">
-
                                 <!-- Student Type -->
                                 <div class="col-md-4">
                                     <div class="form-floating">
@@ -40,7 +34,6 @@
                                         </label>
                                     </div>
                                 </div>
-
                                 <!-- Existing Student -->
                                 <div class="col-md-8 d-none" id="existingStudentWrapper">
                                     <div class="form-floating">
@@ -54,14 +47,10 @@
                                         </select>
                                     </div>
                                 </div>
-
                             </div>
-
                             <div id="newStudentWrapper">
-
                                 <!-- ================= USER INFORMATION ================= -->
                                 <h6 class="fw-semibold text-info mb-3">Basic Information</h6>
-
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-floating">
@@ -74,7 +63,6 @@
                                             <x-input-error :messages="$errors->get('name')" class="text-danger mt-2" />
                                         </div>
                                     </div>
-
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="email" class="form-control" placeholder="Email" name="email">
@@ -87,7 +75,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="row g-3 mt-1">
                                     <div class="col-md-6">
                                         <div class="form-floating">
@@ -100,7 +87,6 @@
                                             <x-input-error :messages="$errors->get('password')" class="text-danger mt-2" />
                                         </div>
                                     </div>
-
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="password" class="form-control" placeholder="Confirm Password"
@@ -112,8 +98,6 @@
                                             <x-input-error :messages="$errors->get('password_confirmation')" class="text-danger mt-2" />
                                         </div>
                                     </div>
-
-                                    {{-- phone 1  --}}
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" placeholder="Phone Number"
@@ -125,8 +109,6 @@
                                             <x-input-error :messages="$errors->get('phone')" class="text-danger mt-2" />
                                         </div>
                                     </div>
-
-                                    {{-- phone 2 --}}
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             <input type="text" class="form-control" placeholder="Alternate Phone Number"
@@ -137,32 +119,23 @@
                                             <x-input-error :messages="$errors->get('alternate_phone')" class="text-danger mt-2" />
                                         </div>
                                     </div>
-
-
-
-
                                 </div>
                             </div>
-
                             <hr class="my-4">
-
                             <!-- ================= COURSE & PAYMENT ================= -->
                             <h6 class="fw-semibold text-info mb-3">Course & Payment Details</h6>
-
                             <div class="row g-3">
                                 <div class="col-md-8">
                                     <div class="form-floating">
-                                        <select class="form-select" id="courseSelect" name="course_id">
-                                            <option value="" disabled selected>Select a course</option>
+                                        <select class="form-select" id="courseSelect" name="course_ids[]" multiple>
+                                            {{-- <option value="" disabled selected>Select a course</option> --}}
                                             @foreach ($courses as $course)
                                                 @php
                                                     $schedule = $course->schedule;
-
                                                     if ($schedule) {
                                                         $days = collect(explode('-', $schedule->study_day))
                                                             ->map(fn($day) => ucfirst($day))
                                                             ->implode(' • ');
-
                                                         $shift = ucfirst($schedule->shift);
 
                                                         $start = \Carbon\Carbon::parse($schedule->start_time)->format(
@@ -196,17 +169,17 @@
                                     <div class="form-floating">
                                         <select class="form-select" id="paymentOption" name="payment_option">
                                             <option value="" disabled selected>Select Payment Option</option>
-                                            <option value="full">Pay Full (10$ Discount)</option>
-                                            <option value="half">Pay Half (+20$ Charge)</option>
+                                            <option value="normal">Normal Payment (No Discount)</option>
+                                            <option value="full">Pay Full ($10 Discount)</option>
+                                            <option value="half">Pay Half (+$20 Charge)</option>
+                                            <option value="multi">Multi Course ($25 Discount)</option>
                                         </select>
-
                                         <label>
                                             <i class="ti ti-credit-card me-2 text-info"></i> Payment Option
                                             <span class="text-danger"><strong>*</strong></span>
                                         </label>
                                     </div>
                                 </div>
-
                                 {{-- <div class="col-md-4">
                                     <div class="form-floating">
                                         <input type="number" class="form-control" id="discount" placeholder="Discount"
@@ -217,8 +190,6 @@
                                         <x-input-error :messages="$errors->get('discount')" class="text-danger mt-2" />
                                     </div>
                                 </div> --}}
-
-
                             </div>
 
                             <div class="row g-3 mt-1">
@@ -232,7 +203,6 @@
                                         <x-input-error :messages="$errors->get('total_amount')" class="text-danger mt-2" />
                                     </div>
                                 </div>
-
                                 <div class="col-md-6">
                                     <div class="form-floating" style="background-color: rgb(234, 239, 244);">
                                         <input type="number" class="form-control" id="paidAmount"
@@ -322,35 +292,87 @@
             });
 
             function calculateAmounts() {
-                let selectedCourse = $('#courseSelect').find(':selected');
-                let price = parseFloat(selectedCourse.data('price')) || 0;
+
+                let selectedCourses = $('#courseSelect').find(':selected');
+                let courseCount = selectedCourses.length;
+
+                let totalPrice = 0;
+
+                selectedCourses.each(function() {
+                    totalPrice += parseFloat($(this).data('price')) || 0;
+                });
 
                 let paymentOption = $('#paymentOption').val();
 
+                if (courseCount >= 2) {
+                    $('#multiNote').remove();
+                    $('#paymentOption').closest('.col-md-4').append(`
+                        <small id="multiNote" class="text-success d-block mt-1">
+                            🎉 25% discount applied for multiple courses
+                        </small>
+                    `);
+                } else {
+                    $('#multiNote').remove();
+                }
+
+                // 🎯 AUTO SWITCH LOGIC
+                if (courseCount >= 2 && paymentOption !== 'multi') {
+                    // disable other options and select multi
+                    $('#paymentOption option').not('[value="multi"]').prop('disabled', true);
+                    $('#paymentOption').css('background-color', '#e9ecef');
+
+                    $('#paymentOption').val('multi');
+                    paymentOption = 'multi';
+                } else {
+                    // enable all options
+                    $('#paymentOption option').not('[value="multi"]').prop('disabled', false);
+                    $('#paymentOption').css('background-color', '');
+
+                }
+
+                // If user selects only 1 course but multi is selected → reset
+                if (courseCount < 2 && paymentOption === 'multi') {
+                    $('#paymentOption').val('normal');
+                    paymentOption = 'normal';
+                }
+
                 let discount = 0;
                 let extraCharge = 0;
-                let total = price;
-                let paid = 0;
+
+                // 🎯 APPLY RULES
+
+                if (paymentOption === 'multi' && courseCount >= 2) {
+                    discount += 25; // ✅ FIXED flat discount
+                }
 
                 if (paymentOption === 'full') {
-                    discount = 10;
-                    total = price - discount;
-                    paid = total; // Always full amount
+                    discount += 10;
                 }
 
                 if (paymentOption === 'half') {
-                    extraCharge = 20;
-                    total = price + extraCharge;
-                    paid = total / 2; // Half amount
+                    extraCharge += 20;
+                }
+
+                let total = totalPrice - discount + extraCharge;
+
+                total = Math.max(0, total); // safety
+
+                let paid = 0;
+
+                if (paymentOption === 'half') {
+                    paid = total / 2;
+                } else {
+                    paid = total;
                 }
 
                 let remaining = total - paid;
 
-                // Update fields
+                // Update UI
                 $('#totalAmount').val(total.toFixed(2));
-                $('#paidAmount').val(paid.toFixed(2)).prop('readonly', true); // always readonly
+                $('#paidAmount').val(paid.toFixed(2));
                 $('#remainingAmount').val(remaining.toFixed(2));
-                $('#discountField').val(discount);
+
+                $('#discountField').val(discount.toFixed(2));
                 $('#extraChargeField').val(extraCharge);
 
                 // Payment status

@@ -138,36 +138,36 @@
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <!-- Course -->
-                        <td style="padding:18px;background:#fff;">
-                            <strong>
-                                {{ $invoice->course->title }}
-                            </strong><br>
-                            <small style="color:#666;">
-                                {{-- {{ $invoice->course->description ?? '' }} --}}
-                            </small>
-                        </td>
+                    @foreach ($invoice->items as $item)
+                        <tr>
+                            <!-- Course -->
+                            <td style="padding:18px;background:#fff;">
+                                <strong>
+                                    {{ $item->course->title }}
+                                </strong><br>
+                                <small style="color:#666;">
+                                    {{-- {{ $invoice->course->description ?? '' }} --}}
+                                </small>
+                            </td>
 
-                        <!-- Schedule -->
-                        <td style="padding:18px;background:#fff;">
-                            <small style="color:#444;">
-                                {{ $invoice->course->schedule->study_day }} |
-                                {{ $invoice->course->schedule->shift }} |
-                                {{ \Carbon\Carbon::parse($invoice->course->schedule->start_time)->format('h:i ') }}
-                                -
-                                {{ \Carbon\Carbon::parse($invoice->course->schedule->end_time)->format('h:i A') }}
-                                <br>
-                            </small>
-                        </td>
+                            <!-- Schedule -->
+                            <td style="padding:18px;background:#fff;">
+                                <small style="color:#444;">
+                                    {{ $item->course->schedule->study_day }} |
+                                    {{ $item->course->schedule->shift }} |
+                                    {{ \Carbon\Carbon::parse($item->course->schedule->start_time)->format('h:i ') }}
+                                    -
+                                    {{ \Carbon\Carbon::parse($item->course->schedule->end_time)->format('h:i A') }}
+                                    <br>
+                                </small>
+                            </td>
 
-                        <!-- Price -->
-                        <td style="padding:18px;background:#fff;">
-                            ${{ number_format($invoice->course->price, 2) }}
-                        </td>
-                    </tr>
-
-
+                            <!-- Price -->
+                            <td style="padding:18px;background:#fff;">
+                                ${{ number_format($item->course->price, 2) }}
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
             <!-- Bottom Section -->
@@ -186,8 +186,8 @@
                     </div> --}}
                     <h3 style="font-size:26px;margin-bottom:18px;">Terms & Conditions</h3>
                     <!-- Note -->
-                        <div
-                            style="
+                    <div
+                        style="
                                 margin-top:12px;
                                 padding:12px 16px;
                                 background:#fff3f3;
@@ -196,9 +196,9 @@
                                 font-size:14px;
                                 color:#444;
                             ">
-                            <strong style="color:#d9534f;">Note:</strong>
-                            All payments are strictly non-refundable.
-                        </div>
+                        <strong style="color:#d9534f;">Note:</strong>
+                        All payments are strictly non-refundable.
+                    </div>
                 </div>
 
                 <div style="width:48%;">
@@ -208,7 +208,7 @@
                             <tr>
                                 <td style="padding:10px 0;">Original Price</td>
                                 <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->course->price, 2) }}
+                                    ${{ number_format($invoice->items->sum('price'), 2) }}
                                 </td>
                             </tr>
                             <tr>
@@ -236,7 +236,7 @@
                             <tr>
                                 <td style="padding:10px 0;">Original Price</td>
                                 <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->course->price, 2) }}
+                                    ${{ number_format($invoice->items->sum('price'), 2) }}
                                 </td>
                             </tr>
                             <tr>
