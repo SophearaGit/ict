@@ -71,7 +71,9 @@
                     </nav>
                 </div>
                 <div class="nav btn-group" role="tablist">
-                    <a href="javascript:void;" class="btn btn-primary">Add New Courses</a>
+                    <button class="btn btn-primary add_new_course_btn">
+                        Add New Course
+                    </button>
                 </div>
             </div>
         </div>
@@ -102,10 +104,14 @@
                         </div>
                     </div>
                     <!-- List  -->
-                    <select class="form-select">
-                        <option value="">Sort by</option>
-                        <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Open</option>
-                        <option value="close" {{ request('status') == 'close' ? 'selected' : '' }}>Close</option>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>
+                            Open
+                        </option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                            Close
+                        </option>
                     </select>
                 </div>
             </div>
@@ -128,8 +134,6 @@
                         </div>
                     @endif
                     @php
-                        $grouped = collect($schedules)->groupBy('study_day');
-
                         $shiftOrder = [
                             'morning' => 1,
                             'afternoon' => 2,
@@ -138,7 +142,7 @@
                     @endphp
 
                     <form id="scheduleFilterForm" method="GET" action="{{ route('admin.courses.realtime.index') }}">
-                        @foreach ($grouped as $day => $items)
+                        @foreach ($groupedSchedules as $day => $items)
                             @php
                                 $collapseId = 'schedule-' . md5($day);
                                 $shiftGroups = collect($items)->groupBy('shift');
@@ -196,6 +200,8 @@
                                 @foreach (request('schedule_ids', []) as $scheduleId)
                                     <input type="hidden" name="schedule_ids[]" value="{{ $scheduleId }}">
                                 @endforeach
+                                <!-- ⭐ keep status -->
+                                <input type="hidden" name="status" value="{{ request('status') }}">
                             </form>
                         </div>
                         <div class="px-4">
@@ -217,7 +223,7 @@
                                                 </h4>
                                                 <div class="d-flex justify-content-between border-bottom py-2 mt-2">
                                                     <span>
-                                                        Created At
+                                                        Created On
                                                     </span>
                                                     <span class="text-dark">
                                                         {{ $course->created_at->format('d M, Y') }}
@@ -228,28 +234,14 @@
                                                         Scehdule
                                                     </span>
                                                     <span class="text-dark">
-                                                        @php
-                                                            $days = collect(explode('-', $course->schedule->study_day))
-                                                                ->map(
-                                                                    fn($d) => \Illuminate\Support\Str::of($d)
-                                                                        ->ucfirst()
-                                                                        ->substr(0, 3),
-                                                                )
-                                                                ->join(' • ');
-                                                            $start = \Carbon\Carbon::parse(
-                                                                $course->schedule->start_time,
-                                                            )->format('g:i');
-                                                            $end = \Carbon\Carbon::parse(
-                                                                $course->schedule->end_time,
-                                                            )->format('g:i A');
-                                                            $shift = ucfirst($course->schedule->shift);
-                                                        @endphp
                                                         <div>
-                                                            <div class="fw-semibold">{{ $days }}</div>
+                                                            <div class="fw-semibold">{{ $course->schedule->short_days }}
+                                                            </div>
                                                             <div class="text-muted small">
-                                                                <span
-                                                                    class="badge bg-light text-dark">{{ $shift }}</span>
-                                                                {{ $start }} – {{ $end }}
+                                                                <span class="badge bg-light text-dark">
+                                                                    {{ $course->schedule->shift_label }}
+                                                                </span>
+                                                                {{ $course->schedule->formatted_time }}
                                                             </div>
                                                         </div>
                                                     </span>
@@ -259,9 +251,9 @@
                                                         Status
                                                     </span>
                                                     <span class="text-dark">
-                                                        @if ($course->status == 'pending')
+                                                        @if ($course->status == 'inactive')
                                                             <span
-                                                                class="badge-dot bg-warning me-1 d-inline-block align-middle"></span>
+                                                                class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
                                                             CLOSE
                                                         @elseif ($course->status == 'active')
                                                             <span
@@ -302,7 +294,8 @@
                                                 <div class="row align-items-center g-0">
                                                     <div class="col-auto">
                                                         <img src="{{ $course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
-                                                            class="rounded-circle avatar-xs" alt="avatar">
+                                                            class="rounded-circle avatar-xs" alt="avatar"
+                                                            style="height: 25px; object-fit: cover;">
                                                     </div>
                                                     <div class="col ms-2">
                                                         <span>
@@ -339,39 +332,7 @@
                                 @endforelse
                             </div>
                             <div class="card-footer">
-                                <nav>
-                                    <ul class="pagination justify-content-center mb-0">
-                                        {{-- Previous Page Link --}}
-                                        <li class="page-item {{ $courses->onFirstPage() ? 'disabled' : '' }}">
-                                            <a class="page-link mx-1 rounded"
-                                                href="{{ $courses->previousPageUrl() ?? '#' }}" aria-label="Previous">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                    fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
-                                                </svg>
-                                            </a>
-                                        </li>
-                                        {{-- Page Numbers --}}
-                                        @foreach ($courses->getUrlRange(1, $courses->lastPage()) as $page => $url)
-                                            <li class="page-item {{ $courses->currentPage() == $page ? 'active' : '' }}">
-                                                <a class="page-link mx-1 rounded"
-                                                    href="{{ $url }}">{{ $page }}</a>
-                                            </li>
-                                        @endforeach
-                                        {{-- Next Page Link --}}
-                                        <li class="page-item {{ $courses->hasMorePages() ? '' : 'disabled' }}">
-                                            <a class="page-link mx-1 rounded" href="{{ $courses->nextPageUrl() ?? '#' }}"
-                                                aria-label="Next">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                    fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-                                                </svg>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
+                                @include('admin.pages.real-time-courses.partials.pagination')
                             </div>
                         </div>
                     </div>
@@ -393,6 +354,8 @@
                                 @foreach (request('schedule_ids', []) as $scheduleId)
                                     <input type="hidden" name="schedule_ids[]" value="{{ $scheduleId }}">
                                 @endforeach
+                                <!-- ⭐ keep status -->
+                                <input type="hidden" name="status" value="{{ request('status') }}">
                             </form>
                         </div>
                         <div>
@@ -429,7 +392,7 @@
                                                                         <h4 class="mb-1 text-primary-hover">
                                                                             {{ $course->title }}
                                                                         </h4>
-                                                                        <span>Created At
+                                                                        <span>Created on
                                                                             {{ $course->created_at->format('d M, Y') }}
                                                                         </span>
                                                                     </div>
@@ -448,30 +411,14 @@
                                                         </td> --}}
                                                         {{-- schedule --}}
                                                         <td>
-                                                            @php
-                                                                $days = collect(
-                                                                    explode('-', $course->schedule->study_day),
-                                                                )
-                                                                    ->map(
-                                                                        fn($d) => \Illuminate\Support\Str::of($d)
-                                                                            ->ucfirst()
-                                                                            ->substr(0, 3),
-                                                                    )
-                                                                    ->join(' • ');
-                                                                $start = \Carbon\Carbon::parse(
-                                                                    $course->schedule->start_time,
-                                                                )->format('g:i');
-                                                                $end = \Carbon\Carbon::parse(
-                                                                    $course->schedule->end_time,
-                                                                )->format('g:i A');
-                                                                $shift = ucfirst($course->schedule->shift);
-                                                            @endphp
                                                             <div>
-                                                                <div class="fw-semibold">{{ $days }}</div>
+                                                                <div class="fw-semibold">
+                                                                    {{ $course->schedule->short_days }}</div>
                                                                 <div class="text-muted small">
-                                                                    <span
-                                                                        class="badge bg-light text-dark">{{ $shift }}</span>
-                                                                    {{ $start }} – {{ $end }}
+                                                                    <span class="badge bg-light text-dark">
+                                                                        {{ $course->schedule->shift_label }}
+                                                                    </span>
+                                                                    {{ $course->schedule->formatted_time }}
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -485,9 +432,9 @@
                                                             ${{ $course->payments->sum('amount') }}
                                                         </td>
                                                         <td>
-                                                            @if ($course->status == 'pending')
+                                                            @if ($course->status == 'inactive')
                                                                 <span
-                                                                    class="badge-dot bg-warning me-1 d-inline-block align-middle"></span>
+                                                                    class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
                                                                 CLOSE
                                                             @elseif ($course->status == 'active')
                                                                 <span
@@ -497,7 +444,8 @@
                                                         </td>
                                                         <td>
                                                             <a href="javascript:void;"
-                                                                class="btn btn-sm btn-outline-secondary">
+                                                                class="btn btn-sm btn-outline-secondary edit_course_btn"
+                                                                data-course-id="{{ $course->id }}">
                                                                 <i class="fe fe-edit"></i>
                                                             </a>
                                                             <a href="javascript:void;"
@@ -508,7 +456,7 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="5" class="text-center">
+                                                        <td colspan="6" class="text-center">
                                                             <div class="py-4">
                                                                 <h3 class="mb-2">No courses found.</h3>
                                                                 <p class="mb-4">Try adjusting your search or filter to
@@ -532,53 +480,104 @@
                         </div>
                         <!-- Card Footer -->
                         <div class="card-footer">
-                            <nav>
-                                <ul class="pagination justify-content-center mb-0">
-                                    {{-- Previous Page Link --}}
-                                    <li class="page-item {{ $courses->onFirstPage() ? 'disabled' : '' }}">
-                                        <a class="page-link mx-1 rounded" href="{{ $courses->previousPageUrl() ?? '#' }}"
-                                            aria-label="Previous">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd"
-                                                    d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    {{-- Page Numbers --}}
-                                    @foreach ($courses->getUrlRange(1, $courses->lastPage()) as $page => $url)
-                                        <li class="page-item {{ $courses->currentPage() == $page ? 'active' : '' }}">
-                                            <a class="page-link mx-1 rounded"
-                                                href="{{ $url }}">{{ $page }}</a>
-                                        </li>
-                                    @endforeach
-                                    {{-- Next Page Link --}}
-                                    <li class="page-item {{ $courses->hasMorePages() ? '' : 'disabled' }}">
-                                        <a class="page-link mx-1 rounded" href="{{ $courses->nextPageUrl() ?? '#' }}"
-                                            aria-label="Next">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd"
-                                                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                            @include('admin.pages.real-time-courses.partials.pagination')
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Add Course Modal -->
+    <div class="modal fade" id="addCourseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg dynamic_course_modal_content">
+
+        </div>
+    </div>
+
+
+
+
 @endsection
+
+
+
+
+
+
+
 @push('scripts')
     <script>
-        // document.querySelector('input[name="search_query"]').addEventListener('keyup', function() {
-        //     this.form.submit();
-        // });
+        $('.add_new_course_btn').on('click', function(e) {
+            e.preventDefault();
+            $('#addCourseModal').modal('show');
+            $.ajax({
+                method: 'GET',
+                url: base_url + `/realtime-courses/create`,
+                data: {},
+                beforeSend: function() {
+                    $('.dynamic_course_modal_content').html(`
+                        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    `);
+                },
+                success: function(data) {
+                    $('.dynamic_course_modal_content').html(data);
+                },
+
+                error: function(xhr, status, error) {
+
+                },
+            })
+        });
+
+        $('.edit_course_btn').on('click', function(e) {
+            e.preventDefault();
+            $('#addCourseModal').modal('show');
+            const course_id = $(this).data('course-id');
+            $.ajax({
+                method: 'GET',
+                url: base_url + `/realtime-courses/${course_id}/edit`,
+                data: {},
+                beforeSend: function() {
+                    $('.dynamic_staff_modal_content').html(
+                        `
+                        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        `
+                    );
+                },
+                success: function(data) {
+                    $('.dynamic_course_modal_content').html(data);
+                },
+                error: function(xhr, status, error) {
+
+                },
+            })
+        })
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Status filter
+            // document.getElementById('statusFilter')?.addEventListener('change', function() {
+
+            //     const url = new URL(window.location.href);
+
+            //     url.searchParams.delete('page');
+
+            //     if (this.value) {
+            //         url.searchParams.set('status', this.value);
+            //     } else {
+            //         url.searchParams.delete('status');
+            //     }
+
+            //     window.location.href = url.toString();
+            // });
 
             // Initialize all collapse elements
             document.querySelectorAll('.schedule-card .collapse').forEach(el => {
@@ -589,13 +588,17 @@
 
             // Open collapse if any checkbox is checked
             document.querySelectorAll('.schedule-card').forEach(card => {
-                const collapseBody = card.querySelector('.collapse');
-                const header = card.querySelector('.schedule-header');
-                if (collapseBody.querySelector('.schedule-checkbox:checked')) {
-                    const collapseInstance = bootstrap.Collapse.getOrCreateInstance(collapseBody);
-                    collapseInstance.show();
-                    header.setAttribute('aria-expanded', 'true');
+
+                const collapse = card.querySelector('.collapse');
+
+                if (card.querySelector('.schedule-checkbox:checked')) {
+                    bootstrap.Collapse.getOrCreateInstance(collapse).show();
                 }
+
+                card.querySelector('.schedule-header')
+                    .addEventListener('click', () =>
+                        bootstrap.Collapse.getOrCreateInstance(collapse).toggle()
+                    );
             });
 
             // Toggle collapse on header click
@@ -626,39 +629,6 @@
             if (savedTab) {
                 const trigger = document.querySelector(`[data-tab="${savedTab}"]`);
                 if (trigger) new bootstrap.Tab(trigger).show();
-            }
-
-            document.querySelectorAll('[data-tab]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    localStorage.setItem('courses_active_tab', this.dataset.tab);
-                });
-            });
-
-        });
-
-        document.querySelectorAll('.select-day').forEach(selectAll => {
-
-            selectAll.addEventListener('change', function() {
-
-                let container = this.closest('.schedule-body');
-
-                container.querySelectorAll('.schedule-checkbox')
-                    .forEach(cb => cb.checked = this.checked);
-
-            });
-
-        });
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const savedTab = localStorage.getItem('courses_active_tab');
-
-            if (savedTab) {
-                const trigger = document.querySelector(`[data-tab="${savedTab}"]`);
-                if (trigger) {
-                    new bootstrap.Tab(trigger).show();
-                }
             }
 
             document.querySelectorAll('[data-tab]').forEach(btn => {
