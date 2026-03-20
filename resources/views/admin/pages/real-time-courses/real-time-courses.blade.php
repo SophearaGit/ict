@@ -278,7 +278,7 @@
                                                         Price
                                                     </span>
                                                     <span class="text-dark">
-                                                        ${{ $course->price }}
+                                                        ${{ number_format($course->price, 2) }}
                                                     </span>
                                                 </div>
                                                 {{-- earning --}}
@@ -287,7 +287,7 @@
                                                         Revenue
                                                     </span>
                                                     <span class="text-dark">
-                                                        ${{ $course->payments->sum('amount') }}
+                                                        ${{ number_format($course->total_revenue ?? 0, 2) }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -436,7 +436,7 @@
                                                             ${{ $course->price }}
                                                         </td> --}}
                                                         <td>
-                                                            ${{ $course->payments->sum('amount') }}
+                                                            ${{ number_format($course->total_revenue ?? 0, 2) }}
                                                         </td>
                                                         <td>
                                                             @if ($course->status == 'inactive')

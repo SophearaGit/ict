@@ -63,4 +63,9 @@ class ICTCourse extends Model
         return $this->hasMany(ICTCourseEnrollments::class, 'course_id');
     }
 
+    public function invoiceItems()
+    {
+        return $this->hasMany(ICTInvoiceItems::class, 'course_id');
+    }
+
 }

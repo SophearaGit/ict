@@ -259,6 +259,19 @@
                                     ${{ number_format($invoice->paid_amount, 2) }}
                                 </td>
                             </tr>
+                        @elseif ($invoice->extra_charge == 0 && $invoice->discount == 0)
+                            <tr>
+                                <td style="padding:10px 0;">Total Amount</td>
+                                <td style="text-align:right;font-weight:bold;">
+                                    ${{ number_format($invoice->total_amount, 2) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px 0;">Paid Amount</td>
+                                <td style="text-align:right;font-weight:bold;">
+                                    ${{ number_format($invoice->paid_amount, 2) }}
+                                </td>
+                            </tr>
                         @endif
                     </table>
 
