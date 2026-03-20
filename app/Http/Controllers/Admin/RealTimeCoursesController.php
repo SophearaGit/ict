@@ -37,6 +37,7 @@ class RealTimeCoursesController extends Controller
 
         $courses = $courses
             ->withCount('enrollments')
+            ->withSum('invoiceItems as total_revenue', 'total') // if original price use price, if total use total
             ->orderBy('title', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(6)
