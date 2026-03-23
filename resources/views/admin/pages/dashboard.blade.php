@@ -21,9 +21,7 @@
     </div>
     <div class="row">
         <div class="col-xl-3 col-lg-6 col-md-12 col-12">
-            <!-- Card -->
             <div class="card mb-4">
-                <!-- Card body -->
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3 lh-1">
                         <div>
@@ -33,10 +31,12 @@
                             <span class="fe fe-shopping-bag fs-3 text-primary"></span>
                         </div>
                     </div>
-                    <h2 class="fw-bold mb-1">$10,800</h2>
-                    <span class="text-success fw-semibold">
-                        <i class="fe fe-trending-up me-1"></i>
-                        +20.9$
+                    <h2 class="fw-bold mb-1">
+                        ${{ $total_revenue }}
+                    </h2>
+                    <span class="{{ $is_up ? 'text-success' : 'text-danger' }} fw-semibold">
+                        <i class="fe {{ $is_up ? 'fe-trending-up' : 'fe-trending-down' }} me-1"></i>
+                        {{ $is_up ? '+' : '' }}{{ $change }}$
                     </span>
                     <span class="ms-1 fw-medium">Number of sales</span>
                 </div>
@@ -55,8 +55,12 @@
                             <span class="fe fe-book-open fs-3 text-primary"></span>
                         </div>
                     </div>
-                    <h2 class="fw-bold mb-1">2,456</h2>
-                    <span class="text-danger fw-semibold">120+</span>
+                    <h2 class="fw-bold mb-1">
+                        {{ $total_courses }}
+                    </h2>
+                    <span class="text-danger fw-semibold">
+                        {{ $pending_courses }}+
+                    </span>
                     <span class="ms-1 fw-medium">Number of pending</span>
                 </div>
             </div>
@@ -74,10 +78,12 @@
                             <span class="fe fe-users fs-3 text-primary"></span>
                         </div>
                     </div>
-                    <h2 class="fw-bold mb-1">1,22,456</h2>
+                    <h2 class="fw-bold mb-1">
+                        {{ $total_students }}
+                    </h2>
                     <span class="text-success fw-semibold">
                         <i class="fe fe-trending-up me-1"></i>
-                        +1200
+                        +{{ $new_students }}
                     </span>
                     <span class="ms-1 fw-medium">Students</span>
                 </div>
@@ -96,17 +102,19 @@
                             <span class="fe fe-user-check fs-3 text-primary"></span>
                         </div>
                     </div>
-                    <h2 class="fw-bold mb-1">22,786</h2>
+                    <h2 class="fw-bold mb-1">
+                        {{ $total_instructors }}
+                    </h2>
                     <span class="text-success fw-semibold">
                         <i class="fe fe-trending-up me-1"></i>
-                        +200
+                        +{{ $new_instructors }}
                     </span>
                     <span class="ms-1 fw-medium">Instructor</span>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-xl-8 col-lg-12 col-md-12 col-12">
             <!-- Card -->
             <div class="card mb-4">
@@ -186,7 +194,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     <div class="row">
         <div class="col-xl-4 col-lg-12 col-md-12 col-12 mb-4">
             <!-- Card -->
@@ -204,7 +212,7 @@
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="avatar avatar-md avatar-indicators avatar-offline">
-                                        <img alt="avatar" src="/frontend/assets/images/avatar/avatar-1.jpg"
+                                        <img alt="avatar" src="{{ asset('/frontend/assets/images/avatar/avatar-1.jpg') }}"
                                             class="rounded-circle">
                                     </div>
                                 </div>

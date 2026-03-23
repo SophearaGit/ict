@@ -15,9 +15,11 @@ class StaffDashboardController extends Controller
         $data = [
             'page_title' => 'ICT | Staff | Dashboard',
             'students_count' => Auth::user()->students()->count(),
+            'staffs_count' => User::where('role', 'staff')->count(),
+            'reports_count' => Auth::user()->reports()->count(),
             'students' => User::where('registered_by_staff_id', Auth::id())
                 ->where('role', 'student')
-                ->latest()->paginate(4),
+                ->latest()->paginate(8),
 
         ];
         return view('frontend.staff.index', $data);

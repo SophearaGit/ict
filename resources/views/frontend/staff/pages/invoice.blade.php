@@ -1,5 +1,32 @@
 @extends('frontend.staff.layout.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@push('styles')
+    <style>
+        .custom-pagination .page-link {
+            border: none;
+            color: #6c757d;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .custom-pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .custom-pagination .page-link:hover {
+            background-color: #f1f3f5;
+            color: #0d6efd;
+        }
+
+        .custom-pagination .page-item.disabled .page-link {
+            color: #ccc;
+            background: transparent;
+        }
+    </style>
+@endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
     <div class="card overflow-hidden invoice-application">
@@ -18,9 +45,9 @@
         <div class="d-flex">
             <div class="w-25 d-none d-lg-block border-end user-chat-box">
                 <div class="p-3 border-bottom">
-                    <form class="position-relative">
-                        <input type="search" class="form-control search-invoice ps-5" id="text-srh"
-                            placeholder="Search Invoice">
+                    <form class="position-relative" method="GET" action="{{ route('staff.invoices') }}">
+                        <input type="search" name="search" value="{{ request('search') }}"
+                            class="form-control search-invoice ps-5" placeholder="Search Invoice">
                         <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                     </form>
                 </div>
@@ -61,9 +88,41 @@
                                                     </a>
                                                 </li>
                                             @empty
+                                                <div class="d-flex align-items-center justify-content-center w-100 py-5">
+                                                    <div class="text-center">
+                                                        <h5 class="mb-3">No Invoices Found</h5>
+                                                        <p class="text-muted">There are no invoices to display at the
+                                                            moment.</p>
+                                                    </div>
+                                                </div>
                                             @endforelse
-                                            <li></li>
                                         </div>
+                                        {{-- Pagination --}}
+                                        @if ($invoices->hasPages())
+                                            <div class="p-2 border-top bg-white">
+                                                <ul
+                                                    class="pagination pagination-sm justify-content-center mb-0 custom-pagination">
+
+                                                    {{-- Prev --}}
+                                                    <li class="page-item {{ $invoices->onFirstPage() ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $invoices->previousPageUrl() }}">‹</a>
+                                                    </li>
+
+                                                    {{-- Page Info --}}
+                                                    <li class="page-item active">
+                                                        <span class="page-link">{{ $invoices->currentPage() }} /
+                                                            {{ $invoices->lastPage() }}</span>
+                                                    </li>
+
+                                                    {{-- Next --}}
+                                                    <li
+                                                        class="page-item {{ $invoices->hasMorePages() ? '' : 'disabled' }}">
+                                                        <a class="page-link" href="{{ $invoices->nextPageUrl() }}">›</a>
+                                                    </li>
+
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -86,7 +145,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="offcanvas offcanvas-start user-chat-box" tabindex="-1" id="chat-sidebar"
                 aria-labelledby="offcanvasExampleLabel">
                 <div class="offcanvas-header">
@@ -96,10 +154,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="p-3 border-bottom">
-                    <form class="position-relative">
-                        <input type="search" class="form-control search-invoice ps-5" id="text-srh"
-                            placeholder="Search Invoice">
-                        <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+                    <form class="position-relative" method="GET" action="{{ route('staff.invoices') }}">
+                        <input type="search" name="search" value="{{ request('search') }}"
+                            class="form-control search-invoice ps-5" placeholder="Search Invoice">
+                        <i
+                            class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                     </form>
                 </div>
                 <div class="app-invoice overflow-auto">
@@ -124,18 +183,58 @@
                                         </span>
                                     </div>
                                 </a>
-
-
                             </li>
                         @empty
+                            <div class="d-flex align-items-center justify-content-center w-100 py-5">
+                                <div class="text-center">
+                                    <h5 class="mb-3">No Invoices Found</h5>
+                                    <p class="text-muted">There are no invoices to display at the moment.</p>
+                                </div>
+                            </div>
                         @endforelse
                     </ul>
+                    <div class="p-3 border-top">
+                        <nav>
+                            <ul class="pagination pagination-sm justify-content-center mb-0 custom-pagination">
+
+                                {{-- Previous --}}
+                                @if ($invoices->hasPages())
+
+                                    @if ($invoices->onFirstPage())
+                                        <li class="page-item disabled">
+                                            <span class="page-link">‹</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $invoices->previousPageUrl() }}">‹</a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Pages --}}
+                                    @foreach ($invoices->getUrlRange(1, $invoices->lastPage()) as $page => $url)
+                                        <li class="page-item {{ $page == $invoices->currentPage() ? 'active' : '' }}">
+                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                        </li>
+                                    @endforeach
+
+                                    {{-- Next --}}
+                                    @if ($invoices->hasMorePages())
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $invoices->nextPageUrl() }}">›</a>
+                                        </li>
+                                    @else
+                                        <li class="page-item disabled">
+                                            <span class="page-link">›</span>
+                                        </li>
+                                    @endif
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-
 @endsection
 @push('scripts')
     <!-- ---------------------------------------------- -->

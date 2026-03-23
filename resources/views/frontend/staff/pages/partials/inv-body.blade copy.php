@@ -7,8 +7,10 @@
     <div class="invoice-123" id="printableArea" style="display: block;">
         <div
             style="background: #e9e9e9;box-sizing: border-box;font-family: Arial, Helvetica, sans-serif;width:800px;margin:auto;background:#fff;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,0.15);border-radius:8px;">
+
             <!-- Top Section -->
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:35px;">
+
                 <div>
                     <img src="{{ asset('/frontend/assets/ictImg/logo/ictBannerLogo.png') }}" class="dark-logo"
                         width="420" height="110" alt="ict_dark_logo" style="border-radius: 5px;">

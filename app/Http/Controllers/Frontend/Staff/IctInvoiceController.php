@@ -90,16 +90,39 @@ class IctInvoiceController extends Controller
         }
     }
 
-
-    public function invoices(): View
+    public function invoices(Request $request): View
     {
-        $data = [
-            'page_title' => 'ICT Center | Invoices',
-            'invoices' => ICTInvoice::with(['student', 'course'])
-                ->latest()
-                ->get(),
-        ];
-        return view('frontend.staff.pages.invoice', $data);
+        $search = $request->input('search');
+
+        $invoices = ICTInvoice::with(['student', 'course'])
+            ->when($search, function ($query, $search) {
+                $query->where('invoice_code', 'like', "%{$search}%")
+                    ->orWhereHas('student', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->paginate(5);
+
+        // Keep search term in pagination links
+        $invoices->appends(['search' => $search]);
+
+        return view('frontend.staff.pages.invoice', [
+            'page_title' => 'ICT | STAFF | INVOICES',
+            'invoices' => $invoices,
+        ]);
     }
+
+
+    // public function invoices(): View
+    // {
+    //     $data = [
+    //         'page_title' => 'ICT Center | Invoices',
+    //         'invoices' => ICTInvoice::with(['student', 'course'])
+    //             ->latest()
+    //             ->paginate(5),
+    //     ];
+    //     return view('frontend.staff.pages.invoice', $data);
+    // }
 
 }
