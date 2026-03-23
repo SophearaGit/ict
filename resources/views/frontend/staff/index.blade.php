@@ -10,7 +10,9 @@
                         <img src="{{ asset('/admin/assets/dist/images/svgs/icon-user-male.svg') }}" width="50"
                             height="50" class="mb-3" alt="" />
                         <p class="fw-semibold fs-3 text-primary mb-1"> Staffs </p>
-                        <h5 class="fw-semibold text-primary mb-0">96</h5>
+                        <h5 class="fw-semibold text-primary mb-0">
+                            {{ $staffs_count ?? 0 }}
+                        </h5>
                     </div>
                 </div>
             </div>
@@ -23,7 +25,9 @@
                         <img src="{{ asset('/admin/assets/dist/images/svgs/icon-connect.svg') }}" width="50"
                             height="50" class="mb-3" alt="" />
                         <p class="fw-semibold fs-3 text-warning mb-1">Reports</p>
-                        <h5 class="fw-semibold text-warning mb-0">59</h5>
+                        <h5 class="fw-semibold text-warning mb-0">
+                            {{ $reports_count ?? 0 }}
+                        </h5>
                     </div>
                 </div>
             </div>
@@ -37,28 +41,17 @@
                     <div class="d-sm-flex d-block align-items-center justify-content-between mb-7">
                         <div class="mb-3 mb-sm-0">
                             <h5 class="card-title fw-semibold">
-                                Your Registered Students ( {{ $students_count }} )
+                                Recent Students
                             </h5>
                             <p class="card-subtitle mb-0">
-                                View and manage the students you have registered.
+                                {{ $students_count ?? 0 }} students registered by you.
                             </p>
                         </div>
                         <div>
-                            {{-- <select class="form-select">
-                                <option value="1">March 2023</option>
-                                <option value="2">April 2023</option>
-                                <option value="3">May 2023</option>
-                                <option value="4">June 2023</option>
-                            </select> --}}
-                            {{-- register student --}}
-                            <a href="{{ route('staff.student.registration') }}" class="btn btn-outline-primary">
-                                {{-- tablr icon class  --}}
-                                <i class="ti ti-user-plus me-2"></i>
-                                Register Student
-                            </a>
-                            <a href="javascript:;" class="btn btn-primary">
-                                <i class="ti ti-eye me-2"></i>
-                                View All
+                            {{-- Rigister --}}
+                            <a href="{{ route('staff.student.registration') }}" class="btn btn-primary">
+                                {{-- <i class="fa-solid fa-plus"></i> --}}
+                                Rigistration
                             </a>
                         </div>
                     </div>
@@ -66,38 +59,32 @@
                         <table class="table align-middle text-nowrap mb-0">
                             <thead>
                                 <tr class="text-muted fw-semibold">
-                                    <th scope="col" class="ps-0">Name</th>
-
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Registered At</th>
                                 </tr>
                             </thead>
                             <tbody class="border-top">
-                                @forelse ($students as $student)
+                                @foreach ($students as $student)
                                     <tr>
-                                        <td class="ps-0">
-                                            <div class="d-flex align-items-center">
-                                                <div class="me-2 pe-1">
-                                                    <img src="{{ asset($student->image == 'no-img.jpg' ? '\default-images\user\both.jpg' : $student->image) }}"
-                                                        class="rounded-circle" width="40" height="40" alt="">
-                                                </div>
-                                                <div>
-                                                    <h6 class="fw-semibold mb-1">
-                                                        {{ $student->name }}
-                                                    </h6>
-                                                    <p class="fs-2 mb-0 text-muted">
-                                                        {{ $student->email }}
-                                                    </p>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img src="{{ asset($student->image == 'no-img.jpg' ? '\default-images\user\both.jpg' : $student->image) }}"
+                                                    alt="" class="rounded-circle" width="40" height="40" />
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-semibold">{{ $student->name }}</span>
+                                                    <small class="text-muted">{{ $student->role }}</small>
                                                 </div>
                                             </div>
                                         </td>
-
+                                        <td>{{ $student->email }}</td>
+                                        <td>{{ $student->phone }}</td>
+                                        <td>{{ $student->created_at->format('d M Y') }}</td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">
-                                            No students registered yet.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

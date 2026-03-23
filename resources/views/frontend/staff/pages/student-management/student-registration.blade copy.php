@@ -271,156 +271,86 @@
     <script>
         $(document).ready(function() {
 
-            // ==============================
-            // INIT SELECT2
-            // ==============================
             $('#courseSelect').select2();
             $('#studentSelect').select2({
                 width: '100%'
             });
 
-
-            // ==============================
-            // STUDENT TYPE TOGGLE
-            // ==============================
+            // Toggle Student Type
             $('#studentType').on('change', function() {
-                toggleStudentType($(this).val());
-                resetPaymentFields();
-            });
+                let type = $(this).val();
 
-
-            function toggleStudentType(type) {
                 if (type === 'existing') {
                     $('#existingStudentWrapper').removeClass('d-none');
                     $('#newStudentWrapper').addClass('d-none');
-                    $('#newStudentWrapper input')
-                        .prop('required', false)
-                        .prop('disabled', true);
+                    $('#newStudentWrapper input').prop('required', false).prop('disabled', true);
                 } else {
                     $('#existingStudentWrapper').addClass('d-none');
                     $('#newStudentWrapper').removeClass('d-none');
-                    $('#newStudentWrapper input')
-                        .prop('disabled', false);
+                    $('#newStudentWrapper input').prop('disabled', false);
                 }
-            }
 
-
-            // ==============================
-            // RESET PAYMENT FIELDS
-            // ==============================
-            function resetPaymentFields() {
+                // Reset payment fields when switching student type
                 $('#paymentOption').val('');
                 $('#totalAmount').val('');
                 $('#paidAmount').val('');
                 $('#remainingAmount').val('');
                 $('#paymentStatusDisplay').val('');
                 $('#paymentStatus').val('');
-            }
+            });
 
-
-            // ==============================
-            // MAIN CALCULATION
-            // ==============================
             function calculateAmounts() {
 
                 let selectedCourses = $('#courseSelect').find(':selected');
                 let courseCount = selectedCourses.length;
 
-                let totalPrice = getTotalPrice(selectedCourses);
-                let paymentOption = $('#paymentOption').val();
-
-                handleMultiCourseUI(courseCount);
-                paymentOption = enforceMultiLogic(courseCount, paymentOption);
-
-                let {
-                    discount,
-                    extraCharge
-                } = calculateAdjustments(paymentOption, courseCount);
-
-                let total = Math.max(0, totalPrice - discount + extraCharge);
-                let paid = calculatePaidAmount(paymentOption, total);
-                let remaining = total - paid;
-
-                updateUI(total, paid, remaining, discount, extraCharge);
-                updatePaymentStatus(paid, remaining);
-            }
-
-
-            // ==============================
-            // GET TOTAL COURSE PRICE
-            // ==============================
-            function getTotalPrice(selectedCourses) {
-                let total = 0;
+                let totalPrice = 0;
 
                 selectedCourses.each(function() {
-                    total += parseFloat($(this).data('price')) || 0;
+                    totalPrice += parseFloat($(this).data('price')) || 0;
                 });
 
-                return total;
-            }
-
-
-            // ==============================
-            // MULTI COURSE UI NOTE
-            // ==============================
-            function handleMultiCourseUI(courseCount) {
-                $('#multiNote').remove();
+                let paymentOption = $('#paymentOption').val();
 
                 if (courseCount >= 2) {
+                    $('#multiNote').remove();
                     $('#paymentOption').closest('.col-md-4').append(`
-                    <small id="multiNote" class="text-success d-block mt-1">
-                        🎉 $25 discount applied for multiple courses
-                    </small>
-                `);
+                        <small id="multiNote" class="text-success d-block mt-1">
+                            🎉 25% discount applied for multiple courses
+                        </small>
+                    `);
+                } else {
+                    $('#multiNote').remove();
                 }
-            }
 
-
-            // ==============================
-            // FORCE MULTI OPTION LOGIC
-            // ==============================
-            function enforceMultiLogic(courseCount, paymentOption) {
-
+                // 🎯 AUTO SWITCH LOGIC
                 if (courseCount >= 2 && paymentOption !== 'multi') {
-
-                    // Disable other options
-                    $('#paymentOption option')
-                        .not('[value="multi"]')
-                        .prop('disabled', true);
-
+                    // disable other options and select multi
+                    $('#paymentOption option').not('[value="multi"]').prop('disabled', true);
                     $('#paymentOption').css('background-color', '#e9ecef');
 
                     $('#paymentOption').val('multi');
-                    return 'multi';
+                    paymentOption = 'multi';
+                } else {
+                    // enable all options
+                    $('#paymentOption option').not('[value="multi"]').prop('disabled', false);
+                    $('#paymentOption').css('background-color', '');
+
                 }
 
-                // Enable all options again
-                $('#paymentOption option')
-                    .not('[value="multi"]')
-                    .prop('disabled', false);
-
-                $('#paymentOption').css('background-color', '');
-
-                // Reset if invalid
+                // If user selects only 1 course but multi is selected → reset
                 if (courseCount < 2 && paymentOption === 'multi') {
                     $('#paymentOption').val('normal');
-                    return 'normal';
+                    paymentOption = 'normal';
                 }
-
-                return paymentOption;
-            }
-
-
-            // ==============================
-            // CALCULATE DISCOUNT & EXTRA
-            // ==============================
-            function calculateAdjustments(paymentOption, courseCount) {
 
                 let discount = 0;
                 let extraCharge = 0;
 
+                // 🎯 APPLY RULES
+
                 if (paymentOption === 'multi' && courseCount >= 2) {
-                    discount += 25;
+                    discount += 25; // ✅ FIXED flat discount
                 }
 
                 if (paymentOption === 'full') {
@@ -431,47 +361,33 @@
                     extraCharge += 20;
                 }
 
-                return {
-                    discount,
-                    extraCharge
-                };
-            }
+                let total = totalPrice - discount + extraCharge;
 
+                total = Math.max(0, total); // safety
 
-            // ==============================
-            // CALCULATE PAID AMOUNT
-            // ==============================
-            function calculatePaidAmount(paymentOption, total) {
-                return paymentOption === 'half' ?
-                    total / 2 :
-                    total;
-            }
+                let paid = 0;
 
+                if (paymentOption === 'half') {
+                    paid = total / 2;
+                } else {
+                    paid = total;
+                }
 
-            // ==============================
-            // UPDATE UI VALUES
-            // ==============================
-            function updateUI(total, paid, remaining, discount, extraCharge) {
+                let remaining = total - paid;
 
+                // Update UI
                 $('#totalAmount').val(total.toFixed(2));
                 $('#paidAmount').val(paid.toFixed(2));
                 $('#remainingAmount').val(remaining.toFixed(2));
 
                 $('#discountField').val(discount.toFixed(2));
-                $('#extraChargeField').val(extraCharge.toFixed(2));
-            }
+                $('#extraChargeField').val(extraCharge);
 
-
-            // ==============================
-            // PAYMENT STATUS
-            // ==============================
-            function updatePaymentStatus(paid, remaining) {
-
+                // Payment status
                 let status = '';
-
-                if (paid === 0) {
+                if (paid == 0) {
                     status = 'unpaid';
-                } else if (remaining === 0) {
+                } else if (remaining == 0) {
                     status = 'paid';
                 } else {
                     status = 'half_paid';
@@ -481,10 +397,7 @@
                 $('#paymentStatus').val(status);
             }
 
-
-            // ==============================
-            // EVENTS
-            // ==============================
+            // Trigger events
             $('#courseSelect').on('change', calculateAmounts);
             $('#paymentOption').on('change', calculateAmounts);
 
