@@ -23,6 +23,8 @@ class ICTCourse extends Model
         'description',
         'price',
         'status',
+        'start_date',
+        'end_date',
     ];
 
     public function instructor(): BelongsTo
