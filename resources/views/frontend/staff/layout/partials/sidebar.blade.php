@@ -101,14 +101,18 @@
                 <li
                     class="sidebar-item {{ request()->is('staff/courses') ||
                     request()->is('staff/courses/create') ||
+                    request()->is('staff/courses/*/edit') ||
                     request()->is('staff/schedules') ||
-                    request()->is('staff/schedules/create')
+                    request()->is('staff/schedules/create') ||
+                    request()->is('staff/schedules/*/edit')
                         ? 'selected'
                         : '' }}">
                     <a class="sidebar-link has-arrow {{ request()->is('staff/courses') ||
                     request()->is('staff/courses/create') ||
+                    request()->is('staff/courses/*/edit') ||
                     request()->is('staff/schedules') ||
-                    request()->is('staff/schedules/create')
+                    request()->is('staff/schedules/create') ||
+                    request()->is('staff/schedules/*/edit')
                         ? 'active'
                         : '' }}"
                         href="javascript:;" aria-expanded="false">
@@ -123,17 +127,30 @@
                         class="collapse first-level
                     {{ request()->is('staff/courses') ||
                     request()->is('staff/courses/create') ||
+                    request()->is('staff/courses/*/edit') ||
                     request()->is('staff/schedules') ||
-                    request()->is('staff/schedules/create')
+                    request()->is('staff/schedules/create') ||
+                    request()->is('staff/schedules/*/edit')
                         ? 'in'
                         : '' }}
                     ">
                         <li
                             class="sidebar-item
-                            {{ request()->is('staff/courses') || request()->is('staff/courses/create') ? 'active' : '' }}
+                            {{ request()->is('staff/courses') ||
+                            request()->is('staff/courses/create') ||
+                            request()->is('staff/courses/*/edit') ||
+                            request()->is('staff/schedules') ||
+                            request()->is('staff/schedules/create') ||
+                            request()->is('staff/schedules/*/edit')
+                                ? 'active'
+                                : '' }}
                         ">
                             <a href="{{ route('staff.courses.index') }}"
-                                class="sidebar-link {{ request()->is('staff/courses') || request()->is('staff/courses/create') ? 'active' : '' }}">
+                                class="sidebar-link {{ request()->is('staff/courses') ||
+                                request()->is('staff/courses/create') ||
+                                request()->is('staff/courses/*/edit')
+                                    ? 'active'
+                                    : '' }}">
                                 <div class="round-16 d-flex align-items-center justify-content-center">
                                     <i class="ti ti-bookmark fs-3"></i>
                                 </div>
@@ -142,15 +159,20 @@
                                 </span>
                             </a>
                         </li>
-
                         <li
                             class="sidebar-item
-                            {{ request()->is('staff/schedules') || request()->is('staff/schedules/create') ? 'active' : '' }}
+                            {{ request()->is('staff/schedules') ||
+                            request()->is('staff/schedules/create') ||
+                            request()->is('staff/schedules/*/edit')
+                                ? 'active'
+                                : '' }}
                         ">
                             <a href="{{ route('staff.schedules.index') }}"
                                 class="sidebar-link
-                            {{ request()->is('staff/schedules') || request()->is('staff/schedules/create') ? 'active' : '' }}
-
+                            {{ request()->is('staff/schedules') ||
+                            request()->is('staff/schedules/create') ||
+                            request()->is('staff/schedules/*/edit')
+                             ? 'active' : '' }}
                             ">
                                 <div class="round-16 d-flex align-items-center justify-content-center">
                                     <i class="ti ti-calendar fs-3"></i>
@@ -160,24 +182,9 @@
                                 </span>
                             </a>
                         </li>
-
-
                     </ul>
                 </li>
-
-
-
-
-
-
-
             </ul>
-
-
-
-
-
-
         </nav>
 
 

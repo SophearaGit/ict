@@ -20,6 +20,8 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->double('price')->nullable();
             $table->enum('status', ['active', 'inactive', 'draft'])->default('draft');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }

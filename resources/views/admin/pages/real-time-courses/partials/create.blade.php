@@ -70,6 +70,17 @@
             </div>
 
             <div class="row">
+                <div class="col-6 mb-3">
+                    <label for="start_date" class="form-label">Start Date </label>
+                    <input type="date" name="start_date" id="start_date" class="form-control">
+                </div>
+                <div class="col-6 mb-3">
+                    <label for="end_date" class="form-label">End Date </label>
+                    <input type="date" name="end_date" id="end_date" class="form-control">
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-12 mb-3">
                     <label for="thumbnail" class="form-label">Thumbnail</label>
                     <input type="file" name="thumbnail" id="thumbnail" class="form-control">
@@ -104,6 +115,7 @@
 
     </div>
 </form>
+
 
 <script>
     $('#addCourseModal').on('shown.bs.modal', function() {
