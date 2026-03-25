@@ -73,6 +73,8 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
      * INSTRUCTOR & STUDENT & STAFF
      *******************************************************/
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
+    Route::get('/instructor/{id}', [InstructorControlller::class, 'instructorShowDetail'])->name('instructor.show.detail');
+
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
 
 

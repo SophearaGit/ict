@@ -89,9 +89,8 @@
                     </h4>
                 </div>
                 <div class="d-inline-flex col-md-6 col-lg-4 col-xl-3">
-
                     <div class="me-2">
-                        <!-- Grid/List -->
+                        <!-- Nav -->
                         <div class="nav btn-group flex-nowrap" role="tablist">
                             <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneGrid"
                                 role="tab" aria-controls="tabPaneGrid" aria-selected="true" data-tab="grid">
@@ -104,9 +103,8 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Status Filter -->
-                    <select id="statusFilter" class="form-select me-2">
+                    <!-- List  -->
+                    <select id="statusFilter" class="form-select">
                         <option value="">All Status</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>
                             Open
@@ -115,18 +113,6 @@
                             Close
                         </option>
                     </select>
-
-                    <!-- ✅ NEW: Sort By -->
-                    <select id="sortFilter" class="form-select">
-                        <option value="">Sort By</option>
-                        <option value="start_date_desc" {{ request('sort') == 'start_date_desc' ? 'selected' : '' }}>
-                            📅 Newest Start Date
-                        </option>
-                        <option value="start_date_asc" {{ request('sort') == 'start_date_asc' ? 'selected' : '' }}>
-                            📅 Oldest Start Date
-                        </option>
-                    </select>
-
                 </div>
             </div>
         </div>
@@ -157,7 +143,6 @@
 
                     <form id="scheduleFilterForm" method="GET" action="{{ route('admin.courses.realtime.index') }}">
                         <input type="hidden" name="status" value="{{ request('status') }}">
-                        <input type="hidden" name="sort" value="{{ request('sort') }}">
                         <input type="hidden" name="search_query" value="{{ request('search_query') }}">
                         @foreach ($groupedSchedules as $day => $items)
                             @php
@@ -219,7 +204,6 @@
                                 @endforeach
                                 <!-- ⭐ keep status -->
                                 <input type="hidden" name="status" value="{{ request('status') }}">
-                                <input type="hidden" name="sort" value="{{ request('sort') }}">
                             </form>
                         </div>
                         <div class="px-4">
@@ -379,7 +363,6 @@
                                 @endforeach
                                 <!-- ⭐ keep status -->
                                 <input type="hidden" name="status" value="{{ request('status') }}">
-                                <input type="hidden" name="sort" value="{{ request('sort') }}">
                             </form>
                         </div>
                         <div>
@@ -523,21 +506,6 @@
 
 @push('scripts')
     <script>
-        // Sort filter
-        document.getElementById('sortFilter')?.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-
-            url.searchParams.delete('page');
-
-            if (this.value) {
-                url.searchParams.set('sort', this.value);
-            } else {
-                url.searchParams.delete('sort');
-            }
-
-            window.location.href = url.toString();
-        });
-
         $('.btn_dynamic_delete_course').on('click', function(e) {
             e.preventDefault();
             let url = $(this).attr('href');
