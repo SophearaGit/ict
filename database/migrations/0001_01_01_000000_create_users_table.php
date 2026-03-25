@@ -33,6 +33,8 @@ return new class extends Migration {
             $table->string(column: 'instagram')->nullable();
             $table->string(column: 'youtube')->nullable();
             $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['active', 'on_leave'])->default('active');
+            $table->string(column: 'location')->nullable();
             $table->enum('login_as', ['student', 'instructor'])->nullable();
             $table->foreignId('registered_by_staff_id')->nullable()->constrained('users')->nullOnDelete();
             $table->rememberToken();

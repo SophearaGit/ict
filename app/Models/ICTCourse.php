@@ -14,6 +14,11 @@ class ICTCourse extends Model
     /** @use HasFactory<\Database\Factories\ICTCourseFactory> */
     use HasFactory;
 
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
+
     protected $fillable = [
         'instructor_id',
         'schedule_id',

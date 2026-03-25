@@ -75,6 +75,8 @@ class RealTimeCoursesController extends Controller
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:3000',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -92,6 +94,8 @@ class RealTimeCoursesController extends Controller
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
         $course->description = $request->description;
+        $course->start_date = $request->start_date;
+        $course->end_date = $request->end_date;
         $course->save();
 
         return redirect()->route('admin.courses.realtime.index')
@@ -123,6 +127,8 @@ class RealTimeCoursesController extends Controller
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:3000',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -142,9 +148,11 @@ class RealTimeCoursesController extends Controller
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
         $course->description = $request->description;
+        $course->start_date = $request->start_date;
+        $course->end_date = $request->end_date;
         $course->save();
 
-        return redirect()->route('admin.courses.realtime.index')
+        return redirect()->back()
             ->with('success', 'Course updated successfully.');
     }
 
