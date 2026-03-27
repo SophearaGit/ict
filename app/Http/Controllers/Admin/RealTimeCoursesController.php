@@ -9,21 +9,75 @@ use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class RealTimeCoursesController extends Controller
 {
     use FileUpload;
 
+    // public function realtimeIndex(Request $request)
+    // {
+    //     $courses = ICTCourse::query();
+
+    //     // Search
+    //     if ($request->filled('search_query')) {
+    //         $courses->where('title', 'like', '%' . $request->search_query . '%');
+    //     }
+
+    //     // Schedule filter
+    //     if ($request->filled('schedule_ids')) {
+    //         $courses->whereHas('schedule', function ($q) use ($request) {
+    //             $q->whereIn('id', $request->schedule_ids);
+    //         });
+    //     }
+
+    //     // ✅ Status filter
+    //     if ($request->filled('status')) {
+    //         $courses->where('status', $request->status);
+    //     }
+
+    //     $courses = ICTCourse::query()
+    //         ->withCount('enrollments')
+    //         ->addSelect([
+    //             'total_revenue' => DB::table('i_c_t_invoice_items')
+    //                 ->join('i_c_t_invoices', 'i_c_t_invoice_items.invoice_id', '=', 'i_c_t_invoices.id')
+    //                 ->join('i_c_t_payments', 'i_c_t_invoices.id', '=', 'i_c_t_payments.invoice_id')
+    //                 ->whereColumn('i_c_t_invoice_items.course_id', 'i_c_t_courses.id')
+    //                 ->selectRaw("
+    //             COALESCE(SUM(
+    //                 i_c_t_payments.amount *
+    //                 (i_c_t_invoice_items.total / i_c_t_invoices.total_amount)
+    //             ), 0)
+    //         ")
+    //         ])
+    //         ->orderBy('title', 'asc')
+    //         ->paginate(6)
+    //         ->withQueryString(); // ✅ KEEP THIS
+
+    //     $groupedSchedules = ICTSchedule::all()->groupBy('study_day');
+
+    //     return view('admin.pages.real-time-courses.real-time-courses', [
+    //         'page_title' => 'ICT | ADMIN | REAL TIME COURSES',
+    //         'courses' => $courses,
+    //         'schedules' => ICTSchedule::all(),
+    //         'selected_schedule_ids' => $request->schedule_ids ?? [],
+    //         'groupedSchedules' => $groupedSchedules,
+    //     ]);
+    // }
+
     public function realtimeIndex(Request $request)
     {
         $courses = ICTCourse::query();
 
-        // Search
+        // 🔍 Search
         if ($request->filled('search_query')) {
-            $courses->where('title', 'like', '%' . $request->search_query . '%');
+            $courses->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search_query . '%')
+                    ->orWhere('description', 'like', '%' . $request->search_query . '%'); // optional
+            });
         }
 
-        // Schedule filter
+        // 📅 Schedule filter
         if ($request->filled('schedule_ids')) {
             $courses->whereHas('schedule', function ($q) use ($request) {
                 $q->whereIn('id', $request->schedule_ids);
@@ -35,14 +89,38 @@ class RealTimeCoursesController extends Controller
             $courses->where('status', $request->status);
         }
 
-        $courses = $courses
-            ->withCount('enrollments')
-            ->withSum('invoiceItems as total_revenue', 'total') // if original price use price, if total use total
-            ->orderBy('title', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(6)
-            ->withQueryString();
+        // 💰 Revenue + enrollments (DO NOT RESET QUERY)
+        $courses->withCount('enrollments')
+            ->addSelect([
+                'total_revenue' => DB::table('i_c_t_invoice_items')
+                    ->join('i_c_t_invoices', 'i_c_t_invoice_items.invoice_id', '=', 'i_c_t_invoices.id')
+                    ->join('i_c_t_payments', 'i_c_t_invoices.id', '=', 'i_c_t_payments.invoice_id')
+                    ->whereColumn('i_c_t_invoice_items.course_id', 'i_c_t_courses.id')
+                    ->selectRaw("
+                    COALESCE(SUM(
+                        i_c_t_payments.amount *
+                        (i_c_t_invoice_items.total / NULLIF(i_c_t_invoices.total_amount, 0))
+                    ), 0)
+                ")
+            ]);
 
+        // 📊 Sorting (optional improvement)
+        if ($request->filled('sort_by')) {
+            if ($request->sort_by === 'revenue') {
+                $courses->orderByDesc('total_revenue');
+            } elseif ($request->sort_by === 'students') {
+                $courses->orderByDesc('enrollments_count');
+            } else {
+                $courses->orderBy('title', 'asc');
+            }
+        } else {
+            $courses->orderBy('title', 'asc');
+        }
+
+        // 📄 Pagination
+        $courses = $courses->paginate(6)->withQueryString();
+
+        // 📅 Schedule grouping
         $groupedSchedules = ICTSchedule::all()->groupBy('study_day');
 
         return view('admin.pages.real-time-courses.real-time-courses', [
