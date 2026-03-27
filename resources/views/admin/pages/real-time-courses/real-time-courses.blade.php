@@ -117,7 +117,7 @@
                     </select>
 
                     <!-- ✅ NEW: Sort By -->
-                    <select id="sortFilter" class="form-select">
+                    {{-- <select id="sortFilter" class="form-select">
                         <option value="">Sort By</option>
                         <option value="start_date_desc" {{ request('sort') == 'start_date_desc' ? 'selected' : '' }}>
                             📅 Newest Start Date
@@ -125,7 +125,7 @@
                         <option value="start_date_asc" {{ request('sort') == 'start_date_asc' ? 'selected' : '' }}>
                             📅 Oldest Start Date
                         </option>
-                    </select>
+                    </select> --}}
 
                 </div>
             </div>
@@ -523,20 +523,20 @@
 
 @push('scripts')
     <script>
-        // Sort filter
-        document.getElementById('sortFilter')?.addEventListener('change', function() {
-            const url = new URL(window.location.href);
+        // // Sort filter
+        // document.getElementById('sortFilter')?.addEventListener('change', function() {
+        //     const url = new URL(window.location.href);
 
-            url.searchParams.delete('page');
+        //     url.searchParams.delete('page');
 
-            if (this.value) {
-                url.searchParams.set('sort', this.value);
-            } else {
-                url.searchParams.delete('sort');
-            }
+        //     if (this.value) {
+        //         url.searchParams.set('sort', this.value);
+        //     } else {
+        //         url.searchParams.delete('sort');
+        //     }
 
-            window.location.href = url.toString();
-        });
+        //     window.location.href = url.toString();
+        // });
 
         $('.btn_dynamic_delete_course').on('click', function(e) {
             e.preventDefault();
@@ -628,20 +628,20 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Status filter
-            // document.getElementById('statusFilter')?.addEventListener('change', function() {
+            document.getElementById('statusFilter')?.addEventListener('change', function() {
 
-            //     const url = new URL(window.location.href);
+                const url = new URL(window.location.href);
 
-            //     url.searchParams.delete('page');
+                url.searchParams.delete('page');
 
-            //     if (this.value) {
-            //         url.searchParams.set('status', this.value);
-            //     } else {
-            //         url.searchParams.delete('status');
-            //     }
+                if (this.value) {
+                    url.searchParams.set('status', this.value);
+                } else {
+                    url.searchParams.delete('status');
+                }
 
-            //     window.location.href = url.toString();
-            // });
+                window.location.href = url.toString();
+            });
 
             // Initialize all collapse elements
             document.querySelectorAll('.schedule-card .collapse').forEach(el => {
