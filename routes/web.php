@@ -16,9 +16,10 @@ use App\Http\Controllers\Frontend\Staff\{
     StaffDashboardController,
     IctInvoiceController,
     StudentRegisterationController,
-    IctStaffReportController
+    IctStaffReportController,
+    TecherAttendancesController
 };
-
+use App\Models\TeacherAttendances;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -161,10 +162,18 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses', [IctCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [IctCourseController::class, 'create'])->name('courses.create');
         Route::post('/courses/create', [IctCourseController::class, 'store'])->name('courses.store');
+        Route::get('/courses/{id}', [IctCourseController::class, 'show'])->name('courses.show');
         Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])
             ->name('courses.edit');
         Route::put('/courses/{id}', [IctCourseController::class, 'update'])
             ->name('courses.update');
+
+        /*******************************************************
+         * TEACHER ATTENDANCES
+         *******************************************************/
+        // update teacher attendance
+        Route::post('/teacher-attendance/update', [TecherAttendancesController::class, 'update'])
+            ->name('teacher.attendance.update');
         Route::resource('/schedules', IctScheduleController::class);
 
         /*******************************************************

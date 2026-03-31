@@ -16,7 +16,10 @@ class ICTSchedule extends Model
         return $this->hasMany(ICTCourse::class, 'schedule_id');
     }
 
-
+    public function attendances()
+    {
+        return $this->hasMany(TeacherAttendances::class, 'schedule_id');
+    }
 
     public function getShortDaysAttribute()
     {

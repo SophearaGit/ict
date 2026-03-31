@@ -118,32 +118,41 @@
                             </div>
                         </div>
                         <div class="row">
-
                             {{-- start_date --}}
-                            <div class="form-floating mb-3 col-md-4">
-                                <input type="date" class="form-control " placeholder="Start Date" name="start_date"
-                                    value="{{ old('start_date', $course->start_date) }}">
+                            <div class="form-floating mb-3 col-md-3">
+                                <input type="date" class="form-control" name="start_date"
+                                    value="{{ old('start_date', optional($course->start_date)->format('Y-m-d')) }}">
                                 <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">Start Date</span></label>
                                 <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-2" />
                             </div>
 
                             {{-- end_date --}}
-                            <div class="form-floating mb-3 col-md-4">
-                                <input type="date" class="form-control " placeholder="End Date" name="end_date"
-                                    value="{{ old('end_date', $course->end_date) }}">
+                            <div class="form-floating mb-3 col-md-3">
+                                <input type="date" class="form-control" name="end_date"
+                                    value="{{ old('end_date', optional($course->end_date)->format('Y-m-d')) }}">
                                 <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">End
                                         Date</span></label>
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
                             </div>
-                            <div class="form-floating mb-3 col-md-4">
+
+                            <div class="form-floating mb-3 col-md-3">
                                 <input type="number" class="form-control " placeholder="Course Price" name="price"
                                     step="0.01" value="{{ old('price', $course->price) }}">
                                 <label style="padding: 1rem 26px; important;"><i
                                         class="ti ti-currency-dollar me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">Price</span></label>
                                 <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
+                            </div>
+                            {{-- duration --}}
+                            <div class="form-floating mb-3 col-md-3">
+                                <input type="number" class="form-control " placeholder="Course Duration" name="duration"
+                                    step="0.1" value="{{ old('duration', $course->duration) }}">
+                                <label style="padding: 1rem 26px; important;"><i
+                                        class="ti ti-clock me-2 fs-4 text-info"></i><span
+                                        class="border-start border-info ps-3">Duration (hrs)</span></label>
+                                <x-input-error :messages="$errors->get('duration')" class="text-danger mt-2" />
                             </div>
                         </div>
 

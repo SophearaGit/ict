@@ -19,6 +19,8 @@ return new class extends Migration {
             $table->string('slug');
             $table->text('description')->nullable();
             $table->double('price')->nullable();
+            // $table->string('duration')->nullable();
+            $table->decimal('duration', 5, 2)->nullable();
             $table->enum('status', ['active', 'inactive', 'draft'])->default('draft');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

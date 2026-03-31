@@ -31,6 +31,12 @@ class User extends Authenticatable
         'alternate_phone',
     ];
 
+
+    public function attendances()
+    {
+        return $this->hasMany(TeacherAttendances::class, 'teacher_id');
+    }
+
     public function reports(): HasMany
     {
         return $this->hasMany(ICTStaffReport::class, 'reported_by');

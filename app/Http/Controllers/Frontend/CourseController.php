@@ -39,7 +39,7 @@ class CourseController extends Controller
         $data = [
             'page_title' => 'ICT Center | Create Course',
         ];
-        return view(('frontend.instructor.pages.course.create.basic-info'), $data);
+        return view('frontend.instructor.pages.course.create.basic-info', $data);
     }
 
     public function storeBasicInfo(CourseStoreBasicInfoRequest $request): JsonResponse

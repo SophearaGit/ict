@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
 use App\Models\ICTSchedule;
+use App\Models\TeacherAttendances;
 use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Contracts\View\View;
@@ -37,6 +38,22 @@ class IctCourseController extends Controller
         ]);
     }
 
+    public function show($id): View
+    {
+        $course = ICTCourse::with([
+            'students',
+            'instructor',
+            'schedule',
+            'teacherAttendances.teacher',
+            'teacherAttendances.schedule'
+        ])->findOrFail($id);
+
+        return view('frontend.staff.pages.course-management.course-detail', [
+            'page_title' => 'ICT | Staff | Course Details',
+            'course' => $course,
+        ]);
+    }
+
     public function create(): View
     {
         $data = [
@@ -60,6 +77,7 @@ class IctCourseController extends Controller
             'thumbnail' => 'nullable|image|max:3000',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'duration' => 'nullable|numeric|min:0',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -77,6 +95,9 @@ class IctCourseController extends Controller
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
         $course->description = $request->description;
+        $course->start_date = $request->start_date;
+        $course->end_date = $request->end_date;
+        $course->duration = $request->duration;
         $course->save();
 
         return redirect()->route('staff.courses.index')
@@ -109,6 +130,7 @@ class IctCourseController extends Controller
             'thumbnail' => 'nullable|image|max:3000',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'duration' => 'nullable|numeric|min:0',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -130,6 +152,7 @@ class IctCourseController extends Controller
         $course->description = $request->description;
         $course->start_date = $request->start_date;
         $course->end_date = $request->end_date;
+        $course->duration = $request->duration;
         $course->save();
 
         return redirect()->route('staff.courses.index')
