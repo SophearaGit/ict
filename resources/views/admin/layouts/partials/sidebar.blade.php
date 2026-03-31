@@ -24,21 +24,31 @@
             </li>
             <!-- Nav item -->
             <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.instructor.index') ? '' : 'collapsed' }} " href="#"
-                    data-bs-toggle="collapse" data-bs-target="#navProfile" aria-expanded="false"
+                <a class="nav-link {{ Route::is('admin.instructor.index') ||
+                Route::is('admin.student.index') ||
+                Route::is('admin.staff.index') ||
+                Route::is('admin.instructor.show.detail')
+                    ? ''
+                    : 'collapsed' }} "
+                    href="#" data-bs-toggle="collapse" data-bs-target="#navProfile" aria-expanded="false"
                     aria-controls="navProfile">
                     <i class="nav-icon fe fe-user me-2"></i>
                     User
                 </a>
                 <div id="navProfile"
-                    class="collapse {{ Route::is('admin.instructor.index') || Route::is('admin.student.index') || Route::is('admin.staff.index')
+                    class="collapse {{ Route::is('admin.instructor.index') ||
+                    Route::is('admin.student.index') ||
+                    Route::is('admin.staff.index') ||
+                    Route::is('admin.instructor.show.detail')
                         ? 'show'
                         : '' }} "
                     data-bs-parent="#sideNavbar">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.instructor.index') ? 'active' : '' }} "
-                                href="{{ route('admin.instructor.index') }}">Instructor</a>
+                            <a class="nav-link {{ Route::is('admin.instructor.index') || Route::is('admin.instructor.show.detail') ? 'active' : '' }} "
+                                href="{{ route('admin.instructor.index') }}">
+                                Teacher
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Route::is('admin.student.index') ? 'active' : '' }}  "
@@ -115,7 +125,7 @@
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{ Route::is('admin.courses.realtime.index') ? 'active' : '' }} "
-                                href="{{ route('admin.courses.realtime.index') }}">All</a>
+                                href="{{ route('admin.courses.realtime.index') }}">Course</a>
                         </li>
                     </ul>
                 </div>

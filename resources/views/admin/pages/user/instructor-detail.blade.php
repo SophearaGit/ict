@@ -2,17 +2,6 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @push('styles')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        body {
-            background: #f5f6fa;
-        }
-
         .container {
             display: flex;
             min-height: 100vh;
@@ -232,8 +221,8 @@
         }
 
         .progress-circle {
-            width: 62px;
-            height: 62px;
+            width: 66px;
+            height: 66px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -259,6 +248,7 @@
         }
 
         .progress-circle span {
+            font-size: 9px;
             position: relative;
             z-index: 1;
         }
@@ -353,8 +343,6 @@
             <div class="main-content">
                 {{-- back --}}
                 <a href="{{ route('admin.instructor.index') }}" class="back-link">Back to Teacher</a>
-
-
 
                 <div class="top-card">
                     <img class="profile-img"
@@ -482,18 +470,48 @@
                                     <div class="subject-badge">
                                         {{ $course->title }}
                                     </div>
-                                    <div class="progress-circle">
-                                        <span>24/48 hr</span>
+                                    @php
+                                        $ath = $athByCourse[$course->id]->ath ?? 0;
+                                        $duration = (float) $course->duration ?? 0;
+
+                                        // prevent overflow (ATH > duration)
+                                        $ath = min($ath, $duration);
+
+                                        $percent = $duration > 0 ? ($ath / $duration) * 100 : 0;
+                                        $percent = round($percent);
+                                    @endphp
+
+                                    <div class="progress-circle
+                                        {{ $percent >= 100 ? 'green-circle' : '' }}"
+                                        style="background: conic-gradient(
+                                            {{ $percent >= 100 ? '#7deb63' : '#f25d5d' }} 0 {{ $percent }}%,
+                                            #f2dede {{ $percent }}% 100%
+                                        );">
+                                        <span>
+                                            @php
+                                                $format = function ($num) {
+                                                    return rtrim(rtrim(number_format($num, 2), '0'), '.');
+                                                };
+                                            @endphp
+
+                                            <span>
+                                                {{ $format($ath) }}/{{ $format($duration) }} hr
+                                            </span>
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="subject-details">
-                                    <p><b>Room :</b> A</p>
-                                    <p><b>Class Start :</b> 10/jan/2026</p>
-                                    <p><b>Class End :</b> 10/April/2026</p>
-                                    <p><b>Day :</b> Mon-Wed-Fri</p>
-                                    <p><b>Time :</b> 18:00-20:00 PM</p>
-                                    <p><b>Duration :</b> 48hr</p>
+                                    {{-- <p><b>Room :</b> A</p> --}}
+                                    <p><b>Class Start :</b>
+                                        {{ $course->start_date ? \Carbon\Carbon::parse($course->start_date)->format('d M, Y') : 'N/A' }}
+                                    </p>
+                                    {{-- <p><b>Class End :</b> 10/April/2026</p> --}}
+                                    {{-- <p><b>Day :</b> Mon-Wed-Fri</p>
+                                    <p><b>Time :</b> 18:00-20:00 PM</p> --}}
+                                    <p><b>Duration :</b>
+                                        {{ $course->duration ? $format($course->duration) . ' hr' : 'N/A' }}
+                                    </p>
                                 </div>
                             </div>
                         @empty

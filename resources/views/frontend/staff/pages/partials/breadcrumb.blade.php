@@ -15,6 +15,8 @@
                         Reports
                     @elseif (Route::is('staff.profile.edit'))
                         Account Settings
+                    @elseif (Route::is('staff.courses.show'))
+                        Course Details
                     @else
                     @endif
                 </h4>
@@ -35,6 +37,8 @@
                                 Reports
                             @elseif (Route::is('staff.profile.edit'))
                                 Account Settings
+                            @elseif (Route::is('staff.courses.show'))
+                                Course Details
                             @else
                             @endif
                         </li>

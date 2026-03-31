@@ -17,6 +17,7 @@ class ICTCourse extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'duration' => 'float',
     ];
 
     protected $fillable = [
@@ -30,7 +31,14 @@ class ICTCourse extends Model
         'status',
         'start_date',
         'end_date',
+        'duration',
     ];
+
+    // teacherAttendances()
+    public function teacherAttendances(): HasMany
+    {
+        return $this->hasMany(TeacherAttendances::class, 'course_id');
+    }
 
     public function instructor(): BelongsTo
     {

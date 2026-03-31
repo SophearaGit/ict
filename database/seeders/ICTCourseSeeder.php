@@ -22,8 +22,8 @@ class ICTCourseSeeder extends Seeder
                 'title' => 'Web Development ( Frontend )',
                 'slug' => 'web-development-frontend',
                 'description' => null,
-
-
+                'start_date' => '',
+                'end_date' => '',
                 'price' => 129,
                 'status' => 'active',
                 'created_at' => '2026-03-04 03:30:18',

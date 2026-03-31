@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\ICTCourse;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InstructorControlller extends Controller
 {
@@ -52,13 +53,28 @@ class InstructorControlller extends Controller
         ]);
     }
 
+
     public function instructorShowDetail($id): View
     {
         $instructor = User::with('courses')->findOrFail($id);
 
+        // ✅ Get latest ATH per course (NOT SUM)
+        $athByCourse = DB::table('teacher_attendances as t1')
+            ->select('t1.course_id', 't1.actual_hours as ath')
+            ->where('t1.teacher_id', $id)
+            ->where('t1.status', 'present')
+            ->whereRaw('t1.id = (
+            SELECT MAX(t2.id)
+            FROM teacher_attendances t2
+            WHERE t2.course_id = t1.course_id
+            AND t2.teacher_id = t1.teacher_id
+        )')
+            ->get()
+            ->keyBy('course_id');
+
         return view('admin.pages.user.instructor-detail', [
-            'page_title' => 'ICT | ADMIN | INSTRUCTOR DETAIL',
             'instructor' => $instructor,
+            'athByCourse' => $athByCourse,
         ]);
     }
 

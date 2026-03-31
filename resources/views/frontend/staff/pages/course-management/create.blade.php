@@ -106,21 +106,22 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-floating mb-3 col-md-4">
+                            <div class="form-floating mb-3 col-md-3">
                                 <input type="date" class="form-control " placeholder="Start Date" name="start_date">
                                 <label style="padding: 1rem 26px; important;"><i
                                         class="ti ti-calendar-start me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">Start Date</span></label>
                                 <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-2" />
                             </div>
-                            <div class="form-floating mb-3 col-md-4">
+                            <div class="form-floating mb-3 col-md-3">
                                 <input type="date" class="form-control " placeholder="End Date" name="end_date">
                                 <label style="padding: 1rem 26px; important;"><i
                                         class="ti ti-calendar-end me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">End Date</span></label>
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
                             </div>
-                            <div class="form-floating mb-3 col-md-4">
+
+                            <div class="form-floating mb-3 col-md-3">
                                 <input type="number" class="form-control " placeholder="Course Price" name="price"
                                     step="0.01">
                                 <label style="padding: 1rem 26px; important;"><i
@@ -128,6 +129,18 @@
                                         class="border-start border-info ps-3">Price</span></label>
                                 <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
                             </div>
+
+                            {{-- duration --}}
+                            <div class="form-floating mb-3 col-md-3">
+                                <input type="number" class="form-control " placeholder="Course Duration" name="duration"
+                                    step="0.1">
+                                <label style="padding: 1rem 26px; important;"><i
+                                        class="ti ti-clock me-2 fs-4 text-info"></i><span
+                                        class="border-start border-info ps-3">Duration (hrs)</span></label>
+                                <x-input-error :messages="$errors->get('duration')" class="text-danger mt-2" />
+                            </div>
+
+
                         </div>
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Course Description" name="description" id="description"
