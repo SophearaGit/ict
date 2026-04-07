@@ -352,7 +352,8 @@
                                         <th>T H</th>
                                         <th>A T H</th>
                                         <th>Room</th>
-                                        <th>Status</th>
+                                        <th>Late (min)</th>
+                                        <th>Note</th>
                                     </tr>
                                 </thead>
                                 <tbody id="attendanceBody">
@@ -372,7 +373,8 @@
 
                                                 <td>
                                                     <input type="date" name="attendances[{{ $index }}][date]"
-                                                        value="{{ $attendance->date }}" class="form-control text-dark">
+                                                        value="{{ $attendance->date }}" class="form-control text-dark"
+                                                        readonly>
                                                 </td>
 
                                                 <td>
@@ -393,14 +395,16 @@
                                                     <input type="text"
                                                         name="attendances[{{ $index }}][total_hours]"
                                                         value="{{ $attendance->total_hours }}"
-                                                        class="form-control total-hours text-uppercase text-dark text-center">
+                                                        class="form-control total-hours text-uppercase text-dark text-center"
+                                                        readonly>
                                                 </td>
 
                                                 <td>
                                                     <input type="text"
                                                         name="attendances[{{ $index }}][actual_hours]"
                                                         value="{{ $attendance->actual_hours }}"
-                                                        class="form-control actual-hours text-uppercase text-dark text-center">
+                                                        class="form-control actual-hours text-uppercase text-dark text-center"
+                                                        readonly>
                                                 </td>
 
                                                 <td>
@@ -410,19 +414,14 @@
                                                 </td>
 
                                                 <td>
-                                                    <select name="attendances[{{ $index }}][status]"
-                                                        class="form-control text-dark text-uppercase">
-                                                        <option value="">-- Select --</option>
-                                                        <option value="present"
-                                                            {{ $attendance->status == 'present' ? 'selected' : '' }}>
-                                                            Present</option>
-                                                        <option value="absent"
-                                                            {{ $attendance->status == 'absent' ? 'selected' : '' }}>Absent
-                                                        </option>
-                                                        <option value="late"
-                                                            {{ $attendance->status == 'late' ? 'selected' : '' }}>Late
-                                                        </option>
-                                                    </select>
+                                                    <input type="number"
+                                                        name="attendances[{{ $index }}][late_minutes]"
+                                                        value="{{ $attendance->late_minutes }}"
+                                                        class="form-control text-center">
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="attendances[{{ $index }}][late_reason]"
+                                                        value="{{ $attendance->late_reason }}" class="form-control">
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -441,7 +440,7 @@
 
                                         <td>
                                             <input type="date" name="attendances[{{ $nextIndex }}][date]"
-                                                class="form-control">
+                                                class="form-control" value="{{ now()->format('Y-m-d') }}" readonly>
                                         </td>
 
                                         <td>
@@ -456,12 +455,12 @@
 
                                         <td>
                                             <input type="text" name="attendances[{{ $nextIndex }}][total_hours]"
-                                                class="form-control total-hours">
+                                                class="form-control total-hours" readonly>
                                         </td>
 
                                         <td>
                                             <input type="text" name="attendances[{{ $nextIndex }}][actual_hours]"
-                                                class="form-control actual-hours">
+                                                class="form-control actual-hours" readonly>
                                         </td>
 
                                         <td>
@@ -470,12 +469,13 @@
                                         </td>
 
                                         <td>
-                                            <select name="attendances[{{ $nextIndex }}][status]" class="form-control">
-                                                <option value="">-- Select --</option>
-                                                <option value="present">Present</option>
-                                                <option value="absent">Absent</option>
-                                                <option value="late">Late</option>
-                                            </select>
+                                            <input type="number" name="attendances[{{ $nextIndex }}][late_minutes]"
+                                                class="form-control">
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="attendances[{{ $nextIndex }}][late_reason]"
+                                                class="form-control">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -485,8 +485,6 @@
                             </button>
                         </form>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -508,31 +506,41 @@
             const end = row.querySelector('input[name*="[end_time]"]');
             const total = row.querySelector('.total-hours');
             const actual = row.querySelector('.actual-hours');
-            const dateInput = row.querySelector('input[name*="[date]"]');
 
-            // function calculateATH() {
-            //     if (start.value && end.value && total.value) {
-            //         if (!dateInput.value) dateInput.value = formatDate(new Date());
+            function calculate() {
+                if (start.value && end.value) {
 
-            //         const startTime = new Date(`1970-01-01T${start.value}:00`);
-            //         const endTime = new Date(`1970-01-01T${end.value}:00`);
-            //         let diff = (endTime - startTime) / (1000 * 60 * 60);
-            //         if (diff < 0) diff += 24;
+                    const startTime = new Date(`1970-01-01T${start.value}:00`);
+                    const endTime = new Date(`1970-01-01T${end.value}:00`);
 
-            //         // ONLY auto-fill if empty
-            //         if (!actual.value) {
-            //             actual.value = Math.min(diff, parseFloat(total.value)).toFixed(2);
-            //         }
-            //     }
-            // }
+                    let diff = (endTime - startTime) / (1000 * 60 * 60);
 
-            // Attach listeners
-            start.addEventListener('change', calculateATH);
-            end.addEventListener('change', calculateATH);
-            total.addEventListener('input', calculateATH);
+                    // Handle overnight (optional)
+                    if (diff < 0) diff += 24;
+
+                    // ✅ Set TH
+                    total.value = diff.toFixed(2);
+
+                    // ✅ Calculate ATH (cumulative)
+                    let prevRow = row.previousElementSibling;
+                    let prevATH = 0;
+
+                    if (prevRow) {
+                        const prevActual = prevRow.querySelector('.actual-hours');
+                        if (prevActual && prevActual.value) {
+                            prevATH = parseFloat(prevActual.value) || 0;
+                        }
+                    }
+
+                    actual.value = (prevATH + diff).toFixed(2);
+                }
+            }
+
+            start.addEventListener('change', calculate);
+            end.addEventListener('change', calculate);
         }
 
-        // Apply to existing rows
+        // Apply to all rows
         document.querySelectorAll('#attendanceTable tbody tr').forEach(row => {
             calculateRow(row);
         });

@@ -27,11 +27,11 @@ class CourseController extends Controller
     public function index(): View
     {
         $data = [
-            'page_title' => 'ICT Center | Courses',
+            'page_title' => 'ICT | INSTRUCTOR | ONLINE COURSES',
             'courses' => Course::where('instructor_id', Auth::guard('web')->user()->id)
                 ->latest()->paginate(10),
         ];
-        return view(('frontend.instructor.pages.course.index'), $data);
+        return view('frontend.instructor.pages.course.index', $data);
     }
 
     public function create(): View

@@ -50,7 +50,7 @@
                                 <a href="{{ route('staff.courses.show', $course->id) }}">
                                     <div class="card overflow-hidden shadow-none border card-hover mb-4 mb-md-0">
                                         <img src="{{ asset($course->thumbnail == '' ? '\default-images\staff\no-course-img.png' : $course->thumbnail) }}"
-                                            alt="img">
+                                            alt="img" style="height: 200px; object-fit: cover;">
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div>

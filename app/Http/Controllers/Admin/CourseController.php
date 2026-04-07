@@ -26,4 +26,5 @@ class CourseController extends Controller
         ];
         return view('admin.pages.course.index', $data);
     }
+
 }

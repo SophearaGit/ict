@@ -836,6 +836,11 @@ class ICTCourseSeeder extends Seeder
                 'title' => $course['title'],
                 'slug' => $course['slug'],
                 'description' => $course['description'],
+
+                // ✅ ADDED ONLY THESE TWO
+                'start_date' => now()->addDays(rand(1, 30))->format('Y-m-d'),
+                'duration' => rand(40, 100),
+
                 'price' => $course['price'],
                 'status' => $course['status'],
                 'created_at' => $course['created_at'],

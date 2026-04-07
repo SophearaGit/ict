@@ -6,8 +6,9 @@ use App\Http\Controllers\Frontend\{
     FrontendController,
     InstructorDashboardController,
     ProfileController,
-    // Staff\IctInvoiceController,
+    RealTimeCoursesController,
     StudentDashboardController,
+    TeacherCourseController
 };
 
 use App\Http\Controllers\Frontend\Staff\{
@@ -95,6 +96,14 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::post('/courses/create', action: [CourseController::class, 'storeBasicInfo'])->name('courses.store_basic_info');
         Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
         Route::post('/courses/update', action: [CourseController::class, 'update'])->name('courses.update');
+
+        /*******************************************************
+         * COURSE REAL TIME
+         *******************************************************/
+        Route::get('/courses/real-time', [RealTimeCoursesController::class, 'index'])->name('courses.real_time');
+        Route::get('/courses/real-time/{course_id}', [RealTimeCoursesController::class, 'show'])->name('courses.real_time.show');
+
+
 
         /*******************************************************
          * CHAPTER

@@ -7,7 +7,9 @@
         @elseif(Route::is('instructor.social.profile'))
             Social Profiles
         @elseif(Route::is('instructor.courses.index'))
-            My Courses
+            My Online Courses
+        @elseif(Route::is('instructor.courses.real_time'))
+            My Real Time Courses
         @else
         @endif
     </h3>
@@ -19,7 +21,9 @@
         @elseif(Route::is('instructor.social.profile'))
             Connect your social media accounts and let your students know more about you.
         @elseif(Route::is('instructor.courses.index'))
-            Manage your courses and create new courses to share your knowledge with the world.
+            Manage your online courses here. You can create, edit, and delete your courses as needed.
+        @elseif(Route::is('instructor.courses.real_time'))
+            Manage your real time courses here. You can create, edit, and delete your courses as
         @else
         @endif
     </p>

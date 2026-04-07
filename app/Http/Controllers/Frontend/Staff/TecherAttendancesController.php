@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class TecherAttendancesController extends Controller
 {
-    //  Route::post('/teacher-attendance/update', [TeacherAttendances::class, 'update'])
     public function update(Request $request)
     {
         $attendances = $request->attendances;
@@ -19,8 +18,7 @@ class TecherAttendancesController extends Controller
         foreach ($request->attendances as $attendance) {
 
             if (
-                empty($attendance['date']) &&
-                empty($attendance['start_time']) &&
+                empty($attendance['start_time']) ||
                 empty($attendance['end_time'])
             ) {
                 continue;
@@ -35,7 +33,9 @@ class TecherAttendancesController extends Controller
                         'total_hours' => $attendance['total_hours'],
                         'actual_hours' => $attendance['actual_hours'],
                         'room' => $attendance['room'],
-                        'status' => $attendance['status'],
+                        'status' => 'present',
+                        'late_minutes' => $attendance['late_minutes'] ?? 0,
+                        'late_reason' => $attendance['late_reason'] ?? null,
                         'course_id' => $request->course_id,
                         'teacher_id' => $request->teacher_id,
                         'schedule_id' => $request->schedule_id,
@@ -48,7 +48,9 @@ class TecherAttendancesController extends Controller
                     'total_hours' => $attendance['total_hours'],
                     'actual_hours' => $attendance['actual_hours'],
                     'room' => $attendance['room'],
-                    'status' => $attendance['status'],
+                    'status' => 'present',
+                    'late_minutes' => $attendance['late_minutes'] ?? 0,
+                    'late_reason' => $attendance['late_reason'] ?? null,
                     'course_id' => $request->course_id,
                     'teacher_id' => $request->teacher_id,
                     'schedule_id' => $request->schedule_id,

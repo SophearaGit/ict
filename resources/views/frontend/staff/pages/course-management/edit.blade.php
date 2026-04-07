@@ -39,7 +39,7 @@
                             </p>
                         </div>
                         <div class="ms-auto mt-4 mt-md-0">
-                            <a href="{{ route('staff.courses.index') }}" class="btn btn-primary">
+                            <a href="{{ url()->previous() }}" class="btn btn-primary">
                                 <i class="ti ti-arrow-back-up me-1"></i> Back
                             </a>
                         </div>
