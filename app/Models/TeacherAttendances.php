@@ -20,6 +20,8 @@ class TeacherAttendances extends Model
         'total_hours',
         'actual_hours',
         'room',
+        'late_minutes',
+        'late_reason',
         'status',
     ];
 

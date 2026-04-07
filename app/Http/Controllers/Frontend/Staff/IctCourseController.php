@@ -49,7 +49,7 @@ class IctCourseController extends Controller
         ])->findOrFail($id);
 
         return view('frontend.staff.pages.course-management.course-detail', [
-            'page_title' => 'ICT | Staff | Course Details',
+            'page_title' => 'ICT | STAFF | COURSE DETAIL',
             'course' => $course,
         ]);
     }
@@ -107,7 +107,7 @@ class IctCourseController extends Controller
     public function edit($id): View
     {
         $data = [
-            'page_title' => 'ICT | Staff | Edit Course',
+            'page_title' => 'ICT | STAFF | EDIT COURSE',
             'course' => ICTCourse::findOrFail($id),
             'instructors' => User::where('role', 'instructor')
                 ->latest()->paginate(10),

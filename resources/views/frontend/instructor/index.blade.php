@@ -1,16 +1,3 @@
-{{-- <h1>
-    Instructor Dashboard
-</h1>
-<!-- Authentication -->
-<form method="POST" action="{{ route('logout') }}">
-    @csrf
-    <x-responsive-nav-link :href="route('logout')"
-        onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-        {{ __('Log Out') }}
-    </x-responsive-nav-link>
-</form> --}}
-
 @extends('frontend.layouts.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')

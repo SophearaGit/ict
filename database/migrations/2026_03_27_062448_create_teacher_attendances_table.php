@@ -26,6 +26,9 @@ return new class extends Migration {
             $table->string('room')->nullable();
             $table->string('signature')->nullable();
 
+            $table->integer('late_minutes')->nullable();
+            $table->text('late_reason')->nullable();
+
             $table->enum('status', ['present', 'absent', 'late']);
             $table->text('remarks')->nullable();
 

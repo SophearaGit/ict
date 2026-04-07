@@ -41,31 +41,33 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Courses</th>
-                                        <th>Students</th>
-                                        <th>Rating</th>
+                                        {{-- <th>Class Start</th> --}}
+                                        <th>Schedule</th>
                                         <th>Status</th>
+                                        <th>Student</th>
+                                        {{-- <th>Price</th> --}}
+                                        <th>Revenue</th>
+                                        <th></th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($courses as $course)
+                                    @forelse ($ictcourses as $course)
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div>
                                                         <a
-                                                            href="{{ route('instructor.courses.edit', ['id' => $course->id, 'step' => 1]) }}">
-                                                            <img src="{{ asset($course->thumbnail) }}" alt="course"
-                                                                class="rounded img-4by3-lg"
-                                                                style="height: 4.5rem !important; object-fit: cover !important;">
+                                                            href="{{ route('instructor.courses.real_time.show', $course->id) }}">
+                                                            <img src="{{ asset($course->thumbnail == '' ? '\default-images\staff\no-course-img.png' : $course->thumbnail) }}"
+                                                                alt="course" class="rounded img-4by3-lg"
+                                                                style="width: 120px; height: 80px; object-fit: cover">
                                                         </a>
                                                     </div>
                                                     <div class="ms-3">
                                                         <h4 class="mb-1 h5">
-                                                            <a href="
-                                                                {{ route('instructor.courses.edit', ['id' => $course->id, 'step' => 1]) }}
-                                                            "
-                                                                class="text-inherit">
+                                                            <a href="{{ route('instructor.courses.real_time.show', $course->id) }}"
+                                                                class="text-inherit text-capitalize">
                                                                 {{ $course->title }}
                                                             </a>
                                                         </h4>
@@ -84,69 +86,66 @@
                                                                     </svg>
                                                                 </span>
                                                                 <span>
-                                                                    {{-- this format 1h 30m --}}
-                                                                    {{ intdiv($course->duration, 60) }}h
-                                                                    {{ $course->duration % 60 }}m
-                                                                </span>
-                                                            </li>
-                                                            @php
-                                                                $level = $course->level->name ?? 'N/A';
-                                                            @endphp
-
-                                                            <li class="list-inline-item">
-                                                                <svg class="me-1 mt-n1" width="16" height="16"
-                                                                    viewBox="0 0 16 16" fill="none"
-                                                                    xmlns="http://www.w3.org/2000/svg">
-
-                                                                    <!-- Bar 1 -->
-                                                                    <rect x="3" y="8" width="2" height="6"
-                                                                        rx="1"
-                                                                        fill="{{ in_array($level, ['Beginner', 'Intermediate', 'Advanced']) ? '#754FFE' : '#DBD8E9' }}">
-                                                                    </rect>
-
-                                                                    <!-- Bar 2 -->
-                                                                    <rect x="7" y="5" width="2" height="9"
-                                                                        rx="1"
-                                                                        fill="{{ in_array($level, ['Intermediate', 'Advanced']) ? '#754FFE' : '#DBD8E9' }}">
-                                                                    </rect>
-
-                                                                    <!-- Bar 3 -->
-                                                                    <rect x="11" y="2" width="2" height="12"
-                                                                        rx="1"
-                                                                        fill="{{ $level === 'Advanced' ? '#754FFE' : '#DBD8E9' }}">
-                                                                    </rect>
-
-                                                                </svg>
-
-                                                                <span class="text-muted">
-                                                                    {{ ucfirst($level) }}
+                                                                    {{ $course->duration }} hours
                                                                 </span>
                                                             </li>
                                                         </ul>
+                                                        @php
+                                                            $color =
+                                                                $course->progress < 50
+                                                                    ? 'bg-danger'
+                                                                    : ($course->progress < 80
+                                                                        ? 'bg-warning'
+                                                                        : 'bg-success');
+                                                        @endphp
+
+                                                        <div class="progress mt-2" style="height: 3px">
+                                                            <div class="progress-bar {{ $color }}"
+                                                                style="width: {{ $course->progress }}%">
+                                                            </div>
+                                                        </div>
+                                                        <small>{{ $course->progress }}%</small>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>11,200</td>
+                                            {{-- <td>
+                                                {{ $course->start_date ? \Carbon\Carbon::parse($course->class_start_date)->format('M d, Y') : 'N/A' }}
+                                            </td> --}}
                                             <td>
-                                                <span class="lh-1">
-                                                    <span class="text-warning">4.5</span>
-                                                    <span class="mx-1 align-text-top">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="11"
-                                                            height="11" fill="currentColor"
-                                                            class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                                            <path
-                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                            </path>
-                                                        </svg>
-                                                    </span>
-                                                    (3,250)
-                                                </span>
+                                                @if ($course->schedule)
+                                                    @php
+                                                        $days = collect(explode('-', $course->schedule->study_day))
+                                                            ->map(fn($day) => ucfirst($day))
+                                                            ->implode(' • ');
+                                                        $start = \Carbon\Carbon::parse(
+                                                            $course->schedule->start_time,
+                                                        )->format('g:i ');
+                                                        $end = \Carbon\Carbon::parse(
+                                                            $course->schedule->end_time,
+                                                        )->format('g:i A');
+
+                                                        $shift = ucfirst($course->schedule->shift);
+                                                    @endphp
+                                                    {{ $days }} <br> {{ $shift }} (
+                                                    {{ $start }}
+                                                    –
+                                                    {{ $end }} )
+                                                @else
+                                                    <span class="text-muted">No schedule</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <span
                                                     class="badge bg-{{ $course->status == 'draft' ? 'warning' : ($course->status == 'active' ? 'success' : 'secondary') }}">
-                                                    {{ $course->status }}
+                                                    {{ ucfirst($course->status) }}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                {{ $course->enrollments_count ?? 0 }}
+                                            </td>
+                                            <td>
+                                                ${{ number_format($course->revenue, 2) }}</td>
+                                            <td>
                                             </td>
                                             <td>
                                                 <span class="dropdown dropstart">
@@ -159,7 +158,7 @@
                                                         <span class="dropdown-header">Setting</span>
                                                         <a class="dropdown-item"
                                                             href="
-                                                            {{ route('instructor.courses.edit', ['id' => $course->id, 'step' => 1]) }}
+                                                            #
                                                         ">
                                                             <i class="fe fe-edit dropdown-item-icon"></i>
                                                             Edit
@@ -174,9 +173,12 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">No courses found.</td>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                No courses found.
+                                            </td>
                                         </tr>
                                     @endforelse
+
                                 </tbody>
                             </table>
                         </div>
