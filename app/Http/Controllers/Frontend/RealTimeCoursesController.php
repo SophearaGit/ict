@@ -60,44 +60,13 @@ class RealTimeCoursesController extends Controller
     /**
      * Display the specified resource.
      */
-    // public function show(string $id)
-    // {
-    //     $course = ICTCourse::with('teacherAttendances')
-    //         ->withCount('enrollments')
-    //         ->where('id', $id)
-    //         ->where('instructor_id', Auth::id())
-    //         ->firstOrFail();
-
-    //     // Total taught hours
-    //     $totalATH = $course->teacherAttendances->last()->actual_hours ?? 0;
-
-    //     // Course duration
-    //     $duration = $course->duration ?? 0;
-
-    //     // Progress %
-    //     $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
-    //     $course->progress = min(round($progress, 2), 100);
-
-    //     // Sessions logic (1 session = 1.5h)
-    //     $sessionDuration = 1.5;
-
-    //     $course->total_sessions = $duration > 0
-    //         ? round($duration / $sessionDuration)
-    //         : 0;
-
-    //     $course->completed_sessions = $totalATH > 0
-    //         ? floor($totalATH / $sessionDuration)
-    //         : 0;
-
-    //     return view('frontend.instructor.pages.course-real-time.course-real-time-show', [
-    //         'page_title' => 'ICT | INSTRUCTOR | COURSES (REAL-TIME) | SHOW',
-    //         'course' => $course,
-    //     ]);
-    // }
-
     public function show(string $id)
     {
-        $course = ICTCourse::where('id', $id)
+        $course = ICTCourse::with([
+            'teacherAttendances',
+            'teacherAttendances.schedule'
+        ])
+            ->where('id', $id)
             ->where('instructor_id', Auth::id())
             ->firstOrFail();
 
@@ -130,11 +99,14 @@ class RealTimeCoursesController extends Controller
             ->latest()
             ->get();
 
+        $attendances = $course->teacherAttendances;
+
         return view('frontend.instructor.pages.course-real-time.course-real-time-show', [
             'page_title' => 'ICT | INSTRUCTOR | COURSES (REAL-TIME) | SHOW',
             'course' => $course,
             'students' => $students,
             'other_courses' => $course->other_courses,
+            'attendances' => $attendances, // ✅ ADD THIS
         ]);
     }
 

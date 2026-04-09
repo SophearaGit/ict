@@ -17,7 +17,8 @@
                 <div class="d-flex align-items-center">
                     <div class="me-2 position-relative d-flex justify-content-end align-items-end mt-n5">
                         <img src="{{ $imgCheck }}"
-                            class="avatar-xl rounded-circle border-4 border-white position-relative" alt="avatar">
+                            class="avatar-xl rounded-circle border-4 border-white position-relative" alt="avatar"
+                            height="100" width="100" style="object-fit: cover">
                         <a href="#" class="position-absolute top-0 end-0" data-bs-toggle="tooltip"
                             data-placement="top" title="Verified">
                             <img src="{{ $verifiedCheck }}" alt="checked" height="30" width="30">
@@ -29,8 +30,9 @@
                     </div>
                 </div>
                 <div>
-                    <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary d-none d-md-block">Create
-                        New Course</a>
+                    <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary d-none d-md-block">
+                        Create Course (Online)
+                    </a>
                 </div>
             </div>
         </div>

@@ -41,14 +41,9 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Courses</th>
-                                        {{-- <th>Class Start</th> --}}
                                         <th>Schedule</th>
                                         <th>Status</th>
                                         <th>Student</th>
-                                        {{-- <th>Price</th> --}}
-                                        <th>Revenue</th>
-                                        <th></th>
-                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -143,42 +138,15 @@
                                             <td>
                                                 {{ $course->enrollments_count ?? 0 }}
                                             </td>
-                                            <td>
-                                                ${{ number_format($course->revenue, 2) }}</td>
-                                            <td>
-                                            </td>
-                                            <td>
-                                                <span class="dropdown dropstart">
-                                                    <a class="btn-icon btn btn-ghost btn-sm rounded-circle" href="#"
-                                                        role="button" id="courseDropdown" data-bs-toggle="dropdown"
-                                                        data-bs-offset="-20,20" aria-expanded="false">
-                                                        <i class="fe fe-more-vertical"></i>
-                                                    </a>
-                                                    <span class="dropdown-menu" aria-labelledby="courseDropdown">
-                                                        <span class="dropdown-header">Setting</span>
-                                                        <a class="dropdown-item"
-                                                            href="
-                                                            #
-                                                        ">
-                                                            <i class="fe fe-edit dropdown-item-icon"></i>
-                                                            Edit
-                                                        </a>
-                                                        <a class="dropdown-item" href="#">
-                                                            <i class="fe fe-trash dropdown-item-icon"></i>
-                                                            Remove
-                                                        </a>
-                                                    </span>
-                                                </span>
-                                            </td>
+
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted py-4">
+                                            <td colspan="7" class="text-center">
                                                 No courses found.
                                             </td>
                                         </tr>
                                     @endforelse
-
                                 </tbody>
                             </table>
                         </div>
