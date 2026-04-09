@@ -8,89 +8,86 @@
 
         .sheet {
             width: 100%;
-            background: #fff;
+            max-width: 1100px;
+            margin: auto;
+            background: #ffffff;
             border-radius: 12px;
-            border: 1px solid #e5e7eb;
             overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         }
 
         /* Header */
         .top-header {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #6f42c1, #8e63d3);
+            color: #fff;
         }
 
         .logo {
-            border-right: 1px solid #e5e7eb;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 18px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .title {
+            flex: 1;
             text-align: center;
-            font-weight: 600;
-            padding: 10px;
-            font-size: 16px;
+            font-size: 20px;
+            font-weight: bold;
         }
 
         .sub-title {
-            background: #facc15;
+            background: #f4c542;
             text-align: center;
             font-weight: 600;
             padding: 6px;
             font-size: 14px;
         }
 
-        /* Info rows */
+        /* Info */
         .info-row {
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            border-top: 1px solid #e5e7eb;
+            display: flex;
+            border-bottom: 1px solid #eee;
         }
 
         .info-label {
-            border-right: 1px solid #e5e7eb;
-            padding: 8px;
+            width: 180px;
+            padding: 10px;
             font-weight: 600;
-            background: #f9fafb;
+            background: #f8f9fa;
         }
 
         .info-value {
-            padding: 8px;
-        }
-
-        .highlight {
-            background: #fef9c3;
-        }
-
-        /* Table wrapper (important for responsive) */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
+            flex: 1;
+            padding: 10px;
         }
 
         /* Table */
         .sheet table {
             width: 100%;
-            min-width: 900px;
             border-collapse: collapse;
+        }
+
+        .sheet th {
+            background: #6f42c1;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            font-size: 13px;
         }
 
         .sheet th,
         .sheet td {
-            border: 1px solid #e5e7eb;
-            text-align: center;
             padding: 8px;
-            font-size: 14px;
-        }
-
-        .sheet th {
-            background: #f3f4f6;
-            font-weight: 600;
+            border: 1px solid #eee;
+            text-align: center;
         }
 
         /* Zebra rows */
@@ -98,26 +95,45 @@
             background: #fafafa;
         }
 
-        /* Mobile */
-        @media (max-width: 768px) {
-            .info-row {
-                grid-template-columns: 1fr;
-            }
+        /* Hover effect */
+        .sheet tbody tr:hover {
+            background: #f1f5ff;
+            transition: 0.2s;
+        }
 
-            .info-label {
-                border-right: none;
-                border-bottom: 1px solid #e5e7eb;
-            }
+        /* Inputs */
+        .sheet input {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 6px;
+            font-size: 13px;
+            text-align: center;
+        }
 
-            .top-header {
-                grid-template-columns: 1fr;
-            }
+        /* Focus effect */
+        .sheet input:focus {
+            border-color: #6f42c1;
+            box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.15);
+            outline: none;
+        }
 
-            .logo {
-                border-right: none;
-                border-bottom: 1px solid #e5e7eb;
-                padding: 10px;
-            }
+        /* Readonly fields */
+        .sheet input[readonly] {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+
+        /* Button */
+        .btn-primary {
+            background: #6f42c1;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #5a34a3;
         }
     </style>
 @endpush
@@ -231,7 +247,7 @@
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link active" id="attendance-tab" data-bs-toggle="pill"
                                             href="#attendance" role="tab" aria-controls="attendance"
-                                            aria-selected="false" tabindex="-1">Attendance</a>
+                                            aria-selected="false" tabindex="-1">My Attendance</a>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="students-tab" data-bs-toggle="pill" href="#students"
@@ -239,6 +255,7 @@
                                             tabindex="-1">Students</a>
                                     </li>
                                 </ul>
+
                             </div>
                         </div>
                         <!-- Card Body -->
@@ -338,65 +355,194 @@
                                                                                     <span class="text-muted">No
                                                                                         schedule</span>
                                                                                 @endif
+
+
                                                                             </strong>
                                                                         </div>
                                                                     </div>
 
 
-                                                                    <div class="table-responsive">
-                                                                        <table>
+                                                                    <!-- Table -->
+                                                                    <form
+                                                                        action="{{ route('staff.teacher.attendance.update') }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="course_id"
+                                                                            value="{{ $course->id }}">
+                                                                        <input type="hidden" name="teacher_id"
+                                                                            value="{{ $course->instructor->id ?? '' }}">
+                                                                        <input type="hidden" name="schedule_id"
+                                                                            value="{{ $course->schedule->id ?? '' }}">
+                                                                        <table id="attendanceTable">
                                                                             <thead>
                                                                                 <tr>
                                                                                     <th>No</th>
                                                                                     <th>Date</th>
-                                                                                    <th>Time In</th>
-                                                                                    <th>Time Out</th>
-                                                                                    <th>T.H</th>
-                                                                                    <th>A.T.H</th>
+                                                                                    <th>Time in</th>
+                                                                                    <th>Time out</th>
+                                                                                    <th>T H</th>
+                                                                                    <th>A T H</th>
                                                                                     <th>Room</th>
                                                                                     <th>Late (min)</th>
                                                                                     <th>Note</th>
                                                                                 </tr>
                                                                             </thead>
-                                                                            <tbody>
-                                                                                @forelse ($course->teacherAttendances as $index => $attendance)
-                                                                                    <tr>
-                                                                                        <td>{{ $index + 1 }}</td>
-                                                                                        <td>{{ $attendance->formatted_date }}
-                                                                                        </td>
-                                                                                        <td>{{ $attendance->formatted_start_time }}
-                                                                                        </td>
-                                                                                        <td>{{ $attendance->formatted_end_time }}
-                                                                                        </td>
-                                                                                        <td>{{ $attendance->formatted_total_hours }}
-                                                                                        </td>
-                                                                                        <td>{{ $attendance->formatted_actual_hours }}
-                                                                                        </td>
-                                                                                        <td class="text-uppercase">
-                                                                                            {{ $attendance->formatted_room }}
-                                                                                        </td>
-                                                                                        <td>{{ $attendance->formatted_late }}
-                                                                                        </td>
-                                                                                        <td>{{ $attendance->formatted_note }}
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                @empty
-                                                                                    <tr>
-                                                                                        <td colspan="9"
-                                                                                            class="text-muted">
-                                                                                            No attendance records
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                @endforelse
+                                                                            <tbody id="attendanceBody">
+                                                                                @php
+                                                                                    $attendances =
+                                                                                        $course->teacherAttendances;
+                                                                                @endphp
+
+                                                                                @if ($attendances->isNotEmpty())
+                                                                                    @foreach ($attendances as $index => $attendance)
+                                                                                        <tr>
+                                                                                            <td style="padding: 10px">
+                                                                                                {{ $index + 1 }}
+                                                                                            </td>
+
+                                                                                            <td style="display:none;">
+                                                                                                <input type="hidden"
+                                                                                                    name="attendances[{{ $index }}][id]"
+                                                                                                    value="{{ $attendance->id }}">
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="date"
+                                                                                                    name="attendances[{{ $index }}][date]"
+                                                                                                    value="{{ $attendance->date }}"
+                                                                                                    class="form-control text-dark"
+                                                                                                    readonly>
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="time"
+                                                                                                    name="attendances[{{ $index }}][start_time]"
+                                                                                                    value="{{ $attendance->start_time }}"
+                                                                                                    class="form-control text-dark">
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="time"
+                                                                                                    name="attendances[{{ $index }}][end_time]"
+                                                                                                    value="{{ $attendance->end_time }}"
+                                                                                                    class="form-control text-dark">
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="text"
+                                                                                                    name="attendances[{{ $index }}][total_hours]"
+                                                                                                    value="{{ $attendance->total_hours }}"
+                                                                                                    class="form-control total-hours text-uppercase text-dark text-center"
+                                                                                                    readonly>
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="text"
+                                                                                                    name="attendances[{{ $index }}][actual_hours]"
+                                                                                                    value="{{ $attendance->actual_hours }}"
+                                                                                                    class="form-control actual-hours text-uppercase text-dark text-center"
+                                                                                                    readonly>
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="text"
+                                                                                                    name="attendances[{{ $index }}][room]"
+                                                                                                    value="{{ $attendance->room }}"
+                                                                                                    class="form-control text-uppercase text-dark text-center">
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <input type="number"
+                                                                                                    name="attendances[{{ $index }}][late_minutes]"
+                                                                                                    value="{{ $attendance->late_minutes }}"
+                                                                                                    class="form-control text-center">
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <input type="text"
+                                                                                                    name="attendances[{{ $index }}][late_reason]"
+                                                                                                    value="{{ $attendance->late_reason }}"
+                                                                                                    class="form-control">
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    @endforeach
+                                                                                @endif
+                                                                                @php
+                                                                                    $nextIndex = $attendances->count();
+                                                                                @endphp
+
+                                                                                <tr>
+                                                                                    <td style="padding: 10px">
+                                                                                        {{ $nextIndex + 1 }}</td>
+
+                                                                                    <td style="display:none;">
+                                                                                        <input type="hidden"
+                                                                                            name="attendances[{{ $nextIndex }}][id]"
+                                                                                            value="">
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="date"
+                                                                                            name="attendances[{{ $nextIndex }}][date]"
+                                                                                            class="form-control"
+                                                                                            value="{{ now()->format('Y-m-d') }}"
+                                                                                            readonly>
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="time"
+                                                                                            name="attendances[{{ $nextIndex }}][start_time]"
+                                                                                            class="form-control">
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="time"
+                                                                                            name="attendances[{{ $nextIndex }}][end_time]"
+                                                                                            class="form-control">
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            name="attendances[{{ $nextIndex }}][total_hours]"
+                                                                                            class="form-control total-hours"
+                                                                                            readonly>
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            name="attendances[{{ $nextIndex }}][actual_hours]"
+                                                                                            class="form-control actual-hours"
+                                                                                            readonly>
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            name="attendances[{{ $nextIndex }}][room]"
+                                                                                            class="form-control">
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="number"
+                                                                                            name="attendances[{{ $nextIndex }}][late_minutes]"
+                                                                                            class="form-control">
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <input type="text"
+                                                                                            name="attendances[{{ $nextIndex }}][late_reason]"
+                                                                                            class="form-control">
+                                                                                    </td>
+                                                                                </tr>
                                                                             </tbody>
                                                                         </table>
-                                                                    </div>
+                                                                        <button type="submit"
+                                                                            class="btn btn-primary mt-3">
+                                                                            Save Attendance
+                                                                        </button>
+                                                                    </form>
                                                                 </div>
                                                             </div>
                                                         </div>
-
                                                     </div>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -704,9 +850,26 @@
                                 style="background-image: url({{ asset($course->thumbnail == '' ? '\default-images\staff\no-course-img.png' : $course->thumbnail) }}); height: 210px">
                             </div>
                         </div>
+                        <!-- Card body -->
+                        <div class="card-body">
+                            <!-- Price single page -->
+                            <div class="mb-3">
+                                <span class="text-dark fw-bold h2">
+                                    Your Earning: ${{ number_format($course->revenue, 2) }}</td>
+                                </span>
+                            </div>
+                            {{-- <div class="d-grid">
+                                <a href="#" class="btn btn-primary mb-2">Start Free Month</a>
+                                <a href="pricing.html" class="btn btn-outline-primary">Get Full Access</a>
+                            </div> --}}
+                        </div>
                     </div>
                     <!-- Card -->
                     <div class="card mb-4 shadow-sm border-0 rounded-4">
+                        {{-- <div class="card-header bg-white border-0">
+                            <h4 class="mb-0 fw-bold">📊 Quick Overview</h4>
+                        </div> --}}
+
                         <div class="card-body">
 
                             <!-- Enrolled -->
@@ -797,7 +960,7 @@
                 <div class="row d-md-flex align-items-center mb-4">
                     <div class="col-12">
                         <h2 class="mb-0">
-                            {{-- Your other courses --}}
+                            Your other courses
                         </h2>
                     </div>
                 </div>
@@ -854,8 +1017,36 @@
                                     </ul>
                                     <div class="mt-3 d-flex align-baseline lh-1">
                                         <span class="fs-6">
-                                            {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
+                                            Earning: ${{ number_format($course->revenue, 2) }}
                                         </span>
+                                    </div>
+                                </div>
+                                <!-- Card footer -->
+                                <div class="card-footer">
+                                    <div class="row align-items-center g-0">
+                                        <div class="col-auto">
+                                            <img src="
+                                                {{ asset($course->instructor->image == 'no-img.jpg' ? '\default-images\user\both.jpg' : $course->instructor->image) }}
+                                            "
+                                                class="rounded-circle avatar-xs" alt="avatar">
+                                        </div>
+                                        <div class="col ms-2">
+                                            <span>
+                                                {{ $course->instructor->name }}
+                                            </span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a
+                                                href="
+                                                {{ route('instructor.courses.real_time.show', $course->id) }}
+                                            ">
+                                                {{-- eye icon --}}
+                                                <i
+                                                    class="
+                                                fe fe-eye
+                                                "></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
