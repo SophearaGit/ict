@@ -1,7 +1,248 @@
 @extends('frontend.layouts.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @push('styles')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            /* =========================
+               DATE FUNCTIONS
+            ========================= */
+            function updateDateLabel() {
+                let input = document.getElementById('attendance-date').value;
+                let selected = new Date(input);
+
+                let today = new Date();
+                today.setHours(0, 0, 0, 0);
+                selected.setHours(0, 0, 0, 0);
+
+                let diff = Math.floor((selected - today) / (1000 * 60 * 60 * 24));
+
+                let label = '';
+
+                if (diff === 0) label = 'Today';
+                else if (diff === 1) label = 'Tomorrow';
+                else label = selected.toDateString();
+
+                document.querySelector('.attendance-box small').innerText =
+                    `${label} — ${selected.toDateString()}`;
+            }
+
+            window.setDate = function(days) {
+                let date = new Date();
+                date.setDate(date.getDate() + days);
+
+                let formatted = date.toISOString().split('T')[0];
+                document.getElementById('attendance-date').value = formatted;
+
+                updateDateLabel();
+            };
+
+            document.getElementById('attendance-date')
+                .addEventListener('change', updateDateLabel);
+
+
+            /* =========================
+               STATUS FUNCTIONS
+            ========================= */
+            window.setStatus = function(el, status) {
+                let parent = el.parentElement;
+                let badges = parent.querySelectorAll('span');
+
+                badges.forEach(b => {
+                    b.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'active');
+                    b.classList.add('bg-light', 'text-dark');
+                });
+
+                el.classList.remove('bg-light', 'text-dark');
+                el.classList.add(
+                    status === 'present' ? 'bg-success' :
+                    status === 'absent' ? 'bg-danger' : 'bg-warning'
+                );
+
+                el.classList.add('active');
+
+                updateSummary();
+            };
+
+            function updateSummary() {
+                let present = 0;
+                let absent = 0;
+                let late = 0;
+
+                document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
+                    let active = group.querySelector('.active');
+
+                    if (!active) return;
+
+                    let text = active.innerText.trim();
+
+                    if (text === 'Present') present++;
+                    if (text === 'Absent') absent++;
+                    if (text === 'Late') late++;
+                });
+
+                document.getElementById('presentCount').innerText = present;
+                document.getElementById('absentCount').innerText = absent;
+                document.getElementById('lateCount').innerText = late;
+            }
+
+            window.markAllPresent = function() {
+                document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
+                    let presentBtn = group.querySelector('span:nth-child(1)');
+
+                    group.querySelectorAll('span').forEach(b => {
+                        b.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'active');
+                        b.classList.add('bg-light', 'text-dark');
+                    });
+
+                    presentBtn.classList.remove('bg-light', 'text-dark');
+                    presentBtn.classList.add('bg-success', 'active');
+                });
+
+                updateSummary();
+            };
+
+
+            /* =========================
+               ROW CLICK (UX)
+            ========================= */
+            document.querySelectorAll('#attendanceTable tr').forEach(row => {
+                row.addEventListener('click', function(e) {
+
+                    // ✅ Ignore status buttons
+                    if (e.target.closest('.status-toggle')) return;
+
+                    // ✅ Ignore input
+                    if (e.target.tagName === 'INPUT') return;
+
+                    let presentBtn = row.querySelector('.status-toggle span:nth-child(1)');
+                    setStatus(presentBtn, 'present');
+                });
+            });
+
+            /* =========================
+               SEARCH
+            ========================= */
+            document.getElementById('searchStudent')
+                .addEventListener('keyup', function() {
+
+                    let value = this.value.toLowerCase();
+
+                    document.querySelectorAll('.student-row').forEach(row => {
+                        row.style.display =
+                            row.dataset.name.includes(value) ? '' : 'none';
+                    });
+                });
+
+
+            /* =========================
+               INIT
+            ========================= */
+            updateSummary();
+            updateDateLabel();
+
+        });
+    </script>
+
+    <script>
+        function saveAttendance() {
+
+            let attendances = [];
+
+            $('#attendanceTable .student-row').each(function() {
+
+                let studentId = $(this).data('student-id');
+
+                let status = $(this).find('.status-toggle .active').text().trim().toLowerCase();
+
+                let note = $(this).find('input').val();
+
+                attendances.push({
+                    student_id: studentId,
+                    status: status,
+                    note: note
+                });
+            });
+
+            $.ajax({
+                url: "{{ route('instructor.student-attendance.store') }}",
+                type: "POST",
+                data: {
+                    course_id: "{{ $course->id }}",
+                    date: $('#attendance-date').val(),
+                    attendances: attendances,
+                    _token: "{{ csrf_token() }}"
+                },
+                beforeSend: function() {
+                    $('.btn-primary').prop('disabled', true).text('Saving...');
+                },
+                success: function(res) {
+                    $('.btn-primary').prop('disabled', false).text('💾 Save Attendance');
+
+                    if (res.success) {
+                        // showToast('✅ Attendance saved successfully');
+                    }
+                },
+                error: function(err) {
+                    $('.btn-primary').prop('disabled', false).text('💾 Save Attendance');
+
+                    console.error(err);
+                }
+            });
+        }
+    </script>
+
     <style>
+        /* TAB STUDENT ATTENDANCE START */
+        .attendance-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        /* Summary */
+        .summary-card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .summary-card h5 {
+            margin: 5px 0 0;
+        }
+
+        .summary-card.success h5 {
+            color: green;
+        }
+
+        .summary-card.danger h5 {
+            color: red;
+        }
+
+        .summary-card.warning h5 {
+            color: orange;
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Status */
+        .status-toggle span {
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        /* TAB STUDENT ATTENDANCE END */
+
+
         .text-purple {
             color: #6f42c1;
         }
@@ -228,15 +469,25 @@
                             <div>
                                 <!-- Nav -->
                                 <ul class="nav nav-lb-tab" id="tab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link active" id="attendance-tab" data-bs-toggle="pill"
-                                            href="#attendance" role="tab" aria-controls="attendance"
-                                            aria-selected="false" tabindex="-1">Attendance</a>
-                                    </li>
+
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="students-tab" data-bs-toggle="pill" href="#students"
                                             role="tab" aria-controls="students" aria-selected="false"
                                             tabindex="-1">Students</a>
+                                    </li>
+
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link active" id="student-attendance-tab" data-bs-toggle="pill"
+                                            href="#student-attendance" role="tab" aria-controls="student-attendance"
+                                            aria-selected="false">
+                                            Student Attendance
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link " id="attendance-tab" data-bs-toggle="pill" href="#attendance"
+                                            role="tab" aria-controls="attendance" aria-selected="false"
+                                            tabindex="-1">My Attendance</a>
                                     </li>
                                 </ul>
                             </div>
@@ -245,7 +496,7 @@
                         <div class="card-body">
                             <div class="tab-content" id="tabContent">
                                 {{-- My Attendance --}}
-                                <div class="tab-pane fade active show" id="attendance" role="tabpanel"
+                                <div class="tab-pane fade " id="attendance" role="tabpanel"
                                     aria-labelledby="attendance-tab">
                                     <div class="col-lg-12 col-md-9 col-12">
                                         <!-- Card -->
@@ -690,6 +941,140 @@
                                             </div>
                                             {{-- tab for taking student attendance --}}
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade active show" id="student-attendance" role="tabpanel">
+                                    <div class="attendance-box">
+                                        <!-- HEADER -->
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+                                            <div>
+                                                <h4 class="fw-bold mb-1">📋 Student Attendance</h4>
+                                                <small class="text-muted">
+                                                    {{-- dynamic date when select eg.Today — Tue, 14 Apr 2026 --}}
+                                                </small>
+                                            </div>
+
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-light btn-sm" onclick="setDate(0)">Today</button>
+                                                <button class="btn btn-outline-secondary btn-sm"
+                                                    onclick="setDate(1)">Tomorrow</button>
+
+                                                <input type="date" id="attendance-date"
+                                                    class="form-control form-control-sm w-auto"
+                                                    value="{{ now()->format('Y-m-d') }}">
+                                            </div>
+                                        </div>
+
+                                        <!-- SUMMARY -->
+                                        <div class="row text-center mb-4 g-3">
+                                            <div class="col">
+                                                <div class="summary-card">
+                                                    <small>Total</small>
+                                                    <h5 id="totalCount">
+                                                        {{ $students->count() }}
+                                                    </h5>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="summary-card success">
+                                                    <small>Present</small>
+                                                    <h5 id="presentCount">0</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="summary-card danger">
+                                                    <small>Absent</small>
+                                                    <h5 id="absentCount">0</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="summary-card warning">
+                                                    <small>Late</small>
+                                                    <h5 id="lateCount">0</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- SEARCH -->
+                                        <div class="mb-3">
+                                            <input type="text" id="searchStudent" class="form-control"
+                                                placeholder="🔍 Search student...">
+                                        </div>
+
+                                        <!-- TABLE -->
+                                        <div class="table-responsive">
+                                            <table class="table align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Student</th>
+                                                        <th>Status</th>
+                                                        <th style="width: 200px;">Note</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="attendanceTable">
+
+                                                    @foreach ($students as $index => $student)
+                                                        <tr class="student-row" data-student-id="{{ $student->id }}"
+                                                            data-name="{{ strtolower($student->name) }}"
+                                                            data-name="{{ strtolower($student->name) }}">
+                                                            <td>{{ $index + 1 }}</td>
+
+                                                            <!-- Student -->
+                                                            <td>
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <div class="avatar">
+                                                                        {{ strtoupper(substr($student->name, 0, 2)) }}
+                                                                    </div>
+                                                                    <span>{{ $student->name }}</span>
+                                                                </div>
+                                                            </td>
+
+                                                            <!-- Status -->
+                                                            <td>
+                                                                <div class="status-toggle">
+
+                                                                    <span class="badge bg-success active"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'present')">
+                                                                        Present
+                                                                    </span>
+
+                                                                    <span class="badge bg-light text-dark"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'absent')">
+                                                                        Absent
+                                                                    </span>
+
+                                                                    <span class="badge bg-light text-dark"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'late')">
+                                                                        Late
+                                                                    </span>
+
+                                                                </div>
+                                                            </td>
+
+                                                            <!-- Note -->
+                                                            <td>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    placeholder="Optional...">
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- ACTION -->
+                                        <div class="text-end mt-3">
+                                            <button class="btn btn-outline-secondary me-2" onclick="markAllPresent()">
+                                                Mark All Present
+                                            </button>
+
+                                            <button class="btn btn-primary" onclick="saveAttendance()">
+                                                💾 Save Attendance
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
