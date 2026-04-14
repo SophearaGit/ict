@@ -20,6 +20,7 @@ use App\Http\Controllers\Frontend\Staff\{
     IctStaffReportController,
     TecherAttendancesController
 };
+use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use App\Models\TeacherAttendances;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -102,8 +103,8 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
          *******************************************************/
         Route::get('/courses/real-time', [RealTimeCoursesController::class, 'index'])->name('courses.real_time');
         Route::get('/courses/real-time/{course_id}', [RealTimeCoursesController::class, 'show'])->name('courses.real_time.show');
-
-
+        Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])
+            ->name('student-attendance.store');
 
         /*******************************************************
          * CHAPTER
