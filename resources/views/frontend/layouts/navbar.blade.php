@@ -213,7 +213,7 @@
                                                                     <div class="col">
                                                                         <a class="text-body" href="#">
                                                                             <div class="d-flex">
-                                                                                <img src="../assets/images/avatar/avatar-2.jpg"
+                                                                                <img src=""
                                                                                     alt=""
                                                                                     class="avatar-md rounded-circle">
                                                                                 <div class="ms-3">
@@ -249,7 +249,7 @@
                                                                     <div class="col">
                                                                         <a class="text-body" href="#">
                                                                             <div class="d-flex">
-                                                                                <img src="../assets/images/avatar/avatar-3.jpg"
+                                                                                <img src=""
                                                                                     alt=""
                                                                                     class="avatar-md rounded-circle">
                                                                                 <div class="ms-3">
@@ -286,7 +286,7 @@
                                                                     <div class="col">
                                                                         <a class="text-body" href="#">
                                                                             <div class="d-flex">
-                                                                                <img src="../assets/images/avatar/avatar-4.jpg"
+                                                                                <img src=""
                                                                                     alt=""
                                                                                     class="avatar-md rounded-circle">
                                                                                 <div class="ms-3">

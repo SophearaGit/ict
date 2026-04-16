@@ -105,6 +105,8 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::get('/courses/real-time/{course_id}', [RealTimeCoursesController::class, 'show'])->name('courses.real_time.show');
         Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])
             ->name('student-attendance.store');
+        Route::get('/student-attendance', [StudentAttendanceController::class, 'getByDate'])
+            ->name('student-attendance.get');
 
         /*******************************************************
          * CHAPTER

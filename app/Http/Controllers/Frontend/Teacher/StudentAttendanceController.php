@@ -9,6 +9,26 @@ use Illuminate\Support\Facades\DB;
 
 class StudentAttendanceController extends Controller
 {
+
+    public function getByDate(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required|exists:i_c_t_courses,id',
+            'date' => 'required|date',
+        ]);
+
+        $attendances = StudentAttendances::where('course_id', $request->course_id)
+            ->whereDate('date', $request->date)
+            ->get()
+            ->keyBy('student_id'); // 🔥 important
+
+        return response()->json([
+            'success' => true,
+            'data' => $attendances
+        ]);
+    }
+
+
     public function store(Request $request)
     {
         $request->validate([

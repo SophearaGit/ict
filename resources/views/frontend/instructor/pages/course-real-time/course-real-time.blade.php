@@ -54,7 +54,7 @@
                                                     <div>
                                                         <a
                                                             href="{{ route('instructor.courses.real_time.show', $course->id) }}">
-                                                            <img src="{{ asset($course->thumbnail == '' ? '\default-images\staff\no-course-img.png' : $course->thumbnail) }}"
+                                                            <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
                                                                 alt="course" class="rounded img-4by3-lg"
                                                                 style="width: 120px; height: 80px; object-fit: cover">
                                                         </a>
