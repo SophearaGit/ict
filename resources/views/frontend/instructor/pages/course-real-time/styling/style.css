@@ -1,0 +1,186 @@
+<style>
+    .loading-row td {
+        padding: 12px;
+    }
+
+    .skeleton {
+        height: 14px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #eee, #ddd, #eee);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    /* TAB STUDENT ATTENDANCE START */
+    .attendance-box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    /* Summary */
+    .summary-card {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .summary-card h5 {
+        margin: 5px 0 0;
+    }
+
+    .summary-card.success h5 {
+        color: green;
+    }
+
+    .summary-card.danger h5 {
+        color: red;
+    }
+
+    .summary-card.warning h5 {
+        color: orange;
+    }
+
+    /* Avatar */
+    .avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    /* Status */
+    .status-toggle span {
+        cursor: pointer;
+        margin-right: 5px;
+    }
+
+    /* TAB STUDENT ATTENDANCE END */
+
+
+    .text-purple {
+        color: #6f42c1;
+    }
+
+    .sheet {
+        width: 100%;
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+
+    /* Header */
+    .top-header {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .logo {
+        border-right: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .title {
+        text-align: center;
+        font-weight: 600;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .sub-title {
+        background: #facc15;
+        text-align: center;
+        font-weight: 600;
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    /* Info rows */
+    .info-row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .info-label {
+        border-right: 1px solid #e5e7eb;
+        padding: 8px;
+        font-weight: 600;
+        background: #f9fafb;
+    }
+
+    .info-value {
+        padding: 8px;
+    }
+
+    .highlight {
+        background: #fef9c3;
+    }
+
+    /* Table wrapper (important for responsive) */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Table */
+    .sheet table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+    }
+
+    .sheet th,
+    .sheet td {
+        border: 1px solid #e5e7eb;
+        text-align: center;
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .sheet th {
+        background: #f3f4f6;
+        font-weight: 600;
+    }
+
+    /* Zebra rows */
+    .sheet tbody tr:nth-child(even) {
+        background: #fafafa;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .info-row {
+            grid-template-columns: 1fr;
+        }
+
+        .info-label {
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .top-header {
+            grid-template-columns: 1fr;
+        }
+
+        .logo {
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 10px;
+        }
+    }
+</style>

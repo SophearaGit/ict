@@ -89,7 +89,7 @@
                              <div class="card">
                                  <div class="card-body text-center p-6">
                                      <!-- img -->
-                                     <img src="/frontend/assets/images/avatar/avatar-1.jpg" alt="avatar"
+                                     <img src="" alt="avatar"
                                          class="avatar avatar-lg rounded-circle" />
                                      <p class="mb-0 mt-3">
                                          “The generated lorem Ipsum is therefore always free from repetition,
@@ -149,7 +149,7 @@
                              <div class="card">
                                  <div class="card-body text-center p-6">
                                      <!-- img -->
-                                     <img src="/frontend/assets/images/avatar/avatar-2.jpg" alt="avatar"
+                                     <img src="" alt="avatar"
                                          class="avatar avatar-lg rounded-circle" />
                                      <p class="mb-0 mt-3">
                                          “Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
@@ -208,7 +208,7 @@
                              <div class="card">
                                  <div class="card-body text-center p-6">
                                      <!-- img -->
-                                     <img src="/frontend/assets/images/avatar/avatar-3.jpg" alt="avatar"
+                                     <img src="" alt="avatar"
                                          class="avatar avatar-lg rounded-circle" />
                                      <p class="mb-0 mt-3">
                                          “Praesent aliquet diam a ligula imperdiet commodo. Donec eleifend, orci
@@ -267,7 +267,7 @@
                              <div class="card">
                                  <div class="card-body text-center p-6">
                                      <!-- img -->
-                                     <img src="/frontend/assets/images/avatar/avatar-4.jpg" alt="avatar"
+                                     <img src="" alt="avatar"
                                          class="avatar avatar-lg rounded-circle" />
                                      <p class="mb-0 mt-3">
                                          “The generated lorem Ipsum is therefore always free from repetition,
@@ -326,7 +326,7 @@
                              <div class="card">
                                  <div class="card-body text-center p-6">
                                      <!-- img -->
-                                     <img src="/frontend/assets/images/avatar/avatar-5.jpg" alt="avatar"
+                                     <img src="" alt="avatar"
                                          class="avatar avatar-lg rounded-circle" />
                                      <p class="mb-0 mt-3">
                                          “Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
@@ -384,7 +384,7 @@
                              <div class="card">
                                  <div class="card-body text-center p-6">
                                      <!-- img -->
-                                     <img src="/frontend/assets/images/avatar/avatar-6.jpg" alt="avatar"
+                                     <img src="" alt="avatar"
                                          class="avatar avatar-lg rounded-circle" />
                                      <p class="mb-0 mt-3">
                                          “Praesent aliquet diam a ligula imperdiet commodo. Donec eleifend, orci
