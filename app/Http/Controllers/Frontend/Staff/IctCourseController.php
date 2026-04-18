@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Frontend\Staff;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\ICTCourse;
 use App\Models\ICTSchedule;
+use App\Models\StudentAttendances;
 use App\Models\TeacherAttendances;
 use App\Models\User;
 use App\Traites\FileUpload;
@@ -38,21 +40,118 @@ class IctCourseController extends Controller
         ]);
     }
 
+
+
+
     public function show($id): View
     {
         $course = ICTCourse::with([
-            'students',
+            'students.student_attendances' => fn($q) => $q->where('course_id', $id),
             'instructor',
-            'schedule',
-            'teacherAttendances.teacher',
-            'teacherAttendances.schedule'
+            'schedule'
         ])->findOrFail($id);
 
-        return view('frontend.staff.pages.course-management.course-detail', [
-            'page_title' => 'ICT | STAFF | COURSE DETAIL',
+        // ✅ Get all unique dates
+        $dates = StudentAttendances::where('course_id', $id)
+            ->select('date')
+            ->distinct()
+            ->orderBy('date')
+            ->pluck('date');
+
+        // Format dates (15/02/2026)
+        $formattedDates = $dates->map(fn($d) => Carbon::parse($d)->format('d/m/Y'));
+
+        // ✅ Build rows
+        $rows = [];
+
+        foreach ($course->students as $index => $student) {
+
+            $attendanceMap = [];
+
+            foreach ($student->student_attendances as $att) {
+                $formatted = Carbon::parse($att->date)->format('d/m/Y');
+
+                $attendanceMap[$formatted] = match ($att->status) {
+                    'present' => 'P',
+                    'absent' => 'A',
+                    'late' => 'L',
+                    default => '-'
+                };
+            }
+
+            $rows[] = [
+                "no" => $index + 1,
+                "student_name" => $student->name,
+                "sex" => $student->gender ?? 'M',
+                "day" => $course->schedule->study_day ?? 'Sunday',
+                "shift" => optional($course->schedule)->start_time && optional($course->schedule)->end_time
+                    ? Carbon::parse($course->schedule->start_time)->format('g:i') . '-' .
+                    Carbon::parse($course->schedule->end_time)->format('g:i A')
+                    : '-',
+                "attendance" => $attendanceMap
+            ];
+        }
+
+        // ✅ Final structured data
+        $attendanceData = [
+            "form_metadata" => [
+                "software" => "Google Sheets",
+                "class_title" => $course->title,
+                "class_start" => optional($course->created_at)->format('d-M-Y'),
+                "room" => "D",
+                "lecturer_name" => $course->instructor->name ?? '',
+                "lecturer_phone" => $course->instructor->phone ?? null,
+            ],
+            "table_structure" => [
+                "columns" => array_merge(
+                    ["NO", "Student Name", "Sex", "Date", "Shift"],
+                    $formattedDates->toArray()
+                ),
+                "data_rows" => $rows
+            ],
+            "visual_elements" => [
+                "header_color" => "Yellow (#FFFF00)",
+                "date_row_color" => "Light Pink (#F4CCCC)",
+                "attendance_keys" => [
+                    "A" => "Absent",
+                    "P" => "Present",
+                    "L" => "Late"
+                ]
+            ]
+        ];
+
+        return view('frontend.staff.pages.course-management.course-detail.course-detail', [
             'course' => $course,
+            'attendanceData' => $attendanceData
         ]);
     }
+
+    // public function show($id): View
+    // {
+    //     $course = ICTCourse::with([
+    //         'students.student_attendances' => function ($q) use ($id) {
+    //             $q->where('course_id', $id);
+    //         },
+    //         'instructor',
+    //         'schedule',
+    //         'teacherAttendances.teacher',
+    //         'teacherAttendances.schedule'
+    //     ])->findOrFail($id);
+
+    //     // ✅ Get all unique attendance dates (for columns)
+    //     $dates = StudentAttendances::where('course_id', $id)
+    //         ->orderBy('date')
+    //         ->pluck('date')
+    //         ->unique()
+    //         ->values();
+
+    //     return view('frontend.staff.pages.course-management.course-detail.course-detail', [
+    //         'page_title' => 'ICT | STAFF | COURSE DETAIL',
+    //         'course' => $course,
+    //         'students' => $course->students,
+    //         'dates' => $dates
+    //     ]);
+    // }
 
     public function create(): View
     {

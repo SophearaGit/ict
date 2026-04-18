@@ -3,93 +3,7 @@
 @push('styles')
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
-    <style>
-        .sheet {
-            width: 1100px;
-            margin: auto;
-            background: #fff;
-            border: 2px solid #000;
-        }
-
-        /* Header */
-        .top-header {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            border-bottom: 1px solid #000;
-        }
-
-        .logo {
-            border-right: 2px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .title {
-            text-align: center;
-            font-weight: bold;
-            padding: 10px;
-            font-size: 18px;
-        }
-
-        .sub-title {
-            background: #f4c542;
-            text-align: center;
-            font-weight: bold;
-            border-top: 2px solid #000;
-            padding: 5px;
-        }
-
-        /* Info rows */
-        .info-row {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            border-top: 2px solid #000;
-        }
-
-        .info-label {
-            border-right: 2px solid #000;
-            padding: 5px;
-            font-weight: bold;
-        }
-
-        .info-value {
-            padding: 5px;
-        }
-
-        .highlight {
-            background: #f4c542;
-        }
-
-        /* Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border: 1px solid #000;
-            text-align: center;
-            height: 30px;
-            font-size: 14px;
-        }
-
-        th {
-            background: #d9d9d9;
-        }
-
-        td[contenteditable="true"] {
-            cursor: pointer;
-        }
-
-        td:focus {
-            outline: none;
-            background: #eef5ff;
-        }
-    </style>
+    @include('frontend.staff.pages.course-management.course-detail.style.style')
 @endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
@@ -162,44 +76,16 @@
                                 <i class="ti ti-brand-youtube"></i>
                             </a>
                         </li>
-                        <li><a class="btn btn-primary"
-                                href="
-                            {{ route('staff.courses.edit', $course->id) }}
-                            ">
+                        <li>
+                            <a class="btn btn-primary" href="{{ route('staff.courses.edit', $course->id) }}">
                                 <i class="ti ti-edit me-2 fs-4"></i>
                                 Edit Course
-                            </a></li>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <ul class="nav nav-pills user-profile-tab justify-content-end mt-2 bg-light-info rounded-2" id="pills-tab"
-                role="tablist">
-
-
-                <li class="nav-item" role="presentation">
-                    <button
-                        class="  nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6"
-                        id="pills-students-tab" data-bs-toggle="pill" data-bs-target="#pills-students" type="button"
-                        role="tab" aria-controls="pills-students" aria-selected="false" tabindex="-1">
-                        <i class="ti ti-user-circle me-2 fs-6"></i>
-                        <span class="d-none d-md-block">
-                            Students
-                        </span>
-                    </button>
-                </li>
-
-
-                {{-- Teacher Attendance --}}
-                <li class="nav-item" role="presentation">
-                    <button
-                        class=" active nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6"
-                        id="pills-attendance-tab" data-bs-toggle="pill" data-bs-target="#pills-attendance" type="button"
-                        role="tab" aria-controls="pills-attendance" aria-selected="false" tabindex="-1">
-                        <i class="ti ti-calendar me-2 fs-6"></i>
-                        <span class="d-none d-md-block">Attendance</span>
-                    </button>
-                </li>
-            </ul>
+            @include('frontend.staff.pages.course-management.course-detail.partials.tab')
         </div>
     </div>
     <div class="tab-content" id="pills-tabContent">
@@ -420,7 +306,8 @@
                                                         class="form-control text-center">
                                                 </td>
                                                 <td>
-                                                    <input type="text" name="attendances[{{ $index }}][late_reason]"
+                                                    <input type="text"
+                                                        name="attendances[{{ $index }}][late_reason]"
                                                         value="{{ $attendance->late_reason }}" class="form-control">
                                                 </td>
                                             </tr>
