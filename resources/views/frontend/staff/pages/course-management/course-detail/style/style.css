@@ -1,0 +1,201 @@
+<style>
+    #attendanceTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+    }
+
+    #attendanceTable thead th {
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-align: center;
+        padding: 12px 10px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    #attendanceTable tbody td {
+        padding: 10px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    /* Zebra striping */
+    #attendanceTable tbody tr:nth-child(even) {
+        background-color: #fcfcfc;
+    }
+
+    /* Hover effect */
+    #attendanceTable tbody tr:hover {
+        background-color: #f1f7ff;
+    }
+
+    #attendanceTable input {
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 13px;
+        text-align: center;
+        background-color: #fff;
+        transition: 0.2s ease;
+    }
+
+    /* Focus effect */
+    #attendanceTable input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+    }
+
+    /* Readonly styling */
+    #attendanceTable input[readonly] {
+        background-color: #f5f7fa;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    #attendanceTable th:nth-child(1),
+    #attendanceTable td:nth-child(1) {
+        width: 50px;
+        text-align: center;
+    }
+
+    #attendanceTable th:nth-child(2) {
+        width: 140px;
+    }
+
+    #attendanceTable th:nth-child(3),
+    #attendanceTable th:nth-child(4) {
+        width: 120px;
+    }
+
+    #attendanceTable th:nth-child(5),
+    #attendanceTable th:nth-child(6) {
+        width: 90px;
+    }
+
+    #attendanceTable th:nth-child(7) {
+        width: 80px;
+    }
+
+    #attendanceTable th:nth-child(8) {
+        width: 100px;
+    }
+
+    #attendanceTable th:nth-child(9) {
+        width: 200px;
+    }
+
+    .sheet {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .top-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .top-header .logo {
+        font-size: 22px;
+        font-weight: bold;
+        color: #0d6efd;
+    }
+
+    .title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .sub-title {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .info-label {
+        width: 160px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .info-value {
+        flex: 1;
+        background: #f8f9fa;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+
+    .info-row.highlight .info-value {
+        background: #e9f2ff;
+        font-weight: 500;
+    }
+
+    button.btn-primary {
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+
+    .attendance-sheet {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    /* FULL GRID */
+    .attendance-sheet th,
+    .attendance-sheet td {
+        border: 1px solid #000;
+        padding: 6px;
+        text-align: center;
+    }
+
+    /* YELLOW TITLE */
+    .title-row th {
+        background: #ffff00;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    /* PINK HEADER */
+    .date-row th {
+        background: #f4cccc;
+        font-weight: 600;
+    }
+
+    /* LEFT ALIGN NAME */
+    .attendance-sheet td:nth-child(2) {
+        text-align: left;
+    }
+
+    /* META TABLE (TOP INFO) */
+    .meta-table {
+        border-collapse: collapse;
+        width: 400px;
+    }
+
+    .meta-table td {
+        border: 1px solid #000;
+        padding: 6px 10px;
+    }
+
+    /* REMOVE ROUNDED UI (make it raw like sheet) */
+    .sheet {
+        background: #fff;
+        padding: 10px;
+        border: none;
+        box-shadow: none;
+    }
+</style>

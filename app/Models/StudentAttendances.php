@@ -18,4 +18,14 @@ class StudentAttendances extends Model
         'note',
     ];
 
+    public function course()
+    {
+        return $this->belongsTo(ICTCourse::class, 'course_id');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
+
 }

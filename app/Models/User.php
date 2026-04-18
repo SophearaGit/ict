@@ -31,6 +31,10 @@ class User extends Authenticatable
         'alternate_phone',
     ];
 
+    public function student_attendances()
+    {
+        return $this->hasMany(StudentAttendances::class, 'student_id');
+    }
 
     public function attendances()
     {
