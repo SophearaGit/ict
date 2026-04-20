@@ -42,7 +42,6 @@ class IctCourseController extends Controller
 
 
 
-
     public function show($id): View
     {
         $course = ICTCourse::with([
@@ -50,6 +49,33 @@ class IctCourseController extends Controller
             'instructor',
             'schedule'
         ])->findOrFail($id);
+
+        // Sessions logic
+        $sessionDuration = 1.5;
+
+        // Total taught hours
+        $totalATH = $course->teacherAttendances()->latest()->first()->actual_hours ?? 0;
+
+        // Course duration
+        $duration = $course->duration ?? 0;
+
+        // Progress %
+        $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
+        $course->progress = min(round($progress, 2), 100);
+
+        // Sessions logic
+        $sessionDuration = 1.5;
+
+        $course->total_sessions = $duration > 0
+            ? round($duration / $sessionDuration)
+            : 0;
+
+        $course->completed_sessions = $totalATH > 0
+            ? floor($totalATH / $sessionDuration)
+            : 0;
+
+        // Earnings logic
+        $course->earnings = round($course->completed_sessions * ($course->price_per_session ?? 0), 2);
 
         // ✅ Get all unique dates
         $dates = StudentAttendances::where('course_id', $id)
@@ -169,6 +195,7 @@ class IctCourseController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'price_per_session' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
@@ -188,6 +215,7 @@ class IctCourseController extends Controller
         $course = new ICTCourse();
         $course->title = $request->title;
         $course->price = $request->price;
+        $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
         $course->thumbnail = $thumbnailPath;
         $course->status = $request->status;
@@ -222,6 +250,7 @@ class IctCourseController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'price_per_session' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
@@ -243,6 +272,7 @@ class IctCourseController extends Controller
 
         $course->title = $request->title;
         $course->price = $request->price;
+        $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
         $course->thumbnail = $thumbnailPath;
         $course->status = $request->status;

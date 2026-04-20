@@ -25,7 +25,7 @@
         <div class="tab-content">
             <div class="tab-pane fade pb-4" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
                 <div class="row">
-                    <div class="col-xl-12 col-lg-12 col-12 mb-3">
+                    {{-- <div class="col-xl-12 col-lg-12 col-12 mb-3">
                         <!-- Content -->
                         <div class="row">
                             <div class="col pe-0">
@@ -41,7 +41,7 @@
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     @forelse ($students as $student)
                         <div class="col-lg-4 col-md-6 col-12">
                             <!-- Card -->
@@ -125,7 +125,7 @@
             <!-- Tab pane -->
             <div class="tab-pane fade active show" id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
                 <div class="card">
-                    <div class="card-header border-bottom-0">
+                    {{-- <div class="card-header border-bottom-0">
                         <div class="row">
                             <div class="col pe-0">
                                 <form>
@@ -137,7 +137,7 @@
                                     CSV</a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <!-- Table -->
                     <div class="table-responsive">
                         <table class="table table-hover table-centered">

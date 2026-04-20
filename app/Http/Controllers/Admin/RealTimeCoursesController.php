@@ -15,6 +15,15 @@ class RealTimeCoursesController extends Controller
 {
     use FileUpload;
 
+    public function realtimeShow($id)
+    {
+        $course = ICTCourse::with(['instructor', 'schedule'])->findOrFail($id);
+        return view('admin.pages.real-time-courses-detail.real-time-courses-detail', [
+            'page_title' => 'ICT | ADMIN | REAL TIME COURSE DETAIL',
+            'course' => $course,
+        ]);
+    }
+
     // public function realtimeIndex(Request $request)
     // {
     //     $courses = ICTCourse::query();
