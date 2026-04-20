@@ -47,13 +47,20 @@
                                                 <td class="ps-0">
                                                     <div class="d-flex align-items-center gap-3">
                                                         <div class="flex-shrink-0">
-                                                            <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
-                                                                class="rounded" alt="p1" width="80">
+                                                            <a href=" {{ route('staff.courses.show', $course->id) }} ">
+                                                                <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+                                                                    class="rounded" alt="p1" width="80">
+                                                            </a>
                                                         </div>
                                                         <div>
-                                                            <h6 class="mb-1 fw-semibold">
-                                                                {{ $course->title }}
-                                                            </h6>
+                                                            <a
+                                                                href="
+                                                                {{ route('staff.courses.show', $course->id) }}
+                                                            ">
+                                                                <h6 class="mb-1 fw-semibold">
+                                                                    {{ $course->title }}
+                                                                </h6>
+                                                            </a>
 
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor->image) }}"

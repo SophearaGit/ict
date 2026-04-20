@@ -69,6 +69,9 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
     Route::resource('instructor-request', InstructorRequestController::class);
 
 
+
+
+
     /*******************************************************
      * INSTRUCTOR & STUDENT & STAFF
      *******************************************************/
@@ -110,6 +113,7 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
      *  COURSE REAL TIME
      *******************************************************/
     Route::get('/realtime-courses', [RealTimeCoursesController::class, 'realtimeIndex'])->name('courses.realtime.index');
+    Route::get('/realtime-courses/detail/{id}', [RealTimeCoursesController::class, 'realtimeShow'])->name('courses.realtime.show');
     Route::get('/realtime-courses/create', [RealTimeCoursesController::class, 'create'])->name('courses.realtime.create');
     Route::post('/realtime-courses', [RealTimeCoursesController::class, 'store'])->name('courses.realtime.store');
     Route::get('/realtime-courses/{id}/edit', [RealTimeCoursesController::class, 'edit'])->name('courses.realtime.edit');

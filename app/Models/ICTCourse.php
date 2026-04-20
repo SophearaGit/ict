@@ -29,6 +29,7 @@ class ICTCourse extends Model
         'slug',
         'description',
         'price',
+        'price_per_session',
         'status',
         'start_date',
         'end_date',

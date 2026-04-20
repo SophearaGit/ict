@@ -228,14 +228,15 @@
                                     <div class="col-lg-4 col-md-6 col-12">
                                         <!-- Card -->
                                         <div class="card mb-4 card-hover">
-                                            <a href="course-single.html"><img
+                                            <a href="{{ route('admin.courses.realtime.show', $course->id) }}"><img
                                                     src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
                                                     alt="course" class="card-img-top"
                                                     style="height: 230px; object-fit: cover;"></a>
                                             <!-- Card body -->
                                             <div class="card-body">
                                                 <h4 class="mb-2 text-truncate-line-2">
-                                                    <a href="course-single.html" class="text-inherit">
+                                                    <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
+                                                        class="text-inherit">
                                                         {{ $course->title }}
                                                     </a>
                                                 </h4>

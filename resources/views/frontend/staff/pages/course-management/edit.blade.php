@@ -119,7 +119,7 @@
                         </div>
                         <div class="row">
                             {{-- start_date --}}
-                            <div class="form-floating mb-3 col-md-3">
+                            <div class="form-floating mb-3 col-md-2">
                                 <input type="date" class="form-control" name="start_date"
                                     value="{{ old('start_date', optional($course->start_date)->format('Y-m-d')) }}">
                                 <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
@@ -128,7 +128,7 @@
                             </div>
 
                             {{-- end_date --}}
-                            <div class="form-floating mb-3 col-md-3">
+                            <div class="form-floating mb-3 col-md-2">
                                 <input type="date" class="form-control" name="end_date"
                                     value="{{ old('end_date', optional($course->end_date)->format('Y-m-d')) }}">
                                 <label><i class="ti ti-calendar me-2 fs-4 text-info"></i><span
@@ -137,7 +137,7 @@
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
                             </div>
 
-                            <div class="form-floating mb-3 col-md-3">
+                            <div class="form-floating mb-3 col-md-2">
                                 <input type="number" class="form-control " placeholder="Course Price" name="price"
                                     step="0.01" value="{{ old('price', $course->price) }}">
                                 <label style="padding: 1rem 26px; important;"><i
@@ -145,10 +145,27 @@
                                         class="border-start border-info ps-3">Price</span></label>
                                 <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
                             </div>
+
+                            <div class="form-floating mb-3 col-md-3">
+                                <select class="form-select" name="price_per_session" id="price_per_session">
+                                    <option value="" disabled selected>Select Price/Session</option>
+                                    @foreach (range(5, 10) as $priceOption)
+                                        <option value="{{ $priceOption }}"
+                                            {{ old('price_per_session', $course->price_per_session) == $priceOption ? 'selected' : '' }}>
+                                            ${{ number_format($priceOption, 2) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label style="padding: 1rem 26px; important;"><i
+                                        class="ti ti-currency-dollar me-2 fs-4 text-info"></i><span
+                                        class="border-start border-info ps-3">Price/Session</span></label>
+                                <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-2" />
+                            </div>
+
                             {{-- duration --}}
                             <div class="form-floating mb-3 col-md-3">
-                                <input type="number" class="form-control " placeholder="Course Duration" name="duration"
-                                    step="0.1" value="{{ old('duration', $course->duration) }}">
+                                <input type="number" class="form-control " placeholder="Course Duration"
+                                    name="duration" step="0.1" value="{{ old('duration', $course->duration) }}">
                                 <label style="padding: 1rem 26px; important;"><i
                                         class="ti ti-clock me-2 fs-4 text-info"></i><span
                                         class="border-start border-info ps-3">Duration (hrs)</span></label>

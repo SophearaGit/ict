@@ -12,7 +12,7 @@
             <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
                 alt="" class="img-fluid" style="width: 1200px; height: 200px; object-fit: cover;">
             <div class="row align-items-center">
-                <div class="col-lg-4 order-lg-1 order-2">
+                <div class="col-lg-6 order-lg-1 order-2">
                     <div class="d-flex align-items-center justify-content-around m-4">
                         <div class="text-center">
                             <i class="ti ti-user-check fs-6 d-block mb-2"></i>
@@ -23,9 +23,49 @@
                                 Students
                             </p>
                         </div>
+                        {{-- duration --}}
+                        <div class="text-center">
+                            <i class="ti ti-clock fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{ $course->duration ?? 'N/A' }}h
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Duration
+                            </p>
+                        </div>
+                        {{-- session --}}
+                        <div class="text-center">
+                            <i class="ti ti-calendar-check fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{ $course->completed_sessions ?? 0 }} / {{ $course->total_sessions ?? 0 }}
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Sessions
+                            </p>
+                        </div>
+                        {{-- complete session count
+                        <div class="text-center">
+                            <i class="ti ti-calendar-check fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{ $course->completed_sessions ?? 0 }}
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Completed
+                            </p>
+                        </div> --}}
+                        {{-- Earning --}}
+                        <div class="text-center">
+                            <i class="ti ti-currency-dollar fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                ${{ number_format($course->earnings, 2) }}
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Earning
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-4 mt-n3 order-lg-2 order-1">
+                <div class="col-lg-2 mt-n3 order-lg-2 order-1">
                     <div class="mt-n5">
                         <div class="d-flex align-items-center justify-content-center mb-2">
                             <div class="linear-gradient d-flex align-items-center justify-content-center rounded-circle"
@@ -160,8 +200,8 @@
                 @endforelse
             </div>
         </div>
-        <div class="tab-pane fade show active" id="pills-attendance" role="tabpanel" aria-labelledby="pills-attendance-tab"
-            tabindex="0">
+        <div class="tab-pane fade show active" id="pills-attendance" role="tabpanel"
+            aria-labelledby="pills-attendance-tab" tabindex="0">
             <div class="row">
                 <div class="col-12">
                     <div class="sheet">
