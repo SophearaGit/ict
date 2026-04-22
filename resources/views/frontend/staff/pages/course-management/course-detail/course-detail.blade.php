@@ -57,7 +57,8 @@
                         <div class="text-center">
                             <i class="ti ti-currency-dollar fs-6 d-block mb-2"></i>
                             <h4 class="mb-0 fw-semibold lh-1">
-                                ${{ number_format($course->earnings, 2) }}
+                                {{-- getRevenueAttribute() --}}
+                                {{ $course->getRevenueAttribute() }}
                             </h4>
                             <p class="mb-0 fs-4">
                                 Earning
@@ -277,7 +278,9 @@
                                         <th>T H</th>
                                         <th>A T H</th>
                                         <th>Room</th>
-                                        <th>Late (min)</th>
+                                        <th>
+                                            នាទីខ្វះ
+                                        </th>
                                         <th>Note</th>
                                     </tr>
                                 </thead>
