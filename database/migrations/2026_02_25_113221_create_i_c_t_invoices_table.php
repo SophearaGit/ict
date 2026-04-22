@@ -26,9 +26,9 @@ return new class extends Migration {
             $table->double('paid_amount')->default(0)->nullable();
             $table->double('remaining_amount')->default(0);
 
-            $table->enum('payment_option', ['full', 'half', 'multi, normal'])->nullable();
+            $table->enum('payment_option', ['full', 'half', 'multi', 'normal', 'free'])->nullable();
 
-            $table->enum('payment_status', ['paid', 'half_paid', 'unpaid'])->default('unpaid');
+            $table->enum('payment_status', ['paid', 'half_paid', 'unpaid', 'free'])->default('unpaid');
 
             $table->string('invoice_code')->unique();
 

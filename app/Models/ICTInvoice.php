@@ -21,6 +21,7 @@ class ICTInvoice extends Model
         'total_amount',
         'paid_amount',
         'remaining_amount',
+        'payment_option',
         'payment_status',
         'paid_at',
         'invoice_code',

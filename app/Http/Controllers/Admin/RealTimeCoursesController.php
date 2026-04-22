@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
 use App\Models\ICTSchedule;
+use App\Models\StudentAttendances;
 use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class RealTimeCoursesController extends Controller
 {
@@ -17,10 +20,119 @@ class RealTimeCoursesController extends Controller
 
     public function realtimeShow($id)
     {
-        $course = ICTCourse::with(['instructor', 'schedule'])->findOrFail($id);
+        $course = ICTCourse::with([
+            'students.student_attendances' => fn($q) => $q->where('course_id', $id),
+            'instructor',
+            'schedule'
+        ])->findOrFail($id);
+
+        // Sessions logic
+        $sessionDuration = 1.5;
+
+        // Total taught hours
+        $totalATH = $course->teacherAttendances()->latest()->first()->actual_hours ?? 0;
+
+        // Course duration
+        $duration = $course->duration ?? 0;
+
+        // Progress %
+        $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
+        $course->progress = min(round($progress, 2), 100);
+
+        // Sessions logic
+        $sessionDuration = 1.5;
+
+        $course->total_sessions = $duration > 0
+            ? round($duration / $sessionDuration)
+            : 0;
+
+        $course->completed_sessions = $totalATH > 0
+            ? floor($totalATH / $sessionDuration)
+            : 0;
+
+        // Earnings logic
+        $course->earnings = round($course->completed_sessions * ($course->price_per_session ?? 0), 2);
+
+        // ✅ Get all unique dates
+        $dates = StudentAttendances::where('course_id', $id)
+            ->select('date')
+            ->distinct()
+            ->orderBy('date')
+            ->pluck('date');
+
+        // Format dates (15/02/2026)
+        $formattedDates = $dates->map(fn($d) => Carbon::parse($d)->format('d/m/Y'));
+
+        // ✅ Build rows
+        $rows = [];
+
+        foreach ($course->students as $index => $student) {
+
+            $attendanceMap = [];
+
+            foreach ($student->student_attendances as $att) {
+                $formatted = Carbon::parse($att->date)->format('d/m/Y');
+
+                $attendanceMap[$formatted] = match ($att->status) {
+                    'present' => 'P',
+                    'absent' => 'A',
+                    'late' => 'L',
+                    default => '-'
+                };
+            }
+
+            $rows[] = [
+                "no" => $index + 1,
+                "student_name" => $student->name,
+                "sex" => $student->gender ?? 'M',
+                "day" => $course->schedule->study_day ?? 'Sunday',
+                "shift" => optional($course->schedule)->start_time && optional($course->schedule)->end_time
+                    ? Carbon::parse($course->schedule->start_time)->format('g:i') . '-' .
+                    Carbon::parse($course->schedule->end_time)->format('g:i A')
+                    : '-',
+                "attendance" => $attendanceMap
+            ];
+        }
+
+        // ✅ Final structured data
+        $attendanceData = [
+            "form_metadata" => [
+                "software" => "Google Sheets",
+                "class_title" => $course->title,
+                "class_start" => optional($course->created_at)->format('d-M-Y'),
+                "room" => "D",
+                "lecturer_name" => $course->instructor->name ?? '',
+                "lecturer_phone" => $course->instructor->phone ?? null,
+            ],
+            "table_structure" => [
+                "columns" => array_merge(
+                    ["NO", "Student Name", "Sex", "Date", "Shift"],
+                    $formattedDates->toArray()
+                ),
+                "data_rows" => $rows
+            ],
+            "visual_elements" => [
+                "header_color" => "Yellow (#FFFF00)",
+                "date_row_color" => "Light Pink (#F4CCCC)",
+                "attendance_keys" => [
+                    "A" => "Absent",
+                    "P" => "Present",
+                    "L" => "Late"
+                ]
+            ]
+        ];
+
+        // othher courses by the same instructor
+        $others_courses = ICTCourse::where('instructor_id', $course->instructor_id)
+            ->where('id', '!=', $course->id)
+            ->latest()
+            ->get();
+
         return view('admin.pages.real-time-courses-detail.real-time-courses-detail', [
-            'page_title' => 'ICT | ADMIN | REAL TIME COURSE DETAIL',
             'course' => $course,
+            'attendanceData' => $attendanceData,
+            'other_courses' => $others_courses,
+            'page_title' => 'ICT | ADMIN | REAL TIME COURSE DETAIL',
         ]);
     }
 

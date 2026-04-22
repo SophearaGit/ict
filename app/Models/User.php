@@ -57,6 +57,10 @@ class User extends Authenticatable
         return $this->hasMany(ICTCourse::class, 'instructor_id');
     }
 
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(ICTCourseEnrollments::class, 'student_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

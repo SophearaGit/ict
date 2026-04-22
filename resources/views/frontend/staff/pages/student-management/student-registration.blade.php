@@ -175,9 +175,10 @@
 
                                 <div class="col-md-4">
                                     <div class="form-floating">
-                                        <select class="form-select" id="paymentOption" name="payment_option">
+                                        <select class="form-select" id="paymentOption" name="payment_option" required>
                                             <option value="" disabled selected>Select Payment Option</option>
-                                            <option value="normal">Normal Payment (No Discount)</option>
+                                            <option value="free">Free (No Payment Required)</option>
+                                            <option value="normal">Pay Full (No Discount)</option>
                                             <option value="full">Pay Full ($10 Discount)</option>
                                             <option value="half">Pay Half (+$20 Charge)</option>
                                             <option value="multi">Multi Course ($25 Discount)</option>
@@ -241,6 +242,7 @@
                                             <option value="paid">Paid</option>
                                             <option value="half_paid">Half Paid</option>
                                             <option value="unpaid">Unpaid</option>
+                                            <option value="free">Free</option>
                                         </select>
 
                                         <!-- Hidden input to send value -->
@@ -309,7 +311,7 @@
             // RESET PAYMENT FIELDS
             // ==============================
             function resetPaymentFields() {
-                $('#paymentOption').val('');
+                $('#paymentOption').val(null).trigger('change');
                 $('#totalAmount').val('');
                 $('#paidAmount').val('');
                 $('#remainingAmount').val('');
@@ -338,6 +340,16 @@
                 } = calculateAdjustments(paymentOption, courseCount);
 
                 let total = Math.max(0, totalPrice - discount + extraCharge);
+
+                if (paymentOption === 'free') {
+                    $('#paidAmount').val(0);
+                    $('#remainingAmount').val(0);
+                }
+
+                if (paymentOption === 'free') {
+                    total = 0;
+                }
+
                 let paid = calculatePaidAmount(paymentOption, total);
                 let remaining = total - paid;
 
@@ -419,6 +431,10 @@
                 let discount = 0;
                 let extraCharge = 0;
 
+                if (paymentOption === 'free') {
+                    discount = 999999; // force total to 0 (safe fallback)
+                }
+
                 if (paymentOption === 'multi' && courseCount >= 2) {
                     discount += 25;
                 }
@@ -442,9 +458,9 @@
             // CALCULATE PAID AMOUNT
             // ==============================
             function calculatePaidAmount(paymentOption, total) {
-                return paymentOption === 'half' ?
-                    total / 2 :
-                    total;
+                if (paymentOption === 'half') return total / 2;
+                if (paymentOption === 'free') return 0;
+                return total;
             }
 
 
@@ -469,7 +485,11 @@
 
                 let status = '';
 
-                if (paid === 0) {
+                let paymentOption = $('#paymentOption').val();
+
+                if (paymentOption === 'free') {
+                    status = 'free';
+                } else if (paid === 0) {
                     status = 'unpaid';
                 } else if (remaining === 0) {
                     status = 'paid';

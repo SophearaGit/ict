@@ -42,7 +42,9 @@ class ICTCourse extends Model
 
         $sessions = $totalATH / 1.5;
 
-        return round($sessions * 5, 2);
+        if ($this->price_per_session) {
+            return number_format($sessions * $this->price_per_session, 2);
+        }
     }
 
     public function teacherAttendances(): HasMany

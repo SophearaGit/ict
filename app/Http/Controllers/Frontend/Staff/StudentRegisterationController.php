@@ -29,9 +29,11 @@ class StudentRegisterationController extends Controller
         return view('frontend.staff.pages.student-management.student-registration', $data);
     }
 
-
     public function studentRegistrationSubmit(Request $request): RedirectResponse
     {
+        // =========================
+        // VALIDATION
+        // =========================
         if ($request->student_type === 'new') {
 
             $request->validate([
@@ -51,8 +53,7 @@ class StudentRegisterationController extends Controller
         $request->validate([
             'course_ids' => ['required', 'array', 'min:1'],
             'course_ids.*' => ['exists:i_c_t_courses,id'],
-            'payment_option' => ['required', 'in:normal,full,half,multi'],
-            'paid_amount' => ['nullable', 'numeric', 'min:0'],
+            'payment_option' => ['required', 'in:normal,full,half,multi,free'], // ✅ added free
         ]);
 
         DB::beginTransaction();
@@ -68,28 +69,43 @@ class StudentRegisterationController extends Controller
             $courseCount = $courses->count();
             $totalPrice = round($courses->sum('price'), 2);
 
-            // Base adjustments
+            // =========================
+            // CALCULATE ADJUSTMENTS
+            // =========================
             $discount = 0;
             $extraCharge = 0;
 
-            if ($request->payment_option === 'multi' && $courseCount >= 2) {
-                $discount += 25;
-            }
+            if ($request->payment_option === 'free') {
+                $discount = $totalPrice; // make everything free
+            } else {
+                if ($request->payment_option === 'multi' && $courseCount >= 2) {
+                    $discount += 25;
+                }
 
-            if ($request->payment_option === 'full') {
-                $discount += 10;
-            }
+                if ($request->payment_option === 'full') {
+                    $discount += 10;
+                }
 
-            if ($request->payment_option === 'half') {
-                $extraCharge += 20;
+                if ($request->payment_option === 'half') {
+                    $extraCharge += 20;
+                }
             }
 
             $totalAmount = round($totalPrice - $discount + $extraCharge, 2);
 
-            // Auto payment
-            $paid = $request->payment_option === 'half'
-                ? round($totalAmount / 2, 2)
-                : $totalAmount;
+            // Force safety
+            if ($request->payment_option === 'free') {
+                $totalAmount = 0;
+            }
+
+            // =========================
+            // PAID / REMAINING
+            // =========================
+            $paid = match ($request->payment_option) {
+                'half' => round($totalAmount / 2, 2),
+                'free' => 0,
+                default => $totalAmount,
+            };
 
             if ($paid > $totalAmount) {
                 $paid = $totalAmount;
@@ -97,13 +113,18 @@ class StudentRegisterationController extends Controller
 
             $remaining = round($totalAmount - $paid, 2);
 
+            // =========================
+            // STATUS
+            // =========================
             $status = match (true) {
+                $request->payment_option === 'free' => 'free',
                 $paid == 0 => 'unpaid',
                 $remaining == 0 => 'paid',
                 default => 'half_paid',
             };
-
-            // Student
+            // =========================
+            // CREATE / GET STUDENT
+            // =========================
             if ($request->student_type === 'existing') {
 
                 $user = User::where('id', $request->student_id)
@@ -124,7 +145,9 @@ class StudentRegisterationController extends Controller
                 ]);
             }
 
-            // Enrollments
+            // =========================
+            // ENROLLMENTS
+            // =========================
             foreach ($courses as $course) {
 
                 $exists = ICTCourseEnrollments::where([
@@ -145,7 +168,13 @@ class StudentRegisterationController extends Controller
                 ]);
             }
 
-            // Create invoice
+            if (!$request->payment_option) {
+                throw new \Exception('Payment option is required.');
+            }
+
+            // =========================
+            // CREATE INVOICE
+            // =========================
             $invoice = ICTInvoice::create([
                 'staff_id' => Auth::id(),
                 'student_id' => $user->id,
@@ -163,10 +192,12 @@ class StudentRegisterationController extends Controller
                 'payment_status' => $status,
 
                 'invoice_code' => 'INV-' . now()->format('YmdHis') . '-' . mt_rand(100, 999),
-                'paid_at' => $paid > 0 ? now() : null,
+                'paid_at' => ($paid > 0 || $request->payment_option === 'free') ? now() : null,
             ]);
 
-            // ✅ FIXED ITEM DISTRIBUTION
+            // =========================
+            // DISTRIBUTE ITEMS
+            // =========================
             $distributedDiscount = 0;
             $distributedExtra = 0;
 
@@ -175,23 +206,26 @@ class StudentRegisterationController extends Controller
                 $itemDiscount = 0;
                 $itemExtra = 0;
 
-                // DISTRIBUTE DISCOUNT
-                if ($discount > 0) {
-                    if ($index === $courseCount - 1) {
-                        $itemDiscount = round($discount - $distributedDiscount, 2);
-                    } else {
-                        $itemDiscount = round($discount / $courseCount, 2);
-                        $distributedDiscount += $itemDiscount;
-                    }
-                }
+                if ($request->payment_option === 'free') {
+                    $itemDiscount = $course->price;
+                } else {
 
-                // DISTRIBUTE EXTRA
-                if ($extraCharge > 0) {
-                    if ($index === $courseCount - 1) {
-                        $itemExtra = round($extraCharge - $distributedExtra, 2);
-                    } else {
-                        $itemExtra = round($extraCharge / $courseCount, 2);
-                        $distributedExtra += $itemExtra;
+                    if ($discount > 0) {
+                        if ($index === $courseCount - 1) {
+                            $itemDiscount = round($discount - $distributedDiscount, 2);
+                        } else {
+                            $itemDiscount = round($discount / $courseCount, 2);
+                            $distributedDiscount += $itemDiscount;
+                        }
+                    }
+
+                    if ($extraCharge > 0) {
+                        if ($index === $courseCount - 1) {
+                            $itemExtra = round($extraCharge - $distributedExtra, 2);
+                        } else {
+                            $itemExtra = round($extraCharge / $courseCount, 2);
+                            $distributedExtra += $itemExtra;
+                        }
                     }
                 }
 
@@ -206,7 +240,9 @@ class StudentRegisterationController extends Controller
                 ]);
             }
 
-            // ✅ FINAL SAFE RECALCULATION
+            // =========================
+            // FINAL RECALCULATION
+            // =========================
             $itemTotalSum = round($invoice->items()->sum('total'), 2);
 
             $invoice->update([
@@ -214,6 +250,9 @@ class StudentRegisterationController extends Controller
                 'remaining_amount' => round($itemTotalSum - $paid, 2),
             ]);
 
+            // =========================
+            // PAYMENT RECORD
+            // =========================
             if ($paid > 0) {
                 ICTPayments::create([
                     'invoice_id' => $invoice->id,
@@ -244,7 +283,6 @@ class StudentRegisterationController extends Controller
 
     // public function studentRegistrationSubmit(Request $request): RedirectResponse
     // {
-
     //     if ($request->student_type === 'new') {
 
     //         $request->validate([
@@ -272,25 +310,23 @@ class StudentRegisterationController extends Controller
 
     //     try {
 
+    //         $courses = ICTCourse::whereIn('id', $request->course_ids)->get();
 
-    //         $courseIds = $request->course_ids ?? [];
-
-    //         if (empty($courseIds)) {
+    //         if ($courses->isEmpty()) {
     //             throw new \Exception('Please select at least one course.');
     //         }
 
-    //         $courses = ICTCourse::whereIn('id', $courseIds)->get();
+    //         $courseCount = $courses->count();
+    //         $totalPrice = round($courses->sum('price'), 2);
 
-    //         $totalPrice = $courses->sum('price');
-
+    //         // Base adjustments
     //         $discount = 0;
     //         $extraCharge = 0;
 
-    //         // 🎯 Multi-course discount
-    //         if ($request->payment_option === 'multi' && $courses->count() >= 2) {
+    //         if ($request->payment_option === 'multi' && $courseCount >= 2) {
     //             $discount += 25;
     //         }
-    //         // Payment option logic
+
     //         if ($request->payment_option === 'full') {
     //             $discount += 10;
     //         }
@@ -299,28 +335,26 @@ class StudentRegisterationController extends Controller
     //             $extraCharge += 20;
     //         }
 
-    //         $totalAmount = $totalPrice - $discount + $extraCharge;
+    //         $totalAmount = round($totalPrice - $discount + $extraCharge, 2);
 
-    //         // Auto calculate payment
+    //         // Auto payment
     //         $paid = $request->payment_option === 'half'
     //             ? round($totalAmount / 2, 2)
     //             : $totalAmount;
 
-    //         // Prevent overpayment
     //         if ($paid > $totalAmount) {
     //             $paid = $totalAmount;
     //         }
 
-    //         $remaining = $totalAmount - $paid;
+    //         $remaining = round($totalAmount - $paid, 2);
 
-    //         // Determine payment status
     //         $status = match (true) {
     //             $paid == 0 => 'unpaid',
     //             $remaining == 0 => 'paid',
     //             default => 'half_paid',
     //         };
 
-    //         // Create or select student
+    //         // Student
     //         if ($request->student_type === 'existing') {
 
     //             $user = User::where('id', $request->student_id)
@@ -339,9 +373,9 @@ class StudentRegisterationController extends Controller
     //                 'phone' => $request->phone,
     //                 'alternate_phone' => $request->alternate_phone ?? null,
     //             ]);
-
     //         }
 
+    //         // Enrollments
     //         foreach ($courses as $course) {
 
     //             $exists = ICTCourseEnrollments::where([
@@ -366,7 +400,7 @@ class StudentRegisterationController extends Controller
     //         $invoice = ICTInvoice::create([
     //             'staff_id' => Auth::id(),
     //             'student_id' => $user->id,
-    //             'course_id' => $courses->first()->id, // fallback
+    //             'course_id' => $courses->first()->id,
 
     //             'price' => $totalPrice,
     //             'discount' => $discount,
@@ -374,7 +408,7 @@ class StudentRegisterationController extends Controller
 
     //             'total_amount' => $totalAmount,
     //             'paid_amount' => $paid,
-    //             'remaining_amount' => $totalAmount - $paid,
+    //             'remaining_amount' => $remaining,
 
     //             'payment_option' => $request->payment_option,
     //             'payment_status' => $status,
@@ -383,26 +417,36 @@ class StudentRegisterationController extends Controller
     //             'paid_at' => $paid > 0 ? now() : null,
     //         ]);
 
+    //         // ✅ FIXED ITEM DISTRIBUTION
+    //         $distributedDiscount = 0;
+    //         $distributedExtra = 0;
 
-    //         // Create invoice items FIRST
-    //         foreach ($courses as $course) {
+    //         foreach ($courses->values() as $index => $course) {
 
     //             $itemDiscount = 0;
     //             $itemExtra = 0;
 
-    //             if ($courses->count() >= 2) {
-    //                 $itemDiscount = round(25 / $courses->count(), 2);
+    //             // DISTRIBUTE DISCOUNT
+    //             if ($discount > 0) {
+    //                 if ($index === $courseCount - 1) {
+    //                     $itemDiscount = round($discount - $distributedDiscount, 2);
+    //                 } else {
+    //                     $itemDiscount = round($discount / $courseCount, 2);
+    //                     $distributedDiscount += $itemDiscount;
+    //                 }
     //             }
 
-    //             if ($request->payment_option === 'full') {
-    //                 $itemDiscount += round(10 / $courses->count(), 2);
+    //             // DISTRIBUTE EXTRA
+    //             if ($extraCharge > 0) {
+    //                 if ($index === $courseCount - 1) {
+    //                     $itemExtra = round($extraCharge - $distributedExtra, 2);
+    //                 } else {
+    //                     $itemExtra = round($extraCharge / $courseCount, 2);
+    //                     $distributedExtra += $itemExtra;
+    //                 }
     //             }
 
-    //             if ($request->payment_option === 'half') {
-    //                 $itemExtra += round(20 / $courses->count(), 2);
-    //             }
-
-    //             $itemTotal = $course->price - $itemDiscount + $itemExtra;
+    //             $itemTotal = round($course->price - $itemDiscount + $itemExtra, 2);
 
     //             $invoice->items()->create([
     //                 'course_id' => $course->id,
@@ -413,12 +457,12 @@ class StudentRegisterationController extends Controller
     //             ]);
     //         }
 
-    //         // ✅ NOW recalculate total safely
-    //         $itemTotalSum = $invoice->items()->sum('total');
+    //         // ✅ FINAL SAFE RECALCULATION
+    //         $itemTotalSum = round($invoice->items()->sum('total'), 2);
 
     //         $invoice->update([
     //             'total_amount' => $itemTotalSum,
-    //             'remaining_amount' => $itemTotalSum - $paid,
+    //             'remaining_amount' => round($itemTotalSum - $paid, 2),
     //         ]);
 
     //         if ($paid > 0) {
