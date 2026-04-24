@@ -133,11 +133,12 @@
                             <div class="form-floating mb-3 col-md-3">
                                 <select class="form-select" name="price_per_session" id="price_per_session">
                                     <option value="" disabled selected>Select Price/Session</option>
-                                    @foreach (range(5, 10) as $priceOption)
-                                        <option value="{{ $priceOption }}">
-                                            ${{ number_format($priceOption, 2) }}
+                                    @for ($i = 5; $i <= 10; $i += 0.5)
+                                        <option value="{{ number_format($i, 2) }}"
+                                            {{ old('price_per_session') == number_format($i, 2) ? 'selected' : '' }}>
+                                            {{ number_format($i, 2) }} $
                                         </option>
-                                    @endforeach
+                                    @endfor
                                 </select>
                                 <label style="padding: 1rem 26px; important;"><i
                                         class="ti ti-currency-dollar me-2 fs-4 text-info"></i><span

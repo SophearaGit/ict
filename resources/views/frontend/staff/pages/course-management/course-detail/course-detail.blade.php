@@ -3,13 +3,14 @@
 @push('styles')
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/admin/assets/dist/libs/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
     @include('frontend.staff.pages.course-management.course-detail.style.style')
 @endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
     <div class="card overflow-hidden">
         <div class="card-body p-0">
-            <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+            <img src="{{ asset($course->thumbnail == '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail)) }}"
                 alt="" class="img-fluid" style="width: 1200px; height: 200px; object-fit: cover;">
             <div class="row align-items-center">
                 <div class="col-lg-6 order-lg-1 order-2">
@@ -27,7 +28,11 @@
                         <div class="text-center">
                             <i class="ti ti-clock fs-6 d-block mb-2"></i>
                             <h4 class="mb-0 fw-semibold lh-1">
-                                {{ $course->duration ?? 'N/A' }}h
+                                @if (request('from_date') && request('to_date'))
+                                    {{ $course->filtered_hours ?? 'N/A' }}h
+                                @else
+                                    {{ $course->duration ?? 'N/A' }}h
+                                @endif
                             </h4>
                             <p class="mb-0 fs-4">
                                 Duration
@@ -37,7 +42,11 @@
                         <div class="text-center">
                             <i class="ti ti-calendar-check fs-6 d-block mb-2"></i>
                             <h4 class="mb-0 fw-semibold lh-1">
-                                {{ $course->completed_sessions ?? 0 }} / {{ $course->total_sessions ?? 0 }}
+                                @if (request('from_date') && request('to_date'))
+                                    {{ $course->filtered_sessions ?? 'N/A' }}
+                                @else
+                                    {{ $course->completed_sessions ?? 0 }} / {{ $course->total_sessions ?? 0 }}
+                                @endif
                             </h4>
                             <p class="mb-0 fs-4">
                                 Sessions
@@ -57,8 +66,11 @@
                         <div class="text-center">
                             <i class="ti ti-currency-dollar fs-6 d-block mb-2"></i>
                             <h4 class="mb-0 fw-semibold lh-1">
-                                {{-- getRevenueAttribute() --}}
-                                {{ $course->getRevenueAttribute() }}
+                                @if (request('from_date') && request('to_date'))
+                                    ${{ $course->filtered_earnings ?? 'N/A' }}
+                                @else
+                                    ${{ $course->getRevenueAttribute() }}
+                                @endif
                             </h4>
                             <p class="mb-0 fs-4">
                                 Earning
@@ -201,6 +213,11 @@
                 @endforelse
             </div>
         </div>
+
+
+
+
+
         <div class="tab-pane fade show active" id="pills-attendance" role="tabpanel"
             aria-labelledby="pills-attendance-tab" tabindex="0">
             <div class="row">
@@ -216,8 +233,96 @@
                                 <div class="title">ICT Professional Training Center</div>
                                 <div class="sub-title">Teacher's Attendant</div>
                             </div>
-                        </div>
+                            {{-- <form method="GET" class="row g-2 mb-3">
 
+                                <div class="col-md-6">
+                                    <label class="mb-1">Filter by Date Range</label>
+                                    <div class="input-daterange input-group" id="date-range">
+
+                                        <input type="text" class="form-control" name="from_date"
+                                            placeholder="From date" value="{{ request('from_date') }}"
+                                            id="datepicker-autoclose">
+
+                                        <span class="input-group-text bg-info text-white">TO</span>
+
+                                        <input type="text" class="form-control" name="to_date" placeholder="To date"
+                                            value="{{ request('to_date') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button class="btn btn-primary w-100">
+                                        <i class="ti ti-search"></i> Filter
+                                    </button>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <a href="{{ route('staff.courses.show', $course->id) }}"
+                                        class="btn btn-secondary w-100">
+                                        Reset
+                                    </a>
+                                </div>
+                            </form> --}}
+                        </div>
+                        <form method="GET" class="mb-3">
+                            <div class="filter-bar p-3 rounded-3 bg-light border">
+
+                                <div class="row g-2 align-items-end">
+
+                                    <!-- Date Range -->
+                                    <div class="col-12 col-md-6 col-lg-7">
+                                        <label class="form-label fw-semibold mb-1">
+                                            <i class="ti ti-calendar me-1"></i> Date Range
+                                        </label>
+
+                                        <div class="input-daterange input-group" id="date-range">
+                                            <input type="text" class="form-control" name="from_date"
+                                                placeholder="From"
+                                                value="{{ request('from_date', now()->startOfMonth()->format('Y-m-d')) }}">
+
+                                            <span class="input-group-text bg-primary text-white px-2 px-md-3">
+                                                TO
+                                            </span>
+
+                                            <input type="text" class="form-control" name="to_date" placeholder="To"
+                                                value="{{ request('to_date', now()->endOfMonth()->format('Y-m-d')) }}">
+                                        </div>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="col-12 col-md-6 col-lg-5">
+                                        <div class="d-flex flex-column flex-md-row gap-2">
+
+                                            <button class="btn btn-primary w-100">
+                                                <i class="ti ti-search me-1"></i> Filter
+                                            </button>
+
+                                            <a href="{{ route('staff.courses.show', $course->id) }}"
+                                                class="btn btn-outline-secondary w-100">
+                                                Reset
+                                            </a>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                        {{-- @if (request('from_date') && request('to_date'))
+                            <div class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <strong>Filtered:</strong>
+                                    {{ request('from_date') }} → {{ request('to_date') }}
+                                </div>
+
+                                <div class="d-flex gap-4">
+                                    <span><strong>Hours:</strong> {{ $course->filtered_hours ?? 0 }}</span>
+                                    <span><strong>Sessions:</strong> {{ $course->filtered_sessions ?? 0 }}</span>
+                                    <span><strong>Earnings:</strong> ${{ $course->filtered_earnings ?? 0 }}</span>
+                                </div>
+                            </div>
+                        @endif --}}
                         <!-- Teacher -->
                         <div class="info-row">
                             <div class="info-label">
@@ -255,13 +360,9 @@
                                     @else
                                         <span class="text-muted">No schedule</span>
                                     @endif
-
-
                                 </strong>
                             </div>
                         </div>
-
-
                         <!-- Table -->
                         <form action="{{ route('staff.teacher.attendance.update') }}" method="POST">
                             @csrf
@@ -419,14 +520,11 @@
         </div>
         {{-- Student's Attendant --}}
         <div class="tab-pane fade" id="pills-student-attendance" role="tabpanel">
-
             @php
                 $data = $attendanceData;
                 $dates = array_slice($data['table_structure']['columns'], 5);
             @endphp
-
             <div class="sheet mt-4">
-
                 <!-- TOP INFO -->
                 <table class="meta-table mb-3">
                     <tr>
@@ -485,17 +583,8 @@
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
-                <!-- EXPORT BUTTONS -->
-                {{-- <div class="mt-3 d-flex gap-2">
-                    <a href="{{ route('staff.student.attendance.export.pdf', $course->id) }}"
-                        class="btn btn-danger btn-sm">Export PDF</a>
-
-                    <a href="{{ route('staff.student.attendance.export.excel', $course->id) }}"
-                        class="btn btn-success btn-sm">Export Excel</a>
-                </div> --}}
             </div>
         </div>
     </div>
@@ -503,6 +592,14 @@
 @push('scripts')
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $('#date-range').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true,
+        });
+    </script>
 
     <script>
         let attendanceIndex = {{ $course->teacherAttendances->count() }};
