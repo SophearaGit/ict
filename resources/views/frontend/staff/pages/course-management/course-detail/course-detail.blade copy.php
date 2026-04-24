@@ -12,7 +12,7 @@
             <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
                 alt="" class="img-fluid" style="width: 1200px; height: 200px; object-fit: cover;">
             <div class="row align-items-center">
-                <div class="col-lg-4 order-lg-1 order-2">
+                <div class="col-lg-6 order-lg-1 order-2">
                     <div class="d-flex align-items-center justify-content-around m-4">
                         <div class="text-center">
                             <i class="ti ti-user-check fs-6 d-block mb-2"></i>
@@ -23,9 +23,50 @@
                                 Students
                             </p>
                         </div>
+                        {{-- duration --}}
+                        <div class="text-center">
+                            <i class="ti ti-clock fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{ $course->duration ?? 'N/A' }}h
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Duration
+                            </p>
+                        </div>
+                        {{-- session --}}
+                        <div class="text-center">
+                            <i class="ti ti-calendar-check fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{ $course->completed_sessions ?? 0 }} / {{ $course->total_sessions ?? 0 }}
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Sessions
+                            </p>
+                        </div>
+                        {{-- complete session count
+                        <div class="text-center">
+                            <i class="ti ti-calendar-check fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{ $course->completed_sessions ?? 0 }}
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Completed
+                            </p>
+                        </div> --}}
+                        {{-- Earning --}}
+                        <div class="text-center">
+                            <i class="ti ti-currency-dollar fs-6 d-block mb-2"></i>
+                            <h4 class="mb-0 fw-semibold lh-1">
+                                {{-- getRevenueAttribute() --}}
+                                {{ $course->getRevenueAttribute() }}
+                            </h4>
+                            <p class="mb-0 fs-4">
+                                Earning
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-4 mt-n3 order-lg-2 order-1">
+                <div class="col-lg-2 mt-n3 order-lg-2 order-1">
                     <div class="mt-n5">
                         <div class="d-flex align-items-center justify-content-center mb-2">
                             <div class="linear-gradient d-flex align-items-center justify-content-center rounded-circle"
@@ -90,7 +131,7 @@
     </div>
     <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade" id="pills-students" role="tabpanel" aria-labelledby="pills-students-tab" tabindex="0">
-            <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-4">
+            {{-- <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-4">
                 <h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">
                     Students
                     <span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2">
@@ -102,7 +143,7 @@
                         placeholder="Search Friends">
                     <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y text-dark ms-3"></i>
                 </form>
-            </div>
+            </div> --}}
             <div class="row">
                 @forelse ($course->students as $student)
                     <div class="col-sm-6 col-lg-4">
@@ -169,8 +210,7 @@
                         <!-- Header -->
                         <div class="top-header">
                             <div class="logo">
-                                {{-- logo image --}}
-                                ICT
+                                <i class="ti ti-calendar-check fs-12 me-2"></i>
                             </div>
                             <div>
                                 <div class="title">ICT Professional Training Center</div>
@@ -238,7 +278,9 @@
                                         <th>T H</th>
                                         <th>A T H</th>
                                         <th>Room</th>
-                                        <th>Late (min)</th>
+                                        <th>
+                                            នាទីខ្វះ
+                                        </th>
                                         <th>Note</th>
                                     </tr>
                                 </thead>
@@ -266,21 +308,21 @@
                                                 <td>
                                                     <input type="time"
                                                         name="attendances[{{ $index }}][start_time]"
-                                                        value="{{ $attendance->start_time }}"
+                                                        value="{{ \Carbon\Carbon::parse($attendance->start_time)->format('H:i') }}"
                                                         class="form-control text-dark">
                                                 </td>
 
                                                 <td>
                                                     <input type="time"
                                                         name="attendances[{{ $index }}][end_time]"
-                                                        value="{{ $attendance->end_time }}"
+                                                        value="{{ \Carbon\Carbon::parse($attendance->end_time)->format('H:i') }}"
                                                         class="form-control text-dark">
                                                 </td>
 
                                                 <td>
                                                     <input type="text"
                                                         name="attendances[{{ $index }}][total_hours]"
-                                                        value="{{ $attendance->total_hours }}"
+                                                        value="{{ number_format($attendance->total_hours) }}"
                                                         class="form-control total-hours text-uppercase text-dark text-center"
                                                         readonly>
                                                 </td>
@@ -288,7 +330,7 @@
                                                 <td>
                                                     <input type="text"
                                                         name="attendances[{{ $index }}][actual_hours]"
-                                                        value="{{ $attendance->actual_hours }}"
+                                                        value="{{ number_format($attendance->actual_hours) }}"
                                                         class="form-control actual-hours text-uppercase text-dark text-center"
                                                         readonly>
                                                 </td>
@@ -373,6 +415,87 @@
                         </form>
                     </div>
                 </div>
+            </div>
+        </div>
+        {{-- Student's Attendant --}}
+        <div class="tab-pane fade" id="pills-student-attendance" role="tabpanel">
+
+            @php
+                $data = $attendanceData;
+                $dates = array_slice($data['table_structure']['columns'], 5);
+            @endphp
+
+            <div class="sheet mt-4">
+
+                <!-- TOP INFO -->
+                <table class="meta-table mb-3">
+                    <tr>
+                        <td><strong>Class Start</strong></td>
+                        <td>{{ $data['form_metadata']['class_start'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Room</strong></td>
+                        <td>{{ $data['form_metadata']['room'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lecturer Name</strong></td>
+                        <td>{{ $data['form_metadata']['lecturer_name'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lecturer Phone</strong></td>
+                        <td>{{ $data['form_metadata']['lecturer_phone'] ?? '' }}</td>
+                    </tr>
+                </table>
+
+                <!-- MAIN TABLE -->
+                <div class="table-responsive">
+                    <table class="attendance-sheet">
+
+                        <!-- YELLOW TITLE ROW -->
+                        <thead>
+                            <tr class="title-row">
+                                <th colspan="{{ count($data['table_structure']['columns']) }}">
+                                    {{ $data['form_metadata']['class_title'] }}
+                                </th>
+                            </tr>
+
+                            <!-- PINK DATE HEADER -->
+                            <tr class="date-row">
+                                @foreach ($data['table_structure']['columns'] as $col)
+                                    <th>{{ $col }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+
+                        <!-- BODY -->
+                        <tbody>
+                            @foreach ($data['table_structure']['data_rows'] as $row)
+                                <tr>
+                                    <td>{{ $row['no'] }}</td>
+                                    <td class="text-start">{{ $row['student_name'] }}</td>
+                                    <td>{{ $row['sex'] }}</td>
+                                    <td>{{ $row['day'] }}</td>
+                                    <td>{{ $row['shift'] }}</td>
+
+                                    @foreach ($dates as $date)
+                                        <td>
+                                            {{ $row['attendance'][$date] ?? '' }}
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+
+                    </table>
+                </div>
+                <!-- EXPORT BUTTONS -->
+                {{-- <div class="mt-3 d-flex gap-2">
+                    <a href="{{ route('staff.student.attendance.export.pdf', $course->id) }}"
+                        class="btn btn-danger btn-sm">Export PDF</a>
+
+                    <a href="{{ route('staff.student.attendance.export.excel', $course->id) }}"
+                        class="btn btn-success btn-sm">Export Excel</a>
+                </div> --}}
             </div>
         </div>
     </div>
