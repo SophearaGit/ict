@@ -12,6 +12,7 @@ use App\Http\Controllers\Frontend\{
 };
 
 use App\Http\Controllers\Frontend\Staff\{
+    StudentReportController,
     IctCourseController,
     IctScheduleController,
     StaffDashboardController,
@@ -21,7 +22,6 @@ use App\Http\Controllers\Frontend\Staff\{
     TecherAttendancesController
 };
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
-use App\Models\TeacherAttendances;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -127,6 +127,12 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::delete('/course-content/{id}/delete-lesson', [CourseContentController::class, 'deleteLessonModal'])->name('course-content.delete-lesson');
         Route::post('/course-chapter/{chapter_id}/sort-lesson', [CourseContentController::class, 'sortLesson'])->name('course-chapter.sort-lesson');
 
+          /*******************************************************
+         * STUDENT REPORT
+         *******************************************************/
+        Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
+
+
         /*******************************************************
          * LARAVEL FILE MANAGER
          *******************************************************/
@@ -192,6 +198,9 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          * REPORTS RESOURCE ROUTES
          *******************************************************/
         Route::resource('/reports', IctStaffReportController::class);
+
+        // student report
+        Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
 
 
     });

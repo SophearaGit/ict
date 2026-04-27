@@ -1,0 +1,105 @@
+<style>
+    .attendance-wrapper {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* Header (clean, no gradient) */
+    .attendance-header-card {
+        background: #f9fafb;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+    }
+
+    /* Table container */
+    .attendance-table-container {
+        overflow-x: auto;
+    }
+
+    /* Table */
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    /* Title */
+    .title-row th {
+        background: #ffffff;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 12px;
+        text-align: left;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    /* Header */
+    .header-row th {
+        background: #f9fafb;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 10px;
+        color: #6b7280;
+        border-bottom: 1px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    /* Cells */
+    .attendance-table td {
+        padding: 10px;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #111827;
+    }
+
+    /* Subtle zebra */
+    .attendance-table tbody tr:nth-child(even) {
+        background: #fcfcfd;
+    }
+
+    /* Hover */
+    .attendance-table tbody tr:hover {
+        background: #f5f7fa;
+    }
+
+    /* Status (minimal, professional) */
+    .status-cell {
+        font-weight: 500;
+    }
+
+    /* Small indicators instead of strong colors */
+    .status-present {
+        color: #16a34a; /* soft green */
+    }
+
+    .status-absent {
+        color: #dc2626; /* soft red */
+    }
+
+    .status-late {
+        color: #ca8a04; /* muted yellow */
+    }
+
+    /* Optional: make first columns stronger */
+    .attendance-table td:nth-child(2) {
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .attendance-table td,
+        .attendance-table th {
+            font-size: 11px;
+            padding: 8px;
+        }
+    }
+
+</style>

@@ -10,10 +10,9 @@
             </span>
         </button>
     </li>
-    {{-- Teacher Attendance --}}
     <li class="nav-item" role="presentation">
         <button
-            class=" active nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6"
+            class="  nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6"
             id="pills-attendance-tab" data-bs-toggle="pill" data-bs-target="#pills-attendance" type="button"
             role="tab" aria-controls="pills-attendance" aria-selected="false" tabindex="-1">
             <i class="ti ti-calendar me-2 fs-6"></i>
@@ -22,7 +21,6 @@
             </span>
         </button>
     </li>
-    {{-- Student's Attendant --}}
     <li class="nav-item" role="presentation">
         <button
             class=" nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6"
@@ -34,4 +32,18 @@
             </span>
         </button>
     </li>
+    {{-- Student Report --}}
+    <li class="nav-item" role="presentation">
+        <button
+            class=" active nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6"
+            id="pills-student-report-tab" data-bs-toggle="pill" data-bs-target="#pills-student-report" type="button"
+            role="tab" aria-controls="pills-student-report" aria-selected="false" tabindex="-1">
+            <i class="ti ti-file-text me-2 fs-6"></i>
+            <span class="d-none d-md-block">
+                Student Report
+            </span>
+        </button>
+    </li>
+
+
 </ul>
