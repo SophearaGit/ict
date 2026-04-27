@@ -36,6 +36,11 @@ class ICTCourse extends Model
         'duration',
     ];
 
+    public function studentReports()
+    {
+        return $this->hasMany(StudentReports::class, 'course_id');
+    }
+
     public function getRevenueAttribute()
     {
         $totalATH = $this->teacherAttendances->last()->actual_hours ?? 0;

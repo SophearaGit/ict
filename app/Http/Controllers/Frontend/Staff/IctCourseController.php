@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\ICTCourse;
 use App\Models\ICTSchedule;
 use App\Models\StudentAttendances;
+use App\Models\StudentReports;
 use App\Models\TeacherAttendances;
 use App\Models\User;
 use App\Traites\FileUpload;
@@ -41,17 +42,20 @@ class IctCourseController extends Controller
     }
 
 
+
+
     public function show(Request $request, $id): View
     {
         $course = ICTCourse::with([
             'students.student_attendances' => fn($q) => $q->where('course_id', $id),
+            'studentReports.student',
             'instructor',
             'schedule'
         ])->findOrFail($id);
 
         /*
         |--------------------------------------------------------------------------
-        | 🔎 DATE FILTER
+        | 🔎 DATE FILTER (TEACHER ATTENDANCE)
         |--------------------------------------------------------------------------
         */
         $fromDate = $request->from_date;
@@ -67,7 +71,7 @@ class IctCourseController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | 🔥 FIX: RECALCULATE ATH (CUMULATIVE) BASED ON FILTERED DATA
+        | 🔥 RECALCULATE ATH (CUMULATIVE)
         |--------------------------------------------------------------------------
         */
         $cumulativeATH = 0;
@@ -78,7 +82,6 @@ class IctCourseController extends Controller
 
             $cumulativeATH += $hours;
 
-            // Override DB value
             $att->actual_hours = round($cumulativeATH, 2);
 
             return $att;
@@ -99,20 +102,18 @@ class IctCourseController extends Controller
 
         $earnings = $completedSessions * ($course->price_per_session ?? 0);
 
-        // Attach filtered values
         $course->filtered_hours = round($totalHours, 2);
         $course->filtered_sessions = $completedSessions;
         $course->filtered_earnings = round($earnings, 2);
 
         /*
         |--------------------------------------------------------------------------
-        | 📈 ORIGINAL COURSE PROGRESS (UNFILTERED)
+        | 📈 ORIGINAL COURSE PROGRESS
         |--------------------------------------------------------------------------
         */
         $latestAttendance = $course->teacherAttendances()->latest()->first();
 
         $totalATH = $latestAttendance->actual_hours ?? 0;
-
         $duration = $course->duration ?? 0;
 
         $progress = $duration > 0
@@ -121,7 +122,6 @@ class IctCourseController extends Controller
 
         $course->progress = min(round($progress, 2), 100);
 
-        // Overall sessions
         $course->total_sessions = $duration > 0
             ? round($duration / $sessionDuration)
             : 0;
@@ -130,7 +130,6 @@ class IctCourseController extends Controller
             ? floor($totalATH / $sessionDuration)
             : 0;
 
-        // Overall earnings
         $course->earnings = round(
             $course->completed_sessions * ($course->price_per_session ?? 0),
             2
@@ -145,7 +144,7 @@ class IctCourseController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | 👨‍🎓 STUDENT ATTENDANCE (UNCHANGED)
+        | 👨‍🎓 STUDENT ATTENDANCE TABLE (UNCHANGED)
         |--------------------------------------------------------------------------
         */
         $dates = StudentAttendances::where('course_id', $id)
@@ -204,22 +203,73 @@ class IctCourseController extends Controller
                     $formattedDates->toArray()
                 ),
                 "data_rows" => $rows
-            ],
-            "visual_elements" => [
-                "header_color" => "Yellow (#FFFF00)",
-                "date_row_color" => "Light Pink (#F4CCCC)",
-                "attendance_keys" => [
-                    "A" => "Absent",
-                    "P" => "Present",
-                    "L" => "Late"
-                ]
             ]
         ];
 
-        return view('frontend.staff.pages.course-management.course-detail.course-detail', [
-            'course' => $course,
-            'attendanceData' => $attendanceData
-        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | 🧮 STUDENT REPORT (AUTO CALCULATE)
+        |--------------------------------------------------------------------------
+        */
+        foreach ($course->students as $student) {
+
+            $attendances = $student->student_attendances;
+
+            $present = $attendances->where('status', 'present')->count();
+            $absent = $attendances->where('status', 'absent')->count();
+            $permission = $attendances->where('status', 'late')->count();
+
+            $totalClasses = $present + $absent + $permission;
+
+            $attendanceScore = $totalClasses > 0
+                ? ($present / $totalClasses) * 100
+                : 0;
+
+            // Keep existing scores if already entered
+            $existing = StudentReports::where([
+                'course_id' => $course->id,
+                'student_id' => $student->id
+            ])->first();
+
+            $assignment = $existing->assignment_score ?? 0;
+            $mini = $existing->mini_project_score ?? 0;
+            $final = $existing->final_project_score ?? 0;
+
+            $totalScore =
+                ($attendanceScore * 0.10) +
+                ($assignment * 0.20) +
+                ($mini * 0.20) +
+                ($final * 0.50);
+
+            $result = $totalScore >= 50 ? 'pass' : 'fail';
+
+            StudentReports::updateOrCreate(
+                [
+                    'course_id' => $course->id,
+                    'student_id' => $student->id
+                ],
+                [
+                    'present' => $present,
+                    'absent' => $absent,
+                    'permission' => $permission,
+                    'attendance_score' => round($attendanceScore, 2),
+                    'assignment_score' => $assignment,
+                    'mini_project_score' => $mini,
+                    'final_project_score' => $final,
+                    'total_score' => round($totalScore, 2),
+                    'result' => $result
+                ]
+            );
+        }
+
+        return view(
+            'frontend.staff.pages.course-management.course-detail.course-detail',
+            [
+                'page_title' => 'ICT | Staff | Course Detail',
+                'course' => $course,
+                'attendanceData' => $attendanceData
+            ]
+        );
     }
 
 
