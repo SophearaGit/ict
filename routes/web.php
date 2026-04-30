@@ -44,6 +44,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
          * DASHBOARD
          *******************************************************/
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/my-courses/{course_id}', [StudentDashboardController::class, 'myCourseDetail'])->name('my.course.detail');
 
         /*******************************************************
          * INSTRUCTOR REQUEST

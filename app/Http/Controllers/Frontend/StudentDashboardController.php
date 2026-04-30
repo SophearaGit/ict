@@ -15,10 +15,32 @@ class StudentDashboardController extends Controller
 {
     use FileUpload;
 
+
+    public function myCourses(): View
+    {
+        $data = [
+            'page_title' => 'ICT | My Courses',
+            'enrolled_courses' => auth()->user()->enrollments()->with('course')->get(),
+        ];
+        return view('frontend.student.pages.my-courses.my-courses', $data);
+    }
+
+    // myCourseDetail
+    public function myCourseDetail($courseId): View
+    {
+        $data = [
+            'page_title' => 'ICT | My Course Detail',
+            'course' => auth()->user()->enrollments()->with('course')->where('course_id', $courseId)->firstOrFail()->course,
+            'classmates' => auth()->user()->enrollments()->with('course')->where('course_id', $courseId)->firstOrFail()->course->enrollments()->with('student')->get(),
+        ];
+        return view('frontend.student.pages.my-courses.my-course-detail', $data);
+    }
+
     public function index(): View
     {
         $data = [
             'page_title' => 'ICT | Student Dashboard',
+            'enrolled_courses' => auth()->user()->enrollments()->with('course')->get(),
         ];
         return view('frontend.student.index', $data);
     }

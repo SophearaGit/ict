@@ -566,6 +566,7 @@
             background: #3210c7;
         }
 
+
         @media (max-width: 768px) {
             .teacher-modal {
                 padding: 18px;
@@ -1003,53 +1004,39 @@
                 </button>
             </div>
 
-            <form id="addTeacherForm">
+            <form id="addTeacherForm" action="{{ route('admin.instructor.store') }}" method="POST"
+                enctype="multipart/form-data">
+                @csrf
                 <div class="modal-form-grid">
+                    {{-- name="name" --}}
                     <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="teacherName" placeholder="Enter teacher name" required>
+                        <label>Full Name <span class="text-danger">*</span></label>
+                        <input type="text" id="teacherName" name="name" placeholder="Enter teacher name" required>
                     </div>
-
+                    {{-- name="email" --}}
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="teacherEmail" placeholder="Enter email" required>
+                        <label>Email <span class="text-danger">*</span></label>
+                        <input type="email" id="teacherEmail" name="email" placeholder="Enter teacher email"
+                            required>
                     </div>
-
+                    {{-- name="password" --}}
                     <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" id="teacherLocation" placeholder="Enter location" required>
+                        <label>Password <span class="text-danger">*</span></label>
+                        <input type="password" id="teacherPassword" name="password" placeholder="Enter password"
+                            required>
                     </div>
-
+                    {{-- name="password_confirmation" --}}
                     <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" id="teacherPhone" placeholder="Enter phone number" required>
+                        <label>Confirm Password <span class="text-danger">*</span></label>
+                        <input type="password" id="teacherPasswordConfirmation" name="password_confirmation"
+                            placeholder="Confirm password" required>
                     </div>
-
+                    {{-- name="document" --}}
                     <div class="form-group">
-                        <label>Subject</label>
-                        <input type="text" id="teacherSubject" placeholder="Enter subject" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Rating</label>
-                        <input type="number" id="teacherRating" min="0" max="5" step="0.1"
-                            placeholder="Enter rating" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="teacherStatus" required>
-                            <option value="Active">Active</option>
-                            <option value="On Leave">On Leave</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Photo URL</label>
-                        <input type="text" id="teacherImage" placeholder="Enter image URL">
+                        <label>Document</label>
+                        <input type="file" id="teacherDocument" name="document" accept=".pdf,.doc,.docx">
                     </div>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" class="cancel-btn" id="cancelModalBtn">Cancel</button>
                     <button type="submit" class="save-btn">Save Teacher</button>
@@ -1201,63 +1188,6 @@
                 }
             });
 
-            $("#addTeacherForm").on("submit", function(e) {
-                e.preventDefault();
-
-                let name = $("#teacherName").val().trim();
-                let email = $("#teacherEmail").val().trim();
-                let location = $("#teacherLocation").val().trim();
-                let phone = $("#teacherPhone").val().trim();
-                let subject = $("#teacherSubject").val().trim();
-                let rating = $("#teacherRating").val().trim();
-                let status = $("#teacherStatus").val();
-                let image = $("#teacherImage").val().trim();
-
-                if (image === "") {
-                    image = "https://i.pravatar.cc/150?img=25";
-                }
-
-                let statusBadgeClass = status === "Active" ? "status-active" : "status-leave";
-
-                let newTeacherCard = `
-                <div class="teacher-card"
-                    data-name="${name}"
-                    data-email="${email}"
-                    data-location="${location}"
-                    data-phone="${phone}"
-                    data-subject="${subject}"
-                    data-rating="${rating}"
-                    data-status="${status}"
-                    data-image="${image}">
-
-                    <div class="status-badge ${statusBadgeClass}">${status}</div>
-                    <img class="teacher-image" src="${image}" alt="${name}">
-
-                    <div class="teacher-details">
-                        <div class="teacher-name">${name}</div>
-                        <div class="info-line"><span>✉</span><span>${email}</span></div>
-                        <div class="info-line"><span>📍</span><span>${location}</span></div>
-                        <div class="info-line"><span>📞</span><span>${phone}</span></div>
-                        <div class="divider"></div>
-                        <div class="subject-row">
-                            <span class="label">Subject:</span>
-                            <span class="value">${subject}</span>
-                        </div>
-                        <div class="rating-row">
-                            <span class="label">Rating:</span>
-                            <span class="rating-badge">${rating} ★</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-                $("#teacherCardView").append(newTeacherCard);
-
-                buildTeacherTable();
-
-                this.reset();
-                modal.removeClass("show");
-            });
         });
     </script>
 @endpush

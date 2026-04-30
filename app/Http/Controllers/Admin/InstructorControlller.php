@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\ICTCourse;
+use App\Traites\FileUpload;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class InstructorControlller extends Controller
 {
+
+    use FileUpload;
+
     public function index(Request $request): View
     {
         $instructors = User::with(['courses'])
@@ -51,6 +57,32 @@ class InstructorControlller extends Controller
             'instructors' => $instructors,
             'subjects' => $subjects,
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'document' => 'required|file|mimes:pdf,doc,docx,jpg,png|max:12000',
+        ]);
+
+        if ($request->hasFile('document')) {
+            $filePath = $this->uploadFile($request->file('document'));
+        }
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'instructor',
+            'approval_status' => 'approved',
+            'document' => $filePath,
+        ]);
+
+        return redirect()->route('admin.instructor.index')
+            ->with('success', 'Instructor created successfully.');
     }
 
 
