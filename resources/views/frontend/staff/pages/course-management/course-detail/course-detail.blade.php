@@ -301,22 +301,19 @@
                                     <td>
                                         <input type="number" class="form-control score-input"
                                             data-id="{{ $report->id }}" data-field="assignment_score"
-                                            value="{{ number_format($report->assignment_score) }}"
-                                            readonly>
+                                            value="{{ number_format($report->assignment_score) }}" readonly>
                                     </td>
 
                                     <td>
                                         <input type="number" class="form-control score-input"
                                             data-id="{{ $report->id }}" data-field="mini_project_score"
-                                            value="{{ number_format($report->mini_project_score) }}"
-                                            readonly>
+                                            value="{{ number_format($report->mini_project_score) }}" readonly>
                                     </td>
 
                                     <td>
                                         <input type="number" class="form-control score-input"
                                             data-id="{{ $report->id }}" data-field="final_project_score"
-                                            value="{{ number_format($report->final_project_score) }}"
-                                            readonly>
+                                            value="{{ number_format($report->final_project_score) }}" readonly>
                                     </td>
 
                                     <!-- Auto -->
@@ -368,9 +365,7 @@
             autoclose: true,
             todayHighlight: true,
         });
-    </script>
 
-    <script>
         $(document).on('change', '.score-input', function() {
 
             let input = $(this);
@@ -397,9 +392,7 @@
                 }
             });
         });
-    </script>
 
-    <script>
         let attendanceIndex = {{ $course->teacherAttendances->count() }};
 
         function formatDate(date) {

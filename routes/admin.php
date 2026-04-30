@@ -76,6 +76,8 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
      * INSTRUCTOR & STUDENT & STAFF
      *******************************************************/
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
+    Route::post('/instructor', [InstructorControlller::class, 'store'])->name('instructor.store');
+
     Route::get('/instructor/{id}', [InstructorControlller::class, 'instructorShowDetail'])->name('instructor.show.detail');
 
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
@@ -89,11 +91,6 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
     Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
     Route::patch('/staff/{id}/toggle', [StaffController::class, 'toggle'])
         ->name('staff.toggle');
-
-
-
-
-
 
 
     /*******************************************************

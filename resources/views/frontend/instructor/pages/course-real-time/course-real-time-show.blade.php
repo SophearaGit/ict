@@ -178,8 +178,31 @@
                         attendances: attendances,
                         _token: "{{ csrf_token() }}"
                     },
-                    success: function() {
+                    success: function(res) {
+
                         showSavedIndicator();
+
+                        let reports = res.reports;
+
+                        Object.keys(reports).forEach(studentId => {
+
+                            let row = $(`#report-row-${studentId}`);
+
+                            if (!row.length) return;
+
+                            let report = reports[studentId];
+
+                            row.find('.present').text(report.present);
+                            row.find('.absent').text(report.absent);
+                            row.find('.permission').text(report.permission);
+                            row.find('.total-score').text(report.total_score);
+
+                            let badge = row.find('.badge');
+                            badge.text(report.result);
+                            badge.removeClass('bg-success bg-danger');
+                            badge.addClass(report.result === 'pass' ? 'bg-success' :
+                                'bg-danger');
+                        });
                     }
                 });
             }
@@ -715,7 +738,7 @@
 
                                                 <tbody>
                                                     @foreach ($course->studentReports as $i => $report)
-                                                        <tr>
+                                                        <tr id="report-row-{{ $report->student_id }}">
                                                             <td>{{ $i + 1 }}</td>
                                                             <td class="text-start">{{ $report->student->name }}</td>
                                                             {{-- <td>{{ $report->student->gender }}</td> --}}
