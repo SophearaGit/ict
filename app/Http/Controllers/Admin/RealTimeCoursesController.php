@@ -6,41 +6,96 @@ use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
 use App\Models\ICTSchedule;
 use App\Models\StudentAttendances;
+use App\Models\StudentReports;
 use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
+use Illuminate\Contracts\View\View;
 
 class RealTimeCoursesController extends Controller
 {
     use FileUpload;
 
-    public function realtimeShow($id)
+    public function realtimeShow(Request $request, $id): View
     {
         $course = ICTCourse::with([
             'students.student_attendances' => fn($q) => $q->where('course_id', $id),
+            'studentReports.student',
             'instructor',
             'schedule'
         ])->findOrFail($id);
 
-        // Sessions logic
+        /*
+        |--------------------------------------------------------------------------
+        | 🔎 DATE FILTER (TEACHER ATTENDANCE)
+        |--------------------------------------------------------------------------
+        */
+        $fromDate = $request->from_date;
+        $toDate = $request->to_date;
+
+        $attendanceQuery = $course->teacherAttendances();
+
+        if ($fromDate && $toDate) {
+            $attendanceQuery->whereBetween('date', [$fromDate, $toDate]);
+        }
+
+        $filteredAttendances = $attendanceQuery->orderBy('date')->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | 🔥 RECALCULATE ATH (CUMULATIVE)
+        |--------------------------------------------------------------------------
+        */
+        $cumulativeATH = 0;
+
+        $filteredAttendances = $filteredAttendances->map(function ($att) use (&$cumulativeATH) {
+
+            $hours = (float) $att->total_hours;
+
+            $cumulativeATH += $hours;
+
+            $att->actual_hours = round($cumulativeATH, 2);
+
+            return $att;
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 📊 FILTERED CALCULATIONS
+        |--------------------------------------------------------------------------
+        */
+        $totalHours = $filteredAttendances->sum('total_hours');
+
         $sessionDuration = 1.5;
 
-        // Total taught hours
-        $totalATH = $course->teacherAttendances()->latest()->first()->actual_hours ?? 0;
+        $completedSessions = $totalHours > 0
+            ? floor($totalHours / $sessionDuration)
+            : 0;
 
-        // Course duration
+        $earnings = $completedSessions * ($course->price_per_session ?? 0);
+
+        $course->filtered_hours = round($totalHours, 2);
+        $course->filtered_sessions = $completedSessions;
+        $course->filtered_earnings = round($earnings, 2);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 📈 ORIGINAL COURSE PROGRESS
+        |--------------------------------------------------------------------------
+        */
+        $latestAttendance = $course->teacherAttendances()->latest()->first();
+
+        $totalATH = $latestAttendance->actual_hours ?? 0;
         $duration = $course->duration ?? 0;
 
-        // Progress %
-        $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
-        $course->progress = min(round($progress, 2), 100);
+        $progress = $duration > 0
+            ? ($totalATH / $duration) * 100
+            : 0;
 
-        // Sessions logic
-        $sessionDuration = 1.5;
+        $course->progress = min(round($progress, 2), 100);
 
         $course->total_sessions = $duration > 0
             ? round($duration / $sessionDuration)
@@ -50,20 +105,33 @@ class RealTimeCoursesController extends Controller
             ? floor($totalATH / $sessionDuration)
             : 0;
 
-        // Earnings logic
-        $course->earnings = round($course->completed_sessions * ($course->price_per_session ?? 0), 2);
+        $course->earnings = round(
+            $course->completed_sessions * ($course->price_per_session ?? 0),
+            2
+        );
 
-        // ✅ Get all unique dates
+        /*
+        |--------------------------------------------------------------------------
+        | 🔁 REPLACE RELATION WITH FILTERED DATA
+        |--------------------------------------------------------------------------
+        */
+        $course->setRelation('teacherAttendances', $filteredAttendances);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 👨‍🎓 STUDENT ATTENDANCE TABLE (UNCHANGED)
+        |--------------------------------------------------------------------------
+        */
         $dates = StudentAttendances::where('course_id', $id)
             ->select('date')
             ->distinct()
             ->orderBy('date')
             ->pluck('date');
 
-        // Format dates (15/02/2026)
-        $formattedDates = $dates->map(fn($d) => Carbon::parse($d)->format('d/m/Y'));
+        $formattedDates = $dates->map(
+            fn($d) => Carbon::parse($d)->format('d/m/Y')
+        );
 
-        // ✅ Build rows
         $rows = [];
 
         foreach ($course->students as $index => $student) {
@@ -86,7 +154,8 @@ class RealTimeCoursesController extends Controller
                 "student_name" => $student->name,
                 "sex" => $student->gender ?? 'M',
                 "day" => $course->schedule->study_day ?? 'Sunday',
-                "shift" => optional($course->schedule)->start_time && optional($course->schedule)->end_time
+                "shift" => optional($course->schedule)->start_time &&
+                    optional($course->schedule)->end_time
                     ? Carbon::parse($course->schedule->start_time)->format('g:i') . '-' .
                     Carbon::parse($course->schedule->end_time)->format('g:i A')
                     : '-',
@@ -94,7 +163,6 @@ class RealTimeCoursesController extends Controller
             ];
         }
 
-        // ✅ Final structured data
         $attendanceData = [
             "form_metadata" => [
                 "software" => "Google Sheets",
@@ -106,19 +174,10 @@ class RealTimeCoursesController extends Controller
             ],
             "table_structure" => [
                 "columns" => array_merge(
-                    ["NO", "Student Name", "Sex", "Date", "Shift"],
+                    ["NO", "Name", "Sex", "Date", "Shift"],
                     $formattedDates->toArray()
                 ),
                 "data_rows" => $rows
-            ],
-            "visual_elements" => [
-                "header_color" => "Yellow (#FFFF00)",
-                "date_row_color" => "Light Pink (#F4CCCC)",
-                "attendance_keys" => [
-                    "A" => "Absent",
-                    "P" => "Present",
-                    "L" => "Late"
-                ]
             ]
         ];
 
@@ -128,61 +187,192 @@ class RealTimeCoursesController extends Controller
             ->latest()
             ->get();
 
-        return view('admin.pages.real-time-courses-detail.real-time-courses-detail', [
-            'course' => $course,
-            'attendanceData' => $attendanceData,
-            'other_courses' => $others_courses,
-            'page_title' => 'ICT | ADMIN | REAL TIME COURSE DETAIL',
-        ]);
+        // Paginate students (IMPORTANT)
+        $students = $course->students()->paginate(5); // 5 per page
+
+        /*
+        |--------------------------------------------------------------------------
+        | 🧮 STUDENT REPORT (AUTO CALCULATE)
+        |--------------------------------------------------------------------------
+        */
+        foreach ($course->students as $student) {
+
+            $attendances = $student->student_attendances;
+
+            $present = $attendances->where('status', 'present')->count();
+            $absent = $attendances->where('status', 'absent')->count();
+            $permission = $attendances->where('status', 'late')->count();
+
+            $totalClasses = $present + $absent + $permission;
+
+            $attendanceScore = $totalClasses > 0
+                ? ($present / $totalClasses) * 100
+                : 0;
+
+            // Keep existing scores if already entered
+            $existing = StudentReports::where([
+                'course_id' => $course->id,
+                'student_id' => $student->id
+            ])->first();
+
+            $assignment = $existing->assignment_score ?? 0;
+            $mini = $existing->mini_project_score ?? 0;
+            $final = $existing->final_project_score ?? 0;
+
+            $totalScore =
+                ($attendanceScore * 0.10) +
+                ($assignment * 0.20) +
+                ($mini * 0.20) +
+                ($final * 0.50);
+
+            $result = $totalScore >= 50 ? 'pass' : 'fail';
+
+            StudentReports::updateOrCreate(
+                [
+                    'course_id' => $course->id,
+                    'student_id' => $student->id
+                ],
+                [
+                    'present' => $present,
+                    'absent' => $absent,
+                    'permission' => $permission,
+                    'attendance_score' => round($attendanceScore, 2),
+                    'assignment_score' => $assignment,
+                    'mini_project_score' => $mini,
+                    'final_project_score' => $final,
+                    'total_score' => round($totalScore, 2),
+                    'result' => $result
+                ]
+            );
+        }
+
+        return view(
+            'admin.pages.real-time-courses-detail.real-time-courses-detail',
+            [
+                'page_title' => 'ICT | Staff | Course Detail',
+                'course' => $course,
+                'attendanceData' => $attendanceData,
+                'students' => $students,
+                'other_courses' => $others_courses,
+            ]
+        );
     }
 
-    // public function realtimeIndex(Request $request)
+    // public function realtimeShow($id)
     // {
-    //     $courses = ICTCourse::query();
+    //     $course = ICTCourse::with([
+    //         'students.student_attendances' => fn($q) => $q->where('course_id', $id),
+    //         'instructor',
+    //         'schedule'
+    //     ])->findOrFail($id);
 
-    //     // Search
-    //     if ($request->filled('search_query')) {
-    //         $courses->where('title', 'like', '%' . $request->search_query . '%');
+    //     // Sessions logic
+    //     $sessionDuration = 1.5;
+
+    //     // Total taught hours
+    //     $totalATH = $course->teacherAttendances()->latest()->first()->actual_hours ?? 0;
+
+    //     // Course duration
+    //     $duration = $course->duration ?? 0;
+
+    //     // Progress %
+    //     $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
+    //     $course->progress = min(round($progress, 2), 100);
+
+    //     // Sessions logic
+    //     $sessionDuration = 1.5;
+
+    //     $course->total_sessions = $duration > 0
+    //         ? round($duration / $sessionDuration)
+    //         : 0;
+
+    //     $course->completed_sessions = $totalATH > 0
+    //         ? floor($totalATH / $sessionDuration)
+    //         : 0;
+
+    //     // Earnings logic
+    //     $course->earnings = round($course->completed_sessions * ($course->price_per_session ?? 0), 2);
+
+    //     // ✅ Get all unique dates
+    //     $dates = StudentAttendances::where('course_id', $id)
+    //         ->select('date')
+    //         ->distinct()
+    //         ->orderBy('date')
+    //         ->pluck('date');
+
+    //     // Format dates (15/02/2026)
+    //     $formattedDates = $dates->map(fn($d) => Carbon::parse($d)->format('d/m/Y'));
+
+    //     // ✅ Build rows
+    //     $rows = [];
+
+    //     foreach ($course->students as $index => $student) {
+
+    //         $attendanceMap = [];
+
+    //         foreach ($student->student_attendances as $att) {
+    //             $formatted = Carbon::parse($att->date)->format('d/m/Y');
+
+    //             $attendanceMap[$formatted] = match ($att->status) {
+    //                 'present' => 'P',
+    //                 'absent' => 'A',
+    //                 'late' => 'L',
+    //                 default => '-'
+    //             };
+    //         }
+
+    //         $rows[] = [
+    //             "no" => $index + 1,
+    //             "student_name" => $student->name,
+    //             "sex" => $student->gender ?? 'M',
+    //             "day" => $course->schedule->study_day ?? 'Sunday',
+    //             "shift" => optional($course->schedule)->start_time && optional($course->schedule)->end_time
+    //                 ? Carbon::parse($course->schedule->start_time)->format('g:i') . '-' .
+    //                 Carbon::parse($course->schedule->end_time)->format('g:i A')
+    //                 : '-',
+    //             "attendance" => $attendanceMap
+    //         ];
     //     }
 
-    //     // Schedule filter
-    //     if ($request->filled('schedule_ids')) {
-    //         $courses->whereHas('schedule', function ($q) use ($request) {
-    //             $q->whereIn('id', $request->schedule_ids);
-    //         });
-    //     }
+    //     // ✅ Final structured data
+    //     $attendanceData = [
+    //         "form_metadata" => [
+    //             "software" => "Google Sheets",
+    //             "class_title" => $course->title,
+    //             "class_start" => optional($course->created_at)->format('d-M-Y'),
+    //             "room" => "D",
+    //             "lecturer_name" => $course->instructor->name ?? '',
+    //             "lecturer_phone" => $course->instructor->phone ?? null,
+    //         ],
+    //         "table_structure" => [
+    //             "columns" => array_merge(
+    //                 ["NO", "Student Name", "Sex", "Date", "Shift"],
+    //                 $formattedDates->toArray()
+    //             ),
+    //             "data_rows" => $rows
+    //         ],
+    //         "visual_elements" => [
+    //             "header_color" => "Yellow (#FFFF00)",
+    //             "date_row_color" => "Light Pink (#F4CCCC)",
+    //             "attendance_keys" => [
+    //                 "A" => "Absent",
+    //                 "P" => "Present",
+    //                 "L" => "Late"
+    //             ]
+    //         ]
+    //     ];
 
-    //     // ✅ Status filter
-    //     if ($request->filled('status')) {
-    //         $courses->where('status', $request->status);
-    //     }
+    //     // othher courses by the same instructor
+    //     $others_courses = ICTCourse::where('instructor_id', $course->instructor_id)
+    //         ->where('id', '!=', $course->id)
+    //         ->latest()
+    //         ->get();
 
-    //     $courses = ICTCourse::query()
-    //         ->withCount('enrollments')
-    //         ->addSelect([
-    //             'total_revenue' => DB::table('i_c_t_invoice_items')
-    //                 ->join('i_c_t_invoices', 'i_c_t_invoice_items.invoice_id', '=', 'i_c_t_invoices.id')
-    //                 ->join('i_c_t_payments', 'i_c_t_invoices.id', '=', 'i_c_t_payments.invoice_id')
-    //                 ->whereColumn('i_c_t_invoice_items.course_id', 'i_c_t_courses.id')
-    //                 ->selectRaw("
-    //             COALESCE(SUM(
-    //                 i_c_t_payments.amount *
-    //                 (i_c_t_invoice_items.total / i_c_t_invoices.total_amount)
-    //             ), 0)
-    //         ")
-    //         ])
-    //         ->orderBy('title', 'asc')
-    //         ->paginate(6)
-    //         ->withQueryString(); // ✅ KEEP THIS
-
-    //     $groupedSchedules = ICTSchedule::all()->groupBy('study_day');
-
-    //     return view('admin.pages.real-time-courses.real-time-courses', [
-    //         'page_title' => 'ICT | ADMIN | REAL TIME COURSES',
-    //         'courses' => $courses,
-    //         'schedules' => ICTSchedule::all(),
-    //         'selected_schedule_ids' => $request->schedule_ids ?? [],
-    //         'groupedSchedules' => $groupedSchedules,
+    //     return view('admin.pages.real-time-courses-detail.real-time-courses-detail', [
+    //         'course' => $course,
+    //         'attendanceData' => $attendanceData,
+    //         'other_courses' => $others_courses,
+    //         'page_title' => 'ICT | ADMIN | REAL TIME COURSE DETAIL',
     //     ]);
     // }
 

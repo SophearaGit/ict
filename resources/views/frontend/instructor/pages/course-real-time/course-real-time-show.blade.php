@@ -6,9 +6,16 @@
         $(document).on('change', '.score-input', function() {
 
             let input = $(this);
+            let value = parseFloat(input.val()) || 0;
+
+            // ✅ clamp 0–100
+            if (value < 0) value = 0;
+            if (value > 100) value = 100;
+
+            input.val(value);
+
             let id = input.data('id');
             let field = input.data('field');
-            let value = input.val();
 
             $.ajax({
                 url: `/instructor/student-report/update/${id}`,
@@ -29,8 +36,7 @@
                 }
             });
         });
-    </script>
-    <script>
+
         document.addEventListener('DOMContentLoaded', function() {
 
             let saveTimeout = null;
@@ -423,38 +429,19 @@
                             </span>
                             <div>
                                 <span class="fs-6 ms-4 align-text-top">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                        <path
-                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                        </path>
-                                    </svg>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                        <path
-                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                        </path>
-                                    </svg>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                        <path
-                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                        </path>
-                                    </svg>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                        <path
-                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                        </path>
-                                    </svg>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                        <path
-                                            d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                        </path>
-                                    </svg>
+                                    {{-- loop 5 time --}}
+                                    @for ($i = 0; $i < 5; $i++)
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                            fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                            <path
+                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
+                                            </path>
+                                        </svg>
+                                    @endfor
                                 </span>
-                                <span class="text-white">(140)</span>
+                                <span class="text-white">
+                                    (5.0)
+                                </span>
                             </div>
                             <span class="text-white ms-4 d-none d-md-block">
                                 <svg width="16" height="16" viewBox="0 0 16
@@ -479,7 +466,7 @@
     <section class="pb-8">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 col-md-12 col-12 mt-n8 mb-4 mb-lg-0">
+                <div class="col-lg-9 col-md-12 col-12 mt-n8 mb-4 mb-lg-0">
                     <!-- Card -->
                     <div class="card rounded-3">
                         <!-- Card header -->
@@ -498,22 +485,19 @@
                                         <a class="nav-link" id="student-attendance-tab" data-bs-toggle="pill"
                                             href="#student-attendance" role="tab" aria-controls="student-attendance"
                                             aria-selected="false">
-                                            Student Attendance
+                                            Student's Attendance
                                         </a>
                                     </li>
-
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="report-tab" data-bs-toggle="pill" href="#report"
+                                            role="tab" aria-controls="report" aria-selected="false"
+                                            tabindex="-1">Student Report</a>
+                                    </li>
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link " id="attendance-tab" data-bs-toggle="pill" href="#attendance"
                                             role="tab" aria-controls="attendance" aria-selected="false"
                                             tabindex="-1">My Attendance</a>
                                     </li>
-
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link active" id="report-tab" data-bs-toggle="pill" href="#report"
-                                            role="tab" aria-controls="report" aria-selected="false"
-                                            tabindex="-1">Student Report</a>
-                                    </li>
-
                                 </ul>
                             </div>
                         </div>
@@ -664,7 +648,7 @@
                                 </div>
 
                                 {{-- student report empty content --}}
-                                <div class="tab-pane fade show active" id="report" role="tabpanel">
+                                <div class="tab-pane fade" id="report" role="tabpanel">
                                     <div class="report-wrapper mt-4 p-4 bg-white rounded-3 shadow-sm">
 
                                         <!-- HEADER -->
@@ -721,7 +705,7 @@
                                                         <th rowspan="2">No</th>
                                                         <th rowspan="2">Name</th>
                                                         {{-- <th rowspan="2">Gender</th> --}}
-                                                        <th colspan="3">Attendance</th>
+                                                        <th colspan="2">Attendance</th>
                                                         <th rowspan="2">Assignment</th>
                                                         <th rowspan="2">Mini Project</th>
                                                         <th rowspan="2">Final Project</th>
@@ -732,7 +716,7 @@
                                                     <tr>
                                                         <th>P</th>
                                                         <th>A</th>
-                                                        <th>AP</th>
+                                                        {{-- <th>AP</th> --}}
                                                     </tr>
                                                 </thead>
 
@@ -746,28 +730,28 @@
                                                             <!-- Attendance -->
                                                             <td>{{ $report->present }}</td>
                                                             <td>{{ $report->absent }}</td>
-                                                            <td>{{ $report->permission }}</td>
+                                                            {{-- <td>{{ $report->permission }}</td> --}}
 
                                                             <!-- Editable Scores -->
                                                             <td>
                                                                 <input type="number" class="form-control score-input"
                                                                     data-id="{{ $report->id }}"
                                                                     data-field="assignment_score"
-                                                                    value="{{ number_format($report->assignment_score) }}">
+                                                                    value="{{ $report->assignment_score }}">
                                                             </td>
 
                                                             <td>
                                                                 <input type="number" class="form-control score-input"
                                                                     data-id="{{ $report->id }}"
                                                                     data-field="mini_project_score"
-                                                                    value="{{ number_format($report->mini_project_score) }}">
+                                                                    value="{{ $report->mini_project_score }}">
                                                             </td>
 
                                                             <td>
                                                                 <input type="number" class="form-control score-input"
                                                                     data-id="{{ $report->id }}"
                                                                     data-field="final_project_score"
-                                                                    value="{{ number_format($report->final_project_score) }}">
+                                                                    value="{{ $report->final_project_score }}">
                                                             </td>
 
                                                             <!-- Auto -->
@@ -814,7 +798,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-12 col-12 mt-lg-n8">
+                <div class="col-lg-3 col-md-12 col-12 mt-lg-n8">
                     <!-- Card -->
                     <div class="card  mb-4">
                         <div class="p-1">
@@ -904,10 +888,8 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
             </div>
             <!-- Card -->
@@ -995,3 +977,68 @@
         Saved ✅
     </div>
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const tabButtons = document.querySelectorAll('#tab a[data-bs-toggle="pill"]');
+
+            // 🔥 Default tab = My Attendance
+            const defaultTab = '#attendance';
+
+            // 🔁 Restore from localStorage OR use default
+            let activeTab = localStorage.getItem('instructorActiveTab') || defaultTab;
+
+            let triggerEl = document.querySelector(`#tab a[href="${activeTab}"]`);
+
+            if (triggerEl) {
+                let tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+
+            // 💾 Save selected tab
+            tabButtons.forEach(button => {
+                button.addEventListener('shown.bs.tab', function(event) {
+                    let target = event.target.getAttribute('href');
+                    localStorage.setItem('instructorActiveTab', target);
+                });
+            });
+
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const studentTabButtons = document.querySelectorAll('#students [data-bs-toggle="tab"]');
+
+            let savedView = localStorage.getItem('studentInnerTab');
+
+            function activateTab(targetSelector) {
+                const trigger = document.querySelector(`#students [data-bs-target="${targetSelector}"]`);
+
+                if (trigger) {
+                    // Activate using Bootstrap
+                    new bootstrap.Tab(trigger).show();
+
+                    // 🔥 Force correct button state (important fix)
+                    studentTabButtons.forEach(btn => btn.classList.remove('active'));
+                    trigger.classList.add('active');
+                }
+            }
+
+            if (savedView) {
+                activateTab(savedView);
+            } else {
+                activateTab('#tabPaneListStudent'); // default
+            }
+
+            // Save on change
+            studentTabButtons.forEach(btn => {
+                btn.addEventListener('shown.bs.tab', function(e) {
+                    localStorage.setItem('studentInnerTab', e.target.getAttribute(
+                        'data-bs-target'));
+                });
+            });
+
+        });
+    </script>
+@endpush

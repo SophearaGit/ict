@@ -22,7 +22,7 @@ class StudentAttendanceController extends Controller
         $attendances = StudentAttendances::where('course_id', $request->course_id)
             ->whereDate('date', $request->date)
             ->get()
-            ->keyBy('student_id'); // 🔥 important
+            ->keyBy('student_id');
 
         return response()->json([
             'success' => true,
@@ -46,12 +46,11 @@ class StudentAttendanceController extends Controller
             $absent = $student->student_attendances->where('status', 'absent')->count();
             $permission = $student->student_attendances->where('status', 'late')->count();
 
-            $totalClasses = $present + $absent + $permission;
+            // ✅ 4 absences = -10%
+            $penalty = floor($absent / 4) * 10;
+            $attendanceScore = max(0, 100 - $penalty);
 
-            $attendanceScore = $totalClasses > 0
-                ? ($present / $totalClasses) * 100
-                : 0;
-
+            // existing scores
             $existing = StudentReports::where([
                 'course_id' => $courseId,
                 'student_id' => $student->id
@@ -61,11 +60,12 @@ class StudentAttendanceController extends Controller
             $mini = $existing->mini_project_score ?? 0;
             $final = $existing->final_project_score ?? 0;
 
+            // ✅ NEW WEIGHT (client requirement)
             $totalScore =
                 ($attendanceScore * 0.10) +
-                ($assignment * 0.20) +
+                ($assignment * 0.30) +
                 ($mini * 0.20) +
-                ($final * 0.50);
+                ($final * 0.40);
 
             $report = StudentReports::updateOrCreate(
                 [
@@ -75,7 +75,6 @@ class StudentAttendanceController extends Controller
                 [
                     'present' => $present,
                     'absent' => $absent,
-                    'permission' => $permission,
                     'attendance_score' => round($attendanceScore, 2),
                     'total_score' => round($totalScore, 2),
                     'result' => $totalScore >= 50 ? 'pass' : 'fail'
@@ -85,7 +84,6 @@ class StudentAttendanceController extends Controller
             $result[$student->id] = [
                 'present' => $report->present,
                 'absent' => $report->absent,
-                'permission' => $report->permission,
                 'total_score' => $report->total_score,
                 'result' => $report->result
             ];
@@ -121,7 +119,7 @@ class StudentAttendanceController extends Controller
                 );
             }
 
-            // 🔥 IMPORTANT: Recalculate reports AFTER saving
+            // 🔥 RECALCULATE REPORTS
             $reports = $this->recalculateReports($request->course_id);
 
             DB::commit();
@@ -129,7 +127,7 @@ class StudentAttendanceController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Attendance saved successfully!',
-                'reports' => $reports // 👈 SEND BACK TO FRONTEND
+                'reports' => $reports
             ]);
 
         } catch (\Exception $e) {
@@ -143,47 +141,4 @@ class StudentAttendanceController extends Controller
         }
     }
 
-
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'course_id' => 'required|exists:i_c_t_courses,id',
-    //         'date' => 'required|date',
-    //         'attendances' => 'required|array',
-    //     ]);
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         foreach ($request->attendances as $attendance) {
-
-    //             StudentAttendances::updateOrCreate(
-    //                 [
-    //                     'course_id' => $request->course_id,
-    //                     'student_id' => $attendance['student_id'],
-    //                     'date' => $request->date,
-    //                 ],
-    //                 [
-    //                     'status' => $attendance['status'],
-    //                     'note' => $attendance['note'] ?? null,
-    //                 ]
-    //             );
-    //         }
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Attendance saved successfully!'
-    //         ]);
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
 }
