@@ -1,0 +1,17 @@
+ <style>
+        #attendanceTable_students td:nth-child(4),
+        /* Date column */
+        #attendanceTable_students th:nth-child(4),
+        #attendanceTable_students td:nth-child(5),
+        /* Shift column */
+        #attendanceTable_students th:nth-child(5) {
+            white-space: nowrap;
+            min-width: 140px;
+        }
+
+        #attendanceTable_students td:nth-child(2),
+        #attendanceTable_students th:nth-child(2) {
+            min-width: 200px;
+            white-space: nowrap;
+        }
+    </style>

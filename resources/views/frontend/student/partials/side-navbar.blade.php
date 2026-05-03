@@ -11,17 +11,6 @@
     <!-- Collapse navbar -->
     <div class="collapse navbar-collapse" id="sidenav">
         <div class="navbar-nav flex-column">
-
-            <span class="navbar-header">Dashboard</span>
-            <ul class="list-unstyled ms-n2 mb-4">
-                <li class="nav-item {{ Route::is('student.my.courses') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('student.my.courses') }}">
-                        <i class="fe fe-book nav-icon"></i>
-                        My Courses
-                    </a>
-                </li>
-            </ul>
-
             <span class="navbar-header">Account Settings</span>
             <!-- List -->
             <ul class="list-unstyled ms-n2 mb-4">

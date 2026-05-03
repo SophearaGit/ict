@@ -1,4 +1,7 @@
 <style>
+
+
+
     .loading-row td {
         padding: 12px;
     }
@@ -64,123 +67,215 @@
     }
 
     /* TAB STUDENT ATTENDANCE END */
-
-
     .text-purple {
         color: #6f42c1;
     }
 
-    .sheet {
+
+    /* Table */
+    #attendanceTable {
         width: 100%;
-        background: #fff;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+    }
+
+    #attendanceTable thead th {
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-align: center;
+        padding: 12px 10px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    #attendanceTable tbody td {
+        padding: 10px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    /* Zebra striping */
+    #attendanceTable tbody tr:nth-child(even) {
+        background-color: #fcfcfc;
+    }
+
+    /* Hover effect */
+    #attendanceTable tbody tr:hover {
+        background-color: #f1f7ff;
+    }
+
+    #attendanceTable input {
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 13px;
+        text-align: center;
+        background-color: #fff;
+        transition: 0.2s ease;
+    }
+
+    /* Focus effect */
+    #attendanceTable input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+    }
+
+    /* Readonly styling */
+    #attendanceTable input[readonly] {
+        background-color: #f5f7fa;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    #attendanceTable th:nth-child(1),
+    #attendanceTable td:nth-child(1) {
+        width: 50px;
+        text-align: center;
+    }
+
+    #attendanceTable th:nth-child(2) {
+        width: 140px;
+    }
+
+    #attendanceTable th:nth-child(3),
+    #attendanceTable th:nth-child(4) {
+        width: 120px;
+    }
+
+    #attendanceTable th:nth-child(5),
+    #attendanceTable th:nth-child(6) {
+        width: 90px;
+    }
+
+    #attendanceTable th:nth-child(7) {
+        width: 80px;
+    }
+
+    #attendanceTable th:nth-child(8) {
+        width: 100px;
+    }
+
+    #attendanceTable th:nth-child(9) {
+        width: 200px;
+    }
+
+    .sheet {
+        background: #ffffff;
+        padding: 20px;
         border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
-    /* Header */
     .top-header {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .logo {
-        border-right: 1px solid #e5e7eb;
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .top-header .logo {
+        font-size: 22px;
         font-weight: bold;
-        font-size: 18px;
+        color: #0d6efd;
     }
 
     .title {
-        text-align: center;
+        font-size: 18px;
         font-weight: 600;
-        padding: 10px;
-        font-size: 16px;
     }
 
     .sub-title {
-        background: #facc15;
-        text-align: center;
-        font-weight: 600;
-        padding: 6px;
-        font-size: 14px;
+        font-size: 13px;
+        color: #6c757d;
     }
 
-    /* Info rows */
     .info-row {
-        display: grid;
-        grid-template-columns: 140px 1fr;
-        border-top: 1px solid #e5e7eb;
+        display: flex;
+        margin-bottom: 8px;
+        font-size: 14px;
     }
 
     .info-label {
-        border-right: 1px solid #e5e7eb;
-        padding: 8px;
+        width: 160px;
         font-weight: 600;
-        background: #f9fafb;
+        color: #495057;
     }
 
     .info-value {
-        padding: 8px;
+        flex: 1;
+        background: #f8f9fa;
+        padding: 6px 10px;
+        border-radius: 6px;
     }
 
-    .highlight {
-        background: #fef9c3;
+    .info-row.highlight .info-value {
+        background: #e9f2ff;
+        font-weight: 500;
     }
 
-    /* Table wrapper (important for responsive) */
-    .table-responsive {
+    button.btn-primary {
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+
+    .attendance-sheet {
         width: 100%;
-        overflow-x: auto;
-    }
-
-    /* Table */
-    .sheet table {
-        width: 100%;
-        min-width: 900px;
         border-collapse: collapse;
+        font-size: 13px;
     }
 
-    .sheet th,
-    .sheet td {
-        border: 1px solid #e5e7eb;
+    /* FULL GRID */
+    .attendance-sheet th,
+    .attendance-sheet td {
+        border: 1px solid #000;
+        padding: 6px;
         text-align: center;
-        padding: 8px;
+    }
+
+    /* YELLOW TITLE */
+    .title-row th {
+        background: #ffff00;
+        font-weight: bold;
         font-size: 14px;
     }
 
-    .sheet th {
-        background: #f3f4f6;
+    /* PINK HEADER */
+    .date-row th {
+        background: #f4cccc;
         font-weight: 600;
     }
 
-    /* Zebra rows */
-    .sheet tbody tr:nth-child(even) {
-        background: #fafafa;
+    /* LEFT ALIGN NAME */
+    .attendance-sheet td:nth-child(2) {
+        text-align: left;
     }
 
-    /* Mobile */
-    @media (max-width: 768px) {
-        .info-row {
-            grid-template-columns: 1fr;
-        }
-
-        .info-label {
-            border-right: none;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .top-header {
-            grid-template-columns: 1fr;
-        }
-
-        .logo {
-            border-right: none;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 10px;
-        }
+    /* META TABLE (TOP INFO) */
+    .meta-table {
+        border-collapse: collapse;
+        width: 400px;
     }
+
+    .meta-table td {
+        border: 1px solid #000;
+        padding: 6px 10px;
+    }
+
+    /* REMOVE ROUNDED UI (make it raw like sheet) */
+    .sheet {
+        background: #fff;
+        padding: 10px;
+        border: none;
+        box-shadow: none;
+    }
+
+
+
+
+
+
 </style>

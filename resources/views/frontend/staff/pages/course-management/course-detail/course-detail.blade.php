@@ -219,7 +219,7 @@
             </div>
         </div>
         {{-- student report --}}
-        <div class="tab-pane fade show active" id="pills-student-report" role="tabpanel">
+        <div class="tab-pane fade" id="pills-student-report" role="tabpanel">
             <div class="report-wrapper mt-4 p-4 bg-white rounded-3 shadow-sm">
 
                 <!-- HEADER -->
@@ -360,6 +360,34 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const tabButtons = document.querySelectorAll('#pills-tab button[data-bs-toggle="pill"]');
+
+            // 🔹 Set default tab (Teacher's Attendance)
+            const defaultTab = '#pills-attendance';
+
+            // 🔹 Get saved tab or fallback to default
+            let activeTab = localStorage.getItem('activeTab') || defaultTab;
+
+            let triggerEl = document.querySelector(`#pills-tab button[data-bs-target="${activeTab}"]`);
+
+            if (triggerEl) {
+                let tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+
+            // 🔹 Save clicked tab
+            tabButtons.forEach(button => {
+                button.addEventListener('shown.bs.tab', function(event) {
+                    let target = event.target.getAttribute('data-bs-target');
+                    localStorage.setItem('activeTab', target);
+                });
+            });
+
+        });
+
+
         $('#date-range').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true,
