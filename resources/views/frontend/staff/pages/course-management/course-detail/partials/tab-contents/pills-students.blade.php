@@ -1,21 +1,34 @@
 <div class="tab-pane fade" id="pills-students" role="tabpanel" aria-labelledby="pills-students-tab" tabindex="0">
     {{-- <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-4">
-                <h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">
-                    Students
-                    <span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2">
-                        {{ $course->students->count() ?? 0 }}
-                    </span>
-                </h3>
-                <form class="position-relative">
-                    <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh"
-                        placeholder="Search Friends">
-                    <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y text-dark ms-3"></i>
-                </form>
-            </div> --}}
+        <h3 class="mb-3 mb-sm-0 fw-semibold d-flex align-items-center">
+            Students
+            <span class="badge text-bg-secondary fs-2 rounded-4 py-1 px-2 ms-2">
+                {{ $course->students->count() ?? 0 }}
+            </span>
+        </h3>
+        <form class="position-relative">
+            <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Friends">
+            <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y text-dark ms-3"></i>
+        </form>
+    </div> --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Students</h4>
+
+        <button id="printCertificatesBtn" class="btn btn-primary">
+            <i class="ti ti-printer me-1"></i>
+            Print Certificate
+        </button>
+    </div>
     <div class="row">
         @forelse ($course->students as $student)
             <div class="col-sm-6 col-lg-4">
-                <div class="card hover-img">
+                <div class="card hover-img position-relative">
+
+                    <!-- ✅ Checkbox -->
+                    <div class="form-check position-absolute top-0 end-0 m-2">
+                        <input class="form-check-input student-checkbox" type="checkbox" value="{{ $student->id }}">
+                    </div>
+
                     <div class="card-body p-4 text-center border-bottom">
                         <img src="
                                     {{ asset($student->image == 'no-img.jpg' ? 'default-images/user/both.jpg' : $student->image) }}

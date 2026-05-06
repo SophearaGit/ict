@@ -16,8 +16,10 @@ return new class extends Migration {
             $table->string('name');
             $table->string('khmer_name')->nullable();
             $table->string('email')->unique();
-            $table->text(column: 'bio')->nullable();
-            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->text(column: 'bio')->nullable()->comment('I am a student at ICT. I love learning new things and sharing my knowledge with others.');
+            $table->enum('gender', ['male', 'female'])->nullable()->default('male');
+            $table->date('dob')->nullable()->default('2000-01-01');
+            $table->string('nationality')->nullable()->default('Khmer');
             $table->string('document')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
