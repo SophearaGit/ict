@@ -29,6 +29,9 @@ class User extends Authenticatable
         'student_type',
         'phone',
         'alternate_phone',
+        'gender',
+        'dob',
+        'nationality',
     ];
 
     public function student_attendances()

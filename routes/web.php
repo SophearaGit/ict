@@ -12,6 +12,7 @@ use App\Http\Controllers\Frontend\{
 };
 
 use App\Http\Controllers\Frontend\Staff\{
+    CertificateController,
     StudentReportController,
     IctCourseController,
     IctScheduleController,
@@ -128,7 +129,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::delete('/course-content/{id}/delete-lesson', [CourseContentController::class, 'deleteLessonModal'])->name('course-content.delete-lesson');
         Route::post('/course-chapter/{chapter_id}/sort-lesson', [CourseContentController::class, 'sortLesson'])->name('course-chapter.sort-lesson');
 
-          /*******************************************************
+        /*******************************************************
          * STUDENT REPORT
          *******************************************************/
         Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
@@ -186,6 +187,12 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
             ->name('courses.edit');
         Route::put('/courses/{id}', [IctCourseController::class, 'update'])
             ->name('courses.update');
+
+        /*******************************************************
+         * PRINT CERTIFICATE
+         *******************************************************/
+        Route::post('/staff/certificates/print', [CertificateController::class, 'print'])
+            ->name('certificates.print');
 
         /*******************************************************
          * TEACHER ATTENDANCES

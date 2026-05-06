@@ -7,10 +7,19 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "intervention/image-laravel": "^1.5",
+        "khmer-pdf/laravel-kh-pdf": "^1.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "mpdf/mpdf": "^8.3",
+        "phpoffice/phpword": "^1.4",
         "sebastian/version": "^6.0",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.6",
+        "spatie/browsershot": "^5.3",
+        "spatie/image": "^3.9",
+        "tecnickcom/tcpdf": "^6.11",
         "unisharp/laravel-filemanager": "^2.12"
     },
     "require-dev": {

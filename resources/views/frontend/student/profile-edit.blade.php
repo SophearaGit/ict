@@ -1,6 +1,7 @@
 @extends('frontend.layouts.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @push('styles')
+    <link rel="stylesheet" href="/admin/assets/dist/libs/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
     <style>
         .avatar-wrapper {
             width: 100px;
@@ -79,7 +80,10 @@
                             <hr class="my-5">
                             <div>
                                 <h4 class="mb-0">Personal Details</h4>
-                                <p class="mb-4">Edit your personal information and address.</p>
+                                <p class="mb-4">
+                                    All of your personal details will be included in your certificate, so please provide
+                                    accurate information.
+                                </p>
                                 <!-- Form -->
                                 <form action="{{ route('student.profile.edit.submit') }}" method="POST"
                                     class="row gx-3 needs-validation" novalidate="" enctype="multipart/form-data">
@@ -96,19 +100,20 @@
                                         ">
                                     <!-- name -->
                                     <div class="mb-3 col-12 col-md-6">
-                                        <label class="form-label" for="name">Full Name</label>
+                                        <label class="form-label" for="name">Name ( English )</label>
                                         <input type="text" id="name" name="name" class="form-control"
-                                            placeholder="Full Name" value="{{ auth()->user()->name }}" required="">
+                                            placeholder="Enter khmer name here." value="{{ auth()->user()->name }}"
+                                            required="">
                                         <div class="invalid-feedback">Please enter first name.</div>
                                         <x-input-error :messages="$errors->get('name')" class="mt-2 text-danger" />
                                     </div>
-                                    {{-- headline --}}
+                                    {{-- khmer_name --}}
                                     <div class="mb-3 col-12 col-md-6">
-                                        <label class="form-label" for="headline">Headline</label>
-                                        <input type="text" id="headline" name="headline" class="form-control"
-                                            placeholder="" value="{{ auth()->user()->headline }}" required="">
-                                        <div class="invalid-feedback">Please enter headline.</div>
-                                        <x-input-error :messages="$errors->get('headline')" class="mt-2 text-danger" />
+                                        <label class="form-label" for="khmer_name">Name ( Khmer )</label>
+                                        <input type="text" id="khmer_name" name="khmer_name" class="form-control"
+                                            placeholder="" value="{{ auth()->user()->khmer_name }}" required="">
+                                        <div class="invalid-feedback">Please entername.</div>
+                                        <x-input-error :messages="$errors->get('khmer_name')" class="mt-2 text-danger" />
                                     </div>
                                     {{-- email --}}
                                     <div class="mb-3 col-12 col-md-6">
@@ -118,6 +123,14 @@
                                         <div class="invalid-feedback">Please enter email.</div>
                                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
                                     </div>
+                                    {{-- headline --}}
+                                    <div class="mb-3 col-12 col-md-6">
+                                        <label class="form-label" for="headline">Headline</label>
+                                        <input type="text" id="headline" name="headline" class="form-control"
+                                            placeholder="" value="{{ auth()->user()->headline }}" required="">
+                                        <div class="invalid-feedback">Please enter headline.</div>
+                                        <x-input-error :messages="$errors->get('headline')" class="mt-2 text-danger" />
+                                    </div>
                                     {{-- bio --}}
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="bio">Bio</label>
@@ -126,6 +139,7 @@
                                         <div class="invalid-feedback">Please enter bio.</div>
                                         <x-input-error :messages="$errors->get('bio')" class="mt-2 text-danger" />
                                     </div>
+                                    {{--  --}}
                                     {{-- gender --}}
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="gender">Gender</label>
@@ -137,6 +151,23 @@
                                         <div class="invalid-feedback">Please select gender.</div>
                                         <x-input-error :messages="$errors->get('gender')" class="mt-2 text-danger" />
                                     </div>
+                                    {{-- dob --}}
+                                    <div class="mb-3 col-12 col-md-6">
+                                        <label class="form-label" for="dob">Date of Birth</label>
+                                        <input type="date" id="dob" name="dob" class="form-control"
+                                            placeholder="" value="{{ auth()->user()->dob }}" required="">
+                                        <div class="invalid-feedback">Please enter date of birth.</div>
+                                        <x-input-error :messages="$errors->get('dob')" class="mt-2 text-danger" />
+                                    </div>
+                                    {{-- nationality --}}
+                                    <div class="mb-3 col-12 col-md-6">
+                                        <label class="form-label" for="nationality">Nationality</label>
+                                        <input type="text" id="nationality" name="nationality" class="form-control"
+                                            placeholder="" value="{{ auth()->user()->nationality }}" required="">
+                                        <div class="invalid-feedback">Please enter nationality.</div>
+                                        <x-input-error :messages="$errors->get('nationality')" class="mt-2 text-danger" />
+                                    </div>
+
                                     <div class="col-12">
                                         <!-- Button -->
                                         <button class="btn btn-primary" type="submit">Update Profile</button>
@@ -150,3 +181,13 @@
         </div>
     </section>
 @endsection
+@push('scripts')
+    <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $('#dob').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true,
+        });
+    </script>
+@endpush

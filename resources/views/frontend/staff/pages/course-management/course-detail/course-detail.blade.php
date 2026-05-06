@@ -360,6 +360,47 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const printBtn = document.getElementById('printCertificatesBtn');
+
+            if (printBtn) {
+                printBtn.addEventListener('click', function() {
+
+                    let selected = [];
+
+                    document.querySelectorAll('.student-checkbox:checked').forEach(cb => {
+                        selected.push(cb.value);
+                    });
+
+                    if (selected.length === 0) {
+                        alert('Please select at least one student.');
+                        return;
+                    }
+
+                    fetch("{{ route('staff.certificates.print') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                students: selected,
+                                course_id: "{{ $course->id }}"
+                            })
+                        })
+                        .then(res => res.blob())
+                        .then(blob => {
+                            let url = window.URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                        })
+                        .catch(err => console.error(err));
+
+                });
+            }
+
+        });
+
         document.addEventListener("DOMContentLoaded", function() {
 
             const tabButtons = document.querySelectorAll('#pills-tab button[data-bs-toggle="pill"]');
@@ -442,31 +483,22 @@
                     let diff = (endTime - startTime) / (1000 * 60 * 60);
 
                     // Handle overnight (optional)
-                    if (diff < 0) diff += 24;
-
-                    // ✅ Set TH
-                    total.value = diff.toFixed(2);
-
-                    // ✅ Calculate ATH (cumulative)
-                    let prevRow = row.previousElementSibling;
+                    if (diff < 0) diff += 24; // ✅ Set TH total.value=diff.toFixed(2); // ✅ Calculate ATH (cumulative) let
+                    prevRow = row.previousElementSibling;
                     let prevATH = 0;
-
                     if (prevRow) {
-                        const prevActual = prevRow.querySelector('.actual-hours');
+                        const
+                            prevActual = prevRow.querySelector('.actual-hours');
                         if (prevActual && prevActual.value) {
                             prevATH = parseFloat(prevActual.value) || 0;
                         }
                     }
-
                     actual.value = (prevATH + diff).toFixed(2);
                 }
             }
-
             start.addEventListener('change', calculate);
             end.addEventListener('change', calculate);
-        }
-
-        // Apply to all rows
+        } // Apply to all rows
         document.querySelectorAll('#attendanceTable tbody tr').forEach(row => {
             calculateRow(row);
         });
