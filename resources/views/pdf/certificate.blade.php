@@ -60,64 +60,67 @@
         /* ================= KHMER ================= */
 
         .khmer-name {
-            top: 82mm;
+            top: 82.5mm;
             left: 36mm;
             width: 110mm;
             color: black;
         }
 
         .khmer-dob {
-            top: 92mm;
+            top: 92.3mm;
             left: 48mm;
             width: 96mm;
         }
 
         .khmer-gender {
-            top: 102mm;
+            top: 102.3mm;
             left: 26mm;
             width: 31mm;
         }
 
         .khmer-nationality {
-            top: 102mm;
+            top: 102.3mm;
             left: 73mm;
             width: 72mm;
         }
 
         .khmer-course {
-            top: 132mm;
+            top: 132.2mm;
             left: 30mm;
             width: 112mm;
         }
 
         .khmer-duration {
-            top: 143mm;
+            top: 142.8mm;
             left: 45mm;
             width: 99mm;
         }
 
         .khmer-issue-day {
-            top: 163mm;
+            text-align: center;
+            width: 12mm;
+            top: 162.6mm;
             left: 60mm;
-            width: 10mm;
         }
 
         .khmer-issue-month {
-            top: 163mm;
-            left: 72mm;
-            width: 20mm;
+            text-align: center;
+            width: 18mm;
+            top: 162.6mm;
+            left: 79mm;
         }
 
         .khmer-issue-year {
-            top: 163mm;
-            left: 94mm;
-            width: 15mm;
+            text-align: center;
+            width: 18mm;
+            top: 162.6mm;
+            left: 104mm;
         }
 
         /* ================= ENGLISH ================= */
 
         .name {
-            top: 82mm;
+            top: 82.3mm;
             left: 178mm;
             width: 101mm;
             color: black;
@@ -125,39 +128,40 @@
         }
 
         .dob {
-            top: 91mm;
+            top: 91.5mm;
             left: 179mm;
             width: 100mm;
         }
 
         .gender {
-            top: 100mm;
+            top: 100.7mm;
             left: 163mm;
             width: 33mm;
         }
 
         .nationality {
-            top: 100mm;
+            top: 100.7mm;
             left: 217mm;
             width: 62mm;
         }
 
         .course {
-            top: 128mm;
+            top: 127.9mm;
             left: 170mm;
             width: 105mm;
         }
 
         .duration {
-            top: 136mm;
+            top: 136.8mm;
             left: 172mm;
             width: 105mm;
         }
 
         .issue-date {
-            top: 155mm;
+            width: 56mm;
+            text-align: center;
+            top: 154.6mm;
             left: 190mm;
-            width: 32mm;
         }
     </style>
 </head>

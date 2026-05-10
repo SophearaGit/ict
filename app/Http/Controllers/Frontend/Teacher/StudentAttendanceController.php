@@ -42,30 +42,70 @@ class StudentAttendanceController extends Controller
 
         foreach ($students as $student) {
 
-            $present = $student->student_attendances->where('status', 'present')->count();
-            $absent = $student->student_attendances->where('status', 'absent')->count();
-            $permission = $student->student_attendances->where('status', 'late')->count();
+            $present = $student->student_attendances
+                ->where('status', 'present')
+                ->count();
 
-            // ✅ 4 absences = -10%
-            $penalty = floor($absent / 4) * 10;
-            $attendanceScore = max(0, 100 - $penalty);
+            $absent = $student->student_attendances
+                ->where('status', 'absent')
+                ->count();
 
-            // existing scores
-            $existing = StudentReports::where([
-                'course_id' => $courseId,
-                'student_id' => $student->id
-            ])->first();
+            $totalAttendance = $present + $absent;
 
-            $assignment = $existing->assignment_score ?? 0;
-            $mini = $existing->mini_project_score ?? 0;
-            $final = $existing->final_project_score ?? 0;
+            /*
+            |--------------------------------------------------------------------------
+            | ATTENDANCE SCORE
+            |--------------------------------------------------------------------------
+            |
+            | Start with 10 points
+            | Every 4 absences = -1 point
+            |
+            */
 
-            // ✅ NEW WEIGHT (client requirement)
+            $attendanceScore = 10 - floor($absent / 4);
+
+            // prevent negative
+            $attendanceScore = max(0, $attendanceScore);
+
+            // existing report
+            $existing = StudentReports::firstOrCreate(
+                [
+                    'course_id' => $courseId,
+                    'student_id' => $student->id
+                ],
+                [
+                    'assignment_score' => 0,
+                    'mini_project_score' => 0,
+                    'final_project_score' => 0,
+                ]
+            );
+
+            // clamp old corrupted data
+            $existing->attendance_score = min(10, max(0, $attendanceScore));
+
+            $assignment = min(30, max(0, (float) $existing->assignment_score));
+            $mini = min(20, max(0, (float) $existing->mini_project_score));
+            $final = min(40, max(0, (float) $existing->final_project_score));
+
+            /*
+            |--------------------------------------------------------------------------
+            | Total Score
+            |--------------------------------------------------------------------------
+            |
+            | attendance = 10
+            | assignment = 30
+            | mini = 20
+            | final = 40
+            |
+            | TOTAL = 100
+            |
+            */
+
             $totalScore =
-                ($attendanceScore * 0.10) +
-                ($assignment * 0.30) +
-                ($mini * 0.20) +
-                ($final * 0.40);
+                $attendanceScore +
+                $assignment +
+                $mini +
+                $final;
 
             $report = StudentReports::updateOrCreate(
                 [
@@ -75,7 +115,7 @@ class StudentAttendanceController extends Controller
                 [
                     'present' => $present,
                     'absent' => $absent,
-                    'attendance_score' => round($attendanceScore, 2),
+                    'attendance_score' => round(min(10, $attendanceScore), 2),
                     'total_score' => round($totalScore, 2),
                     'result' => $totalScore >= 50 ? 'pass' : 'fail'
                 ]
@@ -84,6 +124,7 @@ class StudentAttendanceController extends Controller
             $result[$student->id] = [
                 'present' => $report->present,
                 'absent' => $report->absent,
+                'attendance_score' => $report->attendance_score,
                 'total_score' => $report->total_score,
                 'result' => $report->result
             ];

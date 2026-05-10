@@ -144,7 +144,307 @@
     </div>
     <div class="tab-content" id="pills-tabContent">
         @include('frontend.staff.pages.course-management.course-detail.partials.tab-contents.pills-students')
-        @include('frontend.staff.pages.course-management.course-detail.partials.tab-contents.pills-attendance')
+        {{-- @include('frontend.staff.pages.course-management.course-detail.partials.tab-contents.pills-attendance') --}}
+        <div class="tab-pane fade" id="pills-attendance" role="tabpanel" aria-labelledby="pills-attendance-tab"
+            tabindex="0">
+            <div class="row">
+                <div class="col-12">
+                    <div class="sheet">
+
+                        <!-- Header -->
+                        <div class="top-header">
+                            <div class="logo">
+                                <i class="ti ti-calendar-check fs-12 me-2"></i>
+                            </div>
+                            <div>
+                                <div class="title">ICT Professional Training Center</div>
+                                <div class="sub-title">Teacher's Attendant</div>
+                            </div>
+                            {{-- <form method="GET" class="row g-2 mb-3">
+
+                                <div class="col-md-6">
+                                    <label class="mb-1">Filter by Date Range</label>
+                                    <div class="input-daterange input-group" id="date-range">
+
+                                        <input type="text" class="form-control" name="from_date"
+                                            placeholder="From date" value="{{ request('from_date') }}"
+                                            id="datepicker-autoclose">
+
+                                        <span class="input-group-text bg-info text-white">TO</span>
+
+                                        <input type="text" class="form-control" name="to_date" placeholder="To date"
+                                            value="{{ request('to_date') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button class="btn btn-primary w-100">
+                                        <i class="ti ti-search"></i> Filter
+                                    </button>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <a href="{{ route('staff.courses.show', $course->id) }}"
+                                        class="btn btn-secondary w-100">
+                                        Reset
+                                    </a>
+                                </div>
+                            </form> --}}
+                        </div>
+                        <form method="GET" class="mb-3">
+                            <div class="filter-bar p-3 rounded-3 bg-light border">
+
+                                <div class="row g-2 align-items-end">
+
+                                    <!-- Date Range -->
+                                    <div class="col-12 col-md-6 col-lg-7">
+                                        <label class="form-label fw-semibold mb-1">
+                                            <i class="ti ti-calendar me-1"></i> Date Range
+                                        </label>
+
+                                        <div class="input-daterange input-group" id="date-range">
+                                            <input type="text" class="form-control" name="from_date" placeholder="From"
+                                                value="{{ request('from_date', now()->startOfMonth()->format('Y-m-d')) }}">
+
+                                            <span class="input-group-text bg-primary text-white px-2 px-md-3">
+                                                TO
+                                            </span>
+
+                                            <input type="text" class="form-control" name="to_date" placeholder="To"
+                                                value="{{ request('to_date', now()->endOfMonth()->format('Y-m-d')) }}">
+                                        </div>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="col-12 col-md-6 col-lg-5">
+                                        <div class="d-flex flex-column flex-md-row gap-2">
+
+                                            <button class="btn btn-primary w-100">
+                                                <i class="ti ti-search me-1"></i> Filter
+                                            </button>
+
+                                            <a href="{{ route('staff.courses.show', $course->id) }}"
+                                                class="btn btn-outline-secondary w-100">
+                                                Reset
+                                            </a>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                        {{-- @if (request('from_date') && request('to_date'))
+                            <div class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <strong>Filtered:</strong>
+                                    {{ request('from_date') }} → {{ request('to_date') }}
+                                </div>
+
+                                <div class="d-flex gap-4">
+                                    <span><strong>Hours:</strong> {{ $course->filtered_hours ?? 0 }}</span>
+                                    <span><strong>Sessions:</strong> {{ $course->filtered_sessions ?? 0 }}</span>
+                                    <span><strong>Earnings:</strong> ${{ $course->filtered_earnings ?? 0 }}</span>
+                                </div>
+                            </div>
+                        @endif --}}
+                        <!-- Teacher -->
+                        <div class="info-row">
+                            <div class="info-label">
+                                Teacher's Name:
+                            </div>
+                            <div class="info-value text-capitalize text-center" contenteditable="false">
+                                <strong class="text-black">
+                                    {{ $course->instructor->name ?? 'No Instructor' }}
+                                </strong>
+                            </div>
+                        </div>
+                        <!-- Subject -->
+                        <div class="info-row highlight">
+                            <div class="info-label">Subject:</div>
+                            <div class="info-value text-capitalize text-center" contenteditable="false">
+                                <strong class="text-black">
+                                    {{ $course->title }} |
+                                    @if ($course->schedule)
+                                        @php
+                                            $days = collect(explode('-', $course->schedule->study_day))
+                                                ->map(fn($day) => ucfirst($day))
+                                                ->implode(' • ');
+                                            $start = \Carbon\Carbon::parse($course->schedule->start_time)->format(
+                                                'g:i ',
+                                            );
+                                            $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
+                                            $shift = ucfirst($course->schedule->shift);
+                                        @endphp
+                                        <strong>
+                                            {{ $days }} | {{ $shift }} (
+                                            {{ $start }}
+                                            –
+                                            {{ $end }} )
+                                        </strong>
+                                    @else
+                                        <span class="text-muted">No schedule</span>
+                                    @endif
+                                </strong>
+                            </div>
+                        </div>
+                        <!-- Table -->
+                        <form action="{{ route('staff.teacher.attendance.update') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="course_id" value="{{ $course->id }}">
+                            <input type="hidden" name="teacher_id" value="{{ $course->instructor->id ?? '' }}">
+                            <input type="hidden" name="schedule_id" value="{{ $course->schedule->id ?? '' }}">
+                            <table id="attendanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Date</th>
+                                        <th>Time in</th>
+                                        <th>Time out</th>
+                                        <th>T H</th>
+                                        <th>A T H</th>
+                                        <th>Room</th>
+                                        <th>
+                                            នាទីខ្វះ
+                                        </th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceBody">
+                                    @php
+                                        $attendances = $course->teacherAttendances;
+                                    @endphp
+
+                                    @if ($attendances->isNotEmpty())
+                                        @foreach ($attendances as $index => $attendance)
+                                            <tr>
+                                                <td style="padding: 10px">{{ $index + 1 }}</td>
+
+                                                <td style="display:none;">
+                                                    <input type="hidden" name="attendances[{{ $index }}][id]"
+                                                        value="{{ $attendance->id }}">
+                                                </td>
+
+                                                <td>
+                                                    <input type="date" name="attendances[{{ $index }}][date]"
+                                                        value="{{ $attendance->date }}" class="form-control text-dark"
+                                                        readonly>
+                                                </td>
+
+                                                <td>
+                                                    <input type="time"
+                                                        name="attendances[{{ $index }}][start_time]"
+                                                        value="{{ \Carbon\Carbon::parse($attendance->start_time)->format('H:i') }}"
+                                                        class="form-control text-dark">
+                                                </td>
+
+                                                <td>
+                                                    <input type="time"
+                                                        name="attendances[{{ $index }}][end_time]"
+                                                        value="{{ \Carbon\Carbon::parse($attendance->end_time)->format('H:i') }}"
+                                                        class="form-control text-dark">
+                                                </td>
+
+                                                <td>
+                                                    <input type="text"
+                                                        name="attendances[{{ $index }}][total_hours]"
+                                                        value="{{ number_format($attendance->total_hours) }}"
+                                                        class="form-control total-hours text-uppercase text-dark text-center"
+                                                        readonly>
+                                                </td>
+
+                                                <td>
+                                                    <input type="text"
+                                                        name="attendances[{{ $index }}][actual_hours]"
+                                                        value="{{ number_format($attendance->actual_hours) }}"
+                                                        class="form-control actual-hours text-uppercase text-dark text-center"
+                                                        readonly>
+                                                </td>
+
+                                                <td>
+                                                    <input type="text" name="attendances[{{ $index }}][room]"
+                                                        value="{{ $attendance->room }}"
+                                                        class="form-control text-uppercase text-dark text-center">
+                                                </td>
+
+                                                <td>
+                                                    <input type="number"
+                                                        name="attendances[{{ $index }}][late_minutes]"
+                                                        value="{{ $attendance->late_minutes }}"
+                                                        class="form-control text-center">
+                                                </td>
+                                                <td>
+                                                    <input type="text"
+                                                        name="attendances[{{ $index }}][late_reason]"
+                                                        value="{{ $attendance->late_reason }}" class="form-control">
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                    @php
+                                        $nextIndex = $attendances->count();
+                                    @endphp
+
+                                    <tr>
+                                        <td style="padding: 10px">{{ $nextIndex + 1 }}</td>
+
+                                        <td style="display:none;">
+                                            <input type="hidden" name="attendances[{{ $nextIndex }}][id]"
+                                                value="">
+                                        </td>
+
+                                        <td>
+                                            <input type="date" name="attendances[{{ $nextIndex }}][date]"
+                                                class="form-control" value="{{ now()->format('Y-m-d') }}" readonly>
+                                        </td>
+
+                                        <td>
+                                            <input type="time" name="attendances[{{ $nextIndex }}][start_time]"
+                                                class="form-control">
+                                        </td>
+
+                                        <td>
+                                            <input type="time" name="attendances[{{ $nextIndex }}][end_time]"
+                                                class="form-control">
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="attendances[{{ $nextIndex }}][total_hours]"
+                                                class="form-control total-hours" readonly>
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="attendances[{{ $nextIndex }}][actual_hours]"
+                                                class="form-control actual-hours" readonly>
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="attendances[{{ $nextIndex }}][room]"
+                                                class="form-control">
+                                        </td>
+
+                                        <td>
+                                            <input type="number" name="attendances[{{ $nextIndex }}][late_minutes]"
+                                                class="form-control">
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="attendances[{{ $nextIndex }}][late_reason]"
+                                                class="form-control">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="submit" class="btn btn-primary mt-3">
+                                Save Attendance
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Student's Attendant --}}
         <div class="tab-pane fade " id="pills-student-attendance" role="tabpanel">
             @php
@@ -161,7 +461,8 @@
                         <div class="col-md-3"><strong>Room:</strong> {{ $data['form_metadata']['room'] }}</div>
                         <div class="col-md-3"><strong>Lecturer:</strong> {{ $data['form_metadata']['lecturer_name'] }}
                         </div>
-                        <div class="col-md-3"><strong>Phone:</strong> {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
+                        <div class="col-md-3"><strong>Phone:</strong>
+                            {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
                         </div>
                     </div>
                 </div>
@@ -219,140 +520,276 @@
             </div>
         </div>
         {{-- student report --}}
+        {{-- Student Report Tab --}}
         <div class="tab-pane fade" id="pills-student-report" role="tabpanel">
-            <div class="report-wrapper mt-4 p-4 bg-white rounded-3 shadow-sm">
+            @php
+                $totalStudents = $course->studentReports->count();
+                $passed = $course->studentReports->where('result', 'pass')->count();
+                $failed = $course->studentReports->where('result', 'fail')->count();
+                $avgScore = $totalStudents > 0 ? round($course->studentReports->avg('total_score')) : 0;
 
-                <!-- HEADER -->
-                <div class="mb-4">
-                    <h5 class="fw-bold mb-3 text-center text-uppercase">
-                        Student Report
-                    </h5>
+                $avatarBg = [
+                    'bg-light-primary',
+                    'bg-light-warning',
+                    'bg-light-info',
+                    'bg-light-danger',
+                    'bg-light-success',
+                ];
+                $avatarText = ['text-primary', 'text-warning', 'text-info', 'text-danger', 'text-success'];
+            @endphp
 
-                    <div class="row small">
-                        <div class="col-md-6">
-                            <p class="text-capitalize"><strong>Instructor:</strong>
-                                {{ $course->instructor->name }}</p>
-                            <p class="text-capitalize"><strong>Course:</strong>
-                                {{ $course->title }}</p>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <p><strong>Room:</strong> {{ $course->room ?? 'A' }}</p>
-                            <p><strong>Schedule:</strong>
-                                @if ($course->schedule)
-                                    @php
-                                        $days = collect(explode('-', $course->schedule->study_day))
-                                            ->map(fn($day) => ucfirst($day))
-                                            ->implode(' • ');
-                                        $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i ');
-                                        $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
+            <div class="card overflow-hidden">
 
-                                        $shift = ucfirst($course->schedule->shift);
-                                    @endphp
-                                    {{ $days }} | {{ $shift }} (
-                                    {{ $start }}
-                                    –
-                                    {{ $end }} )
-                                @else
-                                    <span class="text-muted">No schedule</span>
-                                @endif
+                {{-- ── HEADER BANNER ── --}}
+                <div class="card-body bg-primary pb-0">
 
+                    <div class="d-flex align-items-start justify-content-between mb-3">
+                        <div>
+                            <span class="badge bg-white text-primary fw-semibold fs-2 mb-2">
+                                <i class="ti ti-file-certificate me-1"></i> Student Report
+                            </span>
+                            <h4 class="text-white fw-semibold mb-1">{{ $course->title }}</h4>
+                            <p class="fs-3 mb-0" style="color:rgba(255,255,255,0.75);">
+                                ICT Professional Training Center
                             </p>
                         </div>
                     </div>
-                </div>
 
-                <!-- TABLE -->
-                <div class="table-responsive">
-                    <table class="table table-bordered text-center align-middle report-table">
+                    {{-- Meta info chips --}}
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge fw-normal fs-2 py-2 px-3"
+                            style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.2);">
+                            <i class="ti ti-user me-1"></i>{{ $course->instructor->name ?? 'N/A' }}
+                        </span>
+                        <span class="badge fw-normal fs-2 py-2 px-3"
+                            style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.2);">
+                            <i class="ti ti-door me-1"></i>Room: {{ $course->room ?? 'N/A' }}
+                        </span>
+                        @if ($course->schedule)
+                            @php
+                                $days = collect(explode('-', $course->schedule->study_day))
+                                    ->map(fn($d) => ucfirst($d))
+                                    ->implode(' • ');
+                                $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i');
+                                $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
+                                $shift = ucfirst($course->schedule->shift);
+                            @endphp
+                            <span class="badge fw-normal fs-2 py-2 px-3"
+                                style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.2);">
+                                <i class="ti ti-calendar me-1"></i>{{ $days }}
+                            </span>
+                            <span class="badge fw-normal fs-2 py-2 px-3"
+                                style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.2);">
+                                <i class="ti ti-clock me-1"></i>{{ $shift }} ({{ $start }} –
+                                {{ $end }})
+                            </span>
+                        @endif
+                    </div>
 
-                        <thead class="table-light">
-                            <tr>
-                                <th rowspan="2">No</th>
-                                <th rowspan="2">Name</th>
-                                {{-- <th rowspan="2">Gender</th> --}}
-                                <th colspan="3">Attendance</th>
-                                <th rowspan="2">Assignment</th>
-                                <th rowspan="2">Mini Project</th>
-                                <th rowspan="2">Final Project</th>
-                                <th rowspan="2">Total</th>
-                                <th rowspan="2">Result</th>
-                                {{-- <th rowspan="2">Remark</th> --}}
-                            </tr>
-                            <tr>
-                                <th>P</th>
-                                <th>A</th>
-                                <th>AP</th>
-                            </tr>
-                        </thead>
+                    {{-- Stat mini-cards overlapping the blue header --}}
+                    {{-- <div class="row g-3 mb-n3">
+                        <div class="col-6 col-md-3">
+                            <div class="card mb-0 border-0 shadow-none text-center">
+                                <div class="card-body py-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-light-primary rounded mx-auto mb-2"
+                                        style="width:36px;height:36px;">
+                                        <i class="ti ti-users text-primary fs-5"></i>
+                                    </div>
+                                    <h5 class="fw-semibold fs-7 mb-0">{{ $totalStudents }}</h5>
+                                    <p class="text-muted fs-2 mb-0">Students</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card mb-0 border-0 shadow-none text-center">
+                                <div class="card-body py-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-light-success rounded mx-auto mb-2"
+                                        style="width:36px;height:36px;">
+                                        <i class="ti ti-circle-check text-success fs-5"></i>
+                                    </div>
+                                    <h5 class="fw-semibold fs-7 mb-0">{{ $passed }}</h5>
+                                    <p class="text-muted fs-2 mb-0">Passed</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card mb-0 border-0 shadow-none text-center">
+                                <div class="card-body py-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-light-danger rounded mx-auto mb-2"
+                                        style="width:36px;height:36px;">
+                                        <i class="ti ti-circle-x text-danger fs-5"></i>
+                                    </div>
+                                    <h5 class="fw-semibold fs-7 mb-0">{{ $failed }}</h5>
+                                    <p class="text-muted fs-2 mb-0">Failed</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card mb-0 border-0 shadow-none text-center">
+                                <div class="card-body py-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-light-warning rounded mx-auto mb-2"
+                                        style="width:36px;height:36px;">
+                                        <i class="ti ti-chart-bar text-warning fs-5"></i>
+                                    </div>
+                                    <h5 class="fw-semibold fs-7 mb-0">{{ $avgScore }}</h5>
+                                    <p class="text-muted fs-2 mb-0">Avg Score</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> --}}
 
-                        <tbody>
-                            @foreach ($course->studentReports as $i => $report)
-                                <tr>
-                                    <td>{{ $i + 1 }}</td>
-                                    <td class="text-start">{{ $report->student->name }}</td>
-                                    {{-- <td>{{ $report->student->gender }}</td> --}}
+                </div>{{-- /.card-body bg-primary --}}
 
-                                    <!-- Attendance -->
-                                    <td>{{ $report->present }}</td>
-                                    <td>{{ $report->absent }}</td>
-                                    <td>{{ $report->permission }}</td>
-
-                                    <!-- Editable Scores -->
-                                    <td>
-                                        <input type="number" class="form-control score-input"
-                                            data-id="{{ $report->id }}" data-field="assignment_score"
-                                            value="{{ number_format($report->assignment_score) }}" readonly>
-                                    </td>
-
-                                    <td>
-                                        <input type="number" class="form-control score-input"
-                                            data-id="{{ $report->id }}" data-field="mini_project_score"
-                                            value="{{ number_format($report->mini_project_score) }}" readonly>
-                                    </td>
-
-                                    <td>
-                                        <input type="number" class="form-control score-input"
-                                            data-id="{{ $report->id }}" data-field="final_project_score"
-                                            value="{{ number_format($report->final_project_score) }}" readonly>
-                                    </td>
-
-                                    <!-- Auto -->
-                                    <td class="fw-bold total-score">
-                                        {{ $report->total_score }}
-                                    </td>
-
-                                    <td>
-                                        <span class="badge bg-{{ $report->result == 'pass' ? 'success' : 'danger' }}">
-                                            {{ ucfirst($report->result) }}
-                                        </span>
-                                    </td>
-
-                                    {{-- <td>{{ $report->remark }}</td> --}}
+                {{-- ── TABLE ── --}}
+                <div class="card-body p-0 mt-3">
+                    <div class="table-responsive">
+                        <table class="table align-middle text-nowrap mb-0">
+                            <thead>
+                                <tr class="text-muted fw-semibold">
+                                    <th class="ps-4" style="width:48px;">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center text-success">P</th>
+                                    <th class="text-center text-danger">A</th>
+                                    {{-- <th class="text-center text-warning">AP</th> --}}
+                                    <th class="text-center">Assignment ( 30% ) </th>
+                                    <th class="text-center">Mini Project ( 20% )</th>
+                                    <th class="text-center">Final Project ( 40% ) </th>
+                                    <th class="text-center">Total ( 100% ) </th>
+                                    <th class="text-center pe-4">Result</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
+                            </thead>
+                            <tbody class="border-top">
+                                @forelse ($course->studentReports as $i => $report)
+                                    @php
+                                        $idx = $i % count($avatarBg);
+                                        $initials = collect(explode(' ', $report->student->name))
+                                            ->take(2)
+                                            ->map(fn($w) => strtoupper($w[0]))
+                                            ->implode('');
+                                        $isFail = $report->result === 'fail';
+                                        $assignPct = min(100, (int) (($report->assignment_score / 30) * 100));
+                                        $miniPct = min(100, (int) (($report->mini_project_score / 20) * 100));
+                                        $finalPct = min(100, (int) (($report->final_project_score / 40) * 100));
+                                        $totalPct = min(100, (int) $report->total_score);
+                                        $barClass = $isFail ? 'bg-danger' : '';
+                                        $trackClass = $isFail ? 'bg-light-danger' : 'bg-light-primary';
+                                    @endphp
+                                    <tr>
+                                        {{-- No --}}
+                                        <td class="ps-4 text-muted fs-2">{{ $i + 1 }}</td>
 
-                    </table>
+                                        {{-- Name --}}
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 {{ $avatarBg[$idx] }}"
+                                                    style="width:35px;height:35px;">
+                                                    <span class="fs-2 fw-semibold {{ $avatarText[$idx] }}">
+                                                        {{ $initials }}
+                                                    </span>
+                                                </div>
+                                                <h6 class="mb-0 fw-semibold fs-3">{{ $report->student->name }}</h6>
+                                            </div>
+                                        </td>
+
+                                        {{-- Attendance --}}
+                                        <td class="text-center">
+                                            <span class="fw-semibold text-success fs-3">{{ $report->present }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="fw-semibold text-danger fs-3">{{ $report->absent }}</span>
+                                        </td>
+                                        {{-- <td class="text-center">
+                                            <span class="fw-semibold text-warning fs-3">{{ $report->permission }}</span>
+                                        </td> --}}
+
+                                        {{-- Assignment --}}
+                                        <td class="text-center" style="min-width:90px;">
+                                            <p class="mb-1 fs-3 fw-semibold">
+                                                {{ number_format($report->assignment_score) }}</p>
+                                            <div class="progress {{ $trackClass }}" style="height:4px;">
+                                                <div class="progress-bar {{ $barClass }}"
+                                                    style="width:{{ $assignPct }}%"></div>
+                                            </div>
+                                        </td>
+
+                                        {{-- Mini Project --}}
+                                        <td class="text-center" style="min-width:90px;">
+                                            <p class="mb-1 fs-3 fw-semibold">
+                                                {{ number_format($report->mini_project_score) }}</p>
+                                            <div class="progress {{ $trackClass }}" style="height:4px;">
+                                                <div class="progress-bar {{ $barClass }}"
+                                                    style="width:{{ $miniPct }}%"></div>
+                                            </div>
+                                        </td>
+
+                                        {{-- Final Project --}}
+                                        <td class="text-center" style="min-width:90px;">
+                                            <p class="mb-1 fs-3 fw-semibold">
+                                                {{ number_format($report->final_project_score) }}</p>
+                                            <div class="progress {{ $trackClass }}" style="height:4px;">
+                                                <div class="progress-bar {{ $barClass }}"
+                                                    style="width:{{ $finalPct }}%"></div>
+                                            </div>
+                                        </td>
+
+                                        {{-- Total --}}
+                                        <td class="text-center" style="min-width:90px;">
+                                            <h6
+                                                class="mb-1 fw-semibold fs-5 {{ $isFail ? 'text-danger' : 'text-primary' }}">
+                                                {{ number_format($report->total_score, 0) }}
+                                            </h6>
+                                            <div class="progress {{ $trackClass }}" style="height:4px;">
+                                                <div class="progress-bar {{ $barClass }}"
+                                                    style="width:{{ $totalPct }}%"></div>
+                                            </div>
+                                        </td>
+
+                                        {{-- Result --}}
+                                        <td class="text-center pe-4">
+                                            @if (!$isFail)
+                                                <span class="badge bg-light-success text-success fw-semibold py-1 px-3">
+                                                    <i class="ti ti-check me-1"></i>Pass
+                                                </span>
+                                            @else
+                                                <span class="badge bg-light-danger text-danger fw-semibold py-1 px-3">
+                                                    <i class="ti ti-x me-1"></i>Fail
+                                                </span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="10" class="text-center py-5 text-muted">
+                                            <i class="ti ti-inbox fs-6 d-block mb-2"></i>
+                                            <span class="fs-3">No student reports found.</span>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- FOOTER -->
-                <div class="row mt-5 text-center small">
-                    <div class="col-md-6">
-                        <p>Seen and Approved by</p>
-                        <br><br>
-                        <strong>ICT Training Center</strong>
-                    </div>
-
-                    <div class="col-md-6">
-                        <p>Prepared by</p>
-                        <br><br>
-                        <strong class="text-capitalize">Teacher:
-                            {{ $course->instructor->name }}</strong>
+                {{-- ── FOOTER SIGNATURES ── --}}
+                <div class="card-footer bg-light mt-2">
+                    <div class="row text-center py-3">
+                        <div class="col-6 border-end">
+                            <p class="text-muted fs-3 mb-5">Seen and Approved by</p>
+                            <div class="border-top mx-auto mb-2" style="width:60%;"></div>
+                            <h6 class="fw-semibold fs-3 mb-0">ICT Training Center</h6>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted fs-3 mb-5">Prepared by</p>
+                            <div class="border-top mx-auto mb-2" style="width:60%;"></div>
+                            <h6 class="fw-semibold fs-3 mb-0 text-capitalize">
+                                Teacher: {{ $course->instructor->name ?? 'N/A' }}
+                            </h6>
+                        </div>
                     </div>
                 </div>
 
-            </div>
-        </div>
+            </div>{{-- /.card --}}
+        </div>{{-- /.tab-pane --}}
     </div>
 @endsection
 @push('scripts')
@@ -360,6 +797,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script>
+        // PRINT CERTIFICATES
         document.addEventListener('DOMContentLoaded', function() {
 
             const printBtn = document.getElementById('printCertificatesBtn');
@@ -401,6 +839,7 @@
 
         });
 
+        // TAB STATE PERSISTENCE
         document.addEventListener("DOMContentLoaded", function() {
 
             const tabButtons = document.querySelectorAll('#pills-tab button[data-bs-toggle="pill"]');
@@ -429,39 +868,14 @@
         });
 
 
+        // DATEPICKER
         $('#date-range').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true,
             todayHighlight: true,
         });
 
-        $(document).on('change', '.score-input', function() {
-
-            let input = $(this);
-            let id = input.data('id');
-            let field = input.data('field');
-            let value = input.val();
-
-            $.ajax({
-                url: `/staff/student-report/update/${id}`,
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    field: field,
-                    value: value
-                },
-                success: function(res) {
-
-                    input.closest('tr').find('.total-score').text(res.total_score);
-
-                    let badge = input.closest('tr').find('.badge');
-                    badge.text(res.result);
-                    badge.removeClass('bg-success bg-danger');
-                    badge.addClass(res.result === 'pass' ? 'bg-success' : 'bg-danger');
-                }
-            });
-        });
-
+        // TEACHER ATTENDANCE CALCULATION
         let attendanceIndex = {{ $course->teacherAttendances->count() }};
 
         function formatDate(date) {
@@ -476,19 +890,20 @@
 
             function calculate() {
                 if (start.value && end.value) {
-
                     const startTime = new Date(`1970-01-01T${start.value}:00`);
                     const endTime = new Date(`1970-01-01T${end.value}:00`);
 
                     let diff = (endTime - startTime) / (1000 * 60 * 60);
 
-                    // Handle overnight (optional)
-                    if (diff < 0) diff += 24; // ✅ Set TH total.value=diff.toFixed(2); // ✅ Calculate ATH (cumulative) let
-                    prevRow = row.previousElementSibling;
+                    if (diff < 0) diff += 24;
+
+                    total.value = diff.toFixed(2);
+
+                    // Calculate ATH (cumulative)
+                    let prevRow = row.previousElementSibling;
                     let prevATH = 0;
                     if (prevRow) {
-                        const
-                            prevActual = prevRow.querySelector('.actual-hours');
+                        const prevActual = prevRow.querySelector('.actual-hours');
                         if (prevActual && prevActual.value) {
                             prevATH = parseFloat(prevActual.value) || 0;
                         }
@@ -499,6 +914,8 @@
             start.addEventListener('change', calculate);
             end.addEventListener('change', calculate);
         } // Apply to all rows
+
+
         document.querySelectorAll('#attendanceTable tbody tr').forEach(row => {
             calculateRow(row);
         });
