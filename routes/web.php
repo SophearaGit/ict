@@ -105,10 +105,17 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
          *******************************************************/
         Route::get('/courses/real-time', [RealTimeCoursesController::class, 'index'])->name('courses.real_time');
         Route::get('/courses/real-time/{course_id}', [RealTimeCoursesController::class, 'show'])->name('courses.real_time.show');
+        /*******************************************************
+         * STUDENT REPORT
+         *******************************************************/
+        Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
         Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])
             ->name('student-attendance.store');
+
         Route::get('/student-attendance', [StudentAttendanceController::class, 'getByDate'])
             ->name('student-attendance.get');
+
+
 
         /*******************************************************
          * CHAPTER
@@ -129,10 +136,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::delete('/course-content/{id}/delete-lesson', [CourseContentController::class, 'deleteLessonModal'])->name('course-content.delete-lesson');
         Route::post('/course-chapter/{chapter_id}/sort-lesson', [CourseContentController::class, 'sortLesson'])->name('course-chapter.sort-lesson');
 
-        /*******************************************************
-         * STUDENT REPORT
-         *******************************************************/
-        Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
+
 
 
         /*******************************************************

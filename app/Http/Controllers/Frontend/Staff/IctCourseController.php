@@ -203,62 +203,6 @@ class IctCourseController extends Controller
             ]
         ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | 🧮 STUDENT REPORT (AUTO CALCULATE)
-        |--------------------------------------------------------------------------
-        */
-        foreach ($course->students as $student) {
-
-            $attendances = $student->student_attendances;
-
-            $present = $attendances->where('status', 'present')->count();
-            $absent = $attendances->where('status', 'absent')->count();
-            $permission = $attendances->where('status', 'late')->count();
-
-            $totalClasses = $present + $absent + $permission;
-
-            $attendanceScore = $totalClasses > 0
-                ? ($present / $totalClasses) * 100
-                : 0;
-
-            // Keep existing scores if already entered
-            $existing = StudentReports::where([
-                'course_id' => $course->id,
-                'student_id' => $student->id
-            ])->first();
-
-            $assignment = $existing->assignment_score ?? 0;
-            $mini = $existing->mini_project_score ?? 0;
-            $final = $existing->final_project_score ?? 0;
-
-            $totalScore =
-                ($attendanceScore * 0.10) +
-                ($assignment * 0.20) +
-                ($mini * 0.20) +
-                ($final * 0.50);
-
-            $result = $totalScore >= 50 ? 'pass' : 'fail';
-
-            StudentReports::updateOrCreate(
-                [
-                    'course_id' => $course->id,
-                    'student_id' => $student->id
-                ],
-                [
-                    'present' => $present,
-                    'absent' => $absent,
-                    'permission' => $permission,
-                    'attendance_score' => round($attendanceScore, 2),
-                    'assignment_score' => $assignment,
-                    'mini_project_score' => $mini,
-                    'final_project_score' => $final,
-                    'total_score' => round($totalScore, 2),
-                    'result' => $result
-                ]
-            );
-        }
-
         return view(
             'frontend.staff.pages.course-management.course-detail.course-detail',
             [
@@ -334,51 +278,126 @@ class IctCourseController extends Controller
         return view('frontend.staff.pages.course-management.edit', $data);
     }
 
-    public function update(Request $request, $id): RedirectResponse
+
+
+    public function update(Request $request, $id)
     {
-        $course = ICTCourse::findOrFail($id);
+        $report = StudentReports::findOrFail($id);
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'price_per_session' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive',
-            'instructor_id' => 'required|exists:users,id',
-            'schedule_id' => 'required|exists:i_c_t_schedules,id',
-            'description' => 'nullable|string',
-            'thumbnail' => 'nullable|image|max:3000',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'duration' => 'nullable|numeric|min:0',
-        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
-        if ($request->hasFile('thumbnail')) {
-            if ($course->thumbnail != '') {
-                $this->deleteIfImageExist($course->thumbnail);
-            }
-            $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
-        } else {
-            $thumbnailPath = $course->thumbnail; // Keep existing thumbnail if no new file is uploaded
+        $rules = [
+            'assignment_score' => 30,
+            'mini_project_score' => 20,
+            'final_project_score' => 40,
+        ];
+
+        $field = $request->field;
+        $value = (float) $request->value;
+
+        // invalid field
+        if (!array_key_exists($field, $rules)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid field'
+            ], 422);
         }
 
-        $course->title = $request->title;
-        $course->price = $request->price;
-        $course->price_per_session = $request->price_per_session;
-        $course->slug = Str::slug($request->title);
-        $course->thumbnail = $thumbnailPath;
-        $course->status = $request->status;
-        $course->instructor_id = $request->instructor_id;
-        $course->schedule_id = $request->schedule_id;
-        $course->description = $request->description;
-        $course->start_date = $request->start_date;
-        $course->end_date = $request->end_date;
-        $course->duration = $request->duration;
-        $course->save();
+        // clamp value
+        $value = max(0, min($value, $rules[$field]));
 
-        return redirect()->route('staff.courses.index')
-            ->with('success', 'Course updated successfully.');
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE FIELD
+        |--------------------------------------------------------------------------
+        */
 
+        $report->$field = $value;
+
+        /*
+        |--------------------------------------------------------------------------
+        | RECALCULATE TOTAL
+        |--------------------------------------------------------------------------
+        */
+
+        $attendance = (float) $report->attendance_score;
+        $assignment = (float) $report->assignment_score;
+        $mini = (float) $report->mini_project_score;
+        $final = (float) $report->final_project_score;
+
+        $total =
+            $attendance +
+            $assignment +
+            $mini +
+            $final;
+
+        $report->total_score = round($total, 2);
+
+        $report->result = $total >= 50
+            ? 'pass'
+            : 'fail';
+
+        $report->save();
+
+        return response()->json([
+            'success' => true,
+            'attendance_score' => $report->attendance_score,
+            'total_score' => $report->total_score,
+            'result' => $report->result
+        ]);
     }
+
+
+
+    // public function update(Request $request, $id): RedirectResponse
+    // {
+    //     $course = ICTCourse::findOrFail($id);
+
+    //     $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'price' => 'required|numeric|min:0',
+    //         'price_per_session' => 'nullable|numeric|min:0',
+    //         'status' => 'required|in:active,inactive',
+    //         'instructor_id' => 'required|exists:users,id',
+    //         'schedule_id' => 'required|exists:i_c_t_schedules,id',
+    //         'description' => 'nullable|string',
+    //         'thumbnail' => 'nullable|image|max:3000',
+    //         'start_date' => 'nullable|date',
+    //         'end_date' => 'nullable|date|after_or_equal:start_date',
+    //         'duration' => 'nullable|numeric|min:0',
+    //     ]);
+
+    //     if ($request->hasFile('thumbnail')) {
+    //         if ($course->thumbnail != '') {
+    //             $this->deleteIfImageExist($course->thumbnail);
+    //         }
+    //         $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
+    //     } else {
+    //         $thumbnailPath = $course->thumbnail; // Keep existing thumbnail if no new file is uploaded
+    //     }
+
+    //     $course->title = $request->title;
+    //     $course->price = $request->price;
+    //     $course->price_per_session = $request->price_per_session;
+    //     $course->slug = Str::slug($request->title);
+    //     $course->thumbnail = $thumbnailPath;
+    //     $course->status = $request->status;
+    //     $course->instructor_id = $request->instructor_id;
+    //     $course->schedule_id = $request->schedule_id;
+    //     $course->description = $request->description;
+    //     $course->start_date = $request->start_date;
+    //     $course->end_date = $request->end_date;
+    //     $course->duration = $request->duration;
+    //     $course->save();
+
+    //     return redirect()->route('staff.courses.index')
+    //         ->with('success', 'Course updated successfully.');
+
+    // }
 
 
 

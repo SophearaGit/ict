@@ -433,157 +433,150 @@
                                 {{-- student-report-tab (empty) --}}
                                 <div class="tab-pane fade" id="student-report" role="tabpanel"
                                     aria-labelledby="student-report-tab">
-                                    <div class="report-wrapper mt-4 p-4 bg-white rounded-3 shadow-sm">
 
-                                        <!-- HEADER -->
-                                        <div class="mb-4">
-                                            <h5 class="fw-bold mb-3 text-center text-uppercase">
-                                                Student Report
-                                            </h5>
+                                    {{-- Report Header --}}
+                                    <div class="card-body border-bottom">
+                                        <h5 class="text-uppercase text-center fw-bold mb-4">Student Report</h5>
 
-                                            <div class="row small">
-                                                <div class="col-md-6">
-                                                    <p class="text-capitalize"><strong>Instructor:</strong>
+                                        <div class="row small">
+                                            <div class="col-md-6">
+                                                <p class="mb-1">
+                                                    <span class="text-muted">Instructor:</span>
+                                                    <span
+                                                        class="fw-semibold text-capitalize ms-1">{{ $course->instructor->name }}</span>
+                                                </p>
+                                                <p class="mb-0">
+                                                    <span class="text-muted">Course:</span>
+                                                    <span class="fw-semibold ms-1">{{ $course->title }}</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                                <p class="mb-1">
+                                                    <span class="text-muted">Room:</span>
+                                                    <span class="fw-semibold ms-1">{{ $course->room ?? 'A' }}</span>
+                                                </p>
+                                                <p class="mb-0">
+                                                    <span class="text-muted">Schedule:</span>
+                                                    @if ($course->schedule)
+                                                        @php
+                                                            $days = collect(explode('-', $course->schedule->study_day))
+                                                                ->map(fn($day) => ucfirst($day))
+                                                                ->implode(' • ');
+                                                            $start = \Carbon\Carbon::parse(
+                                                                $course->schedule->start_time,
+                                                            )->format('g:i');
+                                                            $end = \Carbon\Carbon::parse(
+                                                                $course->schedule->end_time,
+                                                            )->format('g:i A');
+                                                            $shift = ucfirst($course->schedule->shift);
+                                                        @endphp
+                                                        <span class="fw-semibold ms-1">{{ $days }} |
+                                                            {{ $shift }} ({{ $start }} –
+                                                            {{ $end }})</span>
+                                                    @else
+                                                        <span class="text-muted ms-1">No schedule</span>
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Report Table --}}
+                                    <div class="table-responsive">
+                                        <table
+                                            class="table table-bordered table-hover table-centered mb-0 text-nowrap align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th rowspan="2" class="text-center">No</th>
+                                                    <th rowspan="2">Name</th>
+                                                    <th colspan="2" class="text-center">Attendance ( 10% )</th>
+                                                    <th rowspan="2" class="text-center">Assignment ( 30% )</th>
+                                                    <th rowspan="2" class="text-center">Mini Project ( 20% )</th>
+                                                    <th rowspan="2" class="text-center">Final Project ( 40% )</th>
+                                                    <th rowspan="2" class="text-center">Total</th>
+                                                    <th rowspan="2" class="text-center">Result</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-center">P</th>
+                                                    <th class="text-center">A</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($course->studentReports as $i => $report)
+                                                    <tr id="report-row-{{ $report->student_id }}">
+                                                        <td class="text-center">{{ $i + 1 }}</td>
+                                                        <td class="text-capitalize">{{ $report->student->name }}</td>
+
+                                                        {{-- Attendance (read-only, auto-calculated from attendance tab) --}}
+                                                        <td class="text-center present">{{ $report->present }}</td>
+                                                        <td class="text-center absent">{{ $report->absent }}</td>
+
+                                                        {{-- Editable Scores --}}
+                                                        <td class="text-center">
+                                                            <input type="number"
+                                                                class="form-control form-control-sm text-center score-input"
+                                                                style="width: 70px; margin: auto;"
+                                                                data-id="{{ $report->id }}"
+                                                                data-field="assignment_score"
+                                                                value="{{ $report->assignment_score }}" min="0"
+                                                                max="30" readonly>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <input type="number"
+                                                                class="form-control form-control-sm text-center score-input"
+                                                                style="width: 70px; margin: auto;"
+                                                                data-id="{{ $report->id }}"
+                                                                data-field="mini_project_score"
+                                                                value="{{ $report->mini_project_score }}" min="0"
+                                                                max="20" readonly>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <input type="number"
+                                                                class="form-control form-control-sm text-center score-input"
+                                                                style="width: 70px; margin: auto;"
+                                                                data-id="{{ $report->id }}"
+                                                                data-field="final_project_score"
+                                                                value="{{ $report->final_project_score }}" min="0"
+                                                                max="40" readonly>
+                                                        </td>
+
+                                                        {{-- Auto-updated by JS after save --}}
+                                                        <td class="text-center fw-bold total-score">
+                                                            {{ $report->total_score }}</td>
+
+                                                        <td class="text-center">
+                                                            <span
+                                                                class="badge bg-{{ $report->result === 'pass' ? 'success' : 'danger' }}">
+                                                                {{ ucfirst($report->result) }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {{-- Report Footer --}}
+                                    <div class="card-body border-top">
+                                        <div class="row mt-4 text-center small">
+                                            <div class="col-md-6">
+                                                <p class="text-muted mb-0">Seen and approved by</p>
+                                                <div class="border-top mt-5 pt-3 mx-auto" style="width: 160px;">
+                                                    <p class="fw-semibold mb-0">ICT Training Center</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mt-5 mt-md-0">
+                                                <p class="text-muted mb-0">Prepared by</p>
+                                                <div class="border-top mt-5 pt-3 mx-auto" style="width: 160px;">
+                                                    <p class="fw-semibold mb-0 text-capitalize">Teacher:
                                                         {{ $course->instructor->name }}</p>
-                                                    <p class="text-capitalize"><strong>Course:</strong>
-                                                        {{ $course->title }}</p>
-                                                </div>
-                                                <div class="col-md-6 text-md-end">
-                                                    <p><strong>Room:</strong> {{ $course->room ?? 'A' }}</p>
-                                                    <p><strong>Schedule:</strong>
-                                                        @if ($course->schedule)
-                                                            @php
-                                                                $days = collect(
-                                                                    explode('-', $course->schedule->study_day),
-                                                                )
-                                                                    ->map(fn($day) => ucfirst($day))
-                                                                    ->implode(' • ');
-                                                                $start = \Carbon\Carbon::parse(
-                                                                    $course->schedule->start_time,
-                                                                )->format('g:i ');
-                                                                $end = \Carbon\Carbon::parse(
-                                                                    $course->schedule->end_time,
-                                                                )->format('g:i A');
-
-                                                                $shift = ucfirst($course->schedule->shift);
-                                                            @endphp
-                                                            {{ $days }} | {{ $shift }} (
-                                                            {{ $start }}
-                                                            –
-                                                            {{ $end }} )
-                                                        @else
-                                                            <span class="text-muted">No schedule</span>
-                                                        @endif
-
-                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- TABLE -->
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered text-center align-middle report-table">
-
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th rowspan="2">No</th>
-                                                        <th rowspan="2">Name</th>
-                                                        {{-- <th rowspan="2">Gender</th> --}}
-                                                        <th colspan="2">Attendance</th>
-                                                        <th rowspan="2">Assignment</th>
-                                                        <th rowspan="2">Mini Project</th>
-                                                        <th rowspan="2">Final Project</th>
-                                                        <th rowspan="2">Total</th>
-                                                        <th rowspan="2">Result</th>
-                                                        {{-- <th rowspan="2">Remark</th> --}}
-                                                    </tr>
-                                                    <tr>
-                                                        <th>P</th>
-                                                        <th>A</th>
-                                                        {{-- <th>AP</th> --}}
-                                                    </tr>
-                                                </thead>
-
-                                                <tbody>
-                                                    @foreach ($course->studentReports as $i => $report)
-                                                        <tr>
-                                                            <td>{{ $i + 1 }}</td>
-                                                            <td class="text-start">{{ $report->student->name }}</td>
-                                                            {{-- <td>{{ $report->student->gender }}</td> --}}
-
-                                                            <!-- Attendance -->
-                                                            <td>{{ $report->present }}</td>
-                                                            <td>{{ $report->absent }}</td>
-                                                            {{-- <td>{{ $report->permission }}</td> --}}
-
-                                                            <!-- Editable Scores -->
-                                                            <td>
-                                                                <input type="number" class="form-control score-input"
-                                                                    data-id="{{ $report->id }}"
-                                                                    data-field="assignment_score"
-                                                                    value="{{ number_format($report->assignment_score) }}"
-                                                                    readonly>
-                                                            </td>
-
-                                                            <td>
-                                                                <input type="number" class="form-control score-input"
-                                                                    data-id="{{ $report->id }}"
-                                                                    data-field="mini_project_score"
-                                                                    value="{{ number_format($report->mini_project_score) }}"
-                                                                    readonly>
-                                                            </td>
-
-                                                            <td>
-                                                                <input type="number" class="form-control score-input"
-                                                                    data-id="{{ $report->id }}"
-                                                                    data-field="final_project_score"
-                                                                    value="{{ number_format($report->final_project_score) }}"
-                                                                    readonly>
-                                                            </td>
-
-                                                            <!-- Auto -->
-                                                            <td class="fw-bold total-score">
-                                                                {{ $report->total_score }}
-                                                            </td>
-
-                                                            <td>
-                                                                <span
-                                                                    class="badge bg-{{ $report->result == 'pass' ? 'success' : 'danger' }}">
-                                                                    {{ ucfirst($report->result) }}
-                                                                </span>
-                                                            </td>
-
-                                                            {{-- <td>{{ $report->remark }}</td> --}}
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-
-                                            </table>
-                                        </div>
-
-                                        <!-- FOOTER -->
-                                        <div class="row mt-5 text-center small">
-                                            <div class="col-md-6">
-                                                <p>Seen and Approved by</p>
-                                                <br><br>
-                                                <strong>ICT Training Center</strong>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <p>Prepared by</p>
-                                                <br><br>
-                                                <strong class="text-capitalize">Teacher:
-                                                    {{ $course->instructor->name }}</strong>
-                                            </div>
-                                        </div>
-
                                     </div>
                                 </div>
-
-
-
-
-
                             </div>
                         </div>
                     </div>

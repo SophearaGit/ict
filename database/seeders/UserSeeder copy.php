@@ -18,8 +18,6 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Chantheoun Sokvibol',
-                'khmer_name' => 'ចន្ធឿន សុខវិបុល',
-                'dob' => '1990-01-15',
                 'email' => 'chantheounsokvibol@gmail.com',
                 'phone' => '012111222',
                 'gender' => 'male',
@@ -37,8 +35,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Muth Manou',
-                'khmer_name' => 'មុត មានូ',
-                'dob' => '1992-03-22',
                 'email' => 'muthmanou@gmail.com',
                 'phone' => '015333444',
                 'gender' => 'female',
@@ -56,8 +52,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Sin Many',
-                'khmer_name' => 'សិន មានី',
-                'dob' => '1988-07-10',
                 'email' => 'sinmany@gmail.com',
                 'phone' => '0886610148',
                 'gender' => 'male',
@@ -75,8 +69,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Khorn sopheap',
-                'khmer_name' => 'ខន សុភាព',
-                'dob' => '1993-05-18',
                 'email' => 'khornsopheap@gmail.com',
                 'phone' => '093777888',
                 'gender' => 'female',
@@ -94,8 +86,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Srun Borath',
-                'khmer_name' => 'ស្រុន បូរ័ត្ន',
-                'dob' => '1991-11-04',
                 'email' => 'srunborath@gmail.com',
                 'phone' => '0974242291',
                 'gender' => 'male',
@@ -113,8 +103,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Hong Kimleng',
-                'khmer_name' => 'ហុង គីមឡេង',
-                'dob' => '1989-08-25',
                 'email' => 'hongkimleng@gamil.com',
                 'phone' => '012222333',
                 'gender' => 'male',
@@ -132,8 +120,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Phally Makara',
-                'khmer_name' => 'ផល្លី មករា',
-                'dob' => '1994-02-14',
                 'email' => 'phallymakara@gmail.com',
                 'phone' => '089804659',
                 'gender' => 'male',
@@ -151,8 +137,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Yeab Chanya',
-                'khmer_name' => 'យ៉ាប ចន្យា',
-                'dob' => '1995-06-30',
                 'email' => 'yeabchanya@gamil.com',
                 'phone' => '017666777',
                 'gender' => 'female',
@@ -170,8 +154,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Lay Longhav',
-                'khmer_name' => 'លី លោងហាវ',
-                'dob' => '1987-09-12',
                 'email' => 'laylonghav@gmail.com',
                 'phone' => '093888999',
                 'gender' => 'male',
@@ -189,8 +171,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Ang Kimsor',
-                'khmer_name' => 'អង គីមសុរ',
-                'dob' => '1996-04-07',
                 'email' => 'angkimsor@gmail.com',
                 'phone' => '087932289',
                 'gender' => 'female',
@@ -208,8 +188,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Ngan Channa',
-                'khmer_name' => 'ង៉ាន ចន្នា',
-                'dob' => '1993-12-19',
                 'email' => 'nganchanna@gmail.com',
                 'phone' => '012654321',
                 'gender' => 'female',
@@ -227,8 +205,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Chea Dane',
-                'khmer_name' => 'ជា ដានី',
-                'dob' => '1994-10-08',
                 'email' => 'cheadane@gmail.com',
                 'phone' => '015987654',
                 'gender' => 'female',
@@ -246,8 +222,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Tiv Sovithyea',
-                'khmer_name' => 'តិវ សុវិទ្យា',
-                'dob' => '1990-06-15',
                 'email' => 'tiv.sovithyea@gmail.com',
                 'phone' => '0883786262',
                 'gender' => 'male',
@@ -265,8 +239,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'teacher',
-                'khmer_name' => 'គ្រូបង្រៀន',
-                'dob' => '1990-01-01',
                 'email' => 'teacher@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -284,8 +256,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'raa',
-                'khmer_name' => 'រ៉ា',
-                'dob' => '1990-01-01',
                 'email' => 'raa@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -303,8 +273,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'student',
-                'khmer_name' => 'សិស្ស',
-                'dob' => '2000-01-01',
                 'email' => 'student@gmail.com',
                 'phone' => '015000000',
                 'gender' => 'female',
@@ -322,8 +290,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Reak Sothea',
-                'khmer_name' => 'រ៉េក សុធា',
-                'dob' => '2001-03-14',
                 'email' => 'reak@gmail.com',
                 'phone' => '015000000',
                 'gender' => 'female',
@@ -341,8 +307,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'reach',
-                'khmer_name' => 'រ៉ែស',
-                'dob' => '2000-06-20',
                 'email' => 'reach@gmail.com',
                 'phone' => '015000000',
                 'gender' => 'female',
@@ -360,8 +324,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'rin',
-                'khmer_name' => 'រីន',
-                'dob' => '2001-09-05',
                 'email' => 'rin@gmail.com',
                 'phone' => '015000000',
                 'gender' => 'female',
@@ -379,8 +341,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => ' Tha Channy',
-                'khmer_name' => 'ថា ចន្នី',
-                'dob' => '1995-07-21',
                 'email' => 'staff@gmail.com',
                 'phone' => '017000000',
                 'gender' => 'female',
@@ -398,8 +358,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Thy Narong',
-                'khmer_name' => 'ថី នរោង',
-                'dob' => '1988-03-17',
                 'email' => 'thynarong@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -417,8 +375,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Soth Bandethvitou',
-                'khmer_name' => 'សុទ្ធ បណ្ដែតវិតូ',
-                'dob' => '1991-05-29',
                 'email' => 'sothBandethvitou@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -436,8 +392,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Sok Vitou',
-                'khmer_name' => 'សុខ វិតូ',
-                'dob' => '1992-08-11',
                 'email' => 'sokvitou@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -455,8 +409,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Tha Channy',
-                'khmer_name' => 'ថា ចន្នី',
-                'dob' => '1995-07-21',
                 'email' => 'thachanny@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'female',
@@ -474,8 +426,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Pich Vorleak',
-                'khmer_name' => 'ពេជ្រ វរលក្ខណ៍',
-                'dob' => '1993-11-03',
                 'email' => 'pichvorleak@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'female',
@@ -493,8 +443,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Nov sovannet',
-                'khmer_name' => 'នូ សុវណ្ណណែត',
-                'dob' => '1989-04-26',
                 'email' => 'novsovannet@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -512,8 +460,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Nhanh Nhim',
-                'khmer_name' => 'ញ៉ាំ ញឹម',
-                'dob' => '1991-02-08',
                 'email' => 'nhanhnhim@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
@@ -531,8 +477,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Thy ChanTha',
-                'khmer_name' => 'ថី ចន្ថា',
-                'dob' => '1990-10-15',
                 'email' => 'thychanthat@gmail.com',
                 'phone' => '090500427',
                 'gender' => 'male',
@@ -550,8 +494,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Chan Vimean',
-                'khmer_name' => 'ចាន់ វិមាន',
-                'dob' => '1992-01-23',
                 'email' => 'chanvimean@gmail.com',
                 'phone' => '089804644',
                 'gender' => 'male',
@@ -569,8 +511,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Sao Sothea',
-                'khmer_name' => 'សៅ សុធា',
-                'dob' => '1993-06-09',
                 'email' => 'saosothea@gmail.com',
                 'phone' => '090426632',
                 'gender' => 'male',
@@ -588,8 +528,6 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Nut Dalitongsin',
-                'khmer_name' => 'នូត ដាលីតុងស៊ីន',
-                'dob' => '1990-12-30',
                 'email' => 'nutdalitongsin@gmail.com',
                 'phone' => '012000000',
                 'gender' => 'male',
