@@ -135,225 +135,120 @@
                     </ul>
                 </div>
                 @auth
-                    <ul class="navbar-nav navbar-right-wrap ms-2 flex-row d-none d-md-block">
-                        <li class="dropdown d-inline-block stopevent position-static">
-                            {{-- <a class="btn btn-light btn-icon rounded-circle indicator indicator-primary" href="#"
-                                role="button" id="dropdownNotificationSecond" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <i class="fe fe-bell"></i>
-                            </a> --}}
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-lg position-absolute mx-3 my-5"
-                                aria-labelledby="dropdownNotificationSecond">
-                                <div>
-                                    <div class="border-bottom px-3 pb-3 d-flex align-items-center">
-                                        <span class="h5 mb-0">Notifications</span>
-                                        <a href="# ">
-                                            <span class="align-middle"><i class="fe fe-settings me-1"></i></span>
-                                        </a>
-                                    </div>
-                                    <ul class="list-group list-group-flush" style="height: 300px" data-simplebar="init">
-                                        <div class="simplebar-wrapper" style="margin: 0px;">
-                                            <div class="simplebar-height-auto-observer-wrapper">
-                                                <div class="simplebar-height-auto-observer"></div>
-                                            </div>
-                                            <div class="simplebar-mask">
-                                                <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                    <div class="simplebar-content-wrapper" tabindex="0" role="region"
-                                                        aria-label="scrollable content"
-                                                        style="height: auto; overflow: hidden;">
-                                                        <div class="simplebar-content" style="padding: 0px;">
-                                                            <li class="list-group-item bg-light">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <a class="text-body" href="#">
-                                                                            <div class="d-flex">
-                                                                                <img src="{{ $imgCheck }}"
-                                                                                    alt=""
-                                                                                    class="avatar-md rounded-circle">
-                                                                                <div class="ms-3">
-                                                                                    <h5 class="fw-bold mb-1">Kristin
-                                                                                        Watson:</h5>
-                                                                                    <p class="mb-3 text-body">Krisitn
-                                                                                        Watsan like your comment on
-                                                                                        course Javascript Introduction!
-                                                                                    </p>
-                                                                                    <span class="fs-6">
-                                                                                        <span>
-                                                                                            <span
-                                                                                                class="fe fe-thumbs-up text-success me-1"></span>
-                                                                                            2 hours ago,
-                                                                                        </span>
-                                                                                        <span class="ms-1">2:19
-                                                                                            PM</span>
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="col-auto text-center me-2">
-                                                                        <a href="#" class="badge-dot bg-info"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-bs-placement="top"
-                                                                            aria-label="Mark as read"
-                                                                            data-bs-original-title="Mark as read"></a>
-                                                                        <div>
-                                                                            <a href="#" class="bg-transparent"
-                                                                                data-bs-toggle="tooltip"
-                                                                                data-bs-placement="top"
-                                                                                aria-label="Remove"
-                                                                                data-bs-original-title="Remove">
-                                                                                <i class="fe fe-x"></i>
-                                                                            </a>
-                                                                        </div>
+                    <ul class="navbar-nav navbar-right-wrap ms-2 d-flex nav-top-wrap">
+                        @if (Auth::user()->role == 'instructor')
+                            <li class="dropdown stopevent">
+                                <a class="btn btn-light btn-icon rounded-circle" href="#" role="button"
+                                    id="dropdownNotification" data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                    <i class="fe fe-bell"></i>
+                                    @if (auth()->user()->unreadNotifications->count() > 0)
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {{ auth()->user()->unreadNotifications->count() }}
+                                        </span>
+                                    @endif
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-lg"
+                                    aria-labelledby="dropdownNotification">
+                                    <div>
+                                        {{-- HEADER --}}
+                                        <div
+                                            class="border-bottom px-3 py-3 d-flex justify-content-between align-items-center">
+                                            <span class="h4 mb-0">
+                                                Notifications
+                                            </span>
+                                            @if (auth()->user()->unreadNotifications->count())
+                                                <form action="{{ route('instructor.notifications.read-all') }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <button class="btn btn-sm btn-light">
+                                                        Mark all read
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                        {{-- LIST --}}
+                                        <ul class="list-group list-group-flush"
+                                            style="max-height: 400px; overflow-y:auto;">
+                                            @forelse(auth()->user()->notifications->take(10) as $notification)
+                                                <li class="list-group-item {{ $notification->read_at ? '' : 'bg-light' }}">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <a href="{{ $notification->data['redirect_url'] ?? '#' }}"
+                                                                class="text-body text-decoration-none">
+                                                                <div class="d-flex">
+                                                                    {{-- AVATAR --}}
+                                                                    <img src="{{ asset($notification->data['admin_image'] ?? '/default-images/user/both.jpg') }}"
+                                                                        alt="" class="avatar-md rounded-circle">
+                                                                    {{-- CONTENT --}}
+                                                                    <div class="ms-3">
+                                                                        <h5 class="fw-bold mb-1">
+                                                                            {{ $notification->data['title'] ?? 'Notification' }}
+                                                                        </h5>
+                                                                        <p class="mb-1">
+                                                                            {{ $notification->data['message'] ?? '' }}
+                                                                        </p>
+                                                                        <span class="fs-6 text-muted">
+                                                                            {{ $notification->created_at->diffForHumans() }}
+                                                                        </span>
                                                                     </div>
                                                                 </div>
-                                                            </li>
-                                                            <li class="list-group-item">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <a class="text-body" href="#">
-                                                                            <div class="d-flex">
-                                                                                <img src=""
-                                                                                    alt=""
-                                                                                    class="avatar-md rounded-circle">
-                                                                                <div class="ms-3">
-                                                                                    <h5 class="fw-bold mb-1">Brooklyn
-                                                                                        Simmons</h5>
-                                                                                    <p class="mb-3 text-body">Just
-                                                                                        launched a new Courses React for
-                                                                                        Beginner.</p>
-                                                                                    <span class="fs-6">
-                                                                                        <span>
-                                                                                            <span
-                                                                                                class="fe fe-thumbs-up text-success me-1"></span>
-                                                                                            Oct 9,
-                                                                                        </span>
-                                                                                        <span class="ms-1">1:20
-                                                                                            PM</span>
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="col-auto text-center me-2">
-                                                                        <a href="#" class="badge-dot bg-secondary"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-bs-placement="top"
-                                                                            aria-label="Mark as unread"
-                                                                            data-bs-original-title="Mark as unread"></a>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                            <li class="list-group-item">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <a class="text-body" href="#">
-                                                                            <div class="d-flex">
-                                                                                <img src=""
-                                                                                    alt=""
-                                                                                    class="avatar-md rounded-circle">
-                                                                                <div class="ms-3">
-                                                                                    <h5 class="fw-bold mb-1">Jenny
-                                                                                        Wilson</h5>
-                                                                                    <p class="mb-3 text-body">Krisitn
-                                                                                        Watsan like your comment on
-                                                                                        course Javascript Introduction!
-                                                                                    </p>
-                                                                                    <span class="fs-6">
-                                                                                        <span>
-                                                                                            <span
-                                                                                                class="fe fe-thumbs-up text-info me-1"></span>
-                                                                                            Oct 9,
-                                                                                        </span>
-                                                                                        <span class="ms-1">1:56
-                                                                                            PM</span>
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="col-auto text-center me-2">
-                                                                        <a href="#" class="badge-dot bg-secondary"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-bs-placement="top"
-                                                                            aria-label="Mark as unread"
-                                                                            data-bs-original-title="Mark as unread"></a>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                            <li class="list-group-item">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <a class="text-body" href="#">
-                                                                            <div class="d-flex">
-                                                                                <img src=""
-                                                                                    alt=""
-                                                                                    class="avatar-md rounded-circle">
-                                                                                <div class="ms-3">
-                                                                                    <h5 class="fw-bold mb-1">Sina Ray
-                                                                                    </h5>
-                                                                                    <p class="mb-3 text-body">You earn
-                                                                                        new certificate for complete the
-                                                                                        Javascript Beginner course.</p>
-                                                                                    <span class="fs-6">
-                                                                                        <span>
-                                                                                            <span
-                                                                                                class="fe fe-award text-warning me-1"></span>
-                                                                                            Oct 9,
-                                                                                        </span>
-                                                                                        <span class="ms-1">1:56
-                                                                                            PM</span>
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="col-auto text-center me-2">
-                                                                        <a href="#" class="badge-dot bg-secondary"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-bs-placement="top"
-                                                                            aria-label="Mark as unread"
-                                                                            data-bs-original-title="Mark as unread"></a>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
+                                                            </a>
+                                                        </div>
+                                                        {{-- RIGHT ACTION --}}
+                                                        <div class="col-auto text-center me-2">
+                                                            @if (!$notification->read_at)
+                                                                <form
+                                                                    action="{{ route('instructor.notifications.read', $notification->id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    <button type="submit"
+                                                                        class="badge-dot bg-info border-0"
+                                                                        title="Mark as read">
+                                                                    </button>
+                                                                </form>
+                                                            @else
+                                                                <span class="badge-dot bg-secondary"></span>
+                                                            @endif
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="simplebar-placeholder" style="width: 0px; height: 0px;"></div>
+                                                </li>
+                                            @empty
+                                                <li class="list-group-item text-center py-4">
+                                                    <div class="text-muted">
+                                                        No notifications yet.
+                                                    </div>
+                                                </li>
+                                            @endforelse
+                                        </ul>
+                                        {{-- FOOTER --}}
+                                        <div class="border-top px-3 py-3">
+                                            <a href="#" class="text-link fw-semibold">
+                                                See all Notifications
+                                            </a>
                                         </div>
-                                        <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                                            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                                        </div>
-                                        <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
-                                            <div class="simplebar-scrollbar"
-                                                style="height: 0px; transform: translate3d(0px, 0px, 0px); display: none;">
-                                            </div>
-                                        </div>
-                                    </ul>
-                                    <div class="border-top px-3 pt-3 pb-0">
-                                        <a href="../pages/notification-history.html" class="text-link fw-semibold">See
-                                            all Notifications</a>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li class="dropdown ms-2 d-inline-block position-static">
-                            <a class="rounded-circle" href="#" data-bs-toggle="dropdown" data-bs-display="static"
-                                aria-expanded="false">
+                            </li>
+                        @endif
+                        <li class="dropdown ms-2">
+                            <a class="rounded-circle" href="javascript:;" role="button" id="dropdownUser"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="avatar avatar-md avatar-indicators avatar-online">
-                                    <img alt="avatar" src="{{ $imgCheck }}" class="rounded-circle">
+                                    <img alt="avatar" src="{{ asset($imgCheck) }}" class="rounded-circle" />
                                 </div>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end position-absolute mx-3 my-5">
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                                 <div class="dropdown-item">
                                     <div class="d-flex">
                                         <div class="avatar avatar-md avatar-indicators avatar-online">
-                                            <img alt="avatar" src="{{ $imgCheck }}" class="rounded-circle">
+                                            <img alt="avatar" src="{{ asset($imgCheck) }}" class="rounded-circle" />
                                         </div>
                                         <div class="ms-3 lh-1">
-                                            <h5 class="mb-1">{{ auth()->user()->name }}</h5>
+                                            <h5 class="mb-1">
+                                                {{ auth()->user()->name }}
+                                            </h5>
                                             <p class="mb-0">
                                                 {{ auth()->user()->email }}
                                             </p>
@@ -396,7 +291,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" href="javascript:void(0);">
+                                            <a class="dropdown-item" href="{{ route('staff.profile.edit') }}">
                                                 <i class="fe fe-user me-2"></i>
                                                 Profile
                                             </a>
@@ -413,13 +308,12 @@
                                 <div class="dropdown-divider"></div>
                                 <ul class="list-unstyled">
                                     <li>
-                                        <a class="dropdown-item" href="javascript:void(0);"
-                                            onclick="event.preventDefault();
-                                        document.getElementById('all_role_logout_form').submit();">
+                                        <a class="dropdown-item" href="{{ route('logout') }}"
+                                            onclick="event.preventDefault();getElementById('logout').submit();">
                                             <i class="fe fe-power me-2"></i>
                                             Sign Out
                                         </a>
-                                        <form method="POST" action="{{ route('logout') }}" id="all_role_logout_form">
+                                        <form method="POST" id="logout" action="{{ route('logout') }}">
                                             @csrf
                                         </form>
                                     </li>
@@ -434,6 +328,7 @@
                         in</a>
                     <a href="{{ route('register') }}" class="btn btn-primary ms-2 d-none d-lg-block">Sign up</a>
                 @endauth
+
                 <!-- Button -->
                 <button class="navbar-toggler collapsed ms-2 ms-lg-0" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbar-default" aria-controls="navbar-default" aria-expanded="false"
@@ -481,7 +376,6 @@
                         <li>
                             <a href="../../pages/landings/landing-sass.html" class="dropdown-item">SaaS</a>
                         </li>
-
                         <li>
                             <a href="../../pages/landings/landing-job.html" class="dropdown-item">Job Listing</a>
                         </li>
@@ -553,7 +447,6 @@
                                 </li>
                             </ul>
                         </li>
-
                         <li class="dropdown-submenu dropend">
                             <a class="dropdown-item dropdown-list-group-item dropdown-toggle"
                                 href="#">Career</a>
@@ -644,7 +537,6 @@
                         <li>
                             <hr class="mx-3" />
                         </li>
-
                         <li>
                             <a class="dropdown-item" href="../../pages/about.html">About</a>
                         </li>
@@ -676,7 +568,6 @@
                         <li>
                             <a class="dropdown-item" href="../../pages/compare-plan.html">Compare Plan</a>
                         </li>
-
                         <li>
                             <a class="dropdown-item" href="../../pages/contact.html">Contact</a>
                         </li>
@@ -1007,7 +898,6 @@
                                                 <a href="#" class="nav-link">Artificial Intelligence</a>
                                             </li>
                                         </ul>
-
                                         <div class="mt-4">
                                             <a href="#" class="btn btn-outline-primary btn-sm">View all
                                                 Skills</a>

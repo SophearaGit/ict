@@ -22,6 +22,15 @@
                     Instructor Request
                 </a>
             </li>
+            {{-- Student Report --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Route::is('admin.student-report.index') ? 'active' : '' }} "
+                    href="{{ route('admin.student-report.index') }}">
+                    <i class="nav-icon fe fe-flag me-2"></i>
+                    Student Report
+                </a>
+            </li>
+
             <!-- Nav item -->
             <li class="nav-item">
                 <a class="nav-link {{ Route::is('admin.instructor.index') ||
