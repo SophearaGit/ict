@@ -3,11 +3,60 @@
 namespace App\Http\Controllers\Frontend\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use App\Models\ICTCourse;
 use App\Models\StudentReports;
+use App\Models\User;
+use App\Notifications\Teacher\StudentReportApprovalRequestNotification;
+use App\Notifications\Teacher\StudentReportCancelApprovalNotification;
 use Illuminate\Http\Request;
 
 class StudentReportController extends Controller
 {
+
+
+    public function cancelApproval($courseId)
+    {
+        $course = ICTCourse::findOrFail($courseId);
+
+        StudentReports::where('course_id', $course->id)
+            ->update(['approval_status' => 'draft']);
+
+        $admins = Admin::get();
+        foreach ($admins as $admin) {
+            $admin->notify(
+                new StudentReportCancelApprovalNotification($course)
+            );
+        }
+
+        return back()->with('success', 'Approval request cancelled.');
+    }
+
+    public function requestApproval($courseId)
+    {
+        $course = ICTCourse::findOrFail($courseId);
+
+        StudentReports::where('course_id', $course->id)
+            ->update([
+                'approval_status' => 'pending'
+            ]);
+
+        // admin users
+        $admins = Admin::get();
+
+        foreach ($admins as $admin) {
+
+            $admin->notify(
+                new StudentReportApprovalRequestNotification($course)
+            );
+        }
+
+        return back()->with(
+            'success',
+            'Approval request sent successfully.'
+        );
+    }
+
     public function update(Request $request, $id)
     {
         $report = StudentReports::findOrFail($id);

@@ -12,6 +12,35 @@ use Illuminate\Support\Carbon;
 
 class AdminDashboardController extends Controller
 {
+
+    public function readNotification($id)
+    {
+        $notification = auth()
+            ->user()
+            ->notifications()
+            ->findOrFail($id);
+
+        // security check
+        if ($notification->notifiable_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $notification->markAsRead();
+
+        return back();
+    }
+
+    public function readAllNotifications()
+    {
+        auth()
+            ->user()
+            ->unreadNotifications
+            ->markAsRead();
+
+        return back();
+    }
+
+
     public function index(): View
     {
         // 1. Get total revenue (Global)

@@ -75,6 +75,17 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
     ->name('instructor.')
     ->group(function () {
 
+        // NOTIFICATIONS
+        Route::post(
+            '/notifications/read/{id}',
+            [InstructorDashboardController::class, 'readNotification']
+        )->name('notifications.read');
+
+        Route::post(
+            '/notifications/read-all',
+            [InstructorDashboardController::class, 'readAllNotifications']
+        )->name('notifications.read-all');
+
 
         /*******************************************************
          * DASHBOARD
@@ -109,6 +120,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
          * STUDENT REPORT
          *******************************************************/
         Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
+        Route::post('/student-report/request-approval/{course}', [StudentReportController::class, 'requestApproval'])->name('student-report.request-approval');
+        Route::post('/student-report/cancel-approval/{course}', [StudentReportController::class, 'cancelApproval'])->name('student-report.cancel-approval');
+
+
         Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])
             ->name('student-attendance.store');
 

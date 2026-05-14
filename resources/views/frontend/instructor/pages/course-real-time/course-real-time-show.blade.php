@@ -1,5 +1,8 @@
 @extends('frontend.layouts.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@php
+    $status = $course->studentReports->first()?->approval_status;
+@endphp
 @push('styles')
     @include('frontend.instructor.pages.course-real-time.styling.style')
     <script>
@@ -179,6 +182,28 @@
                     }
                 });
             }
+
+            // 🔒 Lock attendance if report is pending approval
+            @if ($status === 'pending')
+                document.querySelectorAll('#attendanceTable .status-toggle span').forEach(btn => {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.6';
+                });
+
+                document.querySelectorAll('#attendanceTable input').forEach(input => {
+                    input.setAttribute('disabled', true);
+                    input.setAttribute('placeholder', 'Locked');
+                });
+
+                // Disable row click to auto-mark present
+                $(document).off('click', '#attendanceTable tr');
+
+                // Disable mark all present button
+                document.querySelector('[onclick="markAllPresent()"]').setAttribute('disabled', true);
+
+                // Disable note keyup autosave
+                $('#attendanceTable').off('keyup', 'input');
+            @endif
 
             /* =========================
                AUTO SAVE
@@ -412,6 +437,7 @@
     </script>
 @endpush
 @section('content')
+
     <!-- Page header -->
     <section class="pt-lg-8 pb-8
         d-flex align-items-center"
@@ -537,6 +563,18 @@
                                         <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
                                             <div>
                                                 <h4 class="fw-bold mb-1">📋 Student Attendance</h4>
+                                                @if ($status === 'pending')
+                                                    <div class="alert alert-warning d-flex align-items-center mb-4"
+                                                        role="alert">
+                                                        <i class="fe fe-lock me-2"></i>
+                                                        <div>
+                                                            Attendance and scores are <strong>locked</strong> while approval
+                                                            is pending.
+                                                            Cancel the request to make changes.
+                                                        </div>
+                                                    </div>
+                                                @endif
+
                                                 <small class="text-muted">
                                                     {{-- dynamic date when select eg.Today — Tue, 14 Apr 2026 --}}
                                                 </small>
@@ -720,7 +758,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     {{-- Report Table --}}
                                     <div class="table-responsive">
                                         <table
@@ -759,7 +796,8 @@
                                                                 data-id="{{ $report->id }}"
                                                                 data-field="assignment_score"
                                                                 value="{{ $report->assignment_score }}" min="0"
-                                                                max="30">
+                                                                max="30"
+                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
 
                                                         <td class="text-center">
@@ -769,7 +807,8 @@
                                                                 data-id="{{ $report->id }}"
                                                                 data-field="mini_project_score"
                                                                 value="{{ $report->mini_project_score }}" min="0"
-                                                                max="20">
+                                                                max="20"
+                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
 
                                                         <td class="text-center">
@@ -779,7 +818,8 @@
                                                                 data-id="{{ $report->id }}"
                                                                 data-field="final_project_score"
                                                                 value="{{ $report->final_project_score }}" min="0"
-                                                                max="40">
+                                                                max="40"
+                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
 
                                                         {{-- Auto-updated by JS after save --}}
@@ -797,23 +837,100 @@
                                             </tbody>
                                         </table>
                                     </div>
-
                                     {{-- Report Footer --}}
                                     <div class="card-body border-top">
                                         <div class="row mt-4 text-center small">
+
                                             <div class="col-md-6">
                                                 <p class="text-muted mb-0">Seen and approved by</p>
-                                                <div class="border-top mt-5 pt-3 mx-auto" style="width: 160px;">
+                                                <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
+
+
+                                                    @if ($status === 'approved')
+                                                        <div
+                                                            class="position-relative d-flex align-items-center justify-content-center mb-3">
+                                                            <hr class="w-100 m-0">
+                                                            <a href="#" class="position-absolute"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                aria-label="Verified" data-bs-original-title="Verified">
+                                                                <img src="/frontend/assets/images/svg/checked-mark.svg"
+                                                                    alt="checked" height="40" width="40">
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        <hr>
+                                                    @endif
                                                     <p class="fw-semibold mb-0">ICT Training Center</p>
                                                 </div>
                                             </div>
+
                                             <div class="col-md-6 mt-5 mt-md-0">
                                                 <p class="text-muted mb-0">Prepared by</p>
-                                                <div class="border-top mt-5 pt-3 mx-auto" style="width: 160px;">
+                                                <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
+                                                    @if ($status === 'approved')
+                                                        <div
+                                                            class="position-relative d-flex align-items-center justify-content-center mb-3">
+                                                            <hr class="w-100 m-0">
+                                                            <a href="#" class="position-absolute"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                aria-label="Verified" data-bs-original-title="Verified">
+                                                                <img src="/frontend/assets/images/svg/checked-mark.svg"
+                                                                    alt="checked" height="40" width="40">
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        <hr>
+                                                    @endif
                                                     <p class="fw-semibold mb-0 text-capitalize">Teacher:
                                                         {{ $course->instructor->name }}</p>
                                                 </div>
+
+                                                {{-- Show Send For Approval only for draft/pending --}}
+                                                <div class="mt-4">
+                                                    @if ($status === 'draft')
+                                                        <button type="button" class="btn btn-primary btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#approvalModal"
+                                                            onclick="document.getElementById('approvalForm').action='{{ url('instructor/student-report/request-approval') }}/{{ $course->id }}'">
+                                                            Send For Approval
+                                                        </button>
+                                                    @elseif ($status === 'pending')
+                                                        <button type="button" class="btn btn-danger btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#cancelApprovalModal">
+                                                            Cancel Request
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </div>
+                                            <div class="modal fade" id="cancelApprovalModal" tabindex="-1"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Cancel Approval Request?</h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>This will withdraw your request and revert the report back to
+                                                                <strong>Draft</strong>.</p>
+                                                            <p class="text-muted small mb-0">Attendance and scores will be
+                                                                editable again.</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary btn-sm"
+                                                                data-bs-dismiss="modal">No, Keep Pending</button>
+                                                            <form
+                                                                action="{{ route('instructor.student-report.cancel-approval', $course->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                <button class="btn btn-danger btn-sm">Yes, Cancel
+                                                                    Request</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -996,6 +1113,43 @@
             </div>
         </div>
     </section>
+    <!-- Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalScrollableTitle">
+                        Are you sure you want to send this request?
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        {{-- <span aria-hidden="true">&times;</span> --}}
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <strong>
+                        Note!
+                    </strong>
+                    <p class="mt-1">
+                        By sending this request, you are asking the admin to review and approve the student report for this
+                        course. Once approved, the report will be finalized and students will be able to see their results.
+                        Please make sure all information is accurate before submitting.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{-- Modal form: use a dummy placeholder ID --}}
+                    <form id="approvalForm" action="{{ route('instructor.student-report.request-approval', 0) }}"
+                        method="POST">
+                        @csrf
+                        <button class="btn btn-primary">Yes, Send For Approval!</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="saveStatus" style="position: fixed; bottom: 20px; right: 20px; display:none;" class="badge bg-success">
         Saved ✅
     </div>

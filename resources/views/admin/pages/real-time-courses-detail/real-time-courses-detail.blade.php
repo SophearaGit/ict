@@ -561,17 +561,80 @@
                                     {{-- Report Footer --}}
                                     <div class="card-body border-top">
                                         <div class="row mt-4 text-center small">
+
                                             <div class="col-md-6">
                                                 <p class="text-muted mb-0">Seen and approved by</p>
-                                                <div class="border-top mt-5 pt-3 mx-auto" style="width: 160px;">
+                                                <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
+                                                    @php
+                                                        $status = $course->studentReports->first()?->approval_status;
+                                                    @endphp
+
+                                                    @if ($status === 'approved')
+                                                        <div
+                                                            class="position-relative d-flex align-items-center justify-content-center mb-3">
+                                                            <hr class="w-100 m-0">
+                                                            <a href="#" class="position-absolute"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                aria-label="Verified" data-bs-original-title="Verified">
+                                                                <img src="/frontend/assets/images/svg/checked-mark.svg"
+                                                                    alt="checked" height="40" width="40">
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        <hr>
+                                                    @endif
                                                     <p class="fw-semibold mb-0">ICT Training Center</p>
                                                 </div>
                                             </div>
+
                                             <div class="col-md-6 mt-5 mt-md-0">
                                                 <p class="text-muted mb-0">Prepared by</p>
-                                                <div class="border-top mt-5 pt-3 mx-auto" style="width: 160px;">
+                                                <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
+                                                    @if ($status === 'approved')
+                                                        <div
+                                                            class="position-relative d-flex align-items-center justify-content-center mb-3">
+                                                            <hr class="w-100 m-0">
+                                                            <a href="#" class="position-absolute"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                aria-label="Verified" data-bs-original-title="Verified">
+                                                                <img src="/frontend/assets/images/svg/checked-mark.svg"
+                                                                    alt="checked" height="40" width="40">
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        <hr>
+                                                    @endif
                                                     <p class="fw-semibold mb-0 text-capitalize">Teacher:
                                                         {{ $course->instructor->name }}</p>
+                                                </div>
+
+                                                {{-- Show Send For Approval only for draft/pending --}}
+                                                <div class="mt-4">
+                                                    @if ($status === 'draft')
+                                                    @elseif ($status === 'pending')
+                                                        <div class="d-flex gap-2">
+
+                                                            {{-- Approve Button --}}
+                                                            <button type="button"
+                                                                class="btn btn-success w-100 rounded-pill shadow-sm py-2"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#approveReportModal">
+
+                                                                <i class="fe fe-check-circle me-1"></i>
+                                                                Approve
+                                                            </button>
+
+                                                            {{-- Reject Button --}}
+                                                            <button type="button"
+                                                                class="btn btn-outline-danger w-100 rounded-pill py-2"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#rejectReportModal">
+
+                                                                <i class="fe fe-x-circle me-1"></i>
+                                                                Reject
+                                                            </button>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -581,6 +644,101 @@
                         </div>
                     </div>
                 </div>
+
+
+                {{-- APPROVE MODAL --}}
+                <div class="modal fade" id="approveReportModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 rounded-4 shadow">
+
+                            <div class="modal-body p-5 text-center">
+
+                                <div class="mb-4">
+                                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex p-4">
+                                        <i class="fe fe-check-circle text-light fs-1"></i>
+                                    </div>
+                                </div>
+
+                                <h4 class="fw-bold mb-2">
+                                    Approve Student Report?
+                                </h4>
+
+                                <p class="text-muted mb-4">
+                                    This will officially approve all student
+                                    reports for this course.
+                                </p>
+
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-light w-50 rounded-pill"
+                                        data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <form action="{{ route('admin.student-report.approve', $course->id) }}"
+                                        method="POST" class="w-50">
+
+                                        @csrf
+
+                                        <button class="btn btn-success w-100 rounded-pill">
+                                            Yes, Approve
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {{-- REJECT MODAL --}}
+                <div class="modal fade" id="rejectReportModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 rounded-4 shadow">
+
+                            <div class="modal-body p-5 text-center">
+
+                                <div class="mb-4">
+                                    <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex p-4">
+                                        <i class="fe fe-x-circle text-light fs-1"></i>
+                                    </div>
+                                </div>
+
+                                <h4 class="fw-bold mb-2">
+                                    Reject Student Report?
+                                </h4>
+
+                                <p class="text-muted mb-4">
+                                    This action will move the report back to
+                                    draft status.
+                                </p>
+
+                                <div class="d-flex gap-2">
+
+                                    <button type="button" class="btn btn-light w-50 rounded-pill"
+                                        data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <form action="{{ route('admin.student-report.reject', $course->id) }}" method="POST"
+                                        class="w-50">
+
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button class="btn btn-danger w-100 rounded-pill">
+                                            Yes, Reject
+                                        </button>
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-lg-3 col-md-12 col-12 mt-lg-n8">
                     <!-- Card -->
                     <div class="card mb-4">
