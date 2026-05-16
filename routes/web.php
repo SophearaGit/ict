@@ -1,28 +1,10 @@
 <?php
 
-use App\Http\Controllers\Frontend\{
-    CourseContentController,
-    CourseController,
-    FrontendController,
-    InstructorDashboardController,
-    ProfileController,
-    RealTimeCoursesController,
-    StudentDashboardController,
-    TeacherCourseController
-};
+use App\Http\Controllers\Frontend\{CourseContentController, CourseController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController, TeacherCourseController};
 
-use App\Http\Controllers\Frontend\Staff\{
-    CertificateController,
-    StudentReportController,
-    IctCourseController,
-    IctScheduleController,
-    StaffDashboardController,
-    IctInvoiceController,
-    StudentRegisterationController,
-    IctStaffReportController,
-    TecherAttendancesController
-};
+use App\Http\Controllers\Frontend\Staff\{CertificateController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, TeacherController, TecherAttendancesController};
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
  *******************************************************/
 Route::get('/', [FrontendController::class, 'index'])->name('home');
 
-
 /*******************************************************
  * STUDENT
  *******************************************************/
@@ -39,8 +20,6 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
     ->prefix('student')
     ->name('student.')
     ->group(function (): void {
-
-
         /*******************************************************
          * DASHBOARD
          *******************************************************/
@@ -62,10 +41,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
         Route::post('/security-update', [ProfileController::class, 'securityUpdate'])->name('security.update');
         Route::get('/social-profile', [ProfileController::class, 'socialProfile'])->name('social.profile');
         Route::post('/social-profile-update', [ProfileController::class, 'socialProfileUpdate'])->name('social.profile.update');
-
-
     });
-
 
 /*******************************************************
  * INSTRUCTOR
@@ -74,18 +50,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
     ->prefix('instructor')
     ->name('instructor.')
     ->group(function () {
-
         // NOTIFICATIONS
-        Route::post(
-            '/notifications/read/{id}',
-            [InstructorDashboardController::class, 'readNotification']
-        )->name('notifications.read');
+        Route::post('/notifications/read/{id}', [InstructorDashboardController::class, 'readNotification'])->name('notifications.read');
 
-        Route::post(
-            '/notifications/read-all',
-            [InstructorDashboardController::class, 'readAllNotifications']
-        )->name('notifications.read-all');
-
+        Route::post('/notifications/read-all', [InstructorDashboardController::class, 'readAllNotifications'])->name('notifications.read-all');
 
         /*******************************************************
          * DASHBOARD
@@ -123,14 +91,9 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::post('/student-report/request-approval/{course}', [StudentReportController::class, 'requestApproval'])->name('student-report.request-approval');
         Route::post('/student-report/cancel-approval/{course}', [StudentReportController::class, 'cancelApproval'])->name('student-report.cancel-approval');
 
+        Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])->name('student-attendance.store');
 
-        Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])
-            ->name('student-attendance.store');
-
-        Route::get('/student-attendance', [StudentAttendanceController::class, 'getByDate'])
-            ->name('student-attendance.get');
-
-
+        Route::get('/student-attendance', [StudentAttendanceController::class, 'getByDate'])->name('student-attendance.get');
 
         /*******************************************************
          * CHAPTER
@@ -151,19 +114,13 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::delete('/course-content/{id}/delete-lesson', [CourseContentController::class, 'deleteLessonModal'])->name('course-content.delete-lesson');
         Route::post('/course-chapter/{chapter_id}/sort-lesson', [CourseContentController::class, 'sortLesson'])->name('course-chapter.sort-lesson');
 
-
-
-
         /*******************************************************
          * LARAVEL FILE MANAGER
          *******************************************************/
         Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
             \UniSharp\LaravelFilemanager\Lfm::routes();
         });
-
-
     });
-
 
 /*******************************************************
  * STAFF
@@ -173,6 +130,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
     ->name('staff.')
     ->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        /*******************************************************
+         * TEACHER resource routes
+         *******************************************************/
+        Route::resource('/teacher', TeacherController::class);
 
         /*******************************************************
          * PROFILE
@@ -201,24 +162,19 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses', [IctCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [IctCourseController::class, 'create'])->name('courses.create');
         Route::post('/courses/create', [IctCourseController::class, 'store'])->name('courses.store');
+        Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])->name('courses.edit');
+        Route::put('/courses/{id}', [IctCourseController::class, 'update'])->name('courses.update');
         Route::get('/courses/{id}', [IctCourseController::class, 'show'])->name('courses.show');
-        Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])
-            ->name('courses.edit');
-        Route::put('/courses/{id}', [IctCourseController::class, 'update'])
-            ->name('courses.update');
 
         /*******************************************************
          * PRINT CERTIFICATE
          *******************************************************/
-        Route::post('/staff/certificates/print', [CertificateController::class, 'print'])
-            ->name('certificates.print');
+        Route::post('/staff/certificates/print', [CertificateController::class, 'print'])->name('certificates.print');
 
         /*******************************************************
          * TEACHER ATTENDANCES
          *******************************************************/
-        // update teacher attendance
-        Route::post('/teacher-attendance/update', [TecherAttendancesController::class, 'update'])
-            ->name('teacher.attendance.update');
+        Route::post('/teacher-attendance/update', [TecherAttendancesController::class, 'update'])->name('teacher.attendance.update');
         Route::resource('/schedules', IctScheduleController::class);
 
         /*******************************************************
@@ -226,10 +182,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          *******************************************************/
         Route::resource('/reports', IctStaffReportController::class);
 
-        // student report
+        /*******************************************************
+         * STUDENT REPORT
+         *******************************************************/
         Route::post('/student-report/update/{id}', [StudentReportController::class, 'update']);
-
-
     });
 
 /*******************************************************
@@ -241,9 +197,6 @@ Route::fallback(function (): Response {
     ];
     return response()->view('errors.404', $data, Response::HTTP_NOT_FOUND);
 })->name('404');
-
-
-
 
 // Additional Routes
 require __DIR__ . '/admin.php';

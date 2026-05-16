@@ -3,8 +3,8 @@
 @push('styles')
     <style>
         .select2-container--default .select2-selection--single {
-            /* border-radius: var(--bs-border-radius-lg); */
-            /* height: 42px; */
+            border-radius: var(--bs-border-radius-lg);
+            height: 42px;
             padding: 6px 12px;
             border: 1px solid var(--bs-border-color);
         }
@@ -20,6 +20,14 @@
             padding: 8px 12px;
             color: var(--bs-heading-color);
             background: var(--bs-light);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 30px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 42px;
         }
     </style>
 @endpush
@@ -61,16 +69,17 @@
                             <x-input-error :messages="$errors->get('title')" class="text-danger mt-2" />
                         </div>
                         <div class="row">
-                            <div class="form-floating mb-3 col-md-4">
-                                <select class="form-select" name="instructor_id" id="instructor_id">
+                            <div class="mb-3 col-md-4">
+                                <select class="form-select select2-instructor" name="instructor_id" id="instructor_id">
                                     <option value="" disabled selected>Select Instructor</option>
                                     @foreach ($instructors as $instructor)
-                                        <option value="{{ $instructor->id }}">{{ $instructor->name }}</option>
+                                        <option value="{{ $instructor->id }}"
+                                            data-image="{{ $instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($instructor->image) }}"
+                                            {{ old('instructor_id') == $instructor->id ? 'selected' : '' }}>
+                                            {{ $instructor->name }}
+                                        </option>
                                     @endforeach
                                 </select>
-                                <label style="padding: 1rem 33px; important;"><i
-                                        class="ti ti-user-circle me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">Instructor</span></label>
                                 <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-2" />
                             </div>
                             <div class="form-floating mb-3 col-md-6">
@@ -178,6 +187,39 @@
 @endsection
 @push('scripts')
     <script>
+        $('.select2-instructor').select2({
+            width: '100%',
+            placeholder: 'Search instructor...',
+            allowClear: true,
+            templateResult: formatInstructor,
+            templateSelection: formatInstructorSelection,
+            escapeMarkup: function(markup) {
+                return markup;
+            }
+        });
+
+        function formatInstructor(option) {
+            if (!option.id) return option.text;
+            let img = $(option.element).data('image');
+            return `
+        <div class="d-flex align-items-center gap-2 py-1">
+            <img src="${img}" class="rounded-circle" style="width:28px; height:28px; object-fit:cover;">
+            <span>${option.text}</span>
+        </div>
+    `;
+        }
+
+        function formatInstructorSelection(option) {
+            if (!option.id) return option.text;
+            let img = $(option.element).data('image');
+            return `
+        <div class="d-flex align-items-center gap-2">
+            <img src="${img}" class="rounded-circle" style="width:22px; height:22px; object-fit:cover;">
+            <strong>${option.text}</strong>
+        </div>
+    `;
+        }
+
         tinymce.init({
             selector: 'textarea',
             plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
