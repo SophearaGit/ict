@@ -3,7 +3,7 @@
 @push('styles')
     <style>
         .select2-container--default .select2-selection--single {
-            /* border-radius: var(--bs-border-radius-lg); */
+            border-radius: var(--bs-border-radius-lg);
             height: 42px;
             padding: 6px 12px;
             border: 1px solid var(--bs-border-color);
@@ -20,6 +20,14 @@
             padding: 8px 12px;
             color: var(--bs-heading-color);
             background: var(--bs-light);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 30px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 42px;
         }
     </style>
 @endpush
@@ -66,19 +74,17 @@
                             <x-input-error :messages="$errors->get('title')" class="text-danger mt-2" />
                         </div>
                         <div class="row">
-                            <div class="form-floating mb-3 col-md-4">
-                                <select class="form-select" name="instructor_id" id="instructor_id">
+                            <div class="mb-3 col-md-4">
+                                <select class="form-select select2-instructor" name="instructor_id" id="instructor_id">
                                     <option value="" disabled selected>Select Instructor</option>
                                     @foreach ($instructors as $instructor)
                                         <option value="{{ $instructor->id }}"
+                                            data-image="{{ $instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($instructor->image) }}"
                                             {{ old('instructor_id', $course->instructor_id) == $instructor->id ? 'selected' : '' }}>
                                             {{ $instructor->name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <label style="padding: 1rem 33px; important;"><i
-                                        class="ti ti-user-circle me-2 fs-4 text-info"></i><span
-                                        class="border-start border-info ps-3">Instructor</span></label>
                                 <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-2" />
                             </div>
                             <div class="form-floating mb-3 col-md-6">
@@ -203,6 +209,44 @@
         });
 
         $(document).ready(function() {
+
+            // ── Instructor Select2 ──────────────────────────────
+            $('.select2-instructor').select2({
+                width: '100%',
+                placeholder: 'Search instructor...',
+                allowClear: true,
+                templateResult: formatInstructor,
+                templateSelection: formatInstructorSelection,
+                escapeMarkup: function(markup) {
+                    return markup;
+                }
+            });
+
+            $('.select2-instructor').trigger('change');
+
+            function formatInstructor(option) {
+                if (!option.id) return option.text;
+                let img = $(option.element).data('image');
+                return `
+                <div class="d-flex align-items-center gap-2 py-1">
+                    <img src="${img}" class="rounded-circle" style="width:28px; height:28px; object-fit:cover;">
+                    <span>${option.text}</span>
+                </div>
+            `;
+            }
+
+            function formatInstructorSelection(option) {
+                if (!option.id) return option.text;
+                let img = $(option.element).data('image');
+                return `
+                <div class="d-flex align-items-center gap-2">
+                    <img src="${img}" class="rounded-circle" style="width:22px; height:22px; object-fit:cover;">
+                    <strong>${option.text}</strong>
+                </div>
+            `;
+            }
+
+            // ── Schedule Select2 ───────────────────────────────
             $('.select2-schedule').select2({
                 width: '100%',
                 placeholder: 'Please select schedule',
@@ -217,13 +261,11 @@
             $('.select2-schedule').trigger('change');
 
             function formatSchedule(option) {
-
                 if (!option.id) return option.text;
 
                 let shift = $(option.element).data('shift');
                 let start = $(option.element).data('start');
                 let end = $(option.element).data('end');
-
 
                 let shiftColor = {
                     morning: 'var(--bs-success)',
@@ -234,18 +276,16 @@
                 let color = shiftColor[shift] ?? 'var(--bs-secondary)';
 
                 return `
-                    <div class="d-flex justify-content-between align-items-center py-1">
-                        <div>
-                            <span class="badge me-2"
-                                style="background:${color}; border-radius:var(--bs-border-radius-pill);">
-                                ${shift.charAt(0).toUpperCase() + shift.slice(1)}
-                            </span>
-                            <strong class="text-body">
-                                ${start} – ${end}
-                            </strong>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center py-1">
+                    <div>
+                        <span class="badge me-2"
+                            style="background:${color}; border-radius:var(--bs-border-radius-pill);">
+                            ${shift.charAt(0).toUpperCase() + shift.slice(1)}
+                        </span>
+                        <strong class="text-body">${start} – ${end}</strong>
                     </div>
-                `;
+                </div>
+            `;
             }
 
             function formatSelection(option) {
@@ -257,11 +297,12 @@
                 let end = $(option.element).data('end');
 
                 return `
-                    <span style="font-weight:600;">
-                        ${day} • ${shift.charAt(0).toUpperCase() + shift.slice(1)} ( ${start} – ${end} )
-                    </span>
-                `;
+                <span style="font-weight:600;">
+                    ${day} • ${shift.charAt(0).toUpperCase() + shift.slice(1)} ( ${start} – ${end} )
+                </span>
+            `;
             }
+
         });
     </script>
 @endpush

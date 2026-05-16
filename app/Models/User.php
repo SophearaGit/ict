@@ -32,6 +32,8 @@ class User extends Authenticatable
         'gender',
         'dob',
         'nationality',
+        'location',
+        'image',
     ];
 
     public function student_attendances()

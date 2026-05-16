@@ -54,6 +54,26 @@
     <link rel="stylesheet" href="/admin/assets/dist/libs/owl.carousel/dist/assets/owl.carousel.min.css">
     <!-- Core Css -->
     <link id="themeColors" rel="stylesheet" href="/admin/assets/dist/css/style.min.css" />
+    <style>
+        .page-link {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .page-item.active .page-link {
+            background-color: #1e4db7;
+            border-color: #1e4db7;
+            color: #fff;
+        }
+
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+        }
+    </style>
     @stack('styles')
 </head>
 
