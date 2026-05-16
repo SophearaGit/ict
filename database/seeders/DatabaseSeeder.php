@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             CourseLevelSeeder::class,
             CourseCategorySeeder::class,
             ICTScheduleSeeder::class,
-            ICTCourseSeeder::class,
+            // ICTCourseSeeder::class,
         ]);
     }
 }
