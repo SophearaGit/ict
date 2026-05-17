@@ -30,26 +30,21 @@
             </span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-
             <div class="d-flex align-items-center justify-content-between">
-
                 <a href="javascript:void(0)" class="nav-link d-flex d-lg-none align-items-center justify-content-center"
                     type="button" data-bs-toggle="offcanvas" data-bs-target="#mobilenavbar"
                     aria-controls="offcanvasWithBothOptions">
                     <i class="ti ti-align-justified fs-7"></i>
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
-
-
                     <li class="nav-item dropdown">
-
                         <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" data-bs-toggle="dropdown"
                             aria-expanded="false">
-
                             <div class="d-flex align-items-center">
                                 <div class="user-profile-img">
                                     <img src="{{ asset($imgCheck ?? '') }}" class="rounded-circle" width="35"
-                                        height="35" alt="{{ Auth::user()?->name ?? 'User Image' }}" />
+                                        height="35" style="object-fit: cover;"
+                                        alt="{{ Auth::user()?->name ?? 'User Image' }}" />
                                 </div>
                             </div>
                         </a>
@@ -61,7 +56,8 @@
                                 </div>
                                 <div class="d-flex align-items-center py-9 mx-7 border-bottom">
                                     <img src="{{ asset($imgCheck ?? '') }}" class="rounded-circle" width="80"
-                                        height="80" alt="{{ Auth::user()?->name ?? 'User Image' }}" />
+                                        height="80" style="object-fit: cover;"
+                                        alt="{{ Auth::user()?->name ?? 'User Image' }}" />
                                     <div class="ms-3">
                                         <h5 class="mb-1 fs-3">
                                             {{ Auth::user()?->name ?? 'User' }}
@@ -88,7 +84,6 @@
                                             <span class="d-block text-dark">Account Settings</span>
                                         </div>
                                     </a>
-
                                 </div>
                                 <div class="d-grid py-4 px-7 pt-8">
                                     <a class="btn btn-outline-primary" href="javascript:void(0);"

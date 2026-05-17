@@ -27,9 +27,10 @@ class IctCourseController extends Controller
     {
         $perPage = $request->input('per_page', 10);
 
-        $courses = ICTCourse::when($request->filled('search'), function ($query) use ($request) {
-            $query->where('title', 'like', '%' . $request->search . '%');
-        })
+        $courses = ICTCourse::with(['instructor', 'schedule'])
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->search . '%');
+            })
             ->orderBy('title', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
