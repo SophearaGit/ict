@@ -1,13 +1,9 @@
 <?php
-
 namespace Database\Seeders;
-
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-
-
 class UserSeeder extends Seeder
 {
     /**
@@ -55,6 +51,25 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+                'name' => 'staff',
+                'khmer_name' => 'បុគ្គលិក',
+                'dob' => '1995-07-21',
+                'email' => 'staff@gmail.com',
+                'phone' => '089988876',
+                'gender' => 'female',
+                'image' => 'no-img.jpg',
+                'email_verified_at' => now(),
+                'password' => bcrypt('12345678'),
+                'role' => 'staff',
+                'approval_status' => 'approved',
+                'document' => 'document.jpg',
+                'status' => 'active',
+                'location' => 'Phnom Penh',
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'name' => 'Tha Channy',
                 'khmer_name' => 'ថា ចន្នី',
                 'dob' => '1995-07-21',
@@ -93,7 +108,6 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ];
-
         User::insert($users);
     }
 }

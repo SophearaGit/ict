@@ -18,10 +18,10 @@ class StaffDashboardController extends Controller
             'students_count' => Auth::user()->students()->count(),
             'staffs_count' => User::where('role', 'staff')->count(),
             'reports_count' => Auth::user()->reports()->count(),
-            'today_courses' => ICTCourse::whereHas('schedule', function ($query) {
-                $query->whereDate('start_date', today()); // Compare the start_date with today's date
+            'courses_count' => ICTCourse::count(),
+            'today_courses' => ICTCourse::with(['instructor', 'schedule'])->whereHas('schedule', function ($query) {
+                $query->whereDate('start_date', today());
             })
-                ->with(['schedule', 'instructor'])
                 ->latest()
                 ->get(),
             'students' => User::where('registered_by_staff_id', Auth::id())
