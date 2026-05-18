@@ -22,14 +22,15 @@
                             </div>
                             <hr class="mt-3">
                         </div>
-
                         <form action="{{ route('staff.student.registration.submit') }}" method="POST">
                             @csrf
                             <input type="hidden" name="discount" id="discountField">
                             <input type="hidden" name="extra_charge" id="extraChargeField">
+
                             <!-- ================= STUDENT TYPE ================= -->
                             <h6 class="fw-semibold text-info mb-3">Student Selection</h6>
                             <div class="row g-3 mb-3 align-items-end">
+
                                 <!-- Student Type -->
                                 <div class="col-md-4">
                                     <div class="form-floating">
@@ -42,6 +43,7 @@
                                         </label>
                                     </div>
                                 </div>
+
                                 <!-- Existing Student -->
                                 <div class="col-md-8 d-none" id="existingStudentWrapper">
                                     <div class="form-floating">
@@ -57,6 +59,7 @@
                                 </div>
                             </div>
                             <div id="newStudentWrapper">
+
                                 <!-- ================= USER INFORMATION ================= -->
                                 <h6 class="fw-semibold text-info mb-3">Basic Information</h6>
                                 <div class="row g-3">
@@ -77,7 +80,6 @@
                                             <label>
                                                 <i class="ti ti-mail me-2 text-info"></i> Email Address
                                                 <span class="text-danger"><strong>*</strong></span>
-
                                             </label>
                                             <x-input-error :messages="$errors->get('email')" class="text-danger mt-2" />
                                         </div>
@@ -130,6 +132,7 @@
                                 </div>
                             </div>
                             <hr class="my-4">
+
                             <!-- ================= COURSE & PAYMENT ================= -->
                             <h6 class="fw-semibold text-info mb-3">Course & Payment Details</h6>
                             <div class="row g-3">
@@ -145,20 +148,17 @@
                                                             ->map(fn($day) => ucfirst($day))
                                                             ->implode(' • ');
                                                         $shift = ucfirst($schedule->shift);
-
                                                         $start = \Carbon\Carbon::parse($schedule->start_time)->format(
                                                             'g:i',
                                                         );
                                                         $end = \Carbon\Carbon::parse($schedule->end_time)->format(
                                                             'g:i A',
                                                         );
-
                                                         $startDate = \Carbon\Carbon::parse(
                                                             $schedule->start_date,
                                                         )->format('d M, Y');
                                                     }
                                                 @endphp
-
                                                 <option value="{{ $course->id }}" data-price="{{ $course->price }}">
                                                     ${{ $course->price }} |
                                                     {{ $course->title }} |
@@ -172,7 +172,6 @@
                                         <x-input-error :messages="$errors->get('course_id')" class="text-danger mt-2" />
                                     </div>
                                 </div>
-
                                 <div class="col-md-4">
                                     <div class="form-floating">
                                         <select class="form-select" id="paymentOption" name="payment_option" required>
@@ -200,7 +199,6 @@
                                     </div>
                                 </div> --}}
                             </div>
-
                             <div class="row g-3 mt-1">
                                 <div class="col-md-6">
                                     <div class="form-floating" style="background-color: rgb(234, 239, 244);">
@@ -223,7 +221,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="row g-3 mt-1">
                                 <div class="col-md-6">
                                     <div class="form-floating" style="background-color: rgb(234, 239, 244);">
@@ -234,7 +231,6 @@
                                         </label>
                                     </div>
                                 </div>
-
                                 <div class="col-md-6">
                                     <div class="form-floating">
                                         <select class="form-select" id="paymentStatusDisplay" disabled>
@@ -261,7 +257,6 @@
                                     <i class="ti ti-send me-2"></i> Submit Registration
                                 </button>
                             </div>
-
                         </form>
                     </div>
                 </div>
@@ -271,8 +266,38 @@
 @endsection
 @push('scripts')
     <script>
+        // Add eye icon toggle for password fields
+        $('#newStudentWrapper input[type="password"]').each(function() {
+            const wrapper = $(this).closest('.form-floating');
+            wrapper.css('position', 'relative');
+            const eye = $(`
+        <span class="toggle-eye" style="
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 10;
+            color: #6c757d;
+            font-size: 1.1rem;
+        ">
+            <i class="ti ti-eye-off"></i>
+        </span>
+    `);
+            wrapper.append(eye);
+            eye.on('click', function() {
+                const input = wrapper.find('input');
+                const icon = $(this).find('i');
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('ti-eye-off').addClass('ti-eye');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('ti-eye').addClass('ti-eye-off');
+                }
+            });
+        });
         $(document).ready(function() {
-
             // ==============================
             // INIT SELECT2
             // ==============================
@@ -280,8 +305,6 @@
             $('#studentSelect').select2({
                 width: '100%'
             });
-
-
             // ==============================
             // STUDENT TYPE TOGGLE
             // ==============================
@@ -289,7 +312,6 @@
                 toggleStudentType($(this).val());
                 resetPaymentFields();
             });
-
 
             function toggleStudentType(type) {
                 if (type === 'existing') {
@@ -305,8 +327,6 @@
                         .prop('disabled', false);
                 }
             }
-
-
             // ==============================
             // RESET PAYMENT FIELDS
             // ==============================
@@ -318,66 +338,48 @@
                 $('#paymentStatusDisplay').val('');
                 $('#paymentStatus').val('');
             }
-
-
             // ==============================
             // MAIN CALCULATION
             // ==============================
             function calculateAmounts() {
-
                 let selectedCourses = $('#courseSelect').find(':selected');
                 let courseCount = selectedCourses.length;
-
                 let totalPrice = getTotalPrice(selectedCourses);
                 let paymentOption = $('#paymentOption').val();
-
                 handleMultiCourseUI(courseCount);
                 paymentOption = enforceMultiLogic(courseCount, paymentOption);
-
                 let {
                     discount,
                     extraCharge
                 } = calculateAdjustments(paymentOption, courseCount);
-
                 let total = Math.max(0, totalPrice - discount + extraCharge);
-
                 if (paymentOption === 'free') {
                     $('#paidAmount').val(0);
                     $('#remainingAmount').val(0);
                 }
-
                 if (paymentOption === 'free') {
                     total = 0;
                 }
-
                 let paid = calculatePaidAmount(paymentOption, total);
                 let remaining = total - paid;
-
                 updateUI(total, paid, remaining, discount, extraCharge);
                 updatePaymentStatus(paid, remaining);
             }
-
-
             // ==============================
             // GET TOTAL COURSE PRICE
             // ==============================
             function getTotalPrice(selectedCourses) {
                 let total = 0;
-
                 selectedCourses.each(function() {
                     total += parseFloat($(this).data('price')) || 0;
                 });
-
                 return total;
             }
-
-
             // ==============================
             // MULTI COURSE UI NOTE
             // ==============================
             function handleMultiCourseUI(courseCount) {
                 $('#multiNote').remove();
-
                 if (courseCount >= 2) {
                     $('#paymentOption').closest('.col-md-4').append(`
                     <small id="multiNote" class="text-success d-block mt-1">
@@ -386,74 +388,54 @@
                 `);
                 }
             }
-
-
             // ==============================
             // FORCE MULTI OPTION LOGIC
             // ==============================
             function enforceMultiLogic(courseCount, paymentOption) {
-
                 if (courseCount >= 2 && paymentOption !== 'multi') {
-
                     // Disable other options
                     $('#paymentOption option')
                         .not('[value="multi"]')
                         .prop('disabled', true);
-
                     $('#paymentOption').css('background-color', '#e9ecef');
-
                     $('#paymentOption').val('multi');
                     return 'multi';
                 }
-
                 // Enable all options again
                 $('#paymentOption option')
                     .not('[value="multi"]')
                     .prop('disabled', false);
-
                 $('#paymentOption').css('background-color', '');
-
                 // Reset if invalid
                 if (courseCount < 2 && paymentOption === 'multi') {
                     $('#paymentOption').val('normal');
                     return 'normal';
                 }
-
                 return paymentOption;
             }
-
-
             // ==============================
             // CALCULATE DISCOUNT & EXTRA
             // ==============================
             function calculateAdjustments(paymentOption, courseCount) {
-
                 let discount = 0;
                 let extraCharge = 0;
-
                 if (paymentOption === 'free') {
                     discount = 999999; // force total to 0 (safe fallback)
                 }
-
                 if (paymentOption === 'multi' && courseCount >= 2) {
                     discount += 25;
                 }
-
                 if (paymentOption === 'full') {
                     discount += 10;
                 }
-
                 if (paymentOption === 'half') {
                     extraCharge += 20;
                 }
-
                 return {
                     discount,
                     extraCharge
                 };
             }
-
-
             // ==============================
             // CALCULATE PAID AMOUNT
             // ==============================
@@ -462,31 +444,22 @@
                 if (paymentOption === 'free') return 0;
                 return total;
             }
-
-
             // ==============================
             // UPDATE UI VALUES
             // ==============================
             function updateUI(total, paid, remaining, discount, extraCharge) {
-
                 $('#totalAmount').val(total.toFixed(2));
                 $('#paidAmount').val(paid.toFixed(2));
                 $('#remainingAmount').val(remaining.toFixed(2));
-
                 $('#discountField').val(discount.toFixed(2));
                 $('#extraChargeField').val(extraCharge.toFixed(2));
             }
-
-
             // ==============================
             // PAYMENT STATUS
             // ==============================
             function updatePaymentStatus(paid, remaining) {
-
                 let status = '';
-
                 let paymentOption = $('#paymentOption').val();
-
                 if (paymentOption === 'free') {
                     status = 'free';
                 } else if (paid === 0) {
@@ -496,18 +469,14 @@
                 } else {
                     status = 'half_paid';
                 }
-
                 $('#paymentStatusDisplay').val(status);
                 $('#paymentStatus').val(status);
             }
-
-
             // ==============================
             // EVENTS
             // ==============================
             $('#courseSelect').on('change', calculateAmounts);
             $('#paymentOption').on('change', calculateAmounts);
-
         });
     </script>
 @endpush
