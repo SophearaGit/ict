@@ -20,34 +20,22 @@ use App\Http\Controllers\Admin\RealTimeCoursesController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentReportController;
 use Illuminate\Support\Facades\Route;
-Route::group(["middleware" => "guest:admin", "prefix" => "admin", "as" => "admin."], function () {
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
+Route::group(['middleware' => 'guest:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
-Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin."], function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-        ->name('password.confirm');
+Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
+    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
+    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('instructor-doc-download/{user}', [InstructorRequestController::class, 'download'])->name('instructor-doc-download');
     Route::resource('instructor-request', InstructorRequestController::class);
@@ -64,8 +52,7 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
     Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
     Route::put('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
     Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
-    Route::patch('/staff/{id}/toggle', [StaffController::class, 'toggle'])
-        ->name('staff.toggle');
+    Route::patch('/staff/{id}/toggle', [StaffController::class, 'toggle'])->name('staff.toggle');
     /*******************************************************
      * LANGUAGE, LEVEL, CATEGORY
      *******************************************************/
@@ -91,8 +78,7 @@ Route::group(["middleware" => "auth:admin", "prefix" => "admin", "as" => "admin.
      *******************************************************/
     Route::get('/student-report', [StudentReportController::class, 'studentReport'])->name('student-report.index');
     Route::post('/student-report/approve/{course}', [StudentReportController::class, 'approve'])->name('student-report.approve');
-    Route::patch('/student-report/reject/{course}',[StudentReportController::class, 'reject'])->name('student-report.reject');
-
+    Route::patch('/student-report/reject/{course}', [StudentReportController::class, 'reject'])->name('student-report.reject');
     /*******************************************************
      *  NOTIFICATION
      *******************************************************/
