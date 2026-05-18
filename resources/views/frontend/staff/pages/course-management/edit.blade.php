@@ -132,7 +132,6 @@
                                         class="border-start border-info ps-3">Start Date</span></label>
                                 <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-2" />
                             </div>
-
                             {{-- end_date --}}
                             <div class="form-floating mb-3 col-md-2">
                                 <input type="date" class="form-control" name="end_date"
@@ -142,7 +141,6 @@
                                         Date</span></label>
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
                             </div>
-
                             <div class="form-floating mb-3 col-md-2">
                                 <input type="number" class="form-control " placeholder="Course Price" name="price"
                                     step="0.01" value="{{ old('price', $course->price) }}">
@@ -151,10 +149,13 @@
                                         class="border-start border-info ps-3">Price</span></label>
                                 <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
                             </div>
-
                             <div class="form-floating mb-3 col-md-3">
                                 <select class="form-select" name="price_per_session" id="price_per_session">
-                                    <option value="" disabled selected>Select Price/Session</option>
+                                    <option value="" disabled>Select Price/Session</option>
+                                    <option value="0.00"
+                                        {{ old('price_per_session', $course->price_per_session) == '0.00' ? 'selected' : '' }}>
+                                        Free (0.00 $)
+                                    </option>
                                     @for ($i = 5; $i <= 10; $i += 0.5)
                                         <option value="{{ number_format($i, 2) }}"
                                             {{ old('price_per_session', $course->price_per_session) == number_format($i, 2) ? 'selected' : '' }}>
@@ -167,7 +168,6 @@
                                         class="border-start border-info ps-3">Price/Session</span></label>
                                 <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-2" />
                             </div>
-
                             {{-- duration --}}
                             <div class="form-floating mb-3 col-md-3">
                                 <input type="number" class="form-control " placeholder="Course Duration"
@@ -178,7 +178,6 @@
                                 <x-input-error :messages="$errors->get('duration')" class="text-danger mt-2" />
                             </div>
                         </div>
-
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Course Description" name="description" id="description"
                                 style="height: 100px">{!! old('description', $course->description) !!}</textarea>
@@ -207,9 +206,7 @@
             plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         });
-
         $(document).ready(function() {
-
             // ── Instructor Select2 ──────────────────────────────
             $('.select2-instructor').select2({
                 width: '100%',
@@ -221,7 +218,6 @@
                     return markup;
                 }
             });
-
             $('.select2-instructor').trigger('change');
 
             function formatInstructor(option) {
@@ -245,7 +241,6 @@
                 </div>
             `;
             }
-
             // ── Schedule Select2 ───────────────────────────────
             $('.select2-schedule').select2({
                 width: '100%',
@@ -257,24 +252,19 @@
                     return markup;
                 }
             });
-
             $('.select2-schedule').trigger('change');
 
             function formatSchedule(option) {
                 if (!option.id) return option.text;
-
                 let shift = $(option.element).data('shift');
                 let start = $(option.element).data('start');
                 let end = $(option.element).data('end');
-
                 let shiftColor = {
                     morning: 'var(--bs-success)',
                     afternoon: 'var(--bs-warning)',
                     evening: 'var(--bs-primary)'
                 };
-
                 let color = shiftColor[shift] ?? 'var(--bs-secondary)';
-
                 return `
                 <div class="d-flex justify-content-between align-items-center py-1">
                     <div>
@@ -290,19 +280,16 @@
 
             function formatSelection(option) {
                 if (!option.id) return option.text;
-
                 let day = $(option.element).parent('optgroup').attr('label') || '';
                 let shift = $(option.element).data('shift');
                 let start = $(option.element).data('start');
                 let end = $(option.element).data('end');
-
                 return `
                 <span style="font-weight:600;">
                     ${day} • ${shift.charAt(0).toUpperCase() + shift.slice(1)} ( ${start} – ${end} )
                 </span>
             `;
             }
-
         });
     </script>
 @endpush
