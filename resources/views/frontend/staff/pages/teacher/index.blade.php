@@ -21,7 +21,6 @@
             </div>
         </div>
     </div>
-
     <div class="card card-body">
         <div class="table-responsive">
             <table class="table search-table align-middle text-nowrap">
@@ -93,7 +92,6 @@
                 </tbody>
             </table>
         </div>
-
         {{-- Pagination --}}
         @if ($instructors->hasPages())
             {{-- <div class="d-flex justify-content-end mt-3"> --}}
@@ -101,7 +99,6 @@
             {{-- </div> --}}
         @endif
     </div>
-
     {{-- CREATE MODAL --}}
     <div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalTitle"
         style="display: none;" aria-hidden="true">
@@ -196,9 +193,15 @@
                                         <div class="mb-3">
                                             <label for="c-password" class="form-label fw-semibold">Password <span
                                                     class="text-danger">*</span></label>
-                                            <input type="password" id="c-password" name="password"
-                                                class="form-control @error('password') is-invalid @enderror"
-                                                placeholder="Min. 8 characters">
+                                            <div class="input-group">
+                                                <input type="password" id="c-password" name="password"
+                                                    class="form-control @error('password') is-invalid @enderror"
+                                                    placeholder="Min. 8 characters">
+                                                <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                    data-target="#c-password">
+                                                    <i class="ti ti-eye"></i>
+                                                </button>
+                                            </div>
                                             @error('password')
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
@@ -208,8 +211,15 @@
                                         <div class="mb-3">
                                             <label for="c-password-confirm" class="form-label fw-semibold">Confirm
                                                 Password <span class="text-danger">*</span></label>
-                                            <input type="password" id="c-password-confirm" name="password_confirmation"
-                                                class="form-control" placeholder="Re-enter password">
+                                            <div class="input-group">
+                                                <input type="password" id="c-password-confirm"
+                                                    name="password_confirmation" class="form-control"
+                                                    placeholder="Re-enter password">
+                                                <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                    data-target="#c-password-confirm">
+                                                    <i class="ti ti-eye"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -256,7 +266,6 @@
             </div>
         </div>
     </div>
-
     {{-- EDIT MODAL --}}
     <div class="modal fade" id="editContactModal" tabindex="-1" aria-hidden="true" style="display:none;">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -325,15 +334,27 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">New Password</label>
-                                    <input type="password" name="password" id="edit-password" class="form-control"
-                                        placeholder="Leave blank to keep current">
+                                    <div class="input-group">
+                                        <input type="password" name="password" id="edit-password" class="form-control"
+                                            placeholder="Leave blank to keep current">
+                                        <button type="button" class="btn btn-outline-secondary toggle-password"
+                                            data-target="#edit-password">
+                                            <i class="ti ti-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Confirm New Password</label>
-                                    <input type="password" name="password_confirmation" class="form-control"
-                                        placeholder="Re-enter new password">
+                                    <div class="input-group">
+                                        <input type="password" id="edit-password-confirm" name="password_confirmation"
+                                            class="form-control" placeholder="Re-enter new password">
+                                        <button type="button" class="btn btn-outline-secondary toggle-password"
+                                            data-target="#edit-password-confirm">
+                                            <i class="ti ti-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -376,7 +397,6 @@
             </div>
         </div>
     </div>
-
     {{-- DELETE MODAL --}}
     <div class="modal fade" id="deleteTeacherModal" tabindex="-1" aria-hidden="true" style="display:none;">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -408,7 +428,6 @@
             </div>
         </div>
     </div>
-
     {{-- Reopen modal on validation error --}}
     @if ($errors->any())
         <script>
@@ -418,33 +437,33 @@
             });
         </script>
     @endif
-
 @endsection
 @push('scripts')
     <script>
+        // Toggle password visibility
+        $(document).on('click', '.toggle-password', function() {
+            const target = $($(this).data('target'));
+            const isPassword = target.attr('type') === 'password';
+            target.attr('type', isPassword ? 'text' : 'password');
+            $(this).find('i').toggleClass('ti-eye ti-eye-off');
+        });
         // Delete button click handler
         document.querySelectorAll('.btn-delete-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
                 const name = this.dataset.name;
-
                 document.getElementById('delete-teacher-name').textContent = name;
                 document.getElementById('deleteTeacherForm').action = `/staff/teacher/${id}`;
-
                 new bootstrap.Modal(document.getElementById('deleteTeacherModal')).show();
             });
         });
-
-
         // Edit button click handler
         document.querySelectorAll('.btn-edit-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
                 const form = document.getElementById('editTeacherForm');
-
                 // Set form action dynamically
                 form.action = `/staff/teacher/${id}`;
-
                 // Populate fields
                 document.getElementById('edit-name').value = this.dataset.name ?? '';
                 document.getElementById('edit-khmer-name').value = this.dataset.khmerName ?? '';
@@ -452,11 +471,9 @@
                 document.getElementById('edit-phone').value = this.dataset.phone ?? '';
                 document.getElementById('edit-dob').value = this.dataset.dob ?? '';
                 document.getElementById('edit-location').value = this.dataset.location ?? '';
-
                 // Set gender dropdown
                 const genderSelect = document.getElementById('edit-gender');
                 genderSelect.value = this.dataset.gender ?? '';
-
                 // Open modal
                 new bootstrap.Modal(document.getElementById('editContactModal')).show();
             });

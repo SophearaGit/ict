@@ -60,7 +60,6 @@
                                 <input type="file" class="form-control" name="thumbnail" accept="image/*">
                                 <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
                             </div>
-
                         </div>
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control " placeholder="Course Title" name="title">
@@ -129,7 +128,6 @@
                                         class="border-start border-info ps-3">End Date</span></label>
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-2" />
                             </div>
-
                             <div class="form-floating mb-3 col-md-2">
                                 <input type="number" class="form-control " placeholder="Course Price" name="price"
                                     step="0.01">
@@ -138,10 +136,12 @@
                                         class="border-start border-info ps-3">Price</span></label>
                                 <x-input-error :messages="$errors->get('price')" class="text-danger mt-2" />
                             </div>
-
                             <div class="form-floating mb-3 col-md-3">
                                 <select class="form-select" name="price_per_session" id="price_per_session">
                                     <option value="" disabled selected>Select Price/Session</option>
+                                    <option value="0.00" {{ old('price_per_session') == '0.00' ? 'selected' : '' }}>
+                                        Free (0.00 $)
+                                    </option>
                                     @for ($i = 5; $i <= 10; $i += 0.5)
                                         <option value="{{ number_format($i, 2) }}"
                                             {{ old('price_per_session') == number_format($i, 2) ? 'selected' : '' }}>
@@ -154,7 +154,6 @@
                                         class="border-start border-info ps-3">Price/Session</span></label>
                                 <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-2" />
                             </div>
-
                             <div class="form-floating mb-3 col-md-3">
                                 <input type="number" class="form-control " placeholder="Course Duration"
                                     name="duration" step="0.1">
@@ -219,13 +218,11 @@
         </div>
     `;
         }
-
         tinymce.init({
             selector: 'textarea',
             plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         });
-
         $(document).ready(function() {
             $('.select2-schedule').select2({
                 width: '100%',
@@ -239,22 +236,17 @@
             });
 
             function formatSchedule(option) {
-
                 if (!option.id) return option.text;
-
                 let shift = $(option.element).data('shift');
                 // let room = $(option.element).data('room');
                 let start = $(option.element).data('start');
                 let end = $(option.element).data('end');
-
                 let shiftColor = {
                     morning: 'var(--bs-success)',
                     afternoon: 'var(--bs-warning)',
                     evening: 'var(--bs-primary)'
                 };
-
                 let color = shiftColor[shift] ?? 'var(--bs-secondary)';
-
                 // return `
             //     <div class="d-flex justify-content-between align-items-center py-1">
             //         <div>
@@ -289,12 +281,10 @@
 
             function formatSelection(option) {
                 if (!option.id) return option.text;
-
                 let day = $(option.element).parent('optgroup').attr('label') || '';
                 let shift = $(option.element).data('shift');
                 let start = $(option.element).data('start');
                 let end = $(option.element).data('end');
-
                 return `
                     <span style="font-weight:600;">
                         ${day} • ${shift.charAt(0).toUpperCase() + shift.slice(1)} ( ${start} – ${end} )
