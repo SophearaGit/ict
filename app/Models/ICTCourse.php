@@ -26,6 +26,7 @@ class ICTCourse extends Model
         'schedule_id',
         'thumbnail',
         'title',
+        'khmer_title',
         'slug',
         'description',
         'price',

@@ -252,7 +252,7 @@
                 <!-- Card header -->
                 <div class="card-header d-flex align-items-center justify-content-between card-header-height">
                     <h4 class="mb-0">Popular Teacher</h4>
-                    <a href="#" class="btn btn-outline-secondary btn-sm">View all</a>
+                    <a href="{{ route('admin.instructor.index') }}" class="btn btn-outline-secondary btn-sm">View all</a>
                 </div>
 
                 <!-- Card body -->
@@ -322,7 +322,8 @@
                 <!-- Card header -->
                 <div class="card-header d-flex align-items-center justify-content-between card-header-height">
                     <h4 class="mb-0">Recent Courses</h4>
-                    <a href="#" class="btn btn-outline-secondary btn-sm">View all</a>
+                    <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-secondary btn-sm">View
+                        all</a>
                 </div>
 
                 <!-- Card body -->

@@ -1,4 +1,5 @@
 <aside class="left-sidebar">
+
     <!-- Sidebar scroll-->
     <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
@@ -16,13 +17,11 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav scroll-sidebar" data-simplebar>
             <ul id="sidebarnav">
-
                 {{-- Home Section --}}
                 <li class="nav-small-cap">
                     <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                     <span class="hide-menu">Home</span>
                 </li>
-
                 {{-- Dashboard --}}
                 <li class="sidebar-item">
                     <a class="sidebar-link {{ request()->routeIs('staff.dashboard') ? 'active' : '' }}"
@@ -33,10 +32,10 @@
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
-
                 {{-- Users Dropdown (Teachers & Students) --}}
-                <li class="sidebar-item {{ request()->routeIs('staff.teacher.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.teacher.*') ? 'active' : '' }}"
+                <li
+                    class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.*') ? 'active' : '' }}"
                         href="javascript:;" aria-expanded="false">
                         <span>
                             <i class="ti ti-users"></i>
@@ -44,8 +43,7 @@
                         <span class="hide-menu">Users</span>
                     </a>
                     <ul aria-expanded="false"
-                        class="collapse first-level {{ request()->routeIs('staff.teacher.*') ? 'in' : '' }}">
-
+                        class="collapse first-level {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.*') ? 'in' : '' }}">
                         {{-- Teachers --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.teacher.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.teacher.index') }}"
@@ -56,20 +54,18 @@
                                 <span class="hide-menu">Teachers</span>
                             </a>
                         </li>
-
                         {{-- Students --}}
-                        <li class="sidebar-item ">
-                            <a href="#" class="sidebar-link ">
+                        <li class="sidebar-item {{ request()->routeIs('staff.student.*') ? 'active' : '' }}">
+                            <a href="{{ route('staff.student.index') }}"
+                                class="sidebar-link {{ request()->routeIs('staff.student.*') ? 'active' : '' }}">
                                 <div class="round-16 d-flex align-items-center justify-content-center">
                                     <i class="ti ti-user-plus fs-3"></i>
                                 </div>
                                 <span class="hide-menu">Students</span>
                             </a>
                         </li>
-
                     </ul>
                 </li>
-
                 {{-- Invoice --}}
                 <li class="sidebar-item {{ request()->routeIs('staff.invoices') ? 'selected' : '' }}">
                     <a class="sidebar-link {{ request()->routeIs('staff.invoices') ? 'active' : '' }}"
@@ -80,7 +76,6 @@
                         <span class="hide-menu">Invoice</span>
                     </a>
                 </li>
-
                 {{-- Reports --}}
                 <li class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
                     <a class="sidebar-link {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
@@ -120,7 +115,6 @@
                         </li>
                     </ul>
                 </li>
-
                 {{-- Course Management Dropdown --}}
                 <li
                     class="sidebar-item {{ request()->routeIs('staff.courses.*', 'staff.schedules.*') ? 'selected' : '' }}">
@@ -133,7 +127,6 @@
                     </a>
                     <ul aria-expanded="false"
                         class="collapse first-level {{ request()->routeIs('staff.courses.*', 'staff.schedules.*') ? 'in' : '' }}">
-
                         {{-- Courses --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.courses.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.courses.index') }}"
@@ -144,7 +137,6 @@
                                 <span class="hide-menu">Courses</span>
                             </a>
                         </li>
-
                         {{-- Schedules --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.schedules.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.schedules.index') }}"
@@ -155,18 +147,15 @@
                                 <span class="hide-menu">Schedules</span>
                             </a>
                         </li>
-
                     </ul>
                 </li>
-
             </ul>
         </nav>
-
         <div class="fixed-profile p-3 bg-light-secondary rounded sidebar-ad mt-3">
             <div class="hstack gap-3">
                 <div class="john-img">
-                    <img src="/admin/assets/dist/images/profile/user-1.jpg" class="rounded-circle" width="40"
-                        height="40" alt="">
+                    <img src="{{ asset('/admin/assets/dist/images/profile/user-1.jpg') }}" class="rounded-circle"
+                        width="40" height="40" alt="">
                 </div>
                 <div class="john-title">
                     <h6 class="mb-0 fs-4 fw-semibold">Mathew</h6>
@@ -178,7 +167,9 @@
                 </button>
             </div>
         </div>
+
         <!-- End Sidebar navigation -->
     </div>
+
     <!-- End Sidebar scroll-->
 </aside>
