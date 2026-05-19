@@ -5,14 +5,10 @@ use Carbon\Carbon;
 use App\Models\ICTCourse;
 use App\Models\ICTSchedule;
 use App\Models\StudentAttendances;
-use App\Models\StudentReports;
-use App\Models\TeacherAttendances;
 use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 class IctCourseController extends Controller
@@ -160,6 +156,7 @@ class IctCourseController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'khmer_name' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'price_per_session' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
@@ -178,6 +175,7 @@ class IctCourseController extends Controller
         }
         $course = new ICTCourse();
         $course->title = $request->title;
+        $course->khmer_title = $request->khmer_name;
         $course->price = $request->price;
         $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
@@ -265,6 +263,7 @@ class IctCourseController extends Controller
         $course = ICTCourse::findOrFail($id);
         $request->validate([
             'title' => 'required|string|max:255',
+            'khmer_title' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'price_per_session' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
@@ -285,6 +284,7 @@ class IctCourseController extends Controller
             $thumbnailPath = $course->thumbnail; // Keep existing thumbnail if no new file is uploaded
         }
         $course->title = $request->title;
+        $course->khmer_title = $request->khmer_name;
         $course->price = $request->price;
         $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);

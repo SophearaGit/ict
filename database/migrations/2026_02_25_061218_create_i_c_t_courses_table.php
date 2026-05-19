@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreignId('schedule_id')->constrained('i_c_t_schedules');
             $table->string('thumbnail')->nullable();
             $table->string('title');
+            $table->string('khmer_title')->nullable();
             $table->string('slug');
             $table->text('description')->nullable();
             $table->double('price')->nullable();

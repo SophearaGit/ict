@@ -2,8 +2,9 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
+    {{-- Toolbar --}}
     <div class="card card-body">
-        <div class="row">
+        <div class="row align-items-center">
             <div class="col-md-4 col-xl-3">
                 <form method="GET" action="{{ route('staff.teacher.index') }}" id="search-form">
                     <div class="position-relative">
@@ -13,7 +14,18 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+            <div
+                class="col-md-8 col-xl-9 d-flex justify-content-md-end justify-content-center align-items-center gap-2 mt-3 mt-md-0">
+                {{-- View Toggle --}}
+                <div class="btn-group" role="group" id="view-toggle">
+                    <button type="button" class="btn btn-outline-secondary view-btn active" data-view="list"
+                        title="List View">
+                        <i class="ti ti-list fs-5"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary view-btn" data-view="grid" title="Grid View">
+                        <i class="ti ti-layout-grid fs-5"></i>
+                    </button>
+                </div>
                 <a href="javascript:void(0)" id="btn-add-contact" class="btn btn-info d-flex align-items-center"
                     data-bs-toggle="modal" data-bs-target="#addContactModal">
                     <i class="ti ti-users text-white me-1 fs-5"></i> Add Teacher
@@ -21,7 +33,8 @@
             </div>
         </div>
     </div>
-    <div class="card card-body">
+    {{-- LIST VIEW --}}
+    <div id="view-list" class="card card-body">
         <div class="table-responsive">
             <table class="table search-table align-middle text-nowrap">
                 <thead class="header-item">
@@ -92,11 +105,66 @@
                 </tbody>
             </table>
         </div>
-        {{-- Pagination --}}
         @if ($instructors->hasPages())
-            {{-- <div class="d-flex justify-content-end mt-3"> --}}
             {{ $instructors->links('frontend.staff.pages.pagination.custom') }}
-            {{-- </div> --}}
+        @endif
+    </div>
+    {{-- GRID VIEW --}}
+    <div id="view-grid" style="display:none;">
+        <div class="row g-3">
+            @forelse($instructors as $instructor)
+                <div class="col-sm-6 col-md-4 col-xl-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column align-items-center text-center pt-4">
+                            <img src="{{ $instructor->image == 'no-img.jpg'
+                                ? ($instructor->gender == 'male'
+                                    ? asset('\admin\assets\dist\images\profile\user-1.jpg')
+                                    : asset('\admin\assets\dist\images\profile\user-2.jpg'))
+                                : asset($instructor->image) }}"
+                                alt="avatar"
+                                class="rounded-circle object-fit-cover mb-3 border border-3 border-light shadow-sm"
+                                width="72" height="72">
+                            <h6 class="mb-0 fw-semibold">{{ $instructor->name }}</h6>
+                            @if ($instructor->khmer_name)
+                                <small class="text-muted">{{ $instructor->khmer_name }}</small>
+                            @endif
+                            <span
+                                class="badge {{ $instructor->gender === 'male' ? 'bg-light-primary text-primary' : 'bg-light-danger text-danger' }} rounded-pill mt-2">
+                                {{ ucfirst($instructor->gender ?? '-') }}
+                            </span>
+                            <hr class="w-100 my-3">
+                            <div class="w-100 text-start small text-muted">
+                                <div class="mb-1"><i class="ti ti-mail me-1"></i> {{ $instructor->email }}</div>
+                                <div class="mb-1"><i class="ti ti-phone me-1"></i> {{ $instructor->phone ?? '-' }}</div>
+                                <div><i class="ti ti-map-pin me-1"></i> {{ $instructor->location ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 d-flex justify-content-center gap-2 pb-3">
+                            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-edit-teacher"
+                                data-id="{{ $instructor->id }}" data-name="{{ $instructor->name }}"
+                                data-khmer-name="{{ $instructor->khmer_name }}" data-email="{{ $instructor->email }}"
+                                data-phone="{{ $instructor->phone }}" data-dob="{{ $instructor->dob }}"
+                                data-gender="{{ $instructor->gender }}" data-location="{{ $instructor->location }}">
+                                <i class="ti ti-edit me-1"></i> Edit
+                            </a>
+                            <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger btn-delete-teacher"
+                                data-id="{{ $instructor->id }}" data-name="{{ $instructor->name }}">
+                                <i class="ti ti-trash me-1"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12 text-center py-5 text-muted">
+                    <i class="ti ti-users-off fs-1 d-block mb-2"></i>
+                    No teachers found{{ request('search') ? ' for "' . request('search') . '"' : '' }}.
+                </div>
+            @endforelse
+        </div>
+        @if ($instructors->hasPages())
+            <div class="mt-3">
+                {{ $instructors->links('frontend.staff.pages.pagination.custom') }}
+            </div>
         @endif
     </div>
     {{-- CREATE MODAL --}}
@@ -131,8 +199,9 @@
                                         <div class="mb-3">
                                             <label for="c-khmer-name" class="form-label fw-semibold">Full Name
                                                 (Khmer)</label>
-                                            <input type="text" id="c-khmer-name" name="khmer_name" class="form-control"
-                                                placeholder="e.g. គ្រូបង្រៀន" value="{{ old('khmer_name') }}">
+                                            <input type="text" id="c-khmer-name" name="khmer_name"
+                                                class="form-control" placeholder="e.g. គ្រូបង្រៀន"
+                                                value="{{ old('khmer_name') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -338,9 +407,7 @@
                                         <input type="password" name="password" id="edit-password" class="form-control"
                                             placeholder="Leave blank to keep current">
                                         <button type="button" class="btn btn-outline-secondary toggle-password"
-                                            data-target="#edit-password">
-                                            <i class="ti ti-eye"></i>
-                                        </button>
+                                            data-target="#edit-password"><i class="ti ti-eye"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -351,9 +418,7 @@
                                         <input type="password" id="edit-password-confirm" name="password_confirmation"
                                             class="form-control" placeholder="Re-enter new password">
                                         <button type="button" class="btn btn-outline-secondary toggle-password"
-                                            data-target="#edit-password-confirm">
-                                            <i class="ti ti-eye"></i>
-                                        </button>
+                                            data-target="#edit-password-confirm"><i class="ti ti-eye"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -440,14 +505,39 @@
 @endsection
 @push('scripts')
     <script>
-        // Toggle password visibility
+        // ─── View Toggle (persisted in localStorage) ───────────────────────────────
+        const VIEW_KEY = 'teacher_view_preference';
+        const listView = document.getElementById('view-list');
+        const gridView = document.getElementById('view-grid');
+        const viewBtns = document.querySelectorAll('.view-btn');
+
+        function setView(view) {
+            if (view === 'grid') {
+                listView.style.display = 'none';
+                gridView.style.display = 'block';
+            } else {
+                listView.style.display = 'block';
+                gridView.style.display = 'none';
+            }
+            viewBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            localStorage.setItem(VIEW_KEY, view);
+        }
+        // Restore saved preference
+        const savedView = localStorage.getItem(VIEW_KEY) || 'list';
+        setView(savedView);
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', () => setView(btn.dataset.view));
+        });
+        // ─── Password Toggle ────────────────────────────────────────────────────────
         $(document).on('click', '.toggle-password', function() {
             const target = $($(this).data('target'));
             const isPassword = target.attr('type') === 'password';
             target.attr('type', isPassword ? 'text' : 'password');
             $(this).find('i').toggleClass('ti-eye ti-eye-off');
         });
-        // Delete button click handler
+        // ─── Delete ─────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-delete-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
@@ -457,24 +547,19 @@
                 new bootstrap.Modal(document.getElementById('deleteTeacherModal')).show();
             });
         });
-        // Edit button click handler
+        // ─── Edit ───────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-edit-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
                 const form = document.getElementById('editTeacherForm');
-                // Set form action dynamically
                 form.action = `/staff/teacher/${id}`;
-                // Populate fields
                 document.getElementById('edit-name').value = this.dataset.name ?? '';
                 document.getElementById('edit-khmer-name').value = this.dataset.khmerName ?? '';
                 document.getElementById('edit-email').value = this.dataset.email ?? '';
                 document.getElementById('edit-phone').value = this.dataset.phone ?? '';
                 document.getElementById('edit-dob').value = this.dataset.dob ?? '';
                 document.getElementById('edit-location').value = this.dataset.location ?? '';
-                // Set gender dropdown
-                const genderSelect = document.getElementById('edit-gender');
-                genderSelect.value = this.dataset.gender ?? '';
-                // Open modal
+                document.getElementById('edit-gender').value = this.dataset.gender ?? '';
                 new bootstrap.Modal(document.getElementById('editContactModal')).show();
             });
         });

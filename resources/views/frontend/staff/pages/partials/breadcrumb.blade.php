@@ -17,8 +17,10 @@
                         Account Settings
                     @elseif (Route::is('staff.courses.show'))
                         Course Details
-                    @elseif (Route::is('staff.teacher.index') || Route::is('staff.teacher.create') || Route::is('staff.teacher.edit'))
+                    @elseif (Route::is('staff.teacher.index'))
                         Teachers
+                    @elseif(Route::is('staff.student.index'))
+                        Students
                     @else
                     @endif
                 </h4>
@@ -43,6 +45,8 @@
                                 Course Details
                             @elseif (Route::is('staff.teacher.index') || Route::is('staff.teacher.create') || Route::is('staff.teacher.edit'))
                                 Teachers
+                            @elseif(Route::is('staff.student.index'))
+                                Students
                             @else
                             @endif
                         </li>

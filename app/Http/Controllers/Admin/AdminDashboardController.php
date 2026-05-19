@@ -78,6 +78,7 @@ class AdminDashboardController extends Controller
             ->where('document', '!=', '')
             ->whereBetween('created_at', [$from, $to])
             ->with(['courses' => fn($q) => $q->withCount('enrollments')])
+            ->take(8)
             ->get()
             ->map(
                 fn($instructor) => [
@@ -91,12 +92,12 @@ class AdminDashboardController extends Controller
         $recentCourses = ICTCourse::with('instructor')
             ->whereBetween('created_at', [$from, $to])
             ->latest()
-            ->take(5)
+            ->take(8)
             ->get()
             ->map(
                 fn($course) => [
                     'title' => $course->title,
-                    'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('/default-images/course/no-thumbnail.jpg'),
+                    'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('/default-images/noImg/no-thumbnail.jpg'),
                     'instructor_name' => $course->instructor?->name ?? 'N/A',
                     'instructor_image' => $course->instructor?->image === 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor?->image ?? '/default-images/user/both.jpg'),
                 ],
