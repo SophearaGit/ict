@@ -131,8 +131,9 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item d-flex align-items-center gap-3 text-danger"
-                                                href="#">
+                                            <a class="dropdown-item d-flex align-items-center gap-3 text-danger btn-delete-course"
+                                                href="javascript:void(0)" data-id="{{ $course->id }}"
+                                                data-title="{{ $course->title }}">
                                                 <i class="ti ti-trash fs-4"></i>
                                                 Delete
                                             </a>
@@ -155,5 +156,52 @@
                 {{ $courses->links('frontend.staff.pages.pagination.custom') }}
             @endif
         </div>
+        {{-- DELETE MODAL --}}
+        <div class="modal fade" id="deleteTeacherModal" tabindex="-1" aria-hidden="true" style="display:none;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-center">
+                        <h5 class="modal-title text-danger">
+                            <i class="ti ti-trash me-2"></i> Delete Course
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <i class="ti ti-alert-triangle text-warning" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">Are you sure?</h5>
+                        <p class="text-muted mb-0">
+                            Do you really want to delete the course "<span id="delete-course-title"
+                                class="fw-semibold"></span>"? <br> This action cannot be undone.
+                        </p>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <form id="deleteCourseForm" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger rounded-pill px-4">
+                                <i class="ti ti-trash me-1"></i> Yes, Delete
+                            </button>
+                        </form>
+                        <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                            <i class="ti ti-x me-1"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
+@push('scripts')
+    <script>
+        // ─── Delete ─────────────────────────────────────────────────────────────────
+        document.querySelectorAll('.btn-delete-course').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const title = this.dataset.title;
+                document.getElementById('delete-course-title').textContent = title;
+                document.getElementById('deleteCourseForm').action = `/staff/courses/${id}`;
+                new bootstrap.Modal(document.getElementById('deleteTeacherModal')).show();
+            });
+        });
+    </script>
+@endpush

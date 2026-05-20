@@ -164,6 +164,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])->name('courses.edit');
         Route::put('/courses/{id}', [IctCourseController::class, 'update'])->name('courses.update');
         Route::get('/courses/{id}', [IctCourseController::class, 'show'])->name('courses.show');
+        Route::delete('courses/{id}', [IctCourseController::class, 'destroy'])->name('courses.destroy');
 
         /*******************************************************
          * PRINT CERTIFICATE
