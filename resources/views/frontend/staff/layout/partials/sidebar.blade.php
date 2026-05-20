@@ -34,8 +34,8 @@
                 </li>
                 {{-- Users Dropdown (Teachers & Students) --}}
                 <li
-                    class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.*') ? 'active' : '' }}"
+                    class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') ? 'selected' : '' }}">
+                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') ? 'active' : '' }}"
                         href="javascript:;" aria-expanded="false">
                         <span>
                             <i class="ti ti-users"></i>
@@ -43,7 +43,7 @@
                         <span class="hide-menu">Users</span>
                     </a>
                     <ul aria-expanded="false"
-                        class="collapse first-level {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.*') ? 'in' : '' }}">
+                        class="collapse first-level {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') ? 'in' : '' }}">
                         {{-- Teachers --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.teacher.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.teacher.index') }}"
@@ -55,9 +55,9 @@
                             </a>
                         </li>
                         {{-- Students --}}
-                        <li class="sidebar-item {{ request()->routeIs('staff.student.*') ? 'active' : '' }}">
+                        <li class="sidebar-item {{ request()->routeIs('staff.student.index') ? 'active' : '' }}">
                             <a href="{{ route('staff.student.index') }}"
-                                class="sidebar-link {{ request()->routeIs('staff.student.*') ? 'active' : '' }}">
+                                class="sidebar-link {{ request()->routeIs('staff.student.index') ? 'active' : '' }}">
                                 <div class="round-16 d-flex align-items-center justify-content-center">
                                     <i class="ti ti-user-plus fs-3"></i>
                                 </div>

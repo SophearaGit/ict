@@ -97,7 +97,7 @@ class AdminDashboardController extends Controller
             ->map(
                 fn($course) => [
                     'title' => $course->title,
-                    'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('/default-images/noImg/no-thumbnail.jpg'),
+                    'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('default-images/staff/no-course-img.png'),
                     'instructor_name' => $course->instructor?->name ?? 'N/A',
                     'instructor_image' => $course->instructor?->image === 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor?->image ?? '/default-images/user/both.jpg'),
                 ],

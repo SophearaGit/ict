@@ -299,4 +299,13 @@ class IctCourseController extends Controller
         $course->save();
         return redirect()->route('staff.courses.index')->with('success', 'Course updated successfully.');
     }
+    public function destroy($id)
+    {
+        $course = ICTCourse::findOrFail($id);
+        if ($course->thumbnail != '') {
+            $this->deleteIfImageExist($course->thumbnail);
+        }
+        $course->delete();
+        return redirect()->route('staff.courses.index')->with('success', 'Course deleted successfully.');
+    }
 }
