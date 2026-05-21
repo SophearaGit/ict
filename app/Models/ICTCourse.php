@@ -21,21 +21,7 @@ class ICTCourse extends Model
         'duration' => 'float',
     ];
 
-    protected $fillable = [
-        'instructor_id',
-        'schedule_id',
-        'thumbnail',
-        'title',
-        'khmer_title',
-        'slug',
-        'description',
-        'price',
-        'price_per_session',
-        'status',
-        'start_date',
-        'end_date',
-        'duration',
-    ];
+    protected $fillable = ['instructor_id', 'schedule_id', 'thumbnail', 'title', 'khmer_title', 'slug', 'description', 'price', 'price_per_session', 'status', 'start_date', 'end_date', 'duration'];
 
     public function studentReports()
     {
@@ -70,8 +56,17 @@ class ICTCourse extends Model
 
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'i_c_t_invoices', 'course_id', 'student_id')
-            ->withTimestamps();
+        return $this->belongsToMany(User::class, 'i_c_t_course_enrollments', 'course_id', 'student_id')->wherePivot('status', 'active')->withPivot('status')->withTimestamps();
+    }
+
+    public function completedStudents(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'i_c_t_course_enrollments', 'course_id', 'student_id')->wherePivot('status', 'completed')->withPivot('status')->withTimestamps();
+    }
+
+    public function droppedStudents(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'i_c_t_course_enrollments', 'course_id', 'student_id')->wherePivot('status', 'dropped')->withPivot('status')->withTimestamps();
     }
 
     public function invoices()
@@ -84,10 +79,10 @@ class ICTCourse extends Model
         return $this->hasManyThrough(
             ICTPayments::class,
             ICTInvoice::class,
-            'course_id',   // Foreign key on invoices
-            'invoice_id',  // Foreign key on payments
-            'id',          // Local key on courses
-            'id'           // Local key on invoices
+            'course_id', // Foreign key on invoices
+            'invoice_id', // Foreign key on payments
+            'id', // Local key on courses
+            'id', // Local key on invoices
         );
     }
 
@@ -100,5 +95,4 @@ class ICTCourse extends Model
     {
         return $this->hasMany(ICTInvoiceItems::class, 'course_id');
     }
-
 }

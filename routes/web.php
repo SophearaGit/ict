@@ -128,7 +128,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
     ->prefix('staff')
     ->name('staff.')
     ->group(function (): void {
-        Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
         /*******************************************************
          * TEACHER & STUDENT RESOURCE ROUTES
          *******************************************************/
@@ -165,6 +165,11 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::put('/courses/{id}', [IctCourseController::class, 'update'])->name('courses.update');
         Route::get('/courses/{id}', [IctCourseController::class, 'show'])->name('courses.show');
         Route::delete('courses/{id}', [IctCourseController::class, 'destroy'])->name('courses.destroy');
+        /*******************************************************
+         * MOVE STUDENT TO ANOTHER COURSE & REMOVE STUDENT FROM COURSE
+         *******************************************************/
+        Route::post('/courses/{course_id}/move-student', [IctCourseController::class, 'moveStudent'])->name('courses.move-student');
+        Route::post('/courses/{course_id}/remove-student', [IctCourseController::class, 'removeStudent'])->name('courses.remove-student');
 
         /*******************************************************
          * PRINT CERTIFICATE
