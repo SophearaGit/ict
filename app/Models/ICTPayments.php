@@ -13,18 +13,10 @@ class ICTPayments extends Model
 
     protected $table = 'i_c_t_payments';
 
-    protected $fillable = [
-        'invoice_id',
-        'amount',
-        'payment_method',
-        'paid_by',
-        'paid_at',
-        'note',
-    ];
+    protected $fillable = ['invoice_id', 'amount', 'payment_method', 'note', 'paid_by', 'paid_at'];
 
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(IctInvoice::class, 'invoice_id');
     }
-
 }

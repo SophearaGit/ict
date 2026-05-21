@@ -4,11 +4,73 @@
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="/admin/assets/dist/libs/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 42px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 42px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+            color: #333;
+        }
+
+        .select2-dropdown {
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
     @include('frontend.staff.pages.course-management.course-detail.style.style')
     @include('frontend.staff.pages.course-management.course-detail.style.pills-student-attendance')
 @endpush
 @section('content')
-    @include('frontend.staff.pages.partials.breadcrumb')
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-8">
+                        Course Details
+                    </h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a class="text-muted "
+                                    href="{{ route('staff.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item" aria-current="page">
+                                Course Management</li>
+                            <li class="breadcrumb-item"><a class="text-muted " href="{{ route('staff.courses.index') }}">
+                                    Courses
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item" aria-current="page">
+                                {{ Str::limit($course->title, 30) }}
+                            </li>
+
+
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="text-center mb-n5">
+                        <img src="{{ asset('/admin/assets/dist/images/breadcrumb/ChatBc.png') }}" alt=""
+                            class="img-fluid mb-n4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card overflow-hidden">
         <div class="card-body p-0">
             <img src="{{ asset($course->thumbnail == '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail)) }}"
@@ -53,16 +115,6 @@
                                 Sessions
                             </p>
                         </div>
-                        {{-- complete session count
-                        <div class="text-center">
-                            <i class="ti ti-calendar-check fs-6 d-block mb-2"></i>
-                            <h4 class="mb-0 fw-semibold lh-1">
-                                {{ $course->completed_sessions ?? 0 }}
-                            </h4>
-                            <p class="mb-0 fs-4">
-                                Completed
-                            </p>
-                        </div> --}}
                         {{-- Earning --}}
                         <div class="text-center">
                             <i class="ti ti-currency-dollar fs-6 d-block mb-2"></i>
@@ -160,36 +212,6 @@
                                 <div class="title">ICT Professional Training Center</div>
                                 <div class="sub-title">Teacher's Attendant</div>
                             </div>
-                            {{-- <form method="GET" class="row g-2 mb-3">
-
-                                <div class="col-md-6">
-                                    <label class="mb-1">Filter by Date Range</label>
-                                    <div class="input-daterange input-group" id="date-range">
-
-                                        <input type="text" class="form-control" name="from_date"
-                                            placeholder="From date" value="{{ request('from_date') }}"
-                                            id="datepicker-autoclose">
-
-                                        <span class="input-group-text bg-info text-white">TO</span>
-
-                                        <input type="text" class="form-control" name="to_date" placeholder="To date"
-                                            value="{{ request('to_date') }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <button class="btn btn-primary w-100">
-                                        <i class="ti ti-search"></i> Filter
-                                    </button>
-                                </div>
-
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <a href="{{ route('staff.courses.show', $course->id) }}"
-                                        class="btn btn-secondary w-100">
-                                        Reset
-                                    </a>
-                                </div>
-                            </form> --}}
                         </div>
                         <form method="GET" class="mb-3">
                             <div class="filter-bar p-3 rounded-3 bg-light border">
@@ -203,7 +225,8 @@
                                         </label>
 
                                         <div class="input-daterange input-group" id="date-range">
-                                            <input type="text" class="form-control" name="from_date" placeholder="From"
+                                            <input type="text" class="form-control" name="from_date"
+                                                placeholder="From"
                                                 value="{{ request('from_date', now()->startOfMonth()->format('Y-m-d')) }}">
 
                                             <span class="input-group-text bg-primary text-white px-2 px-md-3">
@@ -235,20 +258,7 @@
 
                             </div>
                         </form>
-                        {{-- @if (request('from_date') && request('to_date'))
-                            <div class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <strong>Filtered:</strong>
-                                    {{ request('from_date') }} → {{ request('to_date') }}
-                                </div>
 
-                                <div class="d-flex gap-4">
-                                    <span><strong>Hours:</strong> {{ $course->filtered_hours ?? 0 }}</span>
-                                    <span><strong>Sessions:</strong> {{ $course->filtered_sessions ?? 0 }}</span>
-                                    <span><strong>Earnings:</strong> ${{ $course->filtered_earnings ?? 0 }}</span>
-                                </div>
-                            </div>
-                        @endif --}}
                         <!-- Teacher -->
                         <div class="info-row">
                             <div class="info-label">
@@ -586,57 +596,7 @@
                         @endif
                     </div>
 
-                    {{-- Stat mini-cards overlapping the blue header --}}
-                    {{-- <div class="row g-3 mb-n3">
-                        <div class="col-6 col-md-3">
-                            <div class="card mb-0 border-0 shadow-none text-center">
-                                <div class="card-body py-3">
-                                    <div class="d-flex align-items-center justify-content-center bg-light-primary rounded mx-auto mb-2"
-                                        style="width:36px;height:36px;">
-                                        <i class="ti ti-users text-primary fs-5"></i>
-                                    </div>
-                                    <h5 class="fw-semibold fs-7 mb-0">{{ $totalStudents }}</h5>
-                                    <p class="text-muted fs-2 mb-0">Students</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="card mb-0 border-0 shadow-none text-center">
-                                <div class="card-body py-3">
-                                    <div class="d-flex align-items-center justify-content-center bg-light-success rounded mx-auto mb-2"
-                                        style="width:36px;height:36px;">
-                                        <i class="ti ti-circle-check text-success fs-5"></i>
-                                    </div>
-                                    <h5 class="fw-semibold fs-7 mb-0">{{ $passed }}</h5>
-                                    <p class="text-muted fs-2 mb-0">Passed</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="card mb-0 border-0 shadow-none text-center">
-                                <div class="card-body py-3">
-                                    <div class="d-flex align-items-center justify-content-center bg-light-danger rounded mx-auto mb-2"
-                                        style="width:36px;height:36px;">
-                                        <i class="ti ti-circle-x text-danger fs-5"></i>
-                                    </div>
-                                    <h5 class="fw-semibold fs-7 mb-0">{{ $failed }}</h5>
-                                    <p class="text-muted fs-2 mb-0">Failed</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="card mb-0 border-0 shadow-none text-center">
-                                <div class="card-body py-3">
-                                    <div class="d-flex align-items-center justify-content-center bg-light-warning rounded mx-auto mb-2"
-                                        style="width:36px;height:36px;">
-                                        <i class="ti ti-chart-bar text-warning fs-5"></i>
-                                    </div>
-                                    <h5 class="fw-semibold fs-7 mb-0">{{ $avgScore }}</h5>
-                                    <p class="text-muted fs-2 mb-0">Avg Score</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
+
 
                 </div>{{-- /.card-body bg-primary --}}
 
@@ -797,47 +757,24 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script>
-        // PRINT CERTIFICATES
-        document.addEventListener('DOMContentLoaded', function() {
+        // Select2 CDN
+        if (typeof $.fn.select2 === 'undefined') {
+            const s2 = document.createElement('script');
+            s2.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
+            s2.onload = () => initSelect2();
+            document.head.appendChild(s2);
+        } else {
+            initSelect2();
+        }
 
-            const printBtn = document.getElementById('printCertificatesBtn');
-
-            if (printBtn) {
-                printBtn.addEventListener('click', function() {
-
-                    let selected = [];
-
-                    document.querySelectorAll('.student-checkbox:checked').forEach(cb => {
-                        selected.push(cb.value);
-                    });
-
-                    if (selected.length === 0) {
-                        alert('Please select at least one student.');
-                        return;
-                    }
-
-                    fetch("{{ route('staff.certificates.print') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                            },
-                            body: JSON.stringify({
-                                students: selected,
-                                course_id: "{{ $course->id }}"
-                            })
-                        })
-                        .then(res => res.blob())
-                        .then(blob => {
-                            let url = window.URL.createObjectURL(blob);
-                            window.open(url, '_blank');
-                        })
-                        .catch(err => console.error(err));
-
-                });
-            }
-
-        });
+        function initSelect2() {
+            $('#targetCourseSelect').select2({
+                dropdownParent: $('#moveCourseModal'),
+                placeholder: '— Choose course —',
+                allowClear: true,
+                width: '100%',
+            });
+        }
 
         // TAB STATE PERSISTENCE
         document.addEventListener("DOMContentLoaded", function() {

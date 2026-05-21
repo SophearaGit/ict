@@ -11,21 +11,7 @@ class ICTInvoice extends Model
     /** @use HasFactory<\Database\Factories\ICTInvoiceFactory> */
     use HasFactory;
 
-    protected $fillable = [
-        'staff_id',
-        'student_id',
-        'course_id',
-        'price',
-        'discount',
-        'extra_charge',
-        'total_amount',
-        'paid_amount',
-        'remaining_amount',
-        'payment_option',
-        'payment_status',
-        'paid_at',
-        'invoice_code',
-    ];
+    protected $fillable = ['staff_id', 'student_id', 'course_id', 'price', 'discount', 'extra_charge', 'total_amount', 'paid_amount', 'remaining_amount', 'payment_option', 'payment_status', 'invoice_code', 'paid_at'];
 
     public function student(): BelongsTo
     {
@@ -46,6 +32,4 @@ class ICTInvoice extends Model
     {
         return $this->hasMany(ICTInvoiceItems::class, 'invoice_id');
     }
-
-
 }
