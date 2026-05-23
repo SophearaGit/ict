@@ -175,13 +175,13 @@
                                             Access your courses, reports, and learning dashboard.
                                         </p>
                                     </div>
-                                    <a href="{{ route('home') }}"
-                                        class="btn btn-light border rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 back-home-btn">
-                                        <i class="ti ti-home"></i>
-                                        <span>
+                                    {{-- <a href="{{ route('home') }}"
+                class="btn btn-light border rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 back-home-btn">
+                <i class="ti ti-home"></i>
+                <span>
                                             Homepage
                                         </span>
-                                    </a>
+                </a> --}}
                                 </div>
                                 <x-auth-session-status class="mb-4" :status="session('status')" />
                                 <form method="POST" action="{{ route('login') }}">
@@ -233,11 +233,12 @@
                                     </div>
                                     {{-- REGISTER --}}
                                     <div class="text-center">
-                                        <span class="text-muted">
-                                            Don’t have an account?
-                                        </span>
-                                        <a href="{{ route('register') }}" class="fw-semibold text-decoration-none">
-                                            Register
+                                        <a href="{{ route('home') }}"
+                                            class="btn btn-light border rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 back-home-btn">
+                                            <i class="ti ti-home"></i>
+                                            <span>
+                                                Homepage
+                                            </span>
                                         </a>
                                     </div>
                                 </form>

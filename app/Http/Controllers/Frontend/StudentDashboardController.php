@@ -15,7 +15,6 @@ class StudentDashboardController extends Controller
 {
     use FileUpload;
 
-
     public function myCourses(): View
     {
         $data = [
@@ -47,8 +46,9 @@ class StudentDashboardController extends Controller
 
     public function becomeInstructor(Request $request)
     {
-        if (auth()->guard()->user()->role === 'instructor')
+        if (auth()->guard()->user()->role === 'instructor') {
             abort(403);
+        }
         $data = [
             'page_title' => 'ICT | Become an Instructor',
         ];
@@ -70,5 +70,4 @@ class StudentDashboardController extends Controller
 
         return redirect()->route('student.dashboard');
     }
-
 }

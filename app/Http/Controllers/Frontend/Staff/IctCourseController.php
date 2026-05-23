@@ -277,6 +277,7 @@ class IctCourseController extends Controller
             'student_ids' => 'required|array|min:1',
             'student_ids.*' => 'exists:users,id',
             'target_course_id' => 'required|exists:i_c_t_courses,id',
+            'charge_difference' => 'nullable|in:0,1',
         ]);
 
         if ($request->target_course_id == $course_id) {
@@ -289,20 +290,17 @@ class IctCourseController extends Controller
 
         $targetCourseId = $request->target_course_id;
         $targetCourse = ICTCourse::findOrFail($targetCourseId);
+        $chargeDifference = $request->input('charge_difference', '0') === '1';
 
         foreach ($request->student_ids as $studentId) {
-            /*
-            |------------------------------------------------------------------
-            | INVOICE
-            |------------------------------------------------------------------
-            */
             $invoice = ICTInvoice::where('course_id', $course_id)->where('student_id', $studentId)->first();
 
             if ($invoice) {
                 $oldPrice = (float) $invoice->price;
                 $newPrice = (float) $targetCourse->price;
 
-                if ($newPrice > $oldPrice) {
+                if ($newPrice > $oldPrice && $chargeDifference) {
+                    // staff chose to charge the difference
                     $newRemaining = $newPrice - (float) $invoice->paid_amount;
                     $paymentStatus = $newRemaining <= 0 ? 'paid' : 'half_paid';
 
@@ -314,6 +312,7 @@ class IctCourseController extends Controller
                         'payment_status' => $paymentStatus,
                     ]);
                 } else {
+                    // no charge — just re-point the course, keep all amounts as-is
                     $invoice->update(['course_id' => $targetCourseId]);
                 }
 
@@ -322,20 +321,14 @@ class IctCourseController extends Controller
                     ->update([
                         'course_id' => $targetCourseId,
                         'price' => $targetCourse->price,
-                        'total' => $targetCourse->price,
+                        'total' => $chargeDifference ? $targetCourse->price : $invoice->total_amount,
                     ]);
             }
 
-            /*
-            |------------------------------------------------------------------
-            | ENROLLMENT
-            |------------------------------------------------------------------
-            */
+            // enrollment
             ICTCourseEnrollments::where('course_id', $course_id)->where('student_id', $studentId)->delete();
 
-            $alreadyEnrolled = ICTCourseEnrollments::where('course_id', $targetCourseId)->where('student_id', $studentId)->exists();
-
-            if (!$alreadyEnrolled) {
+            if (!ICTCourseEnrollments::where('course_id', $targetCourseId)->where('student_id', $studentId)->exists()) {
                 ICTCourseEnrollments::create([
                     'student_id' => $studentId,
                     'course_id' => $targetCourseId,
