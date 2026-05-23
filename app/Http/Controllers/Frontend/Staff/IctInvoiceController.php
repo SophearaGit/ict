@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class IctInvoiceController extends Controller
 {
-
     public function getInvoiceDetail(string $invoice_id): string
     {
         $data = [
@@ -31,22 +30,6 @@ class IctInvoiceController extends Controller
         return view('frontend.staff.pages.partials.inv-confirm-payment', $data)->render();
     }
 
-    // public function updatePayment(Request $request, $id): JsonResponse
-    // {
-    //     dd($request->all(), $id);
-    //     $invoice = ICTInvoice::findOrFail($id);
-
-    //     $invoice->payment_status = 'paid';
-    //     $invoice->paid_amount = $invoice->total_amount;
-    //     $invoice->remaining_amount = 0;
-    //     $invoice->paid_at = now();
-    //     $invoice->save();
-
-    //     return response()->json([
-    //         'message' => 'Payment confirmed successfully',
-    //     ]);
-    // }
-
     public function updatePayment(Request $request, $id): JsonResponse
     {
         $invoice = ICTInvoice::findOrFail($id);
@@ -54,7 +37,6 @@ class IctInvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-
             $remaining = $invoice->remaining_amount;
 
             // Create payment record
@@ -64,7 +46,7 @@ class IctInvoiceController extends Controller
                 'payment_method' => 'cash',
                 'paid_by' => Auth::id(),
                 'paid_at' => now(),
-                'note' => 'Final payment'
+                'note' => 'Final payment',
             ]);
 
             // Update invoice
@@ -77,16 +59,17 @@ class IctInvoiceController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Payment confirmed successfully'
+                'message' => 'Payment confirmed successfully',
             ]);
-
         } catch (\Exception $e) {
-
             DB::rollBack();
 
-            return response()->json([
-                'message' => 'Payment failed'
-            ], 500);
+            return response()->json(
+                [
+                    'message' => 'Payment failed',
+                ],
+                500,
+            );
         }
     }
 
@@ -96,10 +79,9 @@ class IctInvoiceController extends Controller
 
         $invoices = ICTInvoice::with(['student', 'course'])
             ->when($search, function ($query, $search) {
-                $query->where('invoice_code', 'like', "%{$search}%")
-                    ->orWhereHas('student', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+                $query->where('invoice_code', 'like', "%{$search}%")->orWhereHas('student', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
             })
             ->latest()
             ->paginate(5);
@@ -112,17 +94,4 @@ class IctInvoiceController extends Controller
             'invoices' => $invoices,
         ]);
     }
-
-
-    // public function invoices(): View
-    // {
-    //     $data = [
-    //         'page_title' => 'ICT Center | Invoices',
-    //         'invoices' => ICTInvoice::with(['student', 'course'])
-    //             ->latest()
-    //             ->paginate(5),
-    //     ];
-    //     return view('frontend.staff.pages.invoice', $data);
-    // }
-
 }

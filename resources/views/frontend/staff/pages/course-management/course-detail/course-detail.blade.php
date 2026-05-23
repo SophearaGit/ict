@@ -57,8 +57,6 @@
                             <li class="breadcrumb-item" aria-current="page">
                                 {{ Str::limit($course->title, 30) }}
                             </li>
-
-
                         </ol>
                     </nav>
                 </div>
@@ -747,7 +745,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>{{-- /.card --}}
         </div>{{-- /.tab-pane --}}
     </div>

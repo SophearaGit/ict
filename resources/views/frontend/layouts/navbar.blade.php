@@ -324,9 +324,10 @@
                 @else
                     {{-- <a href="#" class="btn btn-icon btn-light rounded-circle d-none d-md-inline-flex ms-2"><i
                             class="fe fe-shopping-cart align-middle"></i></a> --}}
-                    <a href="{{ route('login') }}" class="btn btn-outline-primary ms-2 d-none d-lg-block">Sign
-                        in</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary ms-2 d-none d-lg-block">Sign up</a>
+                    <a href="{{ route('login') }}" class="btn btn-outline-primary ms-2 d-none d-lg-block">
+                        Login
+                    </a>
+                    {{-- <a href="{{ route('register') }}" class="btn btn-primary ms-2 d-none d-lg-block">Sign up</a> --}}
                 @endauth
                 <!-- Button -->
                 <button class="navbar-toggler collapsed ms-2 ms-lg-0" type="button" data-bs-toggle="collapse"
@@ -348,8 +349,8 @@
             {{-- Mobile Sign In / Sign Up — visible only on small screens --}}
             @guest
                 <div class="d-lg-none mt-3 d-flex flex-column gap-2">
-                    <a href="{{ route('login') }}" class="btn btn-outline-primary w-100">Sign in</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary w-100">Sign up</a>
+                    <a href="{{ route('login') }}" class="btn btn-outline-primary w-100">Login</a>
+                    {{-- <a href="{{ route('register') }}" class="btn btn-primary w-100">Sign up</a> --}}
                 </div>
             @endguest
         </div>

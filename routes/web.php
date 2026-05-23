@@ -128,7 +128,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
     ->prefix('staff')
     ->name('staff.')
     ->group(function (): void {
-        Route::get('dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
         /*******************************************************
          * TEACHER & STUDENT RESOURCE ROUTES
          *******************************************************/
@@ -146,7 +146,6 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          *******************************************************/
         Route::get('/invoices', [IctInvoiceController::class, 'invoices'])->name('invoices');
         Route::get('/invoice-detail/{invoice_id}', [IctInvoiceController::class, 'getInvoiceDetail'])->name('invoice.detail');
-        // Route::get('/invoice-confirm-payment/{invoice_id}', [IctInvoiceController::class, 'confirmPayment'])->name('invoice.confirm.payment');
         Route::put('/invoice/{invoice_id}/confirm-payment', [IctInvoiceController::class, 'updatePayment'])->name('invoice.confirm-payment');
 
         /*******************************************************
