@@ -12,7 +12,6 @@ class AdminDashboardController extends Controller
     public function readNotification($id)
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
-        // security check
         if ($notification->notifiable_id !== auth()->id()) {
             abort(403);
         }
@@ -26,53 +25,44 @@ class AdminDashboardController extends Controller
     }
     public function index(Request $request): View
     {
-        // Handle quick presets FIRST, before the custom range fallback
-        switch ($request->preset) {
-            case 'today':
-                $from = Carbon::today()->startOfDay();
-                $to = Carbon::today()->endOfDay();
-                break;
-            case 'week':
-                $from = Carbon::now()->startOfWeek();
-                $to = Carbon::now()->endOfWeek();
-                break;
-            case 'month':
-                $from = Carbon::now()->startOfMonth();
-                $to = Carbon::now()->endOfMonth();
-                break;
-            case 'year':
-                $from = Carbon::now()->startOfYear();
-                $to = Carbon::now()->endOfYear();
-                break;
-            case 'all':
-            default:
-                // <-- all is now the default
-                $from = $request->filled('from') ? Carbon::parse($request->from)->startOfDay() : Carbon::createFromTimestamp(0);
-                $to = $request->filled('to') ? Carbon::parse($request->to)->endOfDay() : Carbon::now()->endOfDay();
-                break;
+        // Month filter — defaults to current month
+        if ($request->filled('month')) {
+            $from = Carbon::parse($request->month)->startOfMonth();
+            $to = Carbon::parse($request->month)->endOfMonth();
+        } else {
+            $from = Carbon::now()->startOfMonth();
+            $to = Carbon::now()->endOfMonth();
         }
-        // Revenue
+
+        $selectedMonth = $from->format('Y-m');
+
+        // Courses active in this month
+        $courseQuery = ICTCourse::where('start_date', '<=', $to)->where('end_date', '>=', $from);
+
+        $totalCourses = $courseQuery->count();
+        $pendingCourses = (clone $courseQuery)->where('status', 'inactive')->count();
+
+        // Revenue — payments made during this month
         $totalRevenue = ICTPayments::whereBetween('created_at', [$from, $to])->sum('amount');
-        $diffInDays = $from->diffInDays($to) + 1;
-        $prevFrom = $from->copy()->subDays($diffInDays);
-        $prevTo = $from->copy()->subSecond();
+
+        // Compare vs previous month
+        $prevFrom = $from->copy()->subMonth()->startOfMonth();
+        $prevTo = $from->copy()->subMonth()->endOfMonth();
         $prevRevenue = ICTPayments::whereBetween('created_at', [$prevFrom, $prevTo])->sum('amount');
         $revenueChange = $totalRevenue - $prevRevenue;
-        // Courses
-        $totalCourses = ICTCourse::whereBetween('created_at', [$from, $to])->count();
-        $pendingCourses = ICTCourse::where('status', 'inactive')
-            ->whereBetween('created_at', [$from, $to])
-            ->count();
-        // Students
+
+        // Students registered this month
         $totalStudents = User::where('role', 'student')
             ->whereNull('document')
             ->whereBetween('created_at', [$from, $to])
             ->count();
-        // Instructors
+
+        // Instructors registered this month
         $totalInstructors = User::where('role', 'instructor')
             ->where('document', '!=', '')
             ->whereBetween('created_at', [$from, $to])
             ->count();
+
         // Instructors list
         $newInstructorsList = User::where('role', 'instructor')
             ->where('document', '!=', '')
@@ -88,21 +78,18 @@ class AdminDashboardController extends Controller
                     'student_count' => $instructor->courses->sum('enrollments_count'),
                 ],
             );
-        // Recent Courses
-        $recentCourses = ICTCourse::with('instructor')
-            ->whereBetween('created_at', [$from, $to])
-            ->latest()
-            ->take(8)
-            ->get()
-            ->map(
-                fn($course) => [
-                    'title' => $course->title,
-                    'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('default-images/staff/no-course-img.png'),
-                    'instructor_name' => $course->instructor?->name ?? 'N/A',
-                    'instructor_image' => $course->instructor?->image === 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor?->image ?? '/default-images/user/both.jpg'),
-                ],
-            );
-        // Activity feed from notifications
+
+        // Recent courses active in this month
+        $recentCourses = ICTCourse::with('instructor')->where('start_date', '<=', $to)->where('end_date', '>=', $from)->latest('start_date')->take(8)->get()->map(
+            fn($course) => [
+                'title' => $course->title,
+                'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('default-images/staff/no-course-img.png'),
+                'instructor_name' => $course->instructor?->name ?? 'N/A',
+                'instructor_image' => $course->instructor?->image === 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor?->image ?? '/default-images/user/both.jpg'),
+            ],
+        );
+
+        // Activity
         $activities = auth('admin')
             ->user()
             ->notifications()
@@ -119,11 +106,41 @@ class AdminDashboardController extends Controller
                     'is_read' => !is_null($n->read_at),
                 ],
             );
-        // For displaying back in the date inputs — presets show their resolved dates
+
+        // Today's courses — active courses that span today
+        $todaysCourses = ICTCourse::with(['instructor', 'schedule'])
+            ->withCount('enrollments')
+            ->whereDate('start_date', '<=', Carbon::today())
+            ->whereDate('end_date', '>=', Carbon::today())
+            ->where('status', 'active')
+            ->latest('start_date')
+            ->get()
+            ->map(
+                fn($course) => [
+                    'id' => $course->id,
+                    'title' => $course->title,
+                    'khmer_title' => $course->khmer_title,
+                    'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('default-images/staff/no-course-img.png'),
+                    'instructor_name' => $course->instructor?->name ?? 'N/A',
+                    'instructor_image' => $course->instructor?->image === 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor?->image ?? '/default-images/user/both.jpg'),
+                    'start_date' => $course->start_date,
+                    'end_date' => $course->end_date,
+                    'duration' => $course->duration,
+                    'status' => $course->status,
+                    'enrollments_count' => $course->enrollments_count,
+                    'price' => $course->price,
+                    'total_revenue' => $course->payments()->sum('amount'),
+                    'schedule_days' => $course->schedule?->short_days,
+                    'schedule_shift' => $course->schedule?->shift_label,
+                    'schedule_time' => $course->schedule?->formatted_time,
+                ],
+            );
+
         $data = [
             'page_title' => 'ICT | ADMIN | DASHBOARD',
+            'selected_month' => $selectedMonth,
             'total_revenue' => number_format($totalRevenue, 2),
-            'change' => number_format($revenueChange, 2),
+            'change' => number_format(abs($revenueChange), 2),
             'is_up' => $revenueChange >= 0,
             'total_courses' => number_format($totalCourses),
             'pending_courses' => $pendingCourses,
@@ -134,9 +151,9 @@ class AdminDashboardController extends Controller
             'new_instructors_list' => $newInstructorsList,
             'recent_courses' => $recentCourses,
             'activities' => $activities,
-            'from' => $from->toDateString(),
-            'to' => $to->toDateString(),
+            'todays_courses' => $todaysCourses,
         ];
+
         return view('admin.pages.dashboard', $data);
     }
 }
