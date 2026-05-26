@@ -14,7 +14,6 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            /* background: #fafafa; */
         }
 
         .schedule-body {
@@ -47,142 +46,138 @@
     </style>
 @endpush
 @section('content')
+    {{-- ── Page Header ── --}}
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-12">
-            <!-- Page Header -->
+        <div class="col-12">
             <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
                 <div class="mb-3 mb-md-0">
-                    <h1 class="mb-1 h2 fw-bold">
-                        Courses ( Real Time )
-                    </h1>
-                    <!-- Breadcrumb -->
+                    <h1 class="mb-1 h2 fw-bold">Courses</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item">
                                 <a href="{{ route('admin.dashboard') }}">Dashboard</a>
                             </li>
-                            <li class="breadcrumb-item active">
-                                <a href="javascript:void;">
-                                    Courses ( Real Time )
-                                </a>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Course
                             </li>
-                            <li class="breadcrumb-item active" aria-current="page">All</li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                All
+                            </li>
                         </ol>
                     </nav>
                 </div>
-                <div class="nav btn-group" role="tablist">
-                    <button class="btn btn-primary add_new_course_btn">
-                        Add New Course
-                    </button>
+                <div>
+                    <button class="btn btn-primary add_new_course_btn">Add New Course</button>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-12 mb-4">
-            <div class="row d-md-flex justify-content-between align-items-center">
-                <div class="col-md-6 col-lg-8 col-xl-9">
-                    <h4 class="mb-3 mb-md-0">Displaying {{ $courses->count() }} out of {{ $courses->total() }} courses
-                        @if (request()->filled('schedule_ids'))
-                            <span class="badge bg-primary">{{ count(request()->schedule_ids) }} filters</span>
-                        @endif
-                    </h4>
-                </div>
-                <div class="d-inline-flex col-md-6 col-lg-4 col-xl-3">
-
-                    <div class="me-2">
-                        <!-- Grid/List -->
-                        <div class="nav btn-group flex-nowrap" role="tablist">
-                            <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneGrid"
-                                role="tab" aria-controls="tabPaneGrid" aria-selected="true" data-tab="grid">
-                                <span class="fe fe-grid"></span>
-                            </button>
-                            <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList"
-                                role="tab" aria-controls="tabPaneList" aria-selected="false" tabindex="-1"
-                                data-tab="list">
-                                <span class="fe fe-list"></span>
-                            </button>
-                        </div>
+        {{-- ── Toolbar ── --}}
+        <div class="col-12 mb-4">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                {{-- Result count --}}
+                <h4 class="mb-0">
+                    Displaying {{ $courses->count() }} out of {{ $courses->total() }} courses
+                    @if (request()->filled('schedule_ids'))
+                        <span class="badge bg-primary ms-1">{{ count(request()->schedule_ids) }} schedule filters</span>
+                    @endif
+                </h4>
+                {{-- Controls --}}
+                <div class="d-flex align-items-center gap-2 flex-nowrap">
+                    {{-- Grid / List toggle --}}
+                    <div class="nav btn-group flex-nowrap" role="tablist">
+                        <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneGrid"
+                            role="tab" aria-controls="tabPaneGrid" data-tab="grid">
+                            <span class="fe fe-grid"></span>
+                        </button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList"
+                            role="tab" aria-controls="tabPaneList" tabindex="-1" data-tab="list">
+                            <span class="fe fe-list"></span>
+                        </button>
                     </div>
-
-                    <!-- Status Filter -->
-                    <select id="statusFilter" class="form-select me-2">
-                        <option value="">All Status</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>
-                            Open
-                        </option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
-                            Close
-                        </option>
+                    {{-- Month filter --}}
+                    <select id="monthFilter" class="form-select flex-shrink-0" style="width:auto;">
+                        <option value="">All Months</option>
+                        @foreach (range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::createFromDate(null, $m, 1)->format('F') }}
+                            </option>
+                        @endforeach
                     </select>
-
-                    <!-- ✅ NEW: Sort By -->
-                    {{-- <select id="sortFilter" class="form-select">
+                    {{-- Sort filter --}}
+                    {{-- <select id="sortFilter" class="form-select flex-shrink-0" style="width:auto;">
                         <option value="">Sort By</option>
-                        <option value="start_date_desc" {{ request('sort') == 'start_date_desc' ? 'selected' : '' }}>
-                            📅 Newest Start Date
-                        </option>
-                        <option value="start_date_asc" {{ request('sort') == 'start_date_asc' ? 'selected' : '' }}>
-                            📅 Oldest Start Date
-                        </option>
-                    </select> --}}
-
+                        <option value="start_asc" {{ request('sort_by') == 'start_asc' ? 'selected' : '' }}>Start Date ↑
+        </option>
+        <option value="start_desc" {{ request('sort_by') == 'start_desc' ? 'selected' : '' }}>Start Date ↓
+        </option>
+        <option value="end_asc" {{ request('sort_by') == 'end_asc' ? 'selected' : '' }}>End Date ↑
+        </option>
+        <option value="end_desc" {{ request('sort_by') == 'end_desc' ? 'selected' : '' }}>End Date ↓
+        </option>
+        <option value="students" {{ request('sort_by') == 'students' ? 'selected' : '' }}>Most Students
+        </option>
+        <option value="revenue" {{ request('sort_by') == 'revenue' ? 'selected' : '' }}>Most Revenue
+        </option>
+        </select> --}}
+                    {{-- Status filter --}}
+                    <select id="statusFilter" class="form-select flex-shrink-0" style="width:auto;">
+                        <option value="" {{ request('status') == '' ? 'selected' : '' }}>All Status</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Open</option>
+                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Closed</option>
+                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                    </select>
                 </div>
             </div>
         </div>
+        {{-- ── Sidebar: Schedule Filter ── --}}
         <div class="col-xl-3 col-lg-3 col-md-4 col-12 mb-4 mb-lg-0">
-            <!-- Card -->
             <div class="card">
-                <!-- Card header -->
                 <div class="card-header">
-                    <h4 class="mb-0">Filter</h4>
+                    <h4 class="mb-0">Filter by Schedule</h4>
                 </div>
-                <!-- Card body -->
                 <div class="card-body">
-                    <span class="dropdown-header px-0 mb-3">Schedules</span>
-                    @if (request()->filled('search_query') || !empty(request('schedule_ids', [])))
-                        <div class="my-3">
+                    @if (request()->filled('search_query') ||
+                            !empty(request('schedule_ids', [])) ||
+                            request()->filled('status') ||
+                            request()->filled('month') ||
+                            request()->filled('sort_by'))
+                        <div class="mb-3">
                             <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-danger w-100">
-                                Reset Filters
+                                Reset All Filters
                             </a>
                         </div>
                     @endif
-                    @php
-                        $shiftOrder = [
-                            'morning' => 1,
-                            'afternoon' => 2,
-                            'evening' => 3,
-                        ];
-                    @endphp
-
                     <form id="scheduleFilterForm" method="GET" action="{{ route('admin.courses.realtime.index') }}">
+                        {{-- Persist all other active filters when a schedule checkbox changes --}}
                         <input type="hidden" name="status" value="{{ request('status') }}">
-                        <input type="hidden" name="sort" value="{{ request('sort') }}">
+                        <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                        <input type="hidden" name="month" value="{{ request('month') }}">
                         <input type="hidden" name="search_query" value="{{ request('search_query') }}">
                         @foreach ($groupedSchedules as $day => $items)
                             @php
                                 $collapseId = 'schedule-' . md5($day);
                                 $shiftGroups = collect($items)->groupBy('shift');
+                                $shiftOrder = ['morning' => 1, 'afternoon' => 2, 'evening' => 3];
+                                $shiftGroups = $shiftGroups->sortBy(fn($v, $k) => $shiftOrder[$k] ?? 99);
                             @endphp
                             <div class="schedule-card mb-2">
-                                <div class="schedule-header" data-bs-toggle="collapse"
-                                    data-bs-target="#{{ $collapseId }}">
+                                <div class="schedule-header" data-bs-target="#{{ $collapseId }}">
                                     <div class="fw-bold">{{ ucfirst($day) }}</div>
                                     <i class="fe fe-chevron-down arrow"></i>
                                 </div>
                                 <div class="collapse schedule-body" id="{{ $collapseId }}">
-                                    {{-- <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="text-muted small">Select all</span>
-                                        <input type="checkbox" class="form-check-input select-day">
-                                    </div> --}}
                                     @foreach ($shiftGroups as $shift => $shiftSchedules)
                                         <div class="shift-title">{{ ucfirst($shift) }}</div>
                                         @foreach ($shiftSchedules as $schedule)
                                             <label class="schedule-item">
-                                                <span>{{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i') }} –
-                                                    {{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}</span>
+                                                <span>
+                                                    {{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i') }} –
+                                                    {{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}
+                                                </span>
                                                 <input type="checkbox" name="schedule_ids[]" value="{{ $schedule->id }}"
-                                                    class="schedule-checkbox"
+                                                    class="schedule-checkbox form-check-input"
                                                     onchange="document.getElementById('scheduleFilterForm').submit()"
                                                     {{ in_array($schedule->id, $selected_schedule_ids) ? 'checked' : '' }}>
                                             </label>
@@ -195,316 +190,270 @@
                 </div>
             </div>
         </div>
-        <!-- Tab content -->
+        {{-- ── Main content: Grid + List tabs ── --}}
         <div class="col-xl-9 col-lg-9 col-md-8 col-12">
             <div class="tab-content">
-                <!-- Tab pane -->
-                <div class="tab-pane fade pb-4" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
+                {{-- ════ GRID VIEW ════ --}}
+                <div class="tab-pane fade pb-4" id="tabPaneGrid" role="tabpanel">
                     <div class="card rounded-3">
-                        <!-- Card header -->
-                        <div class="p-4 row">
-                            <!-- Form -->
+                        {{-- Search --}}
+                        <div class="p-4">
                             <form method="GET" action="{{ route('admin.courses.realtime.index') }}"
-                                class="d-flex align-items-center col-12 col-md-12 col-lg-12">
-
+                                class="d-flex align-items-center position-relative">
                                 <span class="position-absolute ps-3 search-icon">
                                     <i class="fe fe-search"></i>
                                 </span>
-
                                 <input type="search" name="search_query" value="{{ request('search_query') }}"
                                     class="form-control ps-6" placeholder="Search Course">
-                                <!-- Hidden inputs for selected schedule IDs -->
-                                @foreach (request('schedule_ids', []) as $scheduleId)
-                                    <input type="hidden" name="schedule_ids[]" value="{{ $scheduleId }}">
+                                @foreach (request('schedule_ids', []) as $sid)
+                                    <input type="hidden" name="schedule_ids[]" value="{{ $sid }}">
                                 @endforeach
-                                <!-- ⭐ keep status -->
                                 <input type="hidden" name="status" value="{{ request('status') }}">
-                                <input type="hidden" name="sort" value="{{ request('sort') }}">
+                                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                                <input type="hidden" name="month" value="{{ request('month') }}">
                             </form>
                         </div>
+                        {{-- Grid --}}
                         <div class="px-4">
                             <div class="row">
                                 @forelse ($courses as $course)
                                     <div class="col-lg-4 col-md-6 col-12">
-                                        <!-- Card -->
                                         <div class="card mb-4 card-hover">
-                                            <a href="{{ route('admin.courses.realtime.show', $course->id) }}"><img
-                                                    src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+                                            <a href="{{ route('admin.courses.realtime.show', $course->id) }}">
+                                                <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
                                                     alt="course" class="card-img-top"
-                                                    style="height: 230px; object-fit: cover;"></a>
-                                            <!-- Card body -->
+                                                    style="height:180px; object-fit:cover;">
+                                            </a>
                                             <div class="card-body">
                                                 <h4 class="mb-2 text-truncate-line-2">
                                                     <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
-                                                        class="text-inherit">
-                                                        {{ $course->title }}
-                                                    </a>
+                                                        class="text-inherit">{{ $course->title }}</a>
                                                 </h4>
-                                                <div class="d-flex justify-content-between border-bottom py-2 mt-2">
-                                                    <span>
-                                                        Class Start
-                                                    </span>
-                                                    <span class="text-dark">
-                                                        {{ $course->start_date ? $course->start_date->format('M d, Y') : '' }}
+                                                {{-- Instructor --}}
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}"
+                                                        class="rounded-circle"
+                                                        style="height:22px;width:22px;object-fit:cover;" alt="">
+                                                    <span class="text-muted small">
+                                                        {{ $course->instructor ? $course->instructor->name : 'N/A' }}
                                                     </span>
                                                 </div>
-                                                <div class="d-flex justify-content-between border-bottom py-2 mt-2">
-                                                    <span>
-                                                        Scehdule
-                                                    </span>
+                                                <div class="d-flex justify-content-between border-bottom py-2">
+                                                    <span>Class Start</span>
                                                     <span class="text-dark">
-                                                        <div>
-                                                            <div class="fw-semibold">{{ $course->schedule->short_days }}
-                                                            </div>
-                                                            <div class="text-muted small">
-                                                                <span class="badge bg-light text-dark">
-                                                                    {{ $course->schedule->shift_label }}
-                                                                </span>
-                                                                {{ $course->schedule->formatted_time }}
-                                                            </div>
+                                                        {{ $course->start_date ? $course->start_date->format('M d, Y') : '—' }}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between border-bottom py-2">
+                                                    <span>Class End</span>
+                                                    <span class="text-dark">
+                                                        {{ $course->end_date ? $course->end_date->format('M d, Y') : '—' }}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex justify-content-between border-bottom py-2">
+                                                    <span>Schedule</span>
+                                                    <span class="text-dark text-end">
+                                                        <div class="fw-semibold">{{ $course->schedule->short_days }}</div>
+                                                        <div class="text-muted small">
+                                                            <span
+                                                                class="badge bg-light text-dark">{{ $course->schedule->shift_label }}</span>
+                                                            {{ $course->schedule->formatted_time }}
                                                         </div>
                                                     </span>
                                                 </div>
-                                                <div class="d-flex justify-content-between border-bottom py-2 ">
+                                                <div class="d-flex justify-content-between border-bottom py-2">
+                                                    <span>Status</span>
                                                     <span>
-                                                        Status
-                                                    </span>
-                                                    <span class="text-dark">
-                                                        @if ($course->status == 'inactive')
-                                                            <span
-                                                                class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
-                                                            CLOSE
-                                                        @elseif ($course->status == 'active')
+                                                        @if ($course->status == 'active')
                                                             <span
                                                                 class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
                                                             OPEN
+                                                        @elseif ($course->status == 'inactive')
+                                                            <span
+                                                                class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
+                                                            CLOSED
+                                                        @elseif ($course->status == 'draft')
+                                                            <span
+                                                                class="badge-dot bg-secondary me-1 d-inline-block align-middle"></span>
+                                                            DRAFT
                                                         @endif
                                                     </span>
                                                 </div>
-                                                {{-- students amount --}}
-                                                <div class="d-flex justify-content-between border-bottom  py-2 ">
-                                                    <span>
-                                                        Students
-                                                    </span>
-                                                    <span class="text-dark">
-                                                        {{ $course->enrollments_count }}
-                                                    </span>
+                                                <div class="d-flex justify-content-between border-bottom py-2">
+                                                    <span>Students</span>
+                                                    <span class="text-dark">{{ $course->enrollments_count }}</span>
                                                 </div>
-                                                <div class="d-flex justify-content-between border-bottom py-2 ">
-                                                    <span>
-                                                        Price
-                                                    </span>
-                                                    <span class="text-dark">
-                                                        ${{ number_format($course->price, 2) }}
-                                                    </span>
+                                                <div
+                                                    class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                                    <span>Revenue</span>
+                                                    <span
+                                                        class="text-dark fw-semibold">${{ number_format($course->total_revenue ?? 0, 2) }}</span>
+
                                                 </div>
-                                                {{-- earning --}}
-                                                <div class="d-flex justify-content-between pt-2 ">
-                                                    <span>
-                                                        Revenue
-                                                    </span>
-                                                    <span class="text-dark">
-                                                        ${{ number_format($course->total_revenue ?? 0, 2) }}
-                                                    </span>
+                                                <div class="d-flex justify-content-between pt-2">
+                                                    <span>Full Price</span>
+                                                    <span
+                                                        class="badge bg-primary fs-6 px-3 py-2  fw-semibold">${{ number_format($course->price, 2) }}</span>
                                                 </div>
                                             </div>
-                                            <!-- Card footer -->
                                             <div class="card-footer">
-                                                <div class="row align-items-center g-0">
-                                                    <div class="col-auto">
-                                                        <img src="{{ $course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
-                                                            class="rounded-circle avatar-xs" alt="avatar"
-                                                            style="height: 25px; object-fit: cover;">
-                                                    </div>
-                                                    <div class="col ms-2">
-                                                        <span>
-                                                            {{ $course->instructor ? $course->instructor->name : 'N/A' }}
-                                                        </span>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <a href="javascript:void;"
-                                                            class="btn btn-sm btn-outline-secondary edit_course_btn"
-                                                            data-course-id="{{ $course->id }}">
-                                                            <i class="fe fe-edit"></i>
-                                                        </a>
-                                                        <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}"
-                                                            class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
-                                                            <i class="fe fe-trash"></i>
-                                                        </a>
-                                                    </div>
+                                                <div class="d-flex justify-content-end gap-1">
+                                                    <a href="javascript:void;"
+                                                        class="btn btn-sm btn-outline-secondary edit_course_btn"
+                                                        data-course-id="{{ $course->id }}">
+                                                        <i class="fe fe-edit"></i>
+                                                    </a>
+                                                    <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}"
+                                                        class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
+                                                        <i class="fe fe-trash"></i>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 @empty
                                     <div class="col-12">
-                                        <div class="card mb-4 card-hover">
-                                            <div class="card-body text-center">
-                                                <h3 class="mb-2">No courses found.</h3>
-                                                <p class="mb-4">Try adjusting your search or filter to find what you're
-                                                    looking
-                                                    for.</p>
-                                                @if (request()->filled('search_query') || !empty(request('schedule_ids', [])))
-                                                    <a href="{{ route('admin.courses.realtime.index') }}"
-                                                        class="btn btn-outline-danger ms-2">
-                                                        Reset Filters
-                                                    </a>
-                                                @endif
+                                        <div class="card mb-4">
+                                            <div class="card-body text-center py-5">
+                                                <i class="fe fe-inbox" style="font-size:2.5rem; color:#9ca3af;"></i>
+                                                <h3 class="mt-3 mb-2">No courses found</h3>
+                                                <p class="text-muted mb-4">Try adjusting your search or filters.</p>
+                                                <a href="{{ route('admin.courses.realtime.index') }}"
+                                                    class="btn btn-outline-secondary">
+                                                    Reset Filters
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 @endforelse
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer border-top-0 px-0">
                                 @include('admin.pages.real-time-courses.partials.pagination')
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Tab pane -->
-                <div class="tab-pane fade pb-4 " id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
+                {{-- ════ LIST VIEW ════ --}}
+                <div class="tab-pane fade pb-4" id="tabPaneList" role="tabpanel">
                     <div class="card rounded-3">
-                        <!-- Card header -->
-                        <div class="p-4 row">
-                            <!-- Form -->
+                        {{-- Search --}}
+                        <div class="p-4">
                             <form method="GET" action="{{ route('admin.courses.realtime.index') }}"
-                                class="d-flex align-items-center col-12 col-md-12 col-lg-12">
+                                class="d-flex align-items-center position-relative">
                                 <span class="position-absolute ps-3 search-icon">
                                     <i class="fe fe-search"></i>
                                 </span>
                                 <input type="search" name="search_query" value="{{ request('search_query') }}"
                                     class="form-control ps-6" placeholder="Search Course">
-                                <!-- Hidden inputs for selected schedule IDs -->
-                                @foreach (request('schedule_ids', []) as $scheduleId)
-                                    <input type="hidden" name="schedule_ids[]" value="{{ $scheduleId }}">
+                                @foreach (request('schedule_ids', []) as $sid)
+                                    <input type="hidden" name="schedule_ids[]" value="{{ $sid }}">
                                 @endforeach
-                                <!-- ⭐ keep status -->
                                 <input type="hidden" name="status" value="{{ request('status') }}">
-                                <input type="hidden" name="sort" value="{{ request('sort') }}">
+                                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                                <input type="hidden" name="month" value="{{ request('month') }}">
                             </form>
                         </div>
-                        <div>
-                            <!-- Table -->
-                            <div class="tab-content" id="tabContent">
-                                <!--Tab pane -->
-                                <div class="tab-pane fade active show" id="courses" role="tabpanel"
-                                    aria-labelledby="courses-tab">
-                                    <div class="table-responsive border-0 overflow-y-hidden">
-                                        <table class="table mb-0 text-nowrap table-centered table-hover">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Courses</th>
-                                                    {{-- <th>Instructor</th> --}}
-                                                    <th>Schedule</th>
-                                                    <th>Students</th>
-                                                    {{-- <th>Price</th> --}}
-                                                    <th>Revenue</th>
-                                                    <th>STATUS</th>
-                                                    <th>ACTION</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($courses as $course)
-                                                    <tr>
-                                                        <td>
-                                                            <a href="javascript:void;" class="text-inherit">
-                                                                <div class="d-flex align-items-center">
-                                                                    <div>
-                                                                        <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
-                                                                            alt="" class="img-4by3-lg rounded">
-                                                                    </div>
-                                                                    <div class="ms-3">
-                                                                        <h4 class="mb-1 text-primary-hover">
-                                                                            {{ $course->title }}
-                                                                        </h4>
-                                                                        <span>
-                                                                            Class start:
-                                                                            {{ $course->start_date ? $course->start_date->format('M d, Y') : '' }}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
+                        {{-- Table --}}
+                        <div class="table-responsive border-0">
+                            <table class="table mb-0 text-nowrap table-centered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Instructor</th>
+                                        <th>Schedule</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Students</th>
+                                        <th>Revenue</th>
+                                        <th>Full Price</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($courses as $course)
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
+                                                        alt="" class="img-4by3-lg rounded">
+                                                    <div class="ms-3">
+                                                        <h4 class="mb-0 text-primary-hover">
+                                                            <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
+                                                                class="text-inherit">
+                                                                {{ $course->title }}
                                                             </a>
-                                                        </td>
-                                                        {{-- <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}"
-                                                                    alt="" class="rounded-circle avatar-xs me-2"
-                                                                    style="height: 25px; object-fit: cover;">
-                                                                <h5 class="mb-0">
-                                                                    {{ $course->instructor ? $course->instructor->name : 'N/A' }}
-                                                                </h5>
-                                                            </div>
-                                                        </td> --}}
-                                                        {{-- schedule --}}
-                                                        <td>
-                                                            <div>
-                                                                <div class="fw-semibold">
-                                                                    {{ $course->schedule->short_days }}</div>
-                                                                <div class="text-muted small">
-                                                                    <span class="badge bg-light text-dark">
-                                                                        {{ $course->schedule->shift_label }}
-                                                                    </span>
-                                                                    {{ $course->schedule->formatted_time }}
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            {{ $course->enrollments_count }}
-                                                        </td>
-                                                        {{-- <td>
-                                                            ${{ $course->price }}
-                                                        </td> --}}
-                                                        <td>
-                                                            ${{ number_format($course->total_revenue ?? 0, 2) }}
-                                                        </td>
-                                                        <td>
-                                                            @if ($course->status == 'inactive')
-                                                                <span
-                                                                    class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
-                                                                CLOSE
-                                                            @elseif ($course->status == 'active')
-                                                                <span
-                                                                    class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
-                                                                OPEN
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void;"
-                                                                class="btn btn-sm btn-outline-secondary edit_course_btn"
-                                                                data-course-id="{{ $course->id }}">
-                                                                <i class="fe fe-edit"></i>
-                                                            </a>
-                                                            <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}"
-                                                                class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
-                                                                <i class="fe fe-trash"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="6" class="text-center">
-                                                            <div class="py-4">
-                                                                <h3 class="mb-2">No courses found.</h3>
-                                                                <p class="mb-4">Try adjusting your search or filter to
-                                                                    find
-                                                                    what you're looking for.</p>
-                                                                @if (request()->filled('search_query') || !empty(request('schedule_ids', [])))
-                                                                    <a href="{{ route('admin.courses.realtime.index') }}"
-                                                                        class="btn btn-outline-danger ms-2">
-                                                                        Reset Filters
-                                                                    </a>
-                                                                @endif
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}"
+                                                        alt="" class="rounded-circle me-2"
+                                                        style="height:25px;width:25px;object-fit:cover;">
+                                                    <span>{{ $course->instructor ? $course->instructor->name : 'N/A' }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold">{{ $course->schedule->short_days }}</div>
+                                                <div class="text-muted small">
+                                                    <span
+                                                        class="badge bg-light text-dark">{{ $course->schedule->shift_label }}</span>
+                                                    {{ $course->schedule->formatted_time }}
+                                                </div>
+                                            </td>
+                                            <td>{{ $course->start_date ? $course->start_date->format('M d, Y') : '—' }}
+                                            </td>
+                                            <td>{{ $course->end_date ? $course->end_date->format('M d, Y') : '—' }}
+                                            </td>
+                                            <td>{{ $course->enrollments_count }}</td>
+                                            <td class="fw-semibold">${{ number_format($course->total_revenue ?? 0, 2) }}
+                                            <td><span class="badge bg-primary fs-6 px-2 py-1">${{ number_format($course->price, 2) }}</span></td>
+                                            </td>
+                                            <td>
+                                                @if ($course->status == 'active')
+                                                    <span
+                                                        class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
+                                                    OPEN
+                                                @elseif ($course->status == 'inactive')
+                                                    <span
+                                                        class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
+                                                    CLOSED
+                                                @elseif ($course->status == 'draft')
+                                                    <span
+                                                        class="badge-dot bg-secondary me-1 d-inline-block align-middle"></span>
+                                                    DRAFT
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void;"
+                                                    class="btn btn-sm btn-outline-secondary edit_course_btn"
+                                                    data-course-id="{{ $course->id }}">
+                                                    <i class="fe fe-edit"></i>
+                                                </a>
+                                                <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}"
+                                                    class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
+                                                    <i class="fe fe-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="10" class="text-center py-5">
+                                                <i class="fe fe-inbox" style="font-size:2.5rem; color:#9ca3af;"></i>
+                                                <h3 class="mt-3 mb-2">No courses found</h3>
+                                                <p class="text-muted mb-4">Try adjusting your search or filters.</p>
+                                                <a href="{{ route('admin.courses.realtime.index') }}"
+                                                    class="btn btn-outline-secondary">
+                                                    Reset Filters
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- Card Footer -->
                         <div class="card-footer">
                             @include('admin.pages.real-time-courses.partials.pagination')
                         </div>
@@ -513,195 +462,128 @@
             </div>
         </div>
     </div>
-
-    <!-- Add Course Modal -->
+    {{-- ── Add / Edit Course Modal ── --}}
     <div class="modal fade" id="addCourseModal" tabindex="-1">
-        <div class="modal-dialog modal-lg dynamic_course_modal_content">
-
-        </div>
+        <div class="modal-dialog modal-lg dynamic_course_modal_content"></div>
     </div>
 @endsection
-
 @push('scripts')
     <script>
-        // // Sort filter
-        // document.getElementById('sortFilter')?.addEventListener('change', function() {
-        //     const url = new URL(window.location.href);
-
-        //     url.searchParams.delete('page');
-
-        //     if (this.value) {
-        //         url.searchParams.set('sort', this.value);
-        //     } else {
-        //         url.searchParams.delete('sort');
-        //     }
-
-        //     window.location.href = url.toString();
-        // });
-
+        // ── Delete course ──
         $('.btn_dynamic_delete_course').on('click', function(e) {
             e.preventDefault();
-            let url = $(this).attr('href');
+            const url = $(this).attr('href');
             Swal.fire({
-                title: "Are you sure?",
-                text: "This action cannot be undone.",
-                icon: "warning",
+                title: 'Are you sure?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        method: "DELETE",
+                        method: 'DELETE',
                         url: url,
                         data: {
-                            _token: csrf_token,
+                            _token: csrf_token
                         },
                         success: function(data) {
                             iziToast.success({
                                 message: data.message,
                                 position: 'bottomRight'
                             });
-                            setTimeout(() => {
-                                window.location.href = data.redirect_url;
-                            }, 1000);
+                            setTimeout(() => window.location.href = data.redirect_url, 1000);
                         },
-                        error: function(xhr, status, data) {},
-                    })
+                    });
                 }
             });
-        })
-
+        });
+        // ── Add course ──
         $('.add_new_course_btn').on('click', function(e) {
             e.preventDefault();
             $('#addCourseModal').modal('show');
             $.ajax({
                 method: 'GET',
-                url: base_url + `/realtime-courses/create`,
-                data: {},
+                url: base_url + '/realtime-courses/create',
                 beforeSend: function() {
-                    $('.dynamic_course_modal_content').html(`
-    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    `);
+                    $('.dynamic_course_modal_content').html(
+                        '<div class="d-flex justify-content-center align-items-center" style="height:200px;">' +
+                        '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+                    );
                 },
                 success: function(data) {
                     $('.dynamic_course_modal_content').html(data);
                 },
-
-                error: function(xhr, status, error) {
-
-                },
-            })
+            });
         });
-
-        $('.edit_course_btn').on('click', function(e) {
+        // ── Edit course ──
+        $(document).on('click', '.edit_course_btn', function(e) {
             e.preventDefault();
             $('#addCourseModal').modal('show');
             const course_id = $(this).data('course-id');
             $.ajax({
                 method: 'GET',
-                url: base_url + `/realtime-courses/${course_id}/edit`,
-                data: {},
+                url: base_url + '/realtime-courses/' + course_id + '/edit',
                 beforeSend: function() {
-                    $('.dynamic_staff_modal_content').html(
-                        `
-    <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    `
+                    $('.dynamic_course_modal_content').html(
+                        '<div class="d-flex justify-content-center align-items-center" style="height:200px;">' +
+                        '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
                     );
                 },
                 success: function(data) {
                     $('.dynamic_course_modal_content').html(data);
                 },
-                error: function(xhr, status, error) {
-
-                },
-            })
-        })
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Status filter
-            document.getElementById('statusFilter')?.addEventListener('change', function() {
-
-                const url = new URL(window.location.href);
-
-                url.searchParams.delete('page');
-
-                if (this.value) {
-                    url.searchParams.set('status', this.value);
-                } else {
-                    url.searchParams.delete('status');
-                }
-
-                window.location.href = url.toString();
             });
-
-            // Initialize all collapse elements
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // ── Helper: update a single URL param and reload ──
+            function applyFilter(key, value) {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('page');
+                value ? url.searchParams.set(key, value) : url.searchParams.delete(key);
+                window.location.href = url.toString();
+            }
+            document.getElementById('monthFilter')?.addEventListener('change', function() {
+                applyFilter('month', this.value);
+            });
+            document.getElementById('sortFilter')?.addEventListener('change', function() {
+                applyFilter('sort_by', this.value);
+            });
+            document.getElementById('statusFilter')?.addEventListener('change', function() {
+                applyFilter('status', this.value);
+            });
+            // ── Schedule collapse init ──
             document.querySelectorAll('.schedule-card .collapse').forEach(el => {
                 new bootstrap.Collapse(el, {
                     toggle: false
                 });
             });
-
-            // Open collapse if any checkbox is checked
             document.querySelectorAll('.schedule-card').forEach(card => {
-
                 const collapse = card.querySelector('.collapse');
-
+                // Auto-expand if a checkbox is already checked (filter active)
                 if (card.querySelector('.schedule-checkbox:checked')) {
                     bootstrap.Collapse.getOrCreateInstance(collapse).show();
                 }
-
-                card.querySelector('.schedule-header')
-                    .addEventListener('click', () =>
-                        bootstrap.Collapse.getOrCreateInstance(collapse).toggle()
-                    );
-            });
-
-            // Toggle collapse on header click
-            document.querySelectorAll('.schedule-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const target = document.querySelector(this.dataset.bsTarget);
-                    if (target) {
-                        const collapseInstance = bootstrap.Collapse.getOrCreateInstance(target);
-                        collapseInstance.toggle();
-                        // Update aria-expanded manually
-                        this.setAttribute('aria-expanded', target.classList.contains('show') ?
-                            'true' : 'false');
-                    }
+                card.querySelector('.schedule-header').addEventListener('click', function() {
+                    const instance = bootstrap.Collapse.getOrCreateInstance(collapse);
+                    instance.toggle();
+                    this.setAttribute('aria-expanded', collapse.classList.contains('show') ?
+                        'false' : 'true');
                 });
             });
-
-            // Select all functionality
-            document.querySelectorAll('.select-day').forEach(selectAll => {
-                selectAll.addEventListener('change', function() {
-                    let container = this.closest('.schedule-body');
-                    container.querySelectorAll('.schedule-checkbox')
-                        .forEach(cb => cb.checked = this.checked);
-                });
-            });
-
-            // Persist active tab
+            // ── Persist active tab across page loads ──
             const savedTab = localStorage.getItem('courses_active_tab');
             if (savedTab) {
-                const trigger = document.querySelector(`[data-tab="${savedTab}"]`);
+                const trigger = document.querySelector('[data-tab="' + savedTab + '"]');
                 if (trigger) new bootstrap.Tab(trigger).show();
             }
-
             document.querySelectorAll('[data-tab]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     localStorage.setItem('courses_active_tab', this.dataset.tab);
                 });
             });
-
         });
     </script>
 @endpush
