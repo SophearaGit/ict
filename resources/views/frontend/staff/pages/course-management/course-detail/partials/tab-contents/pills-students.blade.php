@@ -98,6 +98,14 @@
                                 <i class="ti ti-brand-twitter"></i>
                             </a>
                         </li>
+                        {{-- ↓ ADD THIS ↓ --}}
+                        <li>
+                            <a class="text-success d-flex align-items-center justify-content-center p-2 fs-5 rounded-circle fw-semibold"
+                                href="{{ route('staff.courses.student.invoice', ['course' => $course->id, 'student' => $student->id]) }}"
+                                title="View Invoice & Payments">
+                                <i class="ti ti-file-invoice"></i>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

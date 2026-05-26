@@ -15,6 +15,11 @@ class ICTPayments extends Model
 
     protected $fillable = ['invoice_id', 'amount', 'payment_method', 'note', 'paid_by', 'paid_at'];
 
+    public function paidBy()
+    {
+        return $this->belongsTo(User::class, 'paid_by');
+    }
+
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(IctInvoice::class, 'invoice_id');
