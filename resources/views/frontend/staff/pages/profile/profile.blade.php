@@ -54,29 +54,23 @@
                                     <h5 class="card-title fw-semibold">Change Profile</h5>
                                     <p class="card-subtitle mb-4">Change your profile picture from here</p>
                                     <div class="text-center">
-
                                         <div class="avatar-wrapper">
                                             <img id="profilePreview"
                                                 src="{{ asset($user->image == 'no-img.jpg' ? '/admin/assets/dist/images/profile/user-1.jpg' : $user->image) }}"
                                                 alt="Profile Image">
                                         </div>
-
                                         <input type="file" id="profileInput" name="image" hidden
                                             accept="image/png, image/jpeg, image/gif" form="form_profile">
-
                                         <div class="d-flex align-items-center justify-content-center my-4 gap-3">
                                             <button type="button" class="btn btn-primary" id="uploadBtn">Upload</button>
                                             <button type="button" class="btn btn-outline-danger"
                                                 id="resetBtn">Reset</button>
                                         </div>
-
                                         <p class="mb-0">Allowed JPG, GIF or PNG. Max size of 800K</p>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-lg-6 d-flex align-items-stretch">
                             <div class="card w-100 position-relative overflow-hidden">
                                 <div class="card-body p-4">
@@ -106,7 +100,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-12">
                             <div class="card w-100 position-relative overflow-hidden mb-0">
                                 <div class="card-body p-4">
@@ -278,78 +271,57 @@
 @push('scripts')
     <script>
         const STORAGE_KEY = "profile_active_tab";
-
         document.addEventListener("DOMContentLoaded", () => {
-
             const activeTab = localStorage.getItem(STORAGE_KEY);
-
             if (activeTab) {
                 const tab = document.querySelector(`#${activeTab}-tab`);
                 if (tab) new bootstrap.Tab(tab).show();
             }
-
             document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(tab => {
                 tab.addEventListener("shown.bs.tab", function(e) {
                     localStorage.setItem(STORAGE_KEY, e.target.id.replace('-tab', ''));
                 });
             });
-
         });
-
-
         document.addEventListener("DOMContentLoaded", function() {
-
             const uploadBtn = document.getElementById("uploadBtn");
             const resetBtn = document.getElementById("resetBtn");
             const fileInput = document.getElementById("profileInput");
             const preview = document.getElementById("profilePreview");
-
             const defaultImage = preview.src;
-
             // Trigger file input
             uploadBtn.addEventListener("click", function() {
                 fileInput.click();
             });
-
             // Preview selected image
             fileInput.addEventListener("change", function() {
-
                 const file = this.files[0];
-
                 if (!file) return;
-
                 // // File size validation (900KB)
                 // if (file.size > 900 * 1024) {
                 //     alert("File size must be less than 800KB.");
                 //     fileInput.value = "";
                 //     return;
                 // }
-
                 // File type validation
                 const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-
                 if (!allowedTypes.includes(file.type)) {
                     alert("Only JPG, PNG, or GIF files are allowed.");
                     fileInput.value = "";
                     return;
                 }
-
                 // Preview image
                 const reader = new FileReader();
-
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                 };
-
                 reader.readAsDataURL(file);
             });
-
             // Reset image
             resetBtn.addEventListener("click", function() {
                 fileInput.value = "";
                 preview.src = defaultImage;
             });
-
         });
     </script>
 @endpush

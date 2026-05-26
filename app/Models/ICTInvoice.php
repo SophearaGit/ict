@@ -13,6 +13,16 @@ class ICTInvoice extends Model
 
     protected $fillable = ['staff_id', 'student_id', 'course_id', 'price', 'discount', 'extra_charge', 'total_amount', 'paid_amount', 'remaining_amount', 'payment_option', 'payment_status', 'invoice_code', 'paid_at'];
 
+    public function staff()
+    {
+        return $this->belongsTo(User::class, 'staff_id');
+    }
+
+    public function paidBy()
+    {
+        return $this->belongsTo(User::class, 'paid_by');
+    }
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');
