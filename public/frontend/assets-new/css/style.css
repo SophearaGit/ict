@@ -1,0 +1,1706 @@
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.container {
+
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    height: auto;
+}
+
+.header {
+    width: 100%;
+    height: 90px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.schoollogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.header .schoollogo img {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+.header .schoollogo h2 {
+    margin-top: 15px;
+    font-weight: 700;
+    color: rgb(71,108,220);
+    padding: 10px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    white-space: nowrap;
+    font-size: 18px;
+}
+.schoollogo span {
+    font-size: 12px;
+    /* color: rgb(146, 146, 146); */
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-top: -8px;
+}
+
+.header > ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 60px;
+    padding: 0;
+    margin-bottom: 0;
+    list-style: none;
+    flex: 1;
+}
+
+.header > ul > li {
+    list-style-type: none;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header a,
+.dropbtn {
+    display: inline-block;
+    color: rgb(13,13,13);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.header li a:hover,
+.dropdown:hover .dropbtn {
+    color: rgb(71,108,220);
+}
+
+/* --- Level 1 dropdown --- */
+.header li.dropdown {
+    display: inline-block;
+    position: relative;
+}
+
+.header .dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 200;
+    border-top: 3px solid rgb(71,108,220); /* blue top accent like the image */
+}
+
+.dropdown:hover .dropdown-content {
+    display: flex;              /* side-by-side columns */
+}
+
+.dropdown-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.dropdown-column > a,
+.has-submenu > a {
+    color: #111;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dropdown-column > a:hover,
+.has-submenu > a:hover {
+    background-color: #e6e5e5;
+    color: rgb(71,108,220);
+}
+
+/* --- Level 2 submenu --- */
+.has-submenu {
+    position: relative;
+}
+
+.has-submenu .submenu {
+    display: none;
+    position: absolute;
+    left: 100%;              /* appears to the right */
+    top: 0;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 201;
+    border-top: 3px solid rgb(71,108,220);
+}
+
+.has-submenu:hover .submenu {
+    display: block;
+}
+
+.submenu a {
+    color: #111;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.submenu a:hover {
+    background-color: #e6e5e5;
+    color: rgb(71,108,220);
+}
+
+/* HAMBURGER  — hidden */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 8px;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2.5px;
+    background-color: #0d0d0d;
+    border-radius: 3px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+/* ===================================================
+   MOBILE DRAWER  — hidden on desktop
+=================================================== */
+.mobile-drawer {
+    display: none;
+    position: fixed;
+    top: 90px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffffff;
+    z-index: 99;
+    flex-direction: column;
+    padding: 16px 20px 30px;
+    gap: 2px;
+    overflow-y: auto;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.10);
+}
+.mobile-drawer.open { display: flex; }
+
+.mobile-drawer a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0d0d0d;
+    text-decoration: none;
+    border-radius: 10px;
+    border-bottom: 1px solid #f2f2f2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background 0.18s, color 0.18s;
+}
+.mobile-drawer a i {
+    width: 20px;
+    text-align: center;
+    color: #3966e1;
+    font-size: 15px;
+}
+.mobile-drawer a:hover {
+    background: #f0f4ff;
+    color: #3966e1;
+}
+/* .mobile-drawer .theme-toggle-btn{
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1.5px solid #ddd;
+    background: #f1f5f9;
+    color: #0f172a;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .25s, border-color .25s, transform .25s, color .25s;
+} */
+
+.drawer-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 0 4px;
+}
+.drawer-login {
+    flex: 1;
+    height: 44px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1.5px solid #ddd;
+    background: #f9f9f9;
+    color: #0d0d0d;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.drawer-register {
+    flex: 1;
+    height: 44px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    background: #3966e1;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbtn {
+    padding: 10px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: 20px;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+#loginbtn {
+    width: 80px;
+    height: 38px;
+    background-color: #f9f9f9;
+    color: black;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+#registerbtn {
+    width: 100px;
+    height: 38px;
+    background-color: #f9f9f9;
+    color: black;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+#loginbtn:active  {
+    background-color: black;
+    color: white;
+}
+#registerbtn:active {
+    background-color: black;
+    color: white;
+}
+
+/* ── THEME VARIABLES ── */
+:root {
+    --nav-bg: #ffffff;
+    --nav-text: #0d0d0d;
+    --nav-link: #0d0d0d;
+    --nav-hover: #3777ff;
+    --nav-border: #e2e8f0;
+    --dd-bg: #ffffff;
+    --dd-hover: #f0f4ff;
+    --toggle-bg: #f1f5f9;
+    --toggle-color: #0f172a;
+    --card-bg: #ffffff;
+    --card-border: #e8edf5;
+    --card-shadow: 0 4px 20px rgba(55,119,255,0.08);
+    --text-main: #0f172a;
+    --text-mid: #475569;
+    --text-light: #94a3b8;
+}
+
+[data-theme="dark"] {
+    --nav-bg: #0f172a;
+    --nav-text: #f1f5f9;
+    --nav-link: #e2e8f0;
+    --nav-hover: #60a5fa;
+    --nav-border: #1e293b;
+    --dd-bg: #1e293b;
+    --dd-hover: #334155;
+    --toggle-bg: #1e293b;
+    --toggle-color: #fbbf24;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    --text-main: #f1f5f9;
+    --text-mid: #94a3b8;
+    --text-light: #64748b;
+}
+
+/* Apply theme to header */
+.header {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 1px solid var(--nav-border);
+    transition: background .3s, border-color .3s;
+}
+.header .schoollogo span {
+    color: var(--nav-text) !important;
+}
+.hamburger span {
+    background-color: var(--nav-text) !important;
+}
+.footer-col ul li a {
+    color: var(--nav-link) !important;
+}
+.has-submenu .submenu a {
+    color: black !important;
+}
+.header a, .dropbtn { color: var(--nav-link) !important; }
+.header li a:hover, .dropdown:hover .dropbtn { color: var(--nav-hover) !important; }
+.header .dropdown-content { background: var(--dd-bg); }
+.dropdown-content a { color: var(--nav-link); }
+.dropdown-content a:hover { background: var(--dd-hover); }
+
+/* Apply theme to body */
+[data-theme="dark"] body { background: #0f172a; color: #f1f5f9; }
+[data-theme="dark"] .search h2 { color: #f1f5f9; }
+[data-theme="dark"] #seainput {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+[data-theme="dark"] .catagoryicon { background: #0f172a; }
+[data-theme="dark"] .mainbox { background: #0f172a; }
+[data-theme="dark"] .search { background: #0f172a; }
+[data-theme="dark"] .aboutschool { background: #0f172a; }
+[data-theme="dark"] .teacherictblock { background: #0f172a; }
+[data-theme="dark"] .partnership { background: #0f172a; }
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    margin-left: auto;
+    border: 1.5px solid var(--nav-border);
+    background: var(--toggle-bg);
+    color: var(--toggle-color);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background .25s, border-color .25s, transform .25s, color .25s;
+    flex-shrink: 0;
+    /* position: fixed;
+    top: 17px;
+    right: 65px;
+    bottom: 0;
+    z-index: 99;
+    overflow-y: auto; */
+}
+
+/* CAROUSEL */
+.carousel { width: 100%; }
+.carousel img { max-height: 500px; object-fit: cover; }
+
+.carousel-item .carousel-caption {
+    width: 50%;
+    left: 25%;
+    height: auto;
+    /* background-color: #0a0909;
+    backdrop-filter: opacity(20%); */
+    background-color: rgba(6, 5, 5, 0.4);
+    backdrop-filter: blur(2px);
+    padding: 20px;
+    border-radius: 10px;
+    /* opacity: 0.8; */
+    margin-bottom: 15px;
+}
+
+.carousel-item .carousel-caption h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: rgb(253, 252, 250);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.carousel-caption p {
+    font-size: 14px;
+    color: rgb(253, 252, 250);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-top: 10px;
+}
+.carousel-caption button {
+    width: 120px;
+    height: 40px;
+    background-color: #3966e1;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+#carouselExampleDark .carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #908989;
+    border: none;
+}
+#carouselExampleDark .carousel-indicators button.active {
+    background-color: #3966e1;
+}
+
+/*CATEGORY ICONS*/
+.catagoryicon {
+    width: 100%;
+    height: auto;
+    padding: 60px 0;
+}
+.catagoryicon .mainboxicon {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.mainboxicon .boxcategory {
+    width: 20%;
+    padding: 30px 10px;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.boxcategory .fa-user-graduate{
+    color: rgb(255, 157, 0);
+}
+.boxcategory .fa-person-chalkboard{
+    color: blue;
+}
+.boxcategory .fa-file-code{
+    color: rgb(110, 8, 119);
+}
+.boxcategory .fa-calendar-days{
+    color: rgb(7, 131, 26);
+}
+.mainboxicon .boxcategory p {
+    color: grey;
+    font-weight: 600;
+    font-size: 20px;
+    margin-top: 10px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+.mainboxicon .boxcategory .clp {
+    font-size: 12px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: gray;
+}
+.mainboxicon .boxcategory:hover {
+    box-shadow: 0px 2px 6px 4px rgba(54, 54, 54, 0.3);
+}
+
+/* Hero section */
+.showpage {
+    width: 100%;
+    height: 540px;
+    display: flex;
+    background: linear-gradient(to right, #122161, #7e9ef5);
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    padding: 0 40px;
+}
+.description {
+    height: 400px;
+    width: 35%;
+}
+.imgdescript img {
+    height: 460px;
+    width: 95%;
+    border-radius: 25px;
+    object-fit: cover;
+}
+#desone {
+    width: 300px;
+    height: 35px;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
+    border: 2px solid rgb(236,227,227);
+    border-radius: 15px;
+    background-color: #122161;
+    color: white;
+    cursor: pointer;
+}
+.showpage .description h1 {
+    font-size: 40px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    margin-top: 20px;
+    color: white;
+}
+.description #p {
+    color: white;
+    margin-top: 20px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+}
+.btndescript {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+.btndescript #studyon {
+    width: 140px;
+    height: 40px;
+    color: #3966e1;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+.btndescript #regis {
+    width: 250px;
+    height: 40px;
+    color: #edeef0;
+    background-color: #3966e1;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+.studentenroll {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 12px;
+}
+.studentenroll .st-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgb(254,250,250);
+    object-fit: cover;
+}
+.studentenroll .aboutstudent { margin-left: 20px; }
+.studentenroll .star {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+.star .fa-solid.fa-star {
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+.fa-solid.fa-star {
+    font-size: 12px;
+}
+.studentenroll .star p {
+    color: rgb(208,206,206);
+    margin-left: 5px;
+}
+
+/* Search */
+.search {
+    margin: 30px 0;
+    width: 98%;
+    height: 90px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.search h2 {
+    font-size: 30px;
+    margin-left: 70px;
+    color: black;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+}
+.search .searchbox {
+    display: flex;
+    align-items: center;
+    margin-right: 35px;
+    gap: 10px;
+}
+.search .searchbox #seainput {
+    width: 270px;
+    height: 38px;
+    padding: 0 15px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    border-radius: 20px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+.search .searchbox #seainput:focus {
+     box-shadow: 0 0 5px rgba(18, 19, 20, 0.5);}
+
+/* COURSE SLIDER */
+.allcoursebox {
+    width: 90%;
+    height: 120px;
+    padding: 10px 0;
+    display: flex;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(71,108,220);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.coursebox {
+    margin-top: 10px;
+    display: flex;
+    overflow-x: auto;
+    width: calc(100% - 40px);
+
+    /* hide scrollbar visually but keep it functional */
+    /* scrollbar-width: none;
+    -ms-overflow-style: none;  */
+}
+
+.coursebox::-webkit-scrollbar {
+    display: none;
+}
+
+.coursebox .boxcourse {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 25px;
+}
+
+.coursebox .acb {
+    min-width: 120px;
+    height: 50px;
+    padding: 10px;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: rgb(253,252,250);
+    border-radius: 30px;
+    flex-shrink: 0;
+}
+
+.coursebox .acb p {
+    color: #0d0d0d;
+    font-size: 15px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 600;
+    margin: 0;
+    padding: 5px;
+}
+.acb .fa-solid{
+    color: black;
+}
+
+/* COURSE CARDS */
+.mainbox {
+    padding: 40px 20px;
+    width: 95%;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 40px;
+    margin: 0 auto;
+}
+.mainbox .boxcard {
+    border-radius: 13px;
+    width: 29%;
+    min-width: 240px;
+    height: auto;
+    background-color: #fcfdfd;
+    box-shadow: 1px 4px 6px rgb(207,206,206);
+    overflow: hidden;
+    padding-bottom: 10px;
+    border: 1px solid rgb(225,222,222);
+}
+.boxcard > img {
+    width: 95%;
+    height: 200px;
+    margin: 6px auto;
+    display: block;
+    border-radius: 10px;
+    object-fit: cover;
+}
+.boxcard .teacher {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    padding: 0 8px;
+}
+.teacher img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.teacher p {
+    color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+}
+.teacher button {
+    width: 110px;
+    height: 30px;
+    margin-left: auto;
+    font-weight: 600;
+    background-color: rgb(226,240,252);
+    border: 1px solid rgb(196,196,254);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.boxcard h2 {
+    width: 88%;
+    height: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #0d0d0d;
+    margin: 10px 15px 0;
+    font-size: 16px;
+}
+.weekschedule {
+    color: black;
+    display: flex;
+    align-items: center;
+    margin: 14px;
+    gap: 7px;
+}
+.weekschedule p {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    margin: 0;
+}
+.weekschedule .hour { margin-left: auto; color: grey; }
+.boxcard .pweekly {
+    color: grey;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 15px;
+    margin-top: 2px;
+}
+.boxcard .prnrate {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    margin-left: 9px;
+    width: 95%;
+    height: 40px;
+    background-color: #3777ff;
+    border-radius: 5px;
+    padding: 0 8px;
+}
+.prnrate h3 {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 600;
+    margin-left: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+    color: white;
+}
+.prnrate .starate {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 2px;
+}
+.prnrate .starate p {
+    color: white;
+    margin: 0 5px 0 0;
+    font-size: 13px;
+}
+
+.wrapperr {
+    padding: 10px 10%;
+}
+
+.card-areaa {
+    /* background-color: #0f172a; */
+    padding: 20px 0;
+    margin-top: 60px;
+}
+.card-areaa #blog_description{
+    /* color: white; */
+    padding: 10px;
+    text-align: center;
+    margin: 0 auto;
+    width: 50%;
+    height: auto;
+}
+
+/* Scroll container */
+.box-area {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 60px;
+    margin-top: 50px;
+    overflow-x: auto;
+    padding: 10px 0 20px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: #4a4b4b rgba(255,255,255,0.06);
+
+}
+/* .box-area::-webkit-scrollbar {
+    height: 1px;
+} */
+
+.boxx {
+    transition: 0.8s;
+    display: flex;
+    margin-bottom: 70px;
+    min-width: 150px;
+    width: 150px;
+    flex-shrink: 0;             /* ← prevents squishing */
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid white;
+
+}
+
+.boxx img {
+    width: 100%;
+    height: 200px;
+    border-radius: 5px;
+    display: block;
+    transition: transform 0.5s;
+}
+
+.card-areaa #blogsection {
+    /* color: white; */
+    font-size: 30px;
+    margin-left: 35px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+    text-align: center;
+}
+
+.overlay {
+    height: 0;
+    width: 100%;
+    background: linear-gradient(transparent, black 100%);
+    border-radius: 10px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 10px;
+    text-align: center;
+    font-size: 14px;
+    transition: height 0.5s;
+}
+
+.overlay h3 {
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top: 80%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #ddd;
+}
+
+.overlay p {
+    color: white;
+    font-weight: 600;
+    font-size: 10px;
+}
+.boxx:hover{
+    box-shadow: 2px 2px 5px 2px rgb(130, 129, 129);
+}
+
+.boxx:hover img {
+    transform: scale(1.2);
+}
+
+.boxx:hover .overlay {
+    height: 100%;
+}
+
+.boxx:hover .overlay p {
+    background-color: #eeeff1;
+    color: #0d0d0d;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/*   ABOUT SCHOOL */
+.card {
+    margin: 0 auto;
+    border: 1px solid white;
+    width: 80%;
+    height: 100%;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgb(231,229,229);
+    padding: 10px;
+}
+.aboutschool {
+    width: 96%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    gap: 40px;
+}
+.aboutschool .text {
+    width: 50%;
+    height: 450px;
+    padding: 10px;
+}
+.text p {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+}
+.text h3 {
+    width: 420px;
+    height: auto;
+    font-weight: 700;
+}
+.text .typecategoryaboutschool {
+    min-width: 260px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    position: relative;
+    gap: 10px;
+}
+.typecategoryaboutschool .typecategory {
+    width: 260px;
+    height: 110px;
+    padding: 10px;
+    border: 1px solid grey;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    position: relative;
+}
+.typecategory .fa-regular.fa-clock,
+.typecategory .fa-solid.fa-users,
+.typecategory .fa-solid.fa-diagram-project,
+.typecategory .fa-solid.fa-award {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.typecategory .aboutdescri {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+}
+.typecategory i {
+    font-size: 14px;
+}
+.aboutschool img {
+    width: 100%;
+    height: 430px;
+    border-radius: 10px;
+}
+.aboutschool .imgaboutschool {
+     width: 50%;
+}
+
+.teacherictblock p{
+    text-align: center;
+}
+.teacherictblock .iconwithtext{
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+/*Teacher section*/
+.teacher-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+    padding: 0 5%;
+}
+
+.teacher-card {
+    border-radius: 18px;
+    padding: 28px 20px 22px;
+    text-align: center;
+    border: 1px solid rgb(184, 182, 182);
+    position: relative;
+    /* overflow: hidden; */
+}
+
+
+.teacher-avatar-wrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.teacher-avatar-wrap img {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    object-fit: cover;;
+    box-shadow: 0 4px 12px rgba(47, 58, 82, 0.2);
+}
+
+.teacher-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.teacher-card .teacher-role {
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+.teacher-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin-bottom: 16px;
+}
+.teacher-rating .fa-star, .teacher-rating .fa-star-half-stroke {
+    color: #f59e0b;
+    font-size: 13px;
+}
+.teacher-rating span {
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.teacher-divider {
+    height: 3px;
+    background-color: rgba(18, 11, 11, 0.05);
+    margin-bottom: 14px;
+}
+
+.teacher-stats {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.stat-value {
+    font-size: 17px;
+    font-weight: 800;
+}
+.stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+}
+ .partnership {
+      padding: 90px 5% 80px;
+      text-align: center;
+      /* position: relative; */
+      /* overflow: hidden; */
+    }
+
+    .partnership__title {
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size:40px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      /* color: black; */
+      margin-bottom: 14px;
+    }
+
+    .partnership__sub {
+      font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto 56px;
+      line-height: 1.7;
+    }
+
+    /* Logo track */
+    .partner-track-wrap {
+      overflow: hidden;
+    }
+
+    .partner-track {
+      display: flex;
+      gap: 28px;
+      width: max-content;
+      /* transition: transform 0.5s ease; */
+      animation: scroll-left 28s linear infinite;
+    }
+    .partner-track-wrap {
+    overflow-x: auto;
+    cursor: grab;
+}
+
+.partner-track-wrap:active {
+    cursor: grabbing;
+}
+
+/* Custom scrollbar (optional, looks cleaner) */
+.partner-track-wrap::-webkit-scrollbar {
+    height: 4px;
+}
+.partner-track-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+.partner-track-wrap::-webkit-scrollbar-thumb {
+    background: rgba(55,119,255,0.3);
+    border-radius: 99px;
+}
+.partner-track-wrap::-webkit-scrollbar-thumb:hover {
+    background: rgba(55,119,255,0.6);
+}
+
+    .partner-track:hover { animation-play-state: paused; }
+
+    @keyframes scroll-left {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+
+    .partner-card {
+      flex-shrink: 0;
+      width: 160px;
+      height: 140px;
+      background: var(--dark-2);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px;
+      transition: border-color .3s, background .3s, transform .3s;
+      cursor: default;
+
+    }
+
+    .partner-card:hover {
+      transform: translateX(-4px);
+    }
+    .partner-card img{
+        width: 100%;
+        height: auto;
+    }
+
+    .partner-card a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.partner-card a img {
+    width: 100%;
+    height: auto;
+    transition: opacity 0.2s;
+}
+
+.partner-card a:hover img {
+    opacity: 0.8;
+}
+
+
+    /* ─── FOOTER ──────────────────────────────────── */
+    footer {
+      padding: 70px 5% 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr 1.2fr 1.6fr;
+      gap: 48px;
+      padding-bottom: 56px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .brand-row .footerimg{
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+    }
+
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .brand-tagline {
+      font-size: .9rem;
+      /* color: var(--muted); */
+      line-height: 1.65;
+      margin-bottom: 24px;
+      max-width: 300px;
+    }
+     .socials {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        gap: 20px;
+
+    }
+    .socials .social-btn i{
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+    }
+
+    /* Nav cols */
+    .footer-col h4 {
+
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 12px;
+    }
+    .footer-col ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .footer-col ul li {
+      font-size: .92rem;
+    }
+
+    .footer-col ul li a {
+      text-decoration: none;
+      font-size: .92rem;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .contact-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(59,130,246,.12);
+      border: 1px solid rgba(59,130,246,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue-light);
+      font-size: .82rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .contact-text {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* App col */
+    .app-col h4 {
+      font-family: var(--font-head);
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 12px;
+      position: relative;
+      padding-bottom: 12px;
+    }
+
+
+    .app-desc {
+      font-size: .88rem;
+      /* color: var(--muted); */
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .footer-col .playstore{
+        width: 170px;
+        height: 50px;
+        background-color: #1877f2;
+        padding: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 5px;
+    }
+    .playstore img{
+        width: 35px;
+        height: 35px;
+    }
+    .playstore .textplaystore{
+        font-size: 15px;
+        color: white;
+        margin-top: 12px;
+
+    }
+    .footer-col .appstore{
+        width: 170px;
+        height: 50px;
+        background-color: #2d3136;
+        padding: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+
+    }
+    .appstore img{
+        width: 35px;
+        height: 35px;
+    }
+    .appstore .textappstore{
+        font-size: 15px;
+        color: white;
+        margin-top: 12px;
+    }
+
+
+
+
+
+/*
+
+   RESPONSIVE MEDIA QUERIES
+   ┌─────────────────────────────────────────┐
+   │  > 1024px   →  Desktop  (base styles)  │
+   │  ≤ 1024px   →  Tablet landscape        │
+   │  ≤  768px   →  Tablet portrait         │
+   │  ≤  480px   →  Mobile phone            │
+   └─────────────────────────────────────────┘
+
+ */
+
+ /* ── RESPONSIVE for teacher cards ── */
+@media (max-width: 1100px) {
+    .teacher-cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 1024px) {
+
+    /* Header */
+    .header .schoollogo h2 { font-size: 15px; padding: 12px; }
+    .header > ul { margin-left: 20px; }
+    .header > ul > li { font-size: 15px; }
+    .header a, .dropbtn { padding: 10px 10px; }
+    #loginbtn, #registerbtn { font-size: 14px; width: auto; padding: 0 14px; }
+
+    /* Hero */
+    .showpage { gap: 36px; padding: 40px 28px; height: auto; }
+    .description { width: 48%; height: auto; }
+    .showpage .description h1 { font-size: 32px; }
+    #desone { width: 70%; font-size: 13px; }
+    .btndescript #regis { width: 210px; font-size: 14px; }
+    .imgdescript img { height: 360px; }
+
+    /* Cards: 2 columns */
+    .mainbox .boxcard { width: 45%; }
+
+    /* About */
+    .aboutschool { height: auto; padding: 50px 20px; }
+    .text h3 { width: 100%; }
+    .typecategoryaboutschool .typecategory { width: 100%; }
+}
+
+
+@media (max-width: 768px) {
+
+    /* ── Header ── */
+    .header { height: 72px; }
+    .header > ul { display: none; }
+    .theme-toggle-btn{
+        position: fixed;
+        top: 17px;
+        right: 65px;
+        bottom: 0;
+        z-index: 99;
+        overflow-y: auto;
+    }
+    .navbtn { display: none; }                /* hide desktop buttons */
+    .hamburger { display: flex; margin-left: auto; }
+    .mobile-drawer { top: 72px; }
+
+    .header .schoollogo img { width: 48px; height: 48px; }
+    .header .schoollogo h2 { font-size: 14px; padding: 10px 12px; }
+
+    /* ── Carousel ── */
+    .carousel img { max-height: 280px; }
+
+    /* ── Category icons — 2×2 grid ── */
+    .catagoryicon { padding: 28px 10px; }
+    .catagoryicon .mainboxicon { flex-wrap: wrap; }
+    .mainboxicon .boxcategory {
+        width: 50%;
+        padding: 20px 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* ── Hero — vertical stack ── */
+    .showpage {
+        flex-direction: column;
+        height: auto;
+        gap: 28px;
+        padding: 36px 20px 40px;
+        text-align: center;
+    }
+    .description { width: 100%; height: auto; }
+    .showpage .description h1 { font-size: 30px; line-height: 1.25; }
+    #desone { width: 70%; font-size: 13px; }
+    .description #p { font-size: 13px; line-height: 1.7; }
+
+    .btndescript {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+        display: flex;
+    }
+    .btndescript #studyon,
+    .btndescript #regis {
+        width: 60%;
+        max-width: 340px;
+        font-size: 15px;
+    }
+
+    .studentenroll { justify-content: center; flex-wrap: wrap; }
+
+    .imgdescript { width: 100%; }
+    .imgdescript img { height: 240px; width: 100%; border-radius: 16px; }
+
+    /* ── Search — stack ── */
+    .search {
+        flex-direction: column;
+        height: auto;
+        padding: 20px;
+        margin: 0;
+        gap: 14px;
+        align-items: flex-start;
+    }
+    .search h2 { font-size: 22px; margin-left: 0; }
+    .search .searchbox { margin-right: 0; width: 100%; }
+    .search .searchbox #seainput { width: 100%; font-size: 14px; }
+
+    /* ── Course slider ── */
+    .allcoursebox { height: auto; padding: 14px 6px; }
+    .coursebox .acb { min-width: 160px; height: 64px; }
+    .coursebox .acb p { font-size: 13px; }
+
+    /* ── Course cards — 1 column ── */
+    .mainbox { padding: 24px 16px; gap: 16px; }
+    .mainbox .boxcard { width: 100%; min-width: unset; }
+
+    /* ── About school ── */
+    .aboutschool {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        padding: 36px 16px;
+        gap: 28px;
+    }
+    .aboutschool .text { width: 100%; height: auto; }
+    .text h3 { width: 100%; font-size: 20px; }
+    .text .typecategoryaboutschool {
+        grid-template-columns: 1fr 1fr;
+        min-width: unset;
+        width: 100%;
+    }
+    .typecategoryaboutschool .typecategory {
+        width: 100%;
+        height: auto;
+        min-height: 110px;
+    }
+    .aboutschool .imgaboutschool { width: 100%; }
+    .aboutschool img { height: 240px; }
+
+
+    /* .wrapperr {
+        padding: 10px 4%;
+    }
+
+    .boxx {
+        min-width: 160px;
+        width: 160px;
+    }
+
+    .boxx img {
+        height: 160px;
+    } */
+}
+
+
+@media (max-width: 480px) {
+
+    /* ── Header ── */
+    .header { height: 62px; }
+    .header .schoollogo img { width: 40px; height: 40px; margin-left: 12px; }
+    .header .schoollogo h2 { font-size: 12px; padding: 8px 10px; }
+    .mobile-drawer { top: 62px; }
+
+    /* ── Carousel ── */
+    .carousel img { max-height: 200px; }
+
+    /* ── Category icons ── */
+    .catagoryicon { padding: 20px 6px; }
+    .mainboxicon .boxcategory { width: 50%; padding: 16px 6px; }
+    .mainboxicon .boxcategory p { font-size: 13px; }
+    .mainboxicon .boxcategory .clp { font-size: 11px; }
+    .mainboxicon .boxcategory i { font-size: 26px !important; }
+
+    /* ── Hero ── */
+    .showpage { padding: 24px 14px 32px; gap: 22px; }
+    .showpage .description h1 { font-size: 26px; }
+    #desone { font-size: 12px; height: 34px; }
+    .description #p { font-size: 12px; }
+    /* code updated 1 line ah krom */
+    .btndescript{ display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .btndescript #studyon,
+    .btndescript #regis { font-size: 14px; }
+    .studentenroll .st-pic { width: 32px; height: 32px; }
+    .imgdescript img { height: 200px; border-radius: 12px; }
+
+    /* ── Search ── */
+    .search { padding: 16px 14px; gap: 10px; }
+    .search h2 { font-size: 18px; }
+    .search .searchbox #seainput { font-size: 13px; }
+
+    /* ── Course slider ── */
+    .allcoursebox { padding: 12px 4px; }
+    .allcoursebox button { width: 26px; height: 26px; font-size: 13px; margin: 4px; }
+    .coursebox .acb { min-width: 130px; height: 56px; }
+    .coursebox .acb p { font-size: 12px; }
+
+    /* ── Course cards ── */
+    .mainbox { padding: 16px 12px; gap: 14px; }
+    /* .boxcard{width: 33.33%; height: auto; background-color: #1877f2;} */
+    .boxcard > img { height: 100px; }
+    .boxcard h2 { font-size: 14px;}
+    .teacher button { width: 90px; font-size: 12px; }
+    .prnrate h3 { font-size: 14px; }
+
+    /* ── About school — single column ── */
+    .text .typecategoryaboutschool { grid-template-columns: 1fr; }
+    .typecategoryaboutschool .typecategory { height: auto; min-height: unset; padding: 12px; }
+    .aboutschool img { height: 190px; }
+    .text h3 { font-size: 17px; }
+    .typecategory .aboutdescri { font-size: 11px; }
+
+    .teacher-cards-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1100px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 36px;
+    }
+    .footer-brand { grid-column: 1 / -1; }
+    .brand-tagline { max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .partnership { padding: 60px 5% 60px; }
+    .partner-card { width: 130px; height: 76px; }
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+    .footer-brand { grid-column: 1 / -1; }
+    .app-col { grid-column: 1 / -1; }
+}
+
+@media (max-width: 480px) {
+    .partnership { padding: 50px 4% 50px; }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+    footer { padding: 50px 5% 0; }
+}
+
+
+
