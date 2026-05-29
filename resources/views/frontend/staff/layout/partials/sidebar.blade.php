@@ -117,8 +117,8 @@
                 </li>
                 {{-- Course Management Dropdown --}}
                 <li
-                    class="sidebar-item {{ request()->routeIs('staff.courses.*', 'staff.schedules.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.courses.*', 'staff.schedules.*') ? 'active' : '' }}"
+                    class="sidebar-item {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*') ? 'active' : '' }}"
                         href="javascript:;" aria-expanded="false">
                         <span class="d-flex">
                             <i class="ti ti-book"></i>
@@ -126,7 +126,7 @@
                         <span class="hide-menu">Course Management</span>
                     </a>
                     <ul aria-expanded="false"
-                        class="collapse first-level {{ request()->routeIs('staff.courses.*', 'staff.schedules.*') ? 'in' : '' }}">
+                        class="collapse first-level {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*') ? 'in' : '' }}">
                         {{-- Courses --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.courses.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.courses.index') }}"
@@ -135,6 +135,16 @@
                                     <i class="ti ti-bookmark fs-3"></i>
                                 </div>
                                 <span class="hide-menu">Courses</span>
+                            </a>
+                        </li>
+                        {{-- Categories --}}
+                        <li class="sidebar-item {{ request()->routeIs('staff.course-categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('staff.course-categories.index') }}"
+                                class="sidebar-link {{ request()->routeIs('staff.course-categories.*') ? 'active' : '' }}">
+                                <div class="round-16 d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-category fs-3"></i>
+                                </div>
+                                <span class="hide-menu">Categories</span>
                             </a>
                         </li>
                         {{-- Schedules --}}

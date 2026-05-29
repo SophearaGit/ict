@@ -118,12 +118,14 @@
         }
     </style>
 @endpush
+
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
+
                     {{-- ── Header ── --}}
                     <div class="d-md-flex align-items-center mb-4">
                         <div>
@@ -136,16 +138,19 @@
                             </a>
                         </div>
                     </div>
+
                     <form action="{{ route('staff.courses.update', $course->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+
                         {{-- ═══════════════════════════════════════ --}}
                         {{-- SECTION 1 · Thumbnail                  --}}
                         {{-- ═══════════════════════════════════════ --}}
                         <div class="form-section-label">
                             <i class="ti ti-photo fs-5"></i> Thumbnail
                         </div>
+
                         @if ($course->thumbnail)
                             <div class="thumbnail-preview">
                                 <img src="{{ asset($course->thumbnail) }}" alt="Current thumbnail">
@@ -155,6 +160,7 @@
                                 </div>
                             </div>
                         @endif
+
                         <div class="thumbnail-zone mb-4">
                             <i class="ti ti-cloud-upload upload-icon"></i>
                             <div>
@@ -165,12 +171,14 @@
                             </div>
                         </div>
                         <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mb-3" />
+
                         {{-- ═══════════════════════════════════════ --}}
                         {{-- SECTION 2 · Basic Info                 --}}
                         {{-- ═══════════════════════════════════════ --}}
                         <div class="form-section-label">
                             <i class="ti ti-info-circle fs-5"></i> Basic info
                         </div>
+
                         <div class="row g-3 mb-4">
                             {{-- Title (English) --}}
                             <div class="col-md-6">
@@ -184,6 +192,7 @@
                                 </div>
                                 <x-input-error :messages="$errors->get('title')" class="text-danger mt-1" />
                             </div>
+
                             {{-- Title (Khmer) --}}
                             <div class="col-md-6">
                                 <div class="form-floating">
@@ -197,15 +206,17 @@
                                 <x-input-error :messages="$errors->get('khmer_title')" class="text-danger mt-1" />
                             </div>
                         </div>
+
                         {{-- ═══════════════════════════════════════ --}}
                         {{-- SECTION 3 · Assignment                 --}}
                         {{-- ═══════════════════════════════════════ --}}
                         <div class="form-section-label">
                             <i class="ti ti-users fs-5"></i> Assignment
                         </div>
+
                         <div class="row g-3 mb-4">
                             {{-- Instructor --}}
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label text-muted small mb-1">
                                     <i class="ti ti-user-circle me-1"></i> Instructor
                                 </label>
@@ -221,8 +232,27 @@
                                 </select>
                                 <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-1" />
                             </div>
+
+                            {{-- Category --}}
+                            <div class="col-md-3">
+                                <label class="form-label text-muted small mb-1">
+                                    <i class="ti ti-category me-1"></i> Category
+                                </label>
+                                <select class="form-select select2-category" name="category_id" id="category_id">
+                                    <option value="" disabled>Select category…</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}"
+                                            data-icon="{{ $category->icon ?? 'ti ti-category' }}"
+                                            {{ old('category_id', $course->category_id) == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('category_id')" class="text-danger mt-1" />
+                            </div>
+
                             {{-- Schedule --}}
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="form-label text-muted small mb-1">
                                     <i class="ti ti-calendar-time me-1"></i> Schedule
                                 </label>
@@ -243,8 +273,9 @@
                                 </select>
                                 <x-input-error :messages="$errors->get('schedule_id')" class="text-danger mt-1" />
                             </div>
+
                             {{-- Status --}}
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-floating">
                                     <select class="form-select" name="status" id="status">
                                         <option value="" disabled>Select status</option>
@@ -259,17 +290,20 @@
                                 <x-input-error :messages="$errors->get('status')" class="text-danger mt-1" />
                             </div>
                         </div>
+
                         {{-- ═══════════════════════════════════════ --}}
                         {{-- SECTION 4 · Dates & Pricing            --}}
                         {{-- ═══════════════════════════════════════ --}}
                         <div class="form-section-label">
                             <i class="ti ti-calendar-dollar fs-5"></i> Dates &amp; pricing
                         </div>
+
                         <div class="row g-3 mb-4">
                             {{-- Start Date --}}
                             <div class="col-md-2">
                                 <div class="form-floating">
-                                    <input type="date" class="form-control" placeholder="Start Date" name="start_date"
+                                    <input type="date" class="form-control" placeholder="Start Date"
+                                        name="start_date"
                                         value="{{ old('start_date', optional($course->start_date)->format('Y-m-d')) }}">
                                     <label>
                                         <i class="ti ti-calendar-start me-2 fs-4 text-info"></i>
@@ -278,6 +312,7 @@
                                 </div>
                                 <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-1" />
                             </div>
+
                             {{-- End Date --}}
                             <div class="col-md-2">
                                 <div class="form-floating">
@@ -290,6 +325,7 @@
                                 </div>
                                 <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-1" />
                             </div>
+
                             {{-- Price --}}
                             <div class="col-md-2">
                                 <div class="form-floating">
@@ -302,6 +338,7 @@
                                 </div>
                                 <x-input-error :messages="$errors->get('price')" class="text-danger mt-1" />
                             </div>
+
                             {{-- Price per Session --}}
                             <div class="col-md-3">
                                 <div class="form-floating">
@@ -325,6 +362,7 @@
                                 </div>
                                 <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-1" />
                             </div>
+
                             {{-- Duration --}}
                             <div class="col-md-3">
                                 <div class="form-floating">
@@ -338,29 +376,34 @@
                                 <x-input-error :messages="$errors->get('duration')" class="text-danger mt-1" />
                             </div>
                         </div>
+
                         {{-- ═══════════════════════════════════════ --}}
                         {{-- SECTION 5 · Description                --}}
                         {{-- ═══════════════════════════════════════ --}}
                         <div class="form-section-label">
                             <i class="ti ti-align-left fs-5"></i> Description
                         </div>
+
                         <div class="mb-4">
                             <textarea class="form-control" placeholder="Course description…" name="description" id="description"
                                 style="height: 140px">{!! old('description', $course->description) !!}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="text-danger mt-1" />
                         </div>
+
                         {{-- ── Submit ── --}}
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-info rounded-pill px-4">
                                 <i class="ti ti-send me-2 fs-5"></i> Submit
                             </button>
                         </div>
+
                     </form>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -369,6 +412,7 @@
                 afternoon: 'var(--bs-warning)',
                 evening: 'var(--bs-primary)',
             };
+
             // ── Instructor Select2 ──────────────────────────────────────
             $('.select2-instructor').select2({
                 width: '100%',
@@ -399,6 +443,38 @@
                         <strong>${option.text}</strong>
                     </div>`;
             }
+
+            // ── Category Select2 ────────────────────────────────────────
+            $('.select2-category').select2({
+                width: '100%',
+                placeholder: 'Select category…',
+                allowClear: true,
+                templateResult: formatCategory,
+                templateSelection: formatCategorySelection,
+                escapeMarkup: markup => markup,
+            });
+            $('.select2-category').trigger('change');
+
+            function formatCategory(option) {
+                if (!option.id) return option.text;
+                const icon = $(option.element).data('icon') || 'ti ti-category';
+                return `
+                    <div class="d-flex align-items-center gap-2 py-1">
+                        <i class="${icon} fs-5 text-info"></i>
+                        <span>${option.text}</span>
+                    </div>`;
+            }
+
+            function formatCategorySelection(option) {
+                if (!option.id) return option.text;
+                const icon = $(option.element).data('icon') || 'ti ti-category';
+                return `
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="${icon} fs-5 text-info"></i>
+                        <strong>${option.text}</strong>
+                    </div>`;
+            }
+
             // ── Schedule Select2 ────────────────────────────────────────
             $('.select2-schedule').select2({
                 width: '100%',
@@ -436,6 +512,7 @@
                 return `<span style="font-weight:600;">${day} • ${label} ( ${start} – ${end} )</span>`;
             }
         });
+
         // ── TinyMCE ─────────────────────────────────────────────────────
         tinymce.init({
             selector: '#description',
