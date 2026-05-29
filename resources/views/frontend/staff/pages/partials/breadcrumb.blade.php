@@ -6,9 +6,9 @@
                     @if (Route::is('staff.student.registration'))
                         Student Management
                     @elseif (Route::is('staff.courses.index') || Route::is('staff.courses.create') || Route::is('staff.courses.edit'))
-                        Course Management
+                        Courses
                     @elseif (Route::is('staff.schedules.index') || Route::is('staff.schedules.create') || Route::is('staff.schedules.edit'))
-                        Schedule Management
+                        Schedules
                     @elseif (Route::is('staff.invoices'))
                         Invoices
                     @elseif (Route::is('staff.reports.index'))
@@ -21,20 +21,28 @@
                         Teachers
                     @elseif(Route::is('staff.student.index'))
                         Students
-                    @else
+                    @elseif(Route::is('staff.course-categories.index'))
+                        Categories
                     @endif
                 </h4>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a class="text-muted text-decoration-none"
                                 href="{{ route('staff.dashboard') }}">Dashboard</a></li>
+                        @if (Route::is('staff.schedules.index') ||
+                                Route::is('staff.schedules.create') ||
+                                Route::is('staff.schedules.edit') ||
+                                Route::is('staff.course-categories.index'))
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none"
+                                    href="{{ route('staff.courses.index') }}">Courses</a></li>
+                        @endif
                         <li class="breadcrumb-item" aria-current="page">
                             @if (Route::is('staff.student.registration') || Route::is('staff.student.registration'))
                                 Student Management
                             @elseif (Route::is('staff.courses.index') || Route::is('staff.courses.create') || Route::is('staff.courses.edit'))
-                                Course Management
+                                Courses
                             @elseif (Route::is('staff.schedules.index') || Route::is('staff.schedules.create') || Route::is('staff.schedules.edit'))
-                                Schedule Management
+                                Schedules
                             @elseif (Route::is('staff.invoices'))
                                 Invoices
                             @elseif (Route::is('staff.reports.index'))
@@ -47,7 +55,8 @@
                                 Teachers
                             @elseif(Route::is('staff.student.index'))
                                 Students
-                            @else
+                            @elseif(Route::is('staff.course-categories.index'))
+                                Categories
                             @endif
                         </li>
                     </ol>

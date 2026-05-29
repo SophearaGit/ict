@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend\Staff;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use App\Models\ICTCourse;
+use App\Models\ICTCourseCategory;
 use App\Models\ICTCourseEnrollments;
 use App\Models\ICTInvoice;
 use App\Models\ICTInvoiceItems;
@@ -23,7 +24,7 @@ class IctCourseController extends Controller
     public function index(Request $request): View
     {
         $perPage = $request->input('per_page', 10);
-        $courses = ICTCourse::with(['instructor', 'schedule'])
+        $courses = ICTCourse::with(['instructor', 'schedule', 'category'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('title', 'like', '%' . $request->search . '%');
             })
@@ -45,6 +46,7 @@ class IctCourseController extends Controller
             'studentReports.student',
             'instructor',
             'schedule',
+            'category',
         ])->findOrFail($id);
 
         /*
@@ -166,6 +168,7 @@ class IctCourseController extends Controller
             'page_title' => 'ICT | STAFF | CREATE COURSE',
             'instructors' => User::where('role', 'instructor')->orderBy('name')->get(),
             'schedules' => ICTSchedule::latest()->get()->groupBy('study_day'),
+            'categories' => ICTCourseCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
         ]);
     }
 
@@ -179,6 +182,7 @@ class IctCourseController extends Controller
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
+            'category_id' => 'nullable|exists:i_c_t_course_categories,id',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:3000',
             'start_date' => 'nullable|date',
@@ -192,10 +196,11 @@ class IctCourseController extends Controller
         $course->price = $request->price;
         $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
-        $course->thumbnail = $request->hasFile('thumbnail') ? $this->uploadFile($request->file('thumbnail')) : '';
+        $course->thumbnail = $request->hasFile('thumbnail') ? $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails') : '';
         $course->status = $request->status;
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
+        $course->category_id = $request->category_id;
         $course->description = $request->description;
         $course->start_date = $request->start_date;
         $course->end_date = $request->end_date;
@@ -212,6 +217,7 @@ class IctCourseController extends Controller
             'course' => ICTCourse::findOrFail($id),
             'instructors' => User::where('role', 'instructor')->orderBy('name')->get(),
             'schedules' => ICTSchedule::latest()->get()->groupBy('study_day'),
+            'categories' => ICTCourseCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
         ]);
     }
 
@@ -227,6 +233,7 @@ class IctCourseController extends Controller
             'status' => 'required|in:active,inactive',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
+            'category_id' => 'nullable|exists:i_c_t_course_categories,id',
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|max:3000',
             'start_date' => 'nullable|date',
@@ -238,7 +245,7 @@ class IctCourseController extends Controller
             if ($course->thumbnail != '') {
                 $this->deleteIfImageExist($course->thumbnail);
             }
-            $course->thumbnail = $this->uploadFile($request->file('thumbnail'));
+            $course->thumbnail = $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails');
         }
 
         $course->title = $request->title;
@@ -249,6 +256,7 @@ class IctCourseController extends Controller
         $course->status = $request->status;
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
+        $course->category_id = $request->category_id;
         $course->description = $request->description;
         $course->start_date = $request->start_date;
         $course->end_date = $request->end_date;
@@ -300,7 +308,6 @@ class IctCourseController extends Controller
                 $newPrice = (float) $targetCourse->price;
 
                 if ($newPrice > $oldPrice && $chargeDifference) {
-                    // staff chose to charge the difference
                     $newRemaining = $newPrice - (float) $invoice->paid_amount;
                     $paymentStatus = $newRemaining <= 0 ? 'paid' : 'half_paid';
 
@@ -312,7 +319,6 @@ class IctCourseController extends Controller
                         'payment_status' => $paymentStatus,
                     ]);
                 } else {
-                    // no charge — just re-point the course, keep all amounts as-is
                     $invoice->update(['course_id' => $targetCourseId]);
                 }
 
@@ -325,7 +331,6 @@ class IctCourseController extends Controller
                     ]);
             }
 
-            // enrollment
             ICTCourseEnrollments::where('course_id', $course_id)->where('student_id', $studentId)->delete();
 
             if (!ICTCourseEnrollments::where('course_id', $targetCourseId)->where('student_id', $studentId)->exists()) {
@@ -351,7 +356,6 @@ class IctCourseController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        // mark inactive instead of hard delete
         ICTCourseEnrollments::where('course_id', $course_id)
             ->whereIn('student_id', $request->student_ids)
             ->update(['status' => 'dropped']);

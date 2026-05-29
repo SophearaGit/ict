@@ -21,7 +21,7 @@ class ICTCourse extends Model
         'duration' => 'float',
     ];
 
-    protected $fillable = ['instructor_id', 'schedule_id', 'thumbnail', 'title', 'khmer_title', 'slug', 'description', 'price', 'price_per_session', 'status', 'start_date', 'end_date', 'duration'];
+    protected $fillable = ['instructor_id', 'schedule_id', 'thumbnail', 'title', 'khmer_title', 'slug', 'description', 'price', 'price_per_session', 'status', 'start_date', 'end_date', 'duration', 'category_id'];
 
     public function studentReports()
     {
@@ -94,5 +94,10 @@ class ICTCourse extends Model
     public function invoiceItems()
     {
         return $this->hasMany(ICTInvoiceItems::class, 'course_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ICTCourseCategory::class, 'category_id');
     }
 }

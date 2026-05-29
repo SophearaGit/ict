@@ -16,7 +16,7 @@ class FrontendController extends Controller
             'page_title' => 'Welcome to ICT Professional Training Center',
             'courses' => ICTCourse::with(['instructor', 'schedule'])
                 ->latest()
-                ->take(8)
+                ->take(12)
                 ->get()
                 ->groupBy('title'),
         ];

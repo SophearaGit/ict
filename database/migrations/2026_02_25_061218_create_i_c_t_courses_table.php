@@ -1,9 +1,7 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
 return new class extends Migration {
     /**
      * Run the migrations.
@@ -14,6 +12,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('instructor_id')->constrained('users');
             $table->foreignId('schedule_id')->constrained('i_c_t_schedules');
+            $table->foreignId('category_id')->constrained('i_c_t_course_categories');
             $table->string('thumbnail')->nullable();
             $table->string('title');
             $table->string('khmer_title')->nullable();
@@ -28,7 +27,6 @@ return new class extends Migration {
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

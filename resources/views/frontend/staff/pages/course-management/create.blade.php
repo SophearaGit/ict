@@ -87,6 +87,11 @@
             padding: 0;
             font-size: 13px;
         }
+
+        /* ── Category pill options ── */
+        .select2-category .select2-results__option {
+            padding: 6px 12px;
+        }
     </style>
 @endpush
 
@@ -174,7 +179,7 @@
 
                         <div class="row g-3 mb-4">
                             {{-- Instructor --}}
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label text-muted small mb-1">
                                     <i class="ti ti-user-circle me-1"></i> Instructor
                                 </label>
@@ -191,8 +196,26 @@
                                 <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-1" />
                             </div>
 
+                            {{-- Category --}}
+                            <div class="col-md-3">
+                                <label class="form-label text-muted small mb-1">
+                                    <i class="ti ti-category me-1"></i> Category
+                                </label>
+                                <select class="form-select select2-category" name="category_id" id="category_id">
+                                    <option value="" disabled selected>Select category…</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}"
+                                            data-icon="{{ $category->icon ?? 'ti ti-category' }}"
+                                            {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('category_id')" class="text-danger mt-1" />
+                            </div>
+
                             {{-- Schedule --}}
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="form-label text-muted small mb-1">
                                     <i class="ti ti-calendar-time me-1"></i> Schedule
                                 </label>
@@ -215,7 +238,7 @@
                             </div>
 
                             {{-- Status --}}
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-floating">
                                     <select class="form-select" name="status" id="status">
                                         <option value="" disabled selected>Select status</option>
@@ -372,6 +395,36 @@
             return `
                 <div class="d-flex align-items-center gap-2">
                     <img src="${img}" class="rounded-circle" style="width:22px;height:22px;object-fit:cover;">
+                    <strong>${option.text}</strong>
+                </div>`;
+        }
+
+        // ── Category Select2 ────────────────────────────────────────────
+        $('.select2-category').select2({
+            width: '100%',
+            placeholder: 'Select category…',
+            allowClear: true,
+            templateResult: formatCategory,
+            templateSelection: formatCategorySelection,
+            escapeMarkup: markup => markup,
+        });
+
+        function formatCategory(option) {
+            if (!option.id) return option.text;
+            const icon = $(option.element).data('icon') || 'ti ti-category';
+            return `
+                <div class="d-flex align-items-center gap-2 py-1">
+                    <i class="${icon} fs-5 text-info"></i>
+                    <span>${option.text}</span>
+                </div>`;
+        }
+
+        function formatCategorySelection(option) {
+            if (!option.id) return option.text;
+            const icon = $(option.element).data('icon') || 'ti ti-category';
+            return `
+                <div class="d-flex align-items-center gap-2">
+                    <i class="${icon} fs-5 text-info"></i>
                     <strong>${option.text}</strong>
                 </div>`;
         }

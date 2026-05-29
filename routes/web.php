@@ -1,6 +1,6 @@
 <?php
-use App\Http\Controllers\Frontend\{CourseContentController, CourseController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, Staff\IctInvoicePaymentController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{CertificateController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\{CourseContentController, CourseController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
+use App\Http\Controllers\Frontend\Staff\{IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, StudentController, TeacherController, TecherAttendancesController};
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -144,11 +144,16 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses/{id}', [IctCourseController::class, 'show'])->name('courses.show');
         Route::delete('courses/{id}', [IctCourseController::class, 'destroy'])->name('courses.destroy');
         /*******************************************************
+         * CATEGORY
+         *******************************************************/
+        Route::resource('/course-categories', IctCourseCategoryController::class);
+        /*******************************************************
          * STUDENT INVOICE DETAIL IN COURSE
          *******************************************************/
         Route::get('courses/{course}/students/{student}/invoice', [IctInvoicePaymentController::class, 'studentInvoice'])
             ->name('courses.student.invoice')
             ->scopeBindings();
+
         /*******************************************************
          * MOVE STUDENT TO ANOTHER COURSE & REMOVE STUDENT FROM COURSE
          *******************************************************/
