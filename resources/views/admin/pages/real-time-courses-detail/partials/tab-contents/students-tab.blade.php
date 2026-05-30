@@ -14,9 +14,8 @@
                         role="tab" aria-controls="tabPaneGridStudent" aria-selected="false" tabindex="-1">
                         <span class="fe fe-grid"></span>
                     </button>
-                    <button class="btn btn-outline-secondary" data-bs-toggle="tab"
-                        data-bs-target="#tabPaneListStudent" role="tab" aria-controls="tabPaneListStudent"
-                        aria-selected="true">
+                    <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneListStudent"
+                        role="tab" aria-controls="tabPaneListStudent" aria-selected="true">
                         <span class="fe fe-list"></span>
                     </button>
                 </div>
@@ -174,26 +173,22 @@
                                             </span>
                                         </td>
                                         <td>
+                                            {{-- Replace the existing dropdown in the list table --}}
                                             <span class="dropdown dropstart">
                                                 <a class="btn-icon btn btn-ghost btn-sm rounded-circle" href="#"
-                                                    role="button" id="courseDropdown" data-bs-toggle="dropdown"
-                                                    data-bs-offset="-20,20" aria-expanded="false">
+                                                    role="button" data-bs-toggle="dropdown" data-bs-offset="-20,20">
                                                     <i class="fe fe-more-vertical"></i>
                                                 </a>
-                                                <span class="dropdown-menu" aria-labelledby="courseDropdown">
-                                                    <span class="dropdown-header">Setting</span>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fe fe-edit dropdown-item-icon"></i>
-                                                        Edit
-                                                    </a>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fe fe-trash dropdown-item-icon"></i>
-                                                        Remove
+                                                <span class="dropdown-menu">
+                                                    <span class="dropdown-header">Actions</span>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.courses.student.invoice', [$course->id, $student->id]) }}">
+                                                        <i class="fe fe-file-text dropdown-item-icon"></i>
+                                                        View Invoice
                                                     </a>
                                                 </span>
                                             </span>
                                         </td>
-
                                     </tr>
                                 @empty
                                     <tr>
@@ -250,4 +245,3 @@
         </div>
     </div>
 </div>
-

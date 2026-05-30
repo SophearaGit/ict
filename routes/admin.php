@@ -18,7 +18,9 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
 use App\Http\Controllers\Admin\RealTimeCoursesController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StudentInvoicePaymentDetailController;
 use App\Http\Controllers\Admin\StudentReportController;
+use App\Http\Controllers\Frontend\Staff\IctInvoicePaymentController;
 use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'guest:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('x8472/academic-control-center/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -30,8 +32,12 @@ Route::group(['middleware' => 'guest:admin', 'prefix' => 'admin', 'as' => 'admin
 });
 Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
+    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
@@ -73,6 +79,12 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/realtime-courses/{id}/edit', [RealTimeCoursesController::class, 'edit'])->name('courses.realtime.edit');
     Route::put('/realtime-courses/{id}', [RealTimeCoursesController::class, 'update'])->name('courses.realtime.update');
     Route::delete('/realtime-courses/{id}', [RealTimeCoursesController::class, 'destroy'])->name('courses.realtime.destroy');
+    /*******************************************************
+     * STUDENT INVOICE DETAIL IN COURSE
+     *******************************************************/
+    Route::get('courses/{course}/students/{student}/invoice', [StudentInvoicePaymentDetailController::class, 'studentInvoice'])
+        ->name('courses.student.invoice')
+        ->scopeBindings();
     /*******************************************************
      *  STUDENT REPORT
      *******************************************************/

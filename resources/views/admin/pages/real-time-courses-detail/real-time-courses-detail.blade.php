@@ -12,7 +12,7 @@
             <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
                 <div class="mb-3 mb-md-0">
                     <h1 class="mb-1 h2 fw-bold">
-                        Courses ( Real Time )
+                        Courses
                     </h1>
                     <!-- Breadcrumb -->
                     <nav aria-label="breadcrumb">
@@ -22,7 +22,7 @@
                             </li>
                             <li class="breadcrumb-item active">
                                 <a href="javascript:void;">
-                                    Courses ( Real Time )
+                                    Courses
                                 </a>
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">
@@ -56,7 +56,6 @@
                                         ->implode(' • ');
                                     $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i ');
                                     $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
-
                                     $shift = ucfirst($course->schedule->shift);
                                 @endphp
                                 {{ $days }} | {{ $shift }} (
@@ -72,7 +71,6 @@
                                 <i class="fe fe-bookmark fs-4 me-2"></i>
                                 Bookmark
                             </a> --}}
-
                             <span class="text-white">
                                 <i class="fe fe-user"></i>
                                 {{ $course->enrollments->count() }} Enrolled
@@ -99,14 +97,17 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-9 col-md-12 col-12 mt-n8 mb-4 mb-lg-0">
+
                     <!-- Card -->
                     <div class="card rounded-3">
+
                         <!-- Card header -->
                         <div class="card-header border-bottom-0 p-0">
                             <div>
                                 @include('admin.pages.real-time-courses-detail.partials.tabs.tabs')
                             </div>
                         </div>
+
                         <!-- Card Body -->
                         <div class="card-body">
                             <div class="tab-content" id="tabContent">
@@ -114,7 +115,6 @@
                                 {{-- teacher attendance emtpy tab content --}}
                                 <div class="tab-pane fade" id="teacher-attendance" role="tabpanel"
                                     aria-labelledby="teacher-attendance-tab">
-
                                     <div class="sheet">
 
                                         <!-- Header -->
@@ -130,27 +130,26 @@
                                         <form method="GET" class="mb-3">
                                             <div class="filter-bar p-3 rounded-3 bg-light border">
                                                 <div class="row g-2 align-items-end">
+
                                                     <!-- Date Range -->
                                                     <div class="col-12 col-md-6 col-lg-7">
                                                         <label class="form-label fw-semibold mb-1">
                                                             <i class="ti ti-calendar me-1"></i> Date Range
                                                         </label>
-
                                                         <div class="input-daterange input-group" id="date-range">
                                                             <input type="text" class="form-control" name="from_date"
                                                                 placeholder="From"
                                                                 value="{{ request('from_date', now()->startOfMonth()->format('Y-m-d')) }}">
-
                                                             <span
                                                                 class="input-group-text bg-primary text-white px-2 px-md-3">
                                                                 TO
                                                             </span>
-
                                                             <input type="text" class="form-control" name="to_date"
                                                                 placeholder="To"
                                                                 value="{{ request('to_date', now()->endOfMonth()->format('Y-m-d')) }}">
                                                         </div>
                                                     </div>
+
                                                     <!-- Buttons -->
                                                     <div class="col-12 col-md-6 col-lg-5">
                                                         <div class="d-flex flex-column flex-md-row gap-2">
@@ -173,7 +172,6 @@
                                                     <strong>Filtered:</strong>
                                                     {{ request('from_date') }} → {{ request('to_date') }}
                                                 </div>
-
                                                 <div class="d-flex gap-4">
                                                     <span><strong>Hours:</strong> {{ $course->filtered_hours ?? 0 }}</span>
                                                     <span><strong>Sessions:</strong>
@@ -183,6 +181,7 @@
                                                 </div>
                                             </div>
                                         @endif
+
                                         <!-- Teacher -->
                                         <div class="info-row">
                                             <div class="info-label">
@@ -194,6 +193,7 @@
                                                 </strong>
                                             </div>
                                         </div>
+
                                         <!-- Subject -->
                                         <div class="info-row highlight">
                                             <div class="info-label">Subject:</div>
@@ -225,8 +225,8 @@
                                                 </strong>
                                             </div>
                                         </div>
-                                        <!-- Table -->
 
+                                        <!-- Table -->
                                         <table id="attendanceTable">
                                             <thead>
                                                 <tr>
@@ -247,39 +247,33 @@
                                                 @php
                                                     $attendances = $course->teacherAttendances;
                                                 @endphp
-
                                                 @if ($attendances->isNotEmpty())
                                                     @foreach ($attendances as $index => $attendance)
                                                         <tr>
                                                             <td style="padding: 10px">{{ $index + 1 }}</td>
-
                                                             <td style="display:none;">
                                                                 <input type="hidden"
                                                                     name="attendances[{{ $index }}][id]"
                                                                     value="{{ $attendance->id }}">
                                                             </td>
-
                                                             <td>
                                                                 <input type="date"
                                                                     name="attendances[{{ $index }}][date]"
                                                                     value="{{ $attendance->date }}"
                                                                     class="form-control text-dark" readonly>
                                                             </td>
-
                                                             <td>
                                                                 <input type="time"
                                                                     name="attendances[{{ $index }}][start_time]"
                                                                     value="{{ \Carbon\Carbon::parse($attendance->start_time)->format('H:i') }}"
                                                                     class="form-control text-dark" readonly>
                                                             </td>
-
                                                             <td>
                                                                 <input type="time"
                                                                     name="attendances[{{ $index }}][end_time]"
                                                                     value="{{ \Carbon\Carbon::parse($attendance->end_time)->format('H:i') }}"
                                                                     class="form-control text-dark" readonly>
                                                             </td>
-
                                                             <td>
                                                                 <input type="text"
                                                                     name="attendances[{{ $index }}][total_hours]"
@@ -287,7 +281,6 @@
                                                                     class="form-control total-hours text-uppercase text-dark text-center"
                                                                     readonly>
                                                             </td>
-
                                                             <td>
                                                                 <input type="text"
                                                                     name="attendances[{{ $index }}][actual_hours]"
@@ -295,14 +288,12 @@
                                                                     class="form-control actual-hours text-uppercase text-dark text-center"
                                                                     readonly>
                                                             </td>
-
                                                             {{-- <td>
                                                                 <input type="text"
                                                                     name="attendances[{{ $index }}][room]"
-                                                                    value="{{ $attendance->room }}"
-                                                                    class="form-control text-uppercase text-dark text-center">
-                                                            </td> --}}
-
+            value="{{ $attendance->room }}"
+            class="form-control text-uppercase text-dark text-center">
+            </td> --}}
                                                             <td>
                                                                 <input type="number"
                                                                     name="attendances[{{ $index }}][late_minutes]"
@@ -327,7 +318,6 @@
                                         $data = $attendanceData;
                                         $dates = array_slice($data['table_structure']['columns'], 5);
                                     @endphp
-
                                     <div class="attendance-wrapper mt-4">
 
                                         <!-- HEADER CARD -->
@@ -335,21 +325,24 @@
                                             <div class="card-body">
                                                 <div class="row text-sm">
                                                     <div class="col-md-3"><strong>Start:</strong>
-                                                        {{ $data['form_metadata']['class_start'] }}</div>
-                                                    <div class="col-md-3"><strong>Room:</strong>
-                                                        {{ $data['form_metadata']['room'] }}</div>
-                                                    <div class="col-md-3"><strong>Lecturer:</strong>
-                                                        {{ $data['form_metadata']['lecturer_name'] }}</div>
-                                                    <div class="col-md-3"><strong>Phone:</strong>
-                                                        {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}</div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
+                                                        {{ $data['form_metadata']['class_start'] }}
+        </div>
+        <div class="col-md-3"><strong>Room:</strong>
+         {{ $data['form_metadata']['room'] }}
+        </div>
+        <div class="col-md-3"><strong>Lecturer:</strong>
+         {{ $data['form_metadata']['lecturer_name'] }}
+        </div>
+        <div class="col-md-3"><strong>Phone:</strong>
+         {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
+        </div>
+       </div>
+      </div>
+     </div> --}}
 
                                         <!-- TABLE -->
                                         <div class="card">
                                             <div class="card-body p-0">
-
                                                 <div class="table-responsive">
                                                     <table id="attendanceTable_students"
                                                         class="table table-bordered table-hover align-middle text-center mb-0">
@@ -375,13 +368,15 @@
                                                         <tbody>
                                                             @foreach ($data['table_structure']['data_rows'] as $row)
                                                                 <tr>
+
                                                                     <!-- No -->
                                                                     <td>{{ $row['no'] }}</td>
 
                                                                     <!-- Student Name -->
                                                                     <td class="text-start">
                                                                         <div class="fw-semibold text-capitalize">
-                                                                            {{ $row['student_name'] }}</div>
+                                                                            {{ $row['student_name'] }}
+                                                                        </div>
                                                                     </td>
 
                                                                     <!-- Gender -->
@@ -404,7 +399,6 @@
                                                                         @php
                                                                             $status = $row['attendance'][$date] ?? null;
                                                                         @endphp
-
                                                                         <td>
                                                                             @if ($status == 'P')
                                                                                 <span class="badge bg-success">P</span>
@@ -421,23 +415,18 @@
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
-
                                                     </table>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
                                 {{-- student-report-tab (empty) --}}
                                 <div class="tab-pane fade" id="student-report" role="tabpanel"
                                     aria-labelledby="student-report-tab">
-
                                     {{-- Report Header --}}
                                     <div class="card-body border-bottom">
                                         <h5 class="text-uppercase text-center fw-bold mb-4">Student Report</h5>
-
                                         <div class="row small">
                                             <div class="col-md-6">
                                                 <p class="mb-1">
@@ -480,7 +469,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     {{-- Report Table --}}
                                     <div class="table-responsive">
                                         <table
@@ -506,11 +494,9 @@
                                                     <tr id="report-row-{{ $report->student_id }}">
                                                         <td class="text-center">{{ $i + 1 }}</td>
                                                         <td class="text-capitalize">{{ $report->student->name }}</td>
-
                                                         {{-- Attendance (read-only, auto-calculated from attendance tab) --}}
                                                         <td class="text-center present">{{ $report->present }}</td>
                                                         <td class="text-center absent">{{ $report->absent }}</td>
-
                                                         {{-- Editable Scores --}}
                                                         <td class="text-center">
                                                             <input type="number"
@@ -521,7 +507,6 @@
                                                                 value="{{ $report->assignment_score }}" min="0"
                                                                 max="30" readonly>
                                                         </td>
-
                                                         <td class="text-center">
                                                             <input type="number"
                                                                 class="form-control form-control-sm text-center score-input"
@@ -531,7 +516,6 @@
                                                                 value="{{ $report->mini_project_score }}" min="0"
                                                                 max="20" readonly>
                                                         </td>
-
                                                         <td class="text-center">
                                                             <input type="number"
                                                                 class="form-control form-control-sm text-center score-input"
@@ -541,11 +525,10 @@
                                                                 value="{{ $report->final_project_score }}" min="0"
                                                                 max="40" readonly>
                                                         </td>
-
                                                         {{-- Auto-updated by JS after save --}}
                                                         <td class="text-center fw-bold total-score">
-                                                            {{ $report->total_score }}</td>
-
+                                                            {{ $report->total_score }}
+                                                        </td>
                                                         <td class="text-center">
                                                             <span
                                                                 class="badge bg-{{ $report->result === 'pass' ? 'success' : 'danger' }}">
@@ -557,18 +540,15 @@
                                             </tbody>
                                         </table>
                                     </div>
-
                                     {{-- Report Footer --}}
                                     <div class="card-body border-top">
                                         <div class="row mt-4 text-center small">
-
                                             <div class="col-md-6">
                                                 <p class="text-muted mb-0">Seen and approved by</p>
                                                 <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
                                                     @php
                                                         $status = $course->studentReports->first()?->approval_status;
                                                     @endphp
-
                                                     @if ($status === 'approved')
                                                         <div
                                                             class="position-relative d-flex align-items-center justify-content-center mb-3">
@@ -586,7 +566,6 @@
                                                     <p class="fw-semibold mb-0">ICT Training Center</p>
                                                 </div>
                                             </div>
-
                                             <div class="col-md-6 mt-5 mt-md-0">
                                                 <p class="text-muted mb-0">Prepared by</p>
                                                 <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
@@ -605,31 +584,27 @@
                                                         <hr>
                                                     @endif
                                                     <p class="fw-semibold mb-0 text-capitalize">Teacher:
-                                                        {{ $course->instructor->name }}</p>
+                                                        {{ $course->instructor->name }}
+                                                    </p>
                                                 </div>
-
                                                 {{-- Show Send For Approval only for draft/pending --}}
                                                 <div class="mt-4">
                                                     @if ($status === 'draft')
                                                     @elseif ($status === 'pending')
                                                         <div class="d-flex gap-2">
-
                                                             {{-- Approve Button --}}
                                                             <button type="button"
                                                                 class="btn btn-success w-100 rounded-pill shadow-sm py-2"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#approveReportModal">
-
                                                                 <i class="fe fe-check-circle me-1"></i>
                                                                 Approve
                                                             </button>
-
                                                             {{-- Reject Button --}}
                                                             <button type="button"
                                                                 class="btn btn-outline-danger w-100 rounded-pill py-2"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#rejectReportModal">
-
                                                                 <i class="fe fe-x-circle me-1"></i>
                                                                 Reject
                                                             </button>
@@ -644,102 +619,77 @@
                         </div>
                     </div>
                 </div>
-
-
                 {{-- APPROVE MODAL --}}
                 <div class="modal fade" id="approveReportModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content border-0 rounded-4 shadow">
-
                             <div class="modal-body p-5 text-center">
-
                                 <div class="mb-4">
                                     <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex p-4">
                                         <i class="fe fe-check-circle text-light fs-1"></i>
                                     </div>
                                 </div>
-
                                 <h4 class="fw-bold mb-2">
                                     Approve Student Report?
                                 </h4>
-
                                 <p class="text-muted mb-4">
                                     This will officially approve all student
                                     reports for this course.
                                 </p>
-
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-light w-50 rounded-pill"
                                         data-bs-dismiss="modal">
                                         Cancel
                                     </button>
-
                                     <form action="{{ route('admin.student-report.approve', $course->id) }}"
                                         method="POST" class="w-50">
-
                                         @csrf
-
                                         <button class="btn btn-success w-100 rounded-pill">
                                             Yes, Approve
                                         </button>
                                     </form>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                 </div>
-
                 {{-- REJECT MODAL --}}
                 <div class="modal fade" id="rejectReportModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content border-0 rounded-4 shadow">
-
                             <div class="modal-body p-5 text-center">
-
                                 <div class="mb-4">
                                     <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex p-4">
                                         <i class="fe fe-x-circle text-light fs-1"></i>
                                     </div>
                                 </div>
-
                                 <h4 class="fw-bold mb-2">
                                     Reject Student Report?
                                 </h4>
-
                                 <p class="text-muted mb-4">
                                     This action will move the report back to
                                     draft status.
                                 </p>
-
                                 <div class="d-flex gap-2">
-
                                     <button type="button" class="btn btn-light w-50 rounded-pill"
                                         data-bs-dismiss="modal">
                                         Cancel
                                     </button>
-
                                     <form action="{{ route('admin.student-report.reject', $course->id) }}" method="POST"
                                         class="w-50">
-
                                         @csrf
                                         @method('PATCH')
-
                                         <button class="btn btn-danger w-100 rounded-pill">
                                             Yes, Reject
                                         </button>
                                     </form>
-
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-3 col-md-12 col-12 mt-lg-n8">
+
                     <!-- Card -->
                     <div class="card mb-4">
                         <div class="p-1">
@@ -751,25 +701,28 @@
                                 </a> --}}
                             </div>
                         </div>
+
                         <!-- Card body -->
                         {{-- <div class="card-body">
+
                             <!-- Price single page -->
                             <div class="mb-3">
                                 <span class="text-dark fw-bold h2">
                                     Course Revenue:
                                     ${{ number_format($course->enrollments->sum(fn($enrollment) => $enrollment->course->price)) }}
-                                </span><br>
-                                <span class="fs-4">
+   </span><br>
+   <span class="fs-4">
                                     Teacher Earning:
                                     ${{ number_format($course->enrollments->sum(fn($enrollment) => $enrollment->course->price) * 0.7) }}
                                 </span>
-                            </div>
-                            <div class="d-grid">
-                                <a href="#" class="btn btn-primary mb-2">Start Free Month</a>
-                                <a href="pricing.html" class="btn btn-outline-primary">Get Full Access</a>
-                            </div>
-                        </div> --}}
+  </div>
+  <div class="d-grid">
+   <a href="#" class="btn btn-primary mb-2">Start Free Month</a>
+   <a href="pricing.html" class="btn btn-outline-primary">Get Full Access</a>
+  </div>
+ </div> --}}
                     </div>
+
                     <!-- Card -->
                     <div class="card mb-4 shadow-sm border-0 rounded-4">
                         <div class="card-body">
@@ -826,17 +779,14 @@
                                     $course->total_sessions > 0
                                         ? ($course->completed_sessions / $course->total_sessions) * 100
                                         : 0;
-
                                 // Determine color
                                 if ($progress <= 50) {
-                                    $progressColor = 'bg-danger'; // red
+                                    $progressColor = 'bg-danger';
                                 } elseif ($progress <= 80) {
-                                    $progressColor = 'bg-warning'; // yellow
+                                    $progressColor = 'bg-warning';
                                 } else {
-                                    $progressColor = 'bg-success'; // green
-                                }
-                            @endphp
-                            <div class="mt-4">
+                                    $progressColor = 'bg-success';
+                            } @endphp <div class="mt-4">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="fw-semibold">Progress</span>
                                     <span class="fw-bold">
@@ -851,189 +801,181 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- Card -->
-                    <div class="card">
-                        <!-- Card body -->
+                    <div class="card border-0 rounded-4 overflow-hidden">
+                        {{-- Avatar + name + tags + rating --}}
+                        <div class="card-body border-bottom text-center pb-3">
+                            <div class="position-relative d-inline-block mb-3">
+                                <img src="{{ $course->instructor->image === 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
+                                    alt="instructor" class="rounded-circle"
+                                    style="width:64px;height:64px;object-fit:cover;">
+                                <span
+                                    class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-2 border-white d-flex align-items-center justify-content-center"
+                                    style="width:18px;height:18px;">
+                                    <i class="fe fe-check" style="font-size:9px;color:#fff;"></i>
+                                </span>
+                            </div>
+                            <h5 class="mb-1 fw-semibold text-capitalize">
+                                {{ $course->instructor->name ?? 'No Instructor' }}
+                            </h5>
+                            @if ($course->instructor->courses->isNotEmpty())
+                                <p class="text-muted mb-2" style="font-size:12px;">
+                                    {{ $course->instructor->courses->unique('title')->take(3)->pluck('title')->implode(' · ') }}
+                                    ...
+                                </p>
+                            @endif
+                            <div class="d-flex align-items-center justify-content-center gap-1" style="font-size:12px;">
+                                <i class="fe fe-star text-warning" style="font-size:13px;"></i>
+                                <span class="fw-semibold">4.5</span>
+                                <span class="text-muted">instructor rating</span>
+                            </div>
+                        </div>
+                        {{-- Stats row --}}
+                        <div class="row g-0 border-bottom text-center">
+                            <div class="col border-end py-3">
+                                <h6 class="mb-0 fw-semibold">
+                                    {{ $course->instructor->courses->sum(fn($c) => $c->enrollments->count()) }}
+                                </h6>
+                                <small class="text-muted">Students</small>
+                            </div>
+                            <div class="col border-end py-3">
+                                <h6 class="mb-0 fw-semibold">{{ $course->instructor->courses->count() }}</h6>
+                                <small class="text-muted">Courses</small>
+                            </div>
+                            <div class="col py-3">
+                                <h6 class="mb-0 fw-semibold">12,230</h6>
+                                <small class="text-muted">Reviews</small>
+                            </div>
+                        </div>
+                        {{-- Bio + link --}}
                         <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="position-relative">
-                                    <img src="{{ $course->instructor->image === 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
-                                        alt="teacher-image" class="rounded-circle avatar-xl">
-                                    <a href="#" class="position-absolute mt-2 ms-n3" data-bs-toggle="tooltip"
-                                        data-placement="top" aria-label="Verifed" data-bs-original-title="Verifed">
-                                        <img src="{{ asset('/frontend/assets/images/svg/checked-mark.svg') }}"
-                                            alt="checked-mark" height="30" width="30">
-                                    </a>
-                                </div>
-                                <div class="ms-4">
-                                    <h4 class="mb-0 text-capitalize">
-                                        {{ $course->instructor->name ?? 'No Instructor' }}
-                                    </h4>
-
-
-                                    @if ($course->instructor->courses->isNotEmpty())
-                                        <div class="tags text-capitalize">
-                                            @foreach ($course->instructor->courses->unique('title')->take(4) as $course)
-                                                <span class="tag">
-                                                    {{ $course->title }},
-                                                </span>
-                                            @endforeach...
-                                        </div>
-                                    @endif
-
-
-
-
-                                    <p class="fs-6 mb-1 d-flex align-items-center">
-                                        <span class="text-warning">4.5</span>
-                                        <span class="mx-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                                fill="currentColor" class="bi bi-star-fill text-warning"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                                </path>
-                                            </svg>
-                                        </span>
-                                        Instructor Rating
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="border-top row mt-3 border-bottom mb-3 g-0">
-                                <div class="col">
-                                    <div class="pe-1 ps-2 py-3">
-                                        <h5 class="mb-0">
-                                            {{ $course->instructor->courses->sum(fn($course) => $course->enrollments->count()) }}
-                                        </h5>
-                                        <span>Students</span>
-                                    </div>
-                                </div>
-                                <div class="col border-start">
-                                    <div class="pe-1 ps-3 py-3">
-                                        <h5 class="mb-0">
-                                            {{ $course->instructor->courses->count() }}
-                                        </h5>
-                                        <span>Courses</span>
-                                    </div>
-                                </div>
-                                <div class="col border-start">
-                                    <div class="pe-1 ps-3 py-3">
-                                        <h5 class="mb-0">12,230</h5>
-                                        <span>Reviews</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <p>
+                            {{-- <p class="text-muted mb-3" style="font-size:13px;line-height:1.6;">
                                 {{ $course->instructor->headline ?? 'No bio available for this instructor.' }}
-                            </p>
-                            <a href="instructor-profile.html" class="btn btn-outline-secondary btn-sm">
-                                View Profile
+   </p> --}}
+                            <a href="instructor-profile.html"
+                                class="d-inline-flex align-items-center gap-1 text-primary fw-semibold"
+                                style="font-size:13px;text-decoration:none;">
+                                View full profile <i class="fe fe-arrow-right"></i>
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- Card -->
-            <div class="pt-8 pb-3">
-                <div class="row d-md-flex align-items-center mb-4">
-                    <div class="col-12">
-                        <h2 class="mb-0 text-capitalize">
-                            {{ $course->instructor->name ?? 'No Instructor' }}
-                            - Related Courses
-                        </h2>
+            @if ($other_courses->isNotEmpty())
+                <div class="pt-8 pb-3">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div style="width:4px;height:28px;background:#4f46e5;border-radius:2px;flex-shrink:0;"></div>
+                        <div>
+                            <p class="mb-0 text-muted text-uppercase fw-semibold"
+                                style="font-size:11px;letter-spacing:.08em;">More from</p>
+                            <h2 class="mb-0 fw-semibold text-capitalize" style="font-size:18px;">
+                                {{ $course->instructor->name ?? 'No Instructor' }}
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {{-- course cards ... --}}
+                        <div class="row">
+                            @forelse ($other_courses as $course)
+                                <div class="col-lg-3 col-md-6 col-12">
+
+                                    <!-- Card -->
+                                    <div class="card mb-4 card-hover">
+                                        <a href="{{ route('admin.courses.realtime.show', $course->id) }}"><img
+                                                src="{{ $course->thumbnail === '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail) }}"
+                                                alt="course-thumbnail" class="card-img-top"></a>
+
+                                        <!-- Card body -->
+                                        <div class="card-body">
+                                            <h4 class="mb-2 text-truncate-line-2">
+                                                <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
+                                                    class="text-inherit text-capitalize">
+                                                    {{ $course->title }}
+                                                </a>
+                                            </h4>
+                                            <ul class="mb-3 list-inline">
+                                                <li class="list-inline-item">
+                                                    <span>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                            height="12" fill="currentColor"
+                                                            class="bi bi-clock align-baseline" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z">
+                                                            </path>
+                                                            <path
+                                                                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z">
+                                                            </path>
+                                                        </svg>
+                                                    </span>
+                                                    <span>
+                                                        {{ $course->duration }} Hours
+                                                    </span>
+                                                </li>
+                                                <li class="list-inline-item">
+                                                    <span>
+                                                        <i class="fe fe-users align-middle me-1"></i>
+                                                    </span>
+                                                    <span>
+                                                        {{ $course->enrollments->count() }} Enrolled
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-3 d-flex align-baseline lh-1">
+                                                <span class="fs-6">
+                                                    @for ($i = 0; $i < 5; $i++)
+                                                        <i class="fe fe-star text-warning"></i>
+                                                    @endfor
+                                                </span>
+                                                <span class="text-warning mx-1">
+                                                    4.5
+                                                </span>
+                                                <span class="fs-6">
+                                                    (2,500)
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Card footer -->
+                                        <div class="card-footer">
+                                            <div class="row align-items-center g-0">
+                                                <div class="col-auto">
+                                                    <img src="
+                                            {{ $course->instructor->image === 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}
+                                        "
+                                                        class="rounded-circle avatar-xs" alt="avatar">
+                                                </div>
+                                                <div class="col ms-2">
+                                                    <span class="text-capitalize">
+                                                        {{ $course->instructor->name ?? 'No Instructor' }}
+                                                    </span>
+                                                </div>
+                                                {{-- <div class="col-auto">
+                                        <a href="#" class="text-reset bookmark">
+                                            <i class="fe fe-bookmark fs-4"></i>
+                                        </a>
+                                    </div> --}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <div class="card mb-4">
+                                        <div class="card-body text-center">
+                                            <h4 class="mb-0">
+                                                No other courses found for this instructor.
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    @forelse ($other_courses as $course)
-                        <div class="col-lg-3 col-md-6 col-12">
-                            <!-- Card -->
-                            <div class="card mb-4 card-hover">
-                                <a href="{{ route('admin.courses.realtime.show', $course->id) }}"><img
-                                        src="{{ $course->thumbnail === '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail) }}"
-                                        alt="course-thumbnail" class="card-img-top"></a>
-                                <!-- Card body -->
-                                <div class="card-body">
-                                    <h4 class="mb-2 text-truncate-line-2">
-                                        <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
-                                            class="text-inherit text-capitalize">
-                                            {{ $course->title }}
-                                        </a>
-                                    </h4>
-                                    <ul class="mb-3 list-inline">
-                                        <li class="list-inline-item">
-                                            <span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                                    fill="currentColor" class="bi bi-clock align-baseline"
-                                                    viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z">
-                                                    </path>
-                                                    <path
-                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                            <span>
-                                                {{ $course->duration }} Hours
-                                            </span>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <span>
-                                                <i class="fe fe-users align-middle me-1"></i>
-                                            </span>
-                                            <span>
-                                                {{ $course->enrollments->count() }} Enrolled
-                                            </span>
-                                        </li>
-                                    </ul>
-                                    <div class="mt-3 d-flex align-baseline lh-1">
-                                        <span class="fs-6">
-                                            @for ($i = 0; $i < 5; $i++)
-                                                <i class="fe fe-star text-warning"></i>
-                                            @endfor
-                                        </span>
-                                        <span class="text-warning mx-1">
-                                            4.5
-                                        </span>
-                                        <span class="fs-6">
-                                            (2,500)
-                                        </span>
-                                    </div>
-                                </div>
-                                <!-- Card footer -->
-                                <div class="card-footer">
-                                    <div class="row align-items-center g-0">
-                                        <div class="col-auto">
-                                            <img src="
-                                                {{ $course->instructor->image === 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}
-                                            "
-                                                class="rounded-circle avatar-xs" alt="avatar">
-                                        </div>
-                                        <div class="col ms-2">
-                                            <span class="text-capitalize">
-                                                {{ $course->instructor->name ?? 'No Instructor' }}
-                                            </span>
-                                        </div>
-                                        {{-- <div class="col-auto">
-                                            <a href="#" class="text-reset bookmark">
-                                                <i class="fe fe-bookmark fs-4"></i>
-                                            </a>
-                                        </div> --}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="card mb-4">
-                                <div class="card-body text-center">
-                                    <h4 class="mb-0">You have no other courses.</h4>
-                                </div>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
+            @endif
         </div>
     </section>
 @endsection
@@ -1041,12 +983,9 @@
     <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-
             const tabs = document.querySelectorAll('#tab a[data-bs-toggle="pill"]');
-
             // Restore active tab
             let activeTab = localStorage.getItem('activeTab');
-
             if (activeTab) {
                 let triggerEl = document.querySelector(`#tab a[href="${activeTab}"]`);
                 if (triggerEl) {
@@ -1059,42 +998,32 @@
                     new bootstrap.Tab(defaultTab).show();
                 }
             }
-
             // Save active tab on change
             tabs.forEach(tab => {
                 tab.addEventListener('shown.bs.tab', function(event) {
                     localStorage.setItem('activeTab', event.target.getAttribute('href'));
                 });
             });
-
         });
-
-
         document.addEventListener("DOMContentLoaded", function() {
-
             const studentTabButtons = document.querySelectorAll('#students [data-bs-toggle="tab"]');
-
             let savedView = localStorage.getItem('studentInnerTab');
 
             function activateTab(targetSelector) {
                 const trigger = document.querySelector(`#students [data-bs-target="${targetSelector}"]`);
-
                 if (trigger) {
                     // Activate using Bootstrap
                     new bootstrap.Tab(trigger).show();
-
                     // 🔥 Force correct button state (important fix)
                     studentTabButtons.forEach(btn => btn.classList.remove('active'));
                     trigger.classList.add('active');
                 }
             }
-
             if (savedView) {
                 activateTab(savedView);
             } else {
                 activateTab('#tabPaneListStudent'); // default
             }
-
             // Save on change
             studentTabButtons.forEach(btn => {
                 btn.addEventListener('shown.bs.tab', function(e) {
@@ -1102,9 +1031,7 @@
                         'data-bs-target'));
                 });
             });
-
         });
-
         $('#date-range').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true,
