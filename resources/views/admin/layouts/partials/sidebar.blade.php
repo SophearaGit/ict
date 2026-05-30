@@ -1,137 +1,97 @@
-<!-- Sidebar -->
+@php
+    $isUser =
+        Route::is('admin.instructor.index') ||
+        Route::is('admin.instructor.show.detail') ||
+        Route::is('admin.student.index') ||
+        Route::is('admin.staff.index');
+    $isCourse =
+        Route::is('admin.courses.realtime.index') ||
+        Route::is('admin.courses.realtime.show') ||
+        Route::is('admin.courses.realtime.create') ||
+        Route::is('admin.courses.realtime.edit') ||
+        Route::is('admin.courses.student.invoice');
+@endphp
 <nav class="navbar-vertical navbar">
     <div class="vh-100" data-simplebar>
-
-        <!-- Brand logo -->
+        {{-- Brand --}}
         <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-            <img src="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" style="width: 40px; height: 40px;"
-                alt="ICT-LOGO" />
+            <img src="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" style="width:40px;height:40px;"
+                alt="ICT Logo">
         </a>
-
-        <!-- Navbar nav -->
         <ul class="navbar-nav flex-column" id="sideNavbar">
+            {{-- ── Dashboard ── --}}
             <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.dashboard') ? 'active' : '' }} "
+                <a class="nav-link {{ Route::is('admin.dashboard') ? 'active' : '' }}"
                     href="{{ route('admin.dashboard') }}">
-                    <i class="nav-icon fe fe-home me-2"></i>
-                    Dashboard
+                    <i class="nav-icon fe fe-home me-2"></i> Dashboard
                 </a>
             </li>
-            {{-- Student Report --}}
+            {{-- ── Student Report ── --}}
             <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.student-report.index') ? 'active' : '' }} "
+                <a class="nav-link {{ Route::is('admin.student-report.index') ? 'active' : '' }}"
                     href="{{ route('admin.student-report.index') }}">
-                    <i class="nav-icon fe fe-flag me-2"></i>
-                    Student Report
+                    <i class="nav-icon fe fe-flag me-2"></i> Student Report
                 </a>
             </li>
+            {{-- ── Instructor Request ── --}}
             <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.instructor-request.index') ? 'active' : '' }} "
+                <a class="nav-link {{ Route::is('admin.instructor-request.index') ? 'active' : '' }}"
                     href="{{ route('admin.instructor-request.index') }}">
-                    <i class="nav-icon fe fe-help-circle me-2"></i>
-                    Instructor Request
+                    <i class="nav-icon fe fe-help-circle me-2"></i> Instructor Request
                 </a>
             </li>
-
-            <!-- Nav item -->
+            {{-- ── Users (collapsible) ── --}}
             <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.instructor.index') ||
-                Route::is('admin.student.index') ||
-                Route::is('admin.staff.index') ||
-                Route::is('admin.instructor.show.detail')
-                    ? ''
-                    : 'collapsed' }} "
-                    href="#" data-bs-toggle="collapse" data-bs-target="#navProfile" aria-expanded="false"
-                    aria-controls="navProfile">
-                    <i class="nav-icon fe fe-user me-2"></i>
-                    User
+                <a class="nav-link {{ $isUser ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+                    data-bs-target="#navUser" aria-expanded="{{ $isUser ? 'true' : 'false' }}" aria-controls="navUser">
+                    <i class="nav-icon fe fe-users me-2"></i> Users
                 </a>
-                <div id="navProfile"
-                    class="collapse {{ Route::is('admin.instructor.index') ||
-                    Route::is('admin.student.index') ||
-                    Route::is('admin.staff.index') ||
-                    Route::is('admin.instructor.show.detail')
-                        ? 'show'
-                        : '' }} "
-                    data-bs-parent="#sideNavbar">
+                <div id="navUser" class="collapse {{ $isUser ? 'show' : '' }}" data-bs-parent="#sideNavbar">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.instructor.index') || Route::is('admin.instructor.show.detail') ? 'active' : '' }} "
+                            <a class="nav-link {{ Route::is('admin.instructor.index') || Route::is('admin.instructor.show.detail') ? 'active' : '' }}"
                                 href="{{ route('admin.instructor.index') }}">
                                 Teacher
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.student.index') ? 'active' : '' }}  "
-                                href="{{ route('admin.student.index') }}">Student</a>
+                            <a class="nav-link {{ Route::is('admin.student.index') ? 'active' : '' }}"
+                                href="{{ route('admin.student.index') }}">
+                                Student
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.staff.index') ? 'active' : '' }}  "
-                                href="{{ route('admin.staff.index') }}">Staff</a>
+                            <a class="nav-link {{ Route::is('admin.staff.index') ? 'active' : '' }}"
+                                href="{{ route('admin.staff.index') }}">
+                                Staff
+                            </a>
                         </li>
                     </ul>
                 </div>
             </li>
-            {{-- COURSE MANAGEMENT LI DROPDONW SHOWING COURSE language --}}
-            {{-- <li class="nav-item">
-                <a class="nav-link {{ (Route::is('admin.course-language.index') || Route::is('admin.course-level.index')
-                        ? ''
-                        : 'collapsed' || Route::is('admin.course-category.index'))
-                    ? ''
-                    : 'collapsed' }}
-"
-      href="#" data-bs-toggle="collapse" data-bs-target="#navCourseManagement"
-      aria-expanded="{{ Route::is('admin.course-language.index') ||
-                    Route::is('admin.course-level.index') ||
-                    Route::is('admin.course-category.index') ||
-                    Route::is('admin.courses.index')
-                        ? 'true'
-                        : 'false' }}"
-      aria-controls="navCourseManagement">
-      <i class="nav-icon fe fe-book me-2"></i>
-      Course ( Online )
-      </a>
-      <div id="navCourseManagement" class="collapse {{ Route::is('admin.course-language.index') ||
-                    Route::is('admin.course-level.index') ||
-                    Route::is('admin.course-category.index') ||
-                    Route::is('admin.courses.index')
-                        ? 'show'
-                        : '' }} " data-bs-parent="#sideNavbar">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link {{ Route::is('admin.courses.index') ? 'active' : '' }} " href="{{ route('admin.courses.index') }}">Course</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ Route::is('admin.course-language.index') ? 'active' : '' }} " href="{{ route('admin.course-language.index') }}">Course Language</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ Route::is('admin.course-level.index') ? 'active' : '' }} " href="{{ route('admin.course-level.index') }}">Course Level</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ Route::is('admin.course-category.index') ? 'active' : '' }} " href="{{ route('admin.course-category.index') }}">Course Category</a>
-          </li>
-        </ul>
-      </div>
-      </li> --}}
-            {{-- Course real time dropdown  --}}
+            {{-- ── Course (collapsible) ── --}}
             <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.courses.realtime.index') ? '' : 'collapsed' }}" href="#"
-                    data-bs-toggle="collapse" data-bs-target="#navCourseRealTime"
-                    aria-expanded="
-                    {{ Route::is('admin.courses.realtime.index') ? 'true' : 'false' }}
-                    "
-                    aria-controls="navCourseRealTime">
-                    <i class="nav-icon fe fe-book me-2"></i>
-                    Course
+                <a class="nav-link {{ $isCourse ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+                    data-bs-target="#navCourse" aria-expanded="{{ $isCourse ? 'true' : 'false' }}"
+                    aria-controls="navCourse">
+                    <i class="nav-icon fe fe-book me-2"></i> Course
                 </a>
-                <div id="navCourseRealTime"
-                    class="collapse {{ Route::is('admin.courses.realtime.index') ? 'show' : '' }} "
-                    data-bs-parent="#sideNavbar">
+                <div id="navCourse" class="collapse {{ $isCourse ? 'show' : '' }}" data-bs-parent="#sideNavbar">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.courses.realtime.index') ? 'active' : '' }} "
-                                href="{{ route('admin.courses.realtime.index') }}">All</a>
+                            <a class="nav-link {{ $isCourse ? 'active' : '' }}"
+                                href="{{ route('admin.courses.realtime.index') }}">
+                                All
+                            </a>
                         </li>
+                        {{-- Add new course sub-links here, e.g:
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::is('admin.courses.realtime.create') ? 'active' : '' }}"
+      href="{{ route('admin.courses.realtime.create') }}">
+      Create
+      </a>
+   </li>
+   --}}
                     </ul>
                 </div>
             </li>

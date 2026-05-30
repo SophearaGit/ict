@@ -409,7 +409,9 @@
                                             </td>
                                             <td>{{ $course->enrollments_count }}</td>
                                             <td class="fw-semibold">${{ number_format($course->total_revenue ?? 0, 2) }}
-                                            <td><span class="badge bg-primary fs-6 px-2 py-1">${{ number_format($course->price, 2) }}</span></td>
+                                            <td><span
+                                                    class="badge bg-primary fs-6 px-2 py-1">${{ number_format($course->price, 2) }}</span>
+                                            </td>
                                             </td>
                                             <td>
                                                 @if ($course->status == 'active')
