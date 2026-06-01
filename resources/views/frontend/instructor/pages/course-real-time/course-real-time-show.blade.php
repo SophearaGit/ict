@@ -7,35 +7,25 @@
     @include('frontend.instructor.pages.course-real-time.styling.style')
     <script>
         $(document).on('change', '.score-input', function() {
-
             let input = $(this);
-
             let id = input.data('id');
             let field = input.data('field');
-
             let value = parseFloat(input.val()) || 0;
-
             // ✅ max score per field
             let max = 100;
-
             if (field === 'assignment_score') {
                 max = 30;
             }
-
             if (field === 'mini_project_score') {
                 max = 20;
             }
-
             if (field === 'final_project_score') {
                 max = 40;
             }
-
             // ✅ clamp value
             if (value < 0) value = 0;
             if (value > max) value = max;
-
             input.val(value);
-
             $.ajax({
                 url: `/instructor/student-report/update/${id}`,
                 method: 'POST',
@@ -45,17 +35,12 @@
                     value: value
                 },
                 success: function(res) {
-
                     input.closest('tr')
                         .find('.total-score')
                         .text(res.total_score);
-
                     let badge = input.closest('tr').find('.badge');
-
                     badge.text(res.result);
-
                     badge.removeClass('bg-success bg-danger');
-
                     badge.addClass(
                         res.result === 'pass' ?
                         'bg-success' :
@@ -64,43 +49,31 @@
                 }
             });
         });
-
         document.addEventListener('DOMContentLoaded', function() {
-
             let saveTimeout = null;
             let originalTableHTML = '';
-
             /* =========================
                RESET UI
             ========================= */
             function resetAttendanceUI() {
                 $('#attendanceTable .student-row').each(function() {
-
                     let row = $(this);
-
                     row.find('.status-toggle span')
                         .removeClass('bg-success bg-danger bg-warning active')
                         .addClass('bg-light text-dark');
-
                     row.find('.status-toggle').attr('data-status', '');
-
                     row.find('input').val('');
                 });
-
                 updateSummary();
             }
-
             /* =========================
                LOADING (SKELETON)
             ========================= */
             function showLoading() {
-
                 if (!originalTableHTML) {
                     originalTableHTML = $('#attendanceTable').html();
                 }
-
                 let rows = '';
-
                 for (let i = 0; i < 5; i++) {
                     rows += `
                 <tr class="loading-row">
@@ -111,23 +84,18 @@
                 </tr>
             `;
                 }
-
                 $('#attendanceTable').html(rows);
             }
 
             function restoreTable() {
                 $('#attendanceTable').html(originalTableHTML);
             }
-
             /* =========================
                LOAD ATTENDANCE
             ========================= */
             function loadAttendance() {
-
                 let date = $('#attendance-date').val();
-
                 showLoading();
-
                 $.ajax({
                     url: "{{ route('instructor.student-attendance.get') }}",
                     type: "GET",
@@ -136,30 +104,18 @@
                         date: date
                     },
                     success: function(res) {
-
                         restoreTable();
-
                         setTimeout(() => {
-
                             resetAttendanceUI();
-
                             if (!res.success) return;
-
                             let data = res.data;
-
                             $('#attendanceTable .student-row').each(function() {
-
                                 let studentId = $(this).data('student-id');
-
                                 if (!data[studentId]) return;
-
                                 let status = data[studentId].status;
                                 let note = data[studentId].note;
-
                                 let row = $(this);
-
                                 let btn;
-
                                 if (status === 'present') {
                                     btn = row.find('.status-toggle span:nth-child(1)');
                                 } else if (status === 'absent') {
@@ -167,14 +123,11 @@
                                 } else {
                                     btn = row.find('.status-toggle span:nth-child(3)');
                                 }
-
                                 setStatus(btn[0], status,
                                     false); // ❗ no autosave on load
                                 row.find('input').val(note);
                             });
-
                             updateSummary();
-
                         }, 200);
                     },
                     error: function(err) {
@@ -182,49 +135,38 @@
                     }
                 });
             }
-
             // 🔒 Lock attendance if report is pending approval
             @if ($status === 'pending')
                 document.querySelectorAll('#attendanceTable .status-toggle span').forEach(btn => {
                     btn.style.pointerEvents = 'none';
                     btn.style.opacity = '0.6';
                 });
-
                 document.querySelectorAll('#attendanceTable input').forEach(input => {
                     input.setAttribute('disabled', true);
                     input.setAttribute('placeholder', 'Locked');
                 });
-
                 // Disable row click to auto-mark present
                 $(document).off('click', '#attendanceTable tr');
-
                 // Disable mark all present button
                 document.querySelector('[onclick="markAllPresent()"]').setAttribute('disabled', true);
-
                 // Disable note keyup autosave
                 $('#attendanceTable').off('keyup', 'input');
             @endif
-
             /* =========================
                AUTO SAVE
             ========================= */
             function autoSaveAttendance() {
-
                 let attendances = [];
-
                 $('#attendanceTable .student-row').each(function() {
-
                     let studentId = $(this).data('student-id');
                     let status = $(this).find('.status-toggle').attr('data-status') || '';
                     let note = $(this).find('input').val();
-
                     attendances.push({
                         student_id: studentId,
                         status: status,
                         note: note
                     });
                 });
-
                 $.ajax({
                     url: "{{ route('instructor.student-attendance.store') }}",
                     type: "POST",
@@ -235,24 +177,16 @@
                         _token: "{{ csrf_token() }}"
                     },
                     success: function(res) {
-
                         showSavedIndicator();
-
                         let reports = res.reports;
-
                         Object.keys(reports).forEach(studentId => {
-
                             let row = $(`#report-row-${studentId}`);
-
                             if (!row.length) return;
-
                             let report = reports[studentId];
-
                             row.find('.present').text(report.present);
                             row.find('.absent').text(report.absent);
                             row.find('.permission').text(report.permission);
                             row.find('.total-score').text(report.total_score);
-
                             let badge = row.find('.badge');
                             badge.text(report.result);
                             badge.removeClass('bg-success bg-danger');
@@ -269,170 +203,124 @@
                     autoSaveAttendance();
                 }, 500);
             }
-
             /* =========================
                STATUS
             ========================= */
             window.setStatus = function(el, status, shouldSave = true) {
-
                 let parent = el.parentElement;
-
                 // 🚀 prevent unnecessary updates
                 if (parent.dataset.status === status) return;
-
                 parent.dataset.status = status;
-
                 let badges = parent.querySelectorAll('span');
-
                 badges.forEach(b => {
                     b.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'active');
                     b.classList.add('bg-light', 'text-dark');
                 });
-
                 el.classList.remove('bg-light', 'text-dark');
-
                 el.classList.add(
                     status === 'present' ? 'bg-success' :
                     status === 'absent' ? 'bg-danger' : 'bg-warning'
                 );
-
                 el.classList.add('active');
-
                 updateSummary();
-
                 if (shouldSave) triggerAutoSave();
             };
-
             /* =========================
                SUMMARY
             ========================= */
             function updateSummary() {
-
                 let present = 0;
                 let absent = 0;
                 let late = 0;
                 let unmarked = 0;
-
                 document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
-
                     let status = group.dataset.status;
-
                     if (!status) {
                         unmarked++;
                         return;
                     }
-
                     if (status === 'present') present++;
                     if (status === 'absent') absent++;
                     if (status === 'late') late++;
                 });
-
                 $('#presentCount').text(present);
                 $('#absentCount').text(absent);
                 $('#lateCount').text(late);
                 $('#unmarkedCount').text(unmarked);
             }
-
             /* =========================
                MARK ALL
             ========================= */
             window.markAllPresent = function() {
-
                 let changed = false;
-
                 document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
-
                     if (group.dataset.status === 'present') return;
-
                     changed = true;
-
                     let presentBtn = group.querySelector('span:nth-child(1)');
-
                     // 🔥 USE YOUR EXISTING FUNCTION (BEST PRACTICE)
                     setStatus(presentBtn, 'present', false);
                 });
-
                 updateSummary();
-
                 if (changed) triggerAutoSave();
             };
             /* =========================
                ROW CLICK
             ========================= */
             $(document).on('click', '#attendanceTable tr', function(e) {
-
                 if ($(e.target).closest('.status-toggle').length) return;
                 if (e.target.tagName === 'INPUT') return;
-
                 let presentBtn = $(this).find('.status-toggle span:nth-child(1)');
                 setStatus(presentBtn[0], 'present');
             });
-
             /* =========================
                NOTE CHANGE
             ========================= */
             $('#attendanceTable').on('keyup', 'input', function() {
                 triggerAutoSave();
             });
-
             /* =========================
                DATE
             ========================= */
             function updateDateLabel() {
-
                 let input = document.getElementById('attendance-date').value;
                 let selected = new Date(input);
-
                 let today = new Date();
                 today.setHours(0, 0, 0, 0);
                 selected.setHours(0, 0, 0, 0);
-
                 let diff = Math.floor((selected - today) / (1000 * 60 * 60 * 24));
-
                 let label = '';
-
                 if (diff === 0) label = 'Today';
                 else if (diff === 1) label = 'Tomorrow';
                 else label = selected.toDateString();
-
                 document.querySelector('.attendance-box small').innerText =
                     `${label} — ${selected.toDateString()}`;
             }
-
             window.setDate = function(days) {
                 let date = new Date();
                 date.setDate(date.getDate() + days);
-
                 let formatted = date.toISOString().split('T')[0];
                 $('#attendance-date').val(formatted).trigger('change');
             };
-
             $('#attendance-date').on('change', function() {
                 updateDateLabel();
                 loadAttendance();
             });
-
             /* =========================
                SAVE INDICATOR
             ========================= */
             function showSavedIndicator() {
-
                 let el = $('#saveStatus');
-
                 el.fadeIn(200);
-
                 setTimeout(() => {
                     el.fadeOut(500);
                 }, 1000);
             }
-
             /* =========================
                INIT
             ========================= */
             updateSummary();
             updateDateLabel();
             loadAttendance();
-
         });
     </script>
 @endpush
@@ -462,7 +350,6 @@
                                         ->implode(' • ');
                                     $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i ');
                                     $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
-
                                     $shift = ucfirst($course->schedule->shift);
                                 @endphp
                                 {{ $days }} | {{ $shift }} (
@@ -513,25 +400,27 @@
             </div>
         </div>
     </section>
+
     <!-- Page content -->
     <section class="pb-8">
         <div class="container">
             <div class="row">
                 <div class="col-lg-9 col-md-12 col-12 mt-n8 mb-4 mb-lg-0">
+
                     <!-- Card -->
                     <div class="card rounded-3">
+
                         <!-- Card header -->
                         <div class="card-header border-bottom-0 p-0">
                             <div>
+
                                 <!-- Nav -->
                                 <ul class="nav nav-lb-tab" id="tab" role="tablist">
-
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="students-tab" data-bs-toggle="pill" href="#students"
                                             role="tab" aria-controls="students" aria-selected="false"
                                             tabindex="-1">Students</a>
                                     </li>
-
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="student-attendance-tab" data-bs-toggle="pill"
                                             href="#student-attendance" role="tab" aria-controls="student-attendance"
@@ -552,6 +441,7 @@
                                 </ul>
                             </div>
                         </div>
+
                         <!-- Card Body -->
                         <div class="card-body">
                             <div class="tab-content" id="tabContent">
@@ -559,6 +449,7 @@
                                 @include('frontend.instructor.pages.course-real-time.partials.students-tab')
                                 <div class="tab-pane fade " id="student-attendance" role="tabpanel">
                                     <div class="attendance-box">
+
                                         <!-- HEADER -->
                                         <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
                                             <div>
@@ -574,17 +465,14 @@
                                                         </div>
                                                     </div>
                                                 @endif
-
                                                 <small class="text-muted">
                                                     {{-- dynamic date when select eg.Today — Tue, 14 Apr 2026 --}}
                                                 </small>
                                             </div>
-
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-light btn-sm" onclick="setDate(0)">Today</button>
                                                 <button class="btn btn-outline-secondary btn-sm"
                                                     onclick="setDate(1)">Tomorrow</button>
-
                                                 <input type="date" id="attendance-date"
                                                     class="form-control form-control-sm w-auto"
                                                     value="{{ now()->format('Y-m-d') }}">
@@ -598,9 +486,9 @@
                                                     <small>Total</small>
                                                     <h5 id="totalCount">
                                                         {{ $students->count() }}
-                                                    </h5>
-                                                </div>
-                                            </div> --}}
+                    </h5>
+                  </div>
+                </div> --}}
                                             {{-- <div class="col">
                                                 <div class="summary-card secondary">
                                                     <small>Unmarked</small>
@@ -645,7 +533,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="attendanceTable">
-
                                                     @foreach ($students as $index => $student)
                                                         <tr class="student-row" data-student-id="{{ $student->id }}"
                                                             data-name="{{ strtolower($student->name) }}"
@@ -665,22 +552,18 @@
                                                             <!-- Status -->
                                                             <td>
                                                                 <div class="status-toggle" data-status="">
-
                                                                     <span class="badge bg-light text-dark"
                                                                         onclick="event.stopPropagation(); setStatus(this, 'present')">
                                                                         Present
                                                                     </span>
-
                                                                     <span class="badge bg-light text-dark"
                                                                         onclick="event.stopPropagation(); setStatus(this, 'absent')">
                                                                         Absent
                                                                     </span>
-
                                                                     {{-- <span class="badge bg-light text-dark"
                                                                         onclick="event.stopPropagation(); setStatus(this, 'late')">
                                                                         Late
                                                                     </span> --}}
-
                                                                 </div>
                                                             </td>
 
@@ -691,7 +574,6 @@
                                                             </td>
                                                         </tr>
                                                     @endforeach
-
                                                 </tbody>
                                             </table>
                                         </div>
@@ -706,16 +588,13 @@
                                                 💾 Save Attendance
                                             </button> --}}
                                         </div>
-
                                     </div>
                                 </div>
-
                                 {{-- student report empty content --}}
                                 <div class="tab-pane fade" id="report" role="tabpanel">
                                     {{-- Report Header --}}
                                     <div class="card-body border-bottom">
                                         <h5 class="text-uppercase text-center fw-bold mb-4">Student Report</h5>
-
                                         <div class="row small">
                                             <div class="col-md-6">
                                                 <p class="mb-1">
@@ -783,11 +662,9 @@
                                                     <tr id="report-row-{{ $report->student_id }}">
                                                         <td class="text-center">{{ $i + 1 }}</td>
                                                         <td class="text-capitalize">{{ $report->student->name }}</td>
-
                                                         {{-- Attendance (read-only, auto-calculated from attendance tab) --}}
                                                         <td class="text-center present">{{ $report->present }}</td>
                                                         <td class="text-center absent">{{ $report->absent }}</td>
-
                                                         {{-- Editable Scores --}}
                                                         <td class="text-center">
                                                             <input type="number"
@@ -799,7 +676,6 @@
                                                                 max="30"
                                                                 {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
-
                                                         <td class="text-center">
                                                             <input type="number"
                                                                 class="form-control form-control-sm text-center score-input"
@@ -810,7 +686,6 @@
                                                                 max="20"
                                                                 {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
-
                                                         <td class="text-center">
                                                             <input type="number"
                                                                 class="form-control form-control-sm text-center score-input"
@@ -821,11 +696,10 @@
                                                                 max="40"
                                                                 {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
-
                                                         {{-- Auto-updated by JS after save --}}
                                                         <td class="text-center fw-bold total-score">
-                                                            {{ $report->total_score }}</td>
-
+                                                            {{ $report->total_score }}
+                                                        </td>
                                                         <td class="text-center">
                                                             <span
                                                                 class="badge bg-{{ $report->result === 'pass' ? 'success' : 'danger' }}">
@@ -840,12 +714,9 @@
                                     {{-- Report Footer --}}
                                     <div class="card-body border-top">
                                         <div class="row mt-4 text-center small">
-
                                             <div class="col-md-6">
                                                 <p class="text-muted mb-0">Seen and approved by</p>
                                                 <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
-
-
                                                     @if ($status === 'approved')
                                                         <div
                                                             class="position-relative d-flex align-items-center justify-content-center mb-3">
@@ -863,7 +734,6 @@
                                                     <p class="fw-semibold mb-0">ICT Training Center</p>
                                                 </div>
                                             </div>
-
                                             <div class="col-md-6 mt-5 mt-md-0">
                                                 <p class="text-muted mb-0">Prepared by</p>
                                                 <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
@@ -882,55 +752,24 @@
                                                         <hr>
                                                     @endif
                                                     <p class="fw-semibold mb-0 text-capitalize">Teacher:
-                                                        {{ $course->instructor->name }}</p>
+                                                        {{ $course->instructor->name }}
+                                                    </p>
                                                 </div>
-
                                                 {{-- Show Send For Approval only for draft/pending --}}
                                                 <div class="mt-4">
                                                     @if ($status === 'draft')
                                                         <button type="button" class="btn btn-primary btn-sm"
-                                                            data-bs-toggle="modal" data-bs-target="#approvalModal"
-                                                            onclick="document.getElementById('approvalForm').action='{{ url('instructor/student-report/request-approval') }}/{{ $course->id }}'">
-                                                            Send For Approval
+                                                            data-bs-toggle="modal" data-bs-target="#approvalModal">
+                                                            <i class="fe fe-send me-1"></i> Send For Approval
                                                         </button>
                                                     @elseif ($status === 'pending')
                                                         <button type="button" class="btn btn-danger btn-sm"
                                                             data-bs-toggle="modal" data-bs-target="#cancelApprovalModal">
-                                                            Cancel Request
+                                                            <i class="fe fe-x me-1"></i> Cancel Request
                                                         </button>
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="modal fade" id="cancelApprovalModal" tabindex="-1"
-                                                aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Cancel Approval Request?</h5>
-                                                            <button type="button" class="btn-close"
-                                                                data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>This will withdraw your request and revert the report back to
-                                                                <strong>Draft</strong>.</p>
-                                                            <p class="text-muted small mb-0">Attendance and scores will be
-                                                                editable again.</p>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary btn-sm"
-                                                                data-bs-dismiss="modal">No, Keep Pending</button>
-                                                            <form
-                                                                action="{{ route('instructor.student-report.cancel-approval', $course->id) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                <button class="btn btn-danger btn-sm">Yes, Cancel
-                                                                    Request</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -939,6 +778,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-12 col-12 mt-lg-n8">
+
                     <!-- Card -->
                     <div class="card  mb-4">
                         <div class="p-1">
@@ -947,6 +787,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- Card -->
                     <div class="card mb-4 shadow-sm border-0 rounded-4">
                         <div class="card-body">
@@ -1003,7 +844,6 @@
                                     $course->total_sessions > 0
                                         ? ($course->completed_sessions / $course->total_sessions) * 100
                                         : 0;
-
                                 // Determine color
                                 if ($progress <= 50) {
                                     $progressColor = 'bg-danger';
@@ -1011,17 +851,13 @@
                                     $progressColor = 'bg-warning';
                                 } else {
                                     $progressColor = 'bg-success';
-                                }
-                            @endphp
-
-                            <div class="mt-4">
+                            } @endphp <div class="mt-4">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="fw-semibold">Progress</span>
                                     <span class="fw-bold">
                                         {{ round($progress) }}%
                                     </span>
                                 </div>
-
                                 <div class="progress" style="height: 12px;">
                                     <div class="progress-bar {{ $progressColor }}" role="progressbar"
                                         style="width: {{ $progress }}%; transition: all 0.6s ease;">
@@ -1032,6 +868,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Card -->
             <div class="pt-8 pb-3">
                 <div class="row d-md-flex align-items-center mb-4">
@@ -1044,6 +881,7 @@
                 <div class="row">
                     @forelse ($other_courses as $course)
                         <div class="col-lg-3 col-md-6 col-12">
+
                             <!-- Card -->
                             <div class="card mb-4 card-hover">
                                 <a
@@ -1055,6 +893,7 @@
                                     "
                                         alt="course" class="card-img-top"
                                         style="height: 160px; object-fit: cover;"></a>
+
                                 <!-- Card body -->
                                 <div class="card-body">
                                     <h4 class="mb-2 text-truncate-line-2">
@@ -1113,66 +952,175 @@
             </div>
         </div>
     </section>
+
     <!-- Modal -->
-    <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog"
-        aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalScrollableTitle">
-                        Are you sure you want to send this request?
+                    <h5 class="modal-title">
+                        ⚠️ Send for Approval?
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        {{-- <span aria-hidden="true">&times;</span> --}}
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="approvalCloseBtn"></button>
                 </div>
                 <div class="modal-body">
-                    <strong>
-                        Note!
-                    </strong>
-                    <p class="mt-1">
-                        By sending this request, you are asking the admin to review and approve the student report for this
-                        course. Once approved, the report will be finalized and students will be able to see their results.
-                        Please make sure all information is accurate before submitting.
-                    </p>
+                    <p class="mb-1">You are about to submit the student report for:</p>
+                    <p class="fw-bold text-capitalize mb-3">📚 {{ $course->title }}</p>
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-0">
+                        <i class="fe fe-alert-triangle mt-1"></i>
+                        <div>
+                            Once submitted, <strong>attendance and scores will be locked</strong>
+                            until the admin approves or you cancel the request.
+                            Please make sure everything is accurate before proceeding.
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    {{-- Modal form: use a dummy placeholder ID --}}
-                    <form id="approvalForm" action="{{ route('instructor.student-report.request-approval', 0) }}"
-                        method="POST">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
+                        id="approvalCancelBtn">
+                        Cancel
+                    </button>
+                    <form id="approvalForm"
+                        action="{{ route('instructor.student-report.request-approval', $course->id) }}" method="POST">
                         @csrf
-                        <button class="btn btn-primary">Yes, Send For Approval!</button>
+                        <button type="submit" class="btn btn-primary btn-sm" id="approvalSubmitBtn">
+                            <span id="approvalBtnText">
+                                <i class="fe fe-send me-1"></i> Yes, Send For Approval
+                            </span>
+                            <span id="approvalBtnLoading" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                Sending...
+                            </span>
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- Cancel Approval Modal -->
+    <div class="modal fade" id="cancelApprovalModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Approval Request?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="cancelModalCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1">You are about to withdraw the approval request for:</p>
+                    <p class="fw-bold text-capitalize mb-3">📚 {{ $course->title }}</p>
+                    <div class="alert alert-danger d-flex align-items-start gap-2 mb-0">
+                        <i class="fe fe-alert-triangle mt-1"></i>
+                        <div>
+                            This will revert the report back to <strong>Draft</strong>.
+                            Attendance and scores will be <strong>editable again</strong>.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
+                        id="cancelModalKeepBtn">
+                        No, Keep Pending
+                    </button>
+                    <form action="{{ route('instructor.student-report.cancel-approval', $course->id) }}" method="POST"
+                        id="cancelApprovalForm">
+                        @csrf
+                        <button type="submit" class="btn btn-danger btn-sm" id="cancelSubmitBtn">
+                            <span id="cancelBtnText">
+                                <i class="fe fe-x me-1"></i> Yes, Cancel Request
+                            </span>
+                            <span id="cancelBtnLoading" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                Cancelling...
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="saveStatus" style="position: fixed; bottom: 20px; right: 20px; display:none;" class="badge bg-success">
         Saved ✅
     </div>
 @endsection
 @push('scripts')
     <script>
+        // Approval modal — loading state on submit
+        /* =========================
+           APPROVAL MODAL
+        ========================= */
+        document.getElementById('approvalForm')?.addEventListener('submit', function() {
+            const submitBtn = document.getElementById('approvalSubmitBtn');
+            const cancelBtn = document.getElementById('approvalCancelBtn');
+            const closeBtn = document.getElementById('approvalCloseBtn');
+            const btnText = document.getElementById('approvalBtnText');
+            const btnLoading = document.getElementById('approvalBtnLoading');
+            // Lock everything
+            submitBtn.disabled = true;
+            cancelBtn.disabled = true;
+            closeBtn.disabled = true;
+            // Show spinner
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+        });
+        // Reset approval modal state when closed
+        document.getElementById('approvalModal')?.addEventListener('hidden.bs.modal', function() {
+            const submitBtn = document.getElementById('approvalSubmitBtn');
+            const cancelBtn = document.getElementById('approvalCancelBtn');
+            const closeBtn = document.getElementById('approvalCloseBtn');
+            const btnText = document.getElementById('approvalBtnText');
+            const btnLoading = document.getElementById('approvalBtnLoading');
+            submitBtn.disabled = false;
+            cancelBtn.disabled = false;
+            closeBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+        });
+        /* =========================
+           CANCEL APPROVAL MODAL
+        ========================= */
+        document.getElementById('cancelApprovalForm')?.addEventListener('submit', function() {
+            const submitBtn = document.getElementById('cancelSubmitBtn');
+            const keepBtn = document.getElementById('cancelModalKeepBtn');
+            const closeBtn = document.getElementById('cancelModalCloseBtn');
+            const btnText = document.getElementById('cancelBtnText');
+            const btnLoading = document.getElementById('cancelBtnLoading');
+            // Lock everything
+            submitBtn.disabled = true;
+            keepBtn.disabled = true;
+            closeBtn.disabled = true;
+            // Show spinner
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+        });
+        // Reset cancel modal state when closed
+        document.getElementById('cancelApprovalModal')?.addEventListener('hidden.bs.modal', function() {
+            const submitBtn = document.getElementById('cancelSubmitBtn');
+            const keepBtn = document.getElementById('cancelModalKeepBtn');
+            const closeBtn = document.getElementById('cancelModalCloseBtn');
+            const btnText = document.getElementById('cancelBtnText');
+            const btnLoading = document.getElementById('cancelBtnLoading');
+            submitBtn.disabled = false;
+            keepBtn.disabled = false;
+            closeBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+        });
         document.addEventListener("DOMContentLoaded", function() {
-
             const tabButtons = document.querySelectorAll('#tab a[data-bs-toggle="pill"]');
-
             // 🔥 Default tab = My Attendance
             const defaultTab = '#attendance';
-
             // 🔁 Restore from localStorage OR use default
             let activeTab = localStorage.getItem('instructorActiveTab') || defaultTab;
-
             let triggerEl = document.querySelector(`#tab a[href="${activeTab}"]`);
-
             if (triggerEl) {
                 let tab = new bootstrap.Tab(triggerEl);
                 tab.show();
             }
-
             // 💾 Save selected tab
             tabButtons.forEach(button => {
                 button.addEventListener('shown.bs.tab', function(event) {
@@ -1180,34 +1128,26 @@
                     localStorage.setItem('instructorActiveTab', target);
                 });
             });
-
         });
-
         document.addEventListener("DOMContentLoaded", function() {
-
             const studentTabButtons = document.querySelectorAll('#students [data-bs-toggle="tab"]');
-
             let savedView = localStorage.getItem('studentInnerTab');
 
             function activateTab(targetSelector) {
                 const trigger = document.querySelector(`#students [data-bs-target="${targetSelector}"]`);
-
                 if (trigger) {
                     // Activate using Bootstrap
                     new bootstrap.Tab(trigger).show();
-
                     // 🔥 Force correct button state (important fix)
                     studentTabButtons.forEach(btn => btn.classList.remove('active'));
                     trigger.classList.add('active');
                 }
             }
-
             if (savedView) {
                 activateTab(savedView);
             } else {
                 activateTab('#tabPaneListStudent'); // default
             }
-
             // Save on change
             studentTabButtons.forEach(btn => {
                 btn.addEventListener('shown.bs.tab', function(e) {
@@ -1215,7 +1155,6 @@
                         'data-bs-target'));
                 });
             });
-
         });
     </script>
 @endpush

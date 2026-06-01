@@ -13,20 +13,15 @@ use Illuminate\Http\Request;
 
 class StudentReportController extends Controller
 {
-
-
     public function cancelApproval($courseId)
     {
         $course = ICTCourse::findOrFail($courseId);
 
-        StudentReports::where('course_id', $course->id)
-            ->update(['approval_status' => 'draft']);
+        StudentReports::where('course_id', $course->id)->update(['approval_status' => 'draft']);
 
         $admins = Admin::get();
         foreach ($admins as $admin) {
-            $admin->notify(
-                new StudentReportCancelApprovalNotification($course)
-            );
+            $admin->notify(new StudentReportCancelApprovalNotification($course));
         }
 
         return back()->with('success', 'Approval request cancelled.');
@@ -36,25 +31,19 @@ class StudentReportController extends Controller
     {
         $course = ICTCourse::findOrFail($courseId);
 
-        StudentReports::where('course_id', $course->id)
-            ->update([
-                'approval_status' => 'pending'
-            ]);
+        StudentReports::where('course_id', $course->id)->update(['approval_status' => 'pending']);
 
-        // admin users
+        $notification = new StudentReportApprovalRequestNotification($course);
+
         $admins = Admin::get();
-
         foreach ($admins as $admin) {
-
-            $admin->notify(
-                new StudentReportApprovalRequestNotification($course)
-            );
+            $admin->notify($notification);
         }
 
-        return back()->with(
-            'success',
-            'Approval request sent successfully.'
-        );
+        $notification->sendTelegram(); // 👈 add this after the foreach
+        // also change sendTelegram() to public
+
+        return back()->with('success', 'Approval request sent successfully.');
     }
 
     public function update(Request $request, $id)
@@ -78,23 +67,17 @@ class StudentReportController extends Controller
         |
         */
 
-        $total =
-            (float) $report->attendance_score +
-            (float) $report->assignment_score +
-            (float) $report->mini_project_score +
-            (float) $report->final_project_score;
+        $total = (float) $report->attendance_score + (float) $report->assignment_score + (float) $report->mini_project_score + (float) $report->final_project_score;
 
         $report->total_score = round($total, 2);
 
-        $report->result = $total >= 50
-            ? 'pass'
-            : 'fail';
+        $report->result = $total >= 50 ? 'pass' : 'fail';
 
         $report->save();
 
         return response()->json([
             'total_score' => $report->total_score,
-            'result' => $report->result
+            'result' => $report->result,
         ]);
     }
 }
