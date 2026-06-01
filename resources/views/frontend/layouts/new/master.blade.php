@@ -14,6 +14,9 @@
         href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/frontend/assets-new/css/style.css') }}">
     <script src="{{ asset('https://code.jquery.com/jquery-3.6.0.min.js') }}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css"
+        integrity="sha512-gzw5zNP2TRq+DKyAqZfDclaTG4dOrGJrwob2Fc8xwcJPDPVij0HowLIMZ8c1NefFM0OZZYUUUNoPfcoI5jqudw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     @stack('styles')
 </head>
 
@@ -135,84 +138,36 @@
             const walk = (x - touchStartX) * 1.5;
             track.scrollLeft = touchScrollLeft - walk;
         });
-        // let f = 0;
-        // var isfull = 0;
-        // setInterval(function () {
-        //   if (isfull == 1) {
-        //     f = f - 1;
-        //     $(".boxx").css("transform", `translateX(${-f * 210}px)`);
-        //     if (f === 0) {
-        //       isfull = 0;
-        //       return;
-        //     }
-        //   } else {
-        //     f = f + 1;
-        //     $(".boxx").css("transform", `translateX(${-f * 210}px)`);
-        //     if (f === 2) {
-        //       isfull = 1;
-        //       return;
-        //     }
-        //   }
-        // }, 4000);
-        /* Course Slider and Cards  */
-        fetch("/frontend/assets-new/json/coursebox.json")
-            .then(res => res.json())
-            .then(data => {
-                let mid = '';
-                for (const cards of data) {
-                    mid += `<div class="acb">
-                        <i class="${cards["icon"]}"></i>
-                            <p>${cards["title"]}</p>
-                        </div>`;
-                }
-                document.querySelector(".boxcourse").innerHTML = mid;
-                // fetch("/frontend/assets-new/json/course.json")
-                //     .then(res => res.json())
-                //     .then(data => {
-                //         let cardHtml = '';
-                //         for (const cards of data) {
-                //             cardHtml += `
-                //         <div class="boxcard">
-                //             <img src="${cards["image"]}" alt="Course">
-                //             <div class="teacher">
-                //                 <img src="/frontend/assets-new/images/OIP (5).webp" alt="Teacher">
-                //                 <p>Phat Sopheaktra</p>
-                //                 <button>Development</button>
-                //             </div>
-                //             <h2>${cards["title"]}</h2>
-                //             <div class="weekschedule">
-                //                 <i class="fa-regular fa-calendar-days"></i>
-                //                 <p>Weekly Schedule</p>
-                //                 <p class="hour">48 hours</p>
-                //             </div>
-                //             <p class="pweekly">. Mon-Tue-Wed (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 - 16:00pm)</p>
-                //             <div class="prnrate">
-                //                 <h3>$${cards["price"]}.00</h3>
-                //                 <div class="starate">
-                //                     <p>4.9</p>
-                //                     <i class="fa-solid fa-star" style="color:gold;"></i>
-                //                     <i class="fa-solid fa-star" style="color:gold;"></i>
-                //                     <i class="fa-solid fa-star" style="color:gold;"></i>
-                //                     <i class="fa-solid fa-star" style="color:gold;"></i>
-                //                     <i class="fa-solid fa-star" style="color:gold;"></i>
-                //                 </div>
-                //             </div>
-                //         </div>`;
-                //         }
-                //         document.querySelector(".mainbox").innerHTML = cardHtml;
-                //     });
-                // const maxIndex = Math.max(0, data.length - 1);
-                // let i = 0;
-                // $('#iii').click(() => {
-                //     i = (i >= maxIndex) ? 0 : i + 1;
-                //     $('.boxcourse').css("transform", `translateX(${-i * 250}px)`);
-                // });
-                // $('#ii').click(() => {
-                //     i = (i <= 0) ? maxIndex : i - 1;
-                //     $('.boxcourse').css("transform", `translateX(${-i * 250}px)`);
-                // });
-            })
-            .catch(err => console.error("Error:", err));
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            function filterCourses(categoryId, el) {
+                document.querySelectorAll('.acb').forEach(a => a.classList.remove('active-cat'));
+                el.classList.add('active-cat');
+
+                document.querySelectorAll('.boxcard').forEach(card => {
+                    console.log('card category:', card.dataset.category);
+                    card.classList.remove('fade-in');
+
+                    if (categoryId === 'all' || card.dataset.category === categoryId) {
+                        card.classList.remove('hidden');
+                        void card.offsetWidth;
+                        card.classList.add('fade-in');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            }
+
+            document.querySelectorAll('.acb').forEach(function(el) {
+                console.log('acb category:', el.dataset.category);
+                el.addEventListener('click', function() {
+                    filterCourses(this.dataset.category, this);
+                });
+            });
+
+        });
     </script>
 </body>
 

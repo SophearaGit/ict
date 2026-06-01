@@ -96,6 +96,41 @@
                 background: rgba(0, 0, 0, 0.05);
             }
         }
+
+        .acb {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .acb.active-cat {
+            /* style however fits your design, e.g: */
+            border-bottom: 2px solid #3777ff;
+            color: #3777ff;
+        }
+
+        .boxcard {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .boxcard.hidden {
+            display: none;
+        }
+
+        .boxcard.fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 @endpush
 @section('content')
@@ -228,20 +263,36 @@
     </div>
 
     <!--course slider-->
+    <!--course slider-->
     <div class="allcoursebox">
         <div class="coursebox">
             <div class="boxcourse">
-                <div class="acb">
-                    <i class="fa-solid fa-code"></i>
-                    <p>dfsdklgj</p>
+                {{-- "All" button --}}
+                <div class="acb active-cat" data-category="all">
+                    <i class="fa-solid fa-border-all"></i>
+                    <p>All</p>
                 </div>
+                @foreach ($categories_for_frontend as $category)
+                    <div class="acb" data-category="{{ $category->id }}">
+                        @if ($category->icon)
+                            <i class="{{ $category->icon }}"></i>
+                        @elseif ($category->thumbnail)
+                            <img src="{{ asset($category->thumbnail) }}" alt="{{ $category->name }}"
+                                style="width:34px;height:34px;object-fit:cover;">
+                        @else
+                            <i class="fa-solid fa-book"></i>
+                        @endif
+                        <p>{{ $category->name }}</p>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
+
     <div class="mainbox">
         @forelse ($courses as $title => $group)
             @php $course = $group->first(); @endphp
-            <div class="boxcard">
+            <div class="boxcard" data-category="{{ $course->category_id }}">
                 <img src="{{ $course->thumbnail ?: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXZhMW5qNXpyZ3M1ZG84NHBoa2QyYnBpd3hrZ2F0aDk4b3RvbnR1MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnxpQ3ghPiB2Hp6/giphy.gif' }}"
                     alt="{{ $course->title }}"
                     onerror="this.src='https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXZhMW5qNXpyZ3M1ZG84NHBoa2QyYnBpd3hrZ2F0aDk4b3RvbnR1MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnxpQ3ghPiB2Hp6/giphy.gif'">
@@ -249,7 +300,14 @@
                     <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('default-images/user/both.jpg') : asset($course->instructor->image) }}"
                         alt="{{ $course->instructor->name }}">
                     <p>{{ $course->instructor->name }}</p>
-                    <button>Development</button>
+                    <button>
+                        {{-- category --}}
+                        @if ($course->category)
+                            {{ $course->category->name }}
+                        @else
+                            Uncategorized
+                        @endif
+                    </button>
                 </div>
                 <h2>{{ $title }}</h2>
                 <div class="weekschedule">
