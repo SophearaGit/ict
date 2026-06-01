@@ -49,6 +49,15 @@ class ICTCourseCategory extends Model
 
     public function children()
     {
-        return $this->hasMany(ICTCourseCategory::class, 'parent_id');
+        return $this->hasMany(ICTCourseCategory::class, 'parent_id')
+            ->where('is_active', 1)
+            ->orderBy('sort_order');
     }
+
+    public function courses()
+    {
+        return $this->hasMany(ICTCourse::class, 'category_id')
+            ->where('status', 1);
+    }
+
 }

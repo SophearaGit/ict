@@ -14,7 +14,8 @@ class FrontendController extends Controller
     {
         $data = [
             'page_title' => 'Welcome to ICT Professional Training Center',
-            'courses' => ICTCourse::with(['instructor', 'schedule'])
+            'courses' => ICTCourse::with(['instructor', 'schedule', 'category'])
+                ->where('status', 'active')
                 ->latest()
                 ->take(12)
                 ->get()
