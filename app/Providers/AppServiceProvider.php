@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with(
                 'categories_for_frontend',
                 ICTCourseCategory::whereNull('parent_id')
+                    ->whereHas('courses', function ($q) {
+                        $q->where('status', 'active');
+                    })
                     ->with([
                         'courses' => function ($q) {
                             $q->where('status', 'active');

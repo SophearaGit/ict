@@ -12,12 +12,23 @@
             <a href="javascript:void(0)" class="dropbtn">Course</a>
             <div class="dropdown-content">
                 <div class="dropdown-column">
+                    @php
+                        $displayedTitles = [];
+                    @endphp
+
                     @foreach ($categories_for_frontend as $category)
                         <div class="has-submenu">
                             <a href="#">{{ $category->name }}<span>›</span></a>
+
                             <div class="submenu">
                                 @foreach ($category->courses as $course)
+                                    @continue(in_array($course->title, $displayedTitles))
+
                                     <a href="#">{{ $course->title }}</a>
+
+                                    @php
+                                        $displayedTitles[] = $course->title;
+                                    @endphp
                                 @endforeach
                             </div>
                         </div>
