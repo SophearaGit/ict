@@ -8,6 +8,7 @@
 @endphp
 <div class="row align-items-center">
     <div class="col-xl-12 col-lg-12 col-md-12 col-12">
+
         <!-- Bg -->
         <div class="rounded-top"
             style="background: url(/frontend/assets/images/background/profile-bg.jpg) no-repeat; background-size: cover; height: 100px">
@@ -29,11 +30,11 @@
                         <p class="mb-0 d-block">{{ auth()->user()->email }}</p>
                     </div>
                 </div>
-                <div>
+                {{-- <div>
                     <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary d-none d-md-block">
                         Create Course (Online)
                     </a>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

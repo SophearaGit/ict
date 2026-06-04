@@ -51,7 +51,10 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
     Route::post('/instructor', [InstructorControlller::class, 'store'])->name('instructor.store');
     Route::get('/instructor/{id}', [InstructorControlller::class, 'instructorShowDetail'])->name('instructor.show.detail');
+
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
+    Route::get('/student/{student}', [StudentController::class, 'show'])->name('student.show');
+
     Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
     Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
     Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');

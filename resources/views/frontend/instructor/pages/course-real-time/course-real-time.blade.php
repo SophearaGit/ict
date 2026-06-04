@@ -4,22 +4,28 @@
     <section class="pt-5 pb-5">
         <div class="container">
             @include('frontend.instructor.partials.user-info')
+
             <!-- Content -->
             @php
                 $user = auth()->user();
             @endphp
             <div class="row mt-0 mt-md-4">
                 <div class="col-lg-3 col-md-4 col-12">
+
                     <!-- User profile -->
                     @include('frontend.instructor.partials.side-navbar')
                 </div>
                 <div class="col-lg-9 col-md-8 col-12">
+
                     <!-- Card -->
                     <div class="card">
+
                         <!-- Card header -->
                         @include('frontend.instructor.partials.card-header')
+
                         <!-- Card body -->
                         <div class="card-body">
+
                             <!-- Form -->
                             <form class="row gx-3">
                                 <div class="col-lg-9 col-md-7 col-12 mb-lg-0 mb-2">
@@ -91,10 +97,7 @@
                                                                     ? 'bg-danger'
                                                                     : ($course->progress < 80
                                                                         ? 'bg-warning'
-                                                                        : 'bg-success');
-                                                        @endphp
-
-                                                        <div class="progress mt-2" style="height: 3px">
+                                                                    : 'bg-success'); @endphp <div class="progress mt-2" style="height: 3px">
                                                             <div class="progress-bar {{ $color }}"
                                                                 style="width: {{ $course->progress }}%">
                                                             </div>
@@ -105,7 +108,7 @@
                                             </td>
                                             {{-- <td>
                                                 {{ $course->start_date ? \Carbon\Carbon::parse($course->class_start_date)->format('M d, Y') : 'N/A' }}
-                                            </td> --}}
+     </td> --}}
                                             <td>
                                                 @if ($course->schedule)
                                                     @php
@@ -118,7 +121,6 @@
                                                         $end = \Carbon\Carbon::parse(
                                                             $course->schedule->end_time,
                                                         )->format('g:i A');
-
                                                         $shift = ucfirst($course->schedule->shift);
                                                     @endphp
                                                     {{ $days }} <br> {{ $shift }} (
@@ -138,7 +140,6 @@
                                             <td>
                                                 {{ $course->enrollments_count ?? 0 }}
                                             </td>
-
                                         </tr>
                                     @empty
                                         <tr>
