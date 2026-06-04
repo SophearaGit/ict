@@ -6,10 +6,10 @@
             Security Settings
         @elseif(Route::is('instructor.social.profile'))
             Social Profiles
-        @elseif(Route::is('instructor.courses.index'))
-            My Online Courses
+            {{-- @elseif(Route::is('instructor.courses.index'))
+            My Online Courses --}}
         @elseif(Route::is('instructor.courses.real_time'))
-            My Real Time Courses
+            My Courses
         @else
         @endif
     </h3>
@@ -20,10 +20,10 @@
             Change your password and secure your account here.
         @elseif(Route::is('instructor.social.profile'))
             Connect your social media accounts and let your students know more about you.
-        @elseif(Route::is('instructor.courses.index'))
-            Manage your online courses here. You can create, edit, and delete your courses as needed.
+            {{-- @elseif(Route::is('instructor.courses.index'))
+            Manage your online courses here. You can create, edit, and delete your courses as needed. --}}
         @elseif(Route::is('instructor.courses.real_time'))
-            Manage your real time courses here. You can create, edit, and delete your courses as
+            Manage your courses here. You can create, edit, and delete your courses as needed.
         @else
         @endif
     </p>

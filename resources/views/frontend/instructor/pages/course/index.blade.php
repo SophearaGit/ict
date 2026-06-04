@@ -4,22 +4,28 @@
     <section class="pt-5 pb-5">
         <div class="container">
             @include('frontend.instructor.partials.user-info')
+
             <!-- Content -->
             @php
                 $user = auth()->user();
             @endphp
             <div class="row mt-0 mt-md-4">
                 <div class="col-lg-3 col-md-4 col-12">
+
                     <!-- User profile -->
                     @include('frontend.instructor.partials.side-navbar')
                 </div>
                 <div class="col-lg-9 col-md-8 col-12">
+
                     <!-- Card -->
                     <div class="card">
+
                         <!-- Card header -->
                         @include('frontend.instructor.partials.card-header')
+
                         <!-- Card body -->
                         <div class="card-body">
+
                             <!-- Form -->
                             <form class="row gx-3">
                                 <div class="col-lg-9 col-md-7 col-12 mb-lg-0 mb-2">
@@ -92,7 +98,6 @@
                                                             @php
                                                                 $level = $course->level->name ?? 'N/A';
                                                             @endphp
-
                                                             <li class="list-inline-item">
                                                                 <svg class="me-1 mt-n1" width="16" height="16"
                                                                     viewBox="0 0 16 16" fill="none"
@@ -115,9 +120,7 @@
                                                                         rx="1"
                                                                         fill="{{ $level === 'Advanced' ? '#754FFE' : '#DBD8E9' }}">
                                                                     </rect>
-
                                                                 </svg>
-
                                                                 <span class="text-muted">
                                                                     {{ ucfirst($level) }}
                                                                 </span>

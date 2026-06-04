@@ -1,17 +1,21 @@
 <nav class="navbar navbar-expand-md shadow-sm mb-4 mb-lg-0 sidenav">
+
     <!-- Menu -->
     <a class="d-xl-none d-lg-none d-md-none text-inherit fw-bold" href="#">Menu</a>
+
     <!-- Button -->
     <button class="navbar-toggler d-md-none icon-shape icon-sm rounded bg-primary text-light" type="button"
         data-bs-toggle="collapse" data-bs-target="#sidenav" aria-controls="sidenav" aria-expanded="false"
         aria-label="Toggle navigation">
         <span class="fe fe-menu"></span>
     </button>
+
     <!-- Collapse -->
     <div class="collapse navbar-collapse" id="sidenav">
         <div class="navbar-nav flex-column">
             <span class="navbar-header">Dashboard</span>
             <ul class="list-unstyled ms-n2 mb-4">
+
                 <!-- Nav item -->
                 <li class="nav-item {{ Route::is('instructor.dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('instructor.dashboard') }}">
@@ -19,24 +23,27 @@
                         Dashboard
                     </a>
                 </li>
+
                 <!-- Nav item -->
-                <li class="nav-item {{ Route::is('instructor.courses.index') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('instructor.courses.index') }}">
-                        <i class="fe fe-book nav-icon"></i>
-                        Courses (Online)
-                    </a>
-                </li>
+                {{-- <li class="nav-item {{ Route::is('instructor.courses.index') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('instructor.courses.index') }}">
+     <i class="fe fe-book nav-icon"></i>
+     Courses (Online)
+    </a>
+    </li> --}}
                 {{-- nav item course real time --}}
                 <li class="nav-item {{ Route::is('instructor.courses.real_time') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('instructor.courses.real_time') }}">
                         <i class="fe fe-book nav-icon"></i>
-                        Courses (Real Time)
+                        My Courses
                     </a>
                 </li>
             </ul>
+
             <!-- Navbar header -->
             <span class="navbar-header">Account Settings</span>
             <ul class="list-unstyled ms-n2 mb-0">
+
                 <!-- Nav item -->
                 <li class="nav-item {{ Route::is('instructor.profile.edit') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('instructor.profile.edit') }}">
@@ -44,6 +51,7 @@
                         Edit Profile
                     </a>
                 </li>
+
                 <!-- Nav item -->
                 <li class="nav-item {{ Route::is('instructor.security') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('instructor.security') }}">
@@ -51,6 +59,7 @@
                         Security
                     </a>
                 </li>
+
                 <!-- Nav item -->
                 <li class="nav-item {{ Route::is('instructor.social.profile') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('instructor.social.profile') }}">
@@ -58,6 +67,7 @@
                         Social Profiles
                     </a>
                 </li>
+
                 <!-- Nav item -->
                 <li class="nav-item">
                     <a class="nav-link" href="javascript:void(0);"

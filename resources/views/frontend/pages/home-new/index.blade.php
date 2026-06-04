@@ -98,9 +98,8 @@
             border-bottom: 2px solid #3777ff;
             color: #3777ff;
         }
-
-        .boxcard {
-            transition: opacity 0.3s ease, transform 0.3s ease;
+        .pweekly {
+            height: 120px;
         }
 
         .boxcard.hidden {
@@ -120,6 +119,18 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .mainbox {
+                justify-content: space-between !important;
+                gap: 15px !important;
+            }
+
+            .mainbox .boxcard {
+                width: calc(25% - 12px) !important;
+                min-width: unset !important;
             }
         }
     </style>

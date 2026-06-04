@@ -87,8 +87,14 @@
                                         <div class="d-flex justify-content-between pt-2">
                                             <span>Courses</span>
                                             <span class="text-dark">
-                                                {{ rand(5, 10) }}
+                                                {{ $student->enrollments->count() }}
                                             </span>
+                                        </div>
+                                        <div class="mt-3 d-grid">
+                                            <a href="{{ route('admin.student.show', $student) }}"
+                                                class="btn btn-outline-primary btn-sm">
+                                                <i class="fe fe-eye me-1"></i> View Profile
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -180,7 +186,8 @@
                                                         </a>
                                                         <span class="dropdown-menu">
                                                             <span class="dropdown-header">Settings</span>
-                                                            <a class="dropdown-item" href="#">
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('admin.student.show', $student) }}">
                                                                 <i class="fe fe-eye dropdown-item-icon"></i>
                                                                 View
                                                             </a>
