@@ -1,328 +1,411 @@
-<div class="invoice-header d-flex align-items-center border-bottom p-3">
-    <a href="{{ route('staff.student.registration') }}" class="btn btn-primary rounded-pill">
-        Registration
-    </a>
-</div>
-<div class="p-3" id="custom-invoice">
-    <div class="invoice-123" id="printableArea" style="display: block;">
-        <div
-            style="background: #e9e9e9;box-sizing: border-box;font-family: Arial, Helvetica, sans-serif;width:800px;margin:auto;background:#fff;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,0.15);border-radius:8px;">
+{{-- ============================================================
+     inv-body.blade.php  —  Invoice detail partial
+     ============================================================ --}}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap');
 
-            <!-- Top Section -->
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:35px;">
-                <div>
-                    <img src="{{ asset('/frontend/assets/ictImg/logo/ictBannerLogo.png') }}" class="dark-logo"
-                        width="420" height="110" alt="ict_dark_logo" style="border-radius: 5px;">
-                </div>
-                <div
-                    style="background:#1502a6;color:#fff;padding:18px 35px;border-radius:0 0 0 35px;text-align:center;min-width:290px;">
-                    <h2 style="font-size:42px;font-weight:800;margin:0;color:white">INVOICE</h2>
-                    <p style="font-size:18px;margin-top:4px;font-weight:bold;">
+    .inv-detail-wrap {
+        font-family: 'DM Sans', sans-serif;
+        padding: 24px 28px;
+        background: #f8f8fb;
+    }
+
+    .inv-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .inv-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .inv-topbar-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .inv-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .inv-status-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .inv-status-badge.paid {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .inv-status-badge.half {
+        background: #fef9c3;
+        color: #ca8a04;
+    }
+
+    .inv-status-badge.unpaid {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .inv-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        text-decoration: none;
+    }
+
+    .inv-btn-dark {
+        background: #0f0e17;
+        color: #fff;
+    }
+
+    .inv-btn-dark:hover {
+        background: #1d1c2e;
+        color: #fff;
+    }
+
+    .inv-btn-success {
+        background: #16a34a;
+        color: #fff;
+    }
+
+    .inv-btn-success:hover {
+        background: #15803d;
+        color: #fff;
+    }
+
+    .inv-btn-outline {
+        background: #fff;
+        color: #444;
+        border: 1px solid #e2e2e8;
+    }
+
+    .inv-btn-outline:hover {
+        background: #f4f4f8;
+    }
+
+    /* Only these classes affect the screen view wrapper — print uses inline styles */
+    #printableArea {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    @media print {
+
+        .inv-topbar,
+        .no-print {
+            display: none !important;
+        }
+
+        .inv-detail-wrap {
+            padding: 0;
+            background: #fff;
+        }
+
+        #printableArea {
+            box-shadow: none;
+            border-radius: 0;
+        }
+    }
+</style>
+<div class="inv-detail-wrap no-select">
+    {{-- ── TOPBAR (screen only) ── --}}
+    <div class="inv-topbar no-print">
+        <div class="inv-topbar-left">
+            <a href="{{ route('staff.student.registration') }}" class="inv-btn inv-btn-dark">
+                <i class="ti ti-user-plus"></i> Registration
+            </a>
+            @php
+                $badgeClass = match ($invoice->payment_status) {
+                    'paid' => 'paid',
+                    'half_paid' => 'half',
+                    default => 'unpaid',
+                };
+                $badgeLabel = match ($invoice->payment_status) {
+                    'paid' => 'Fully Paid',
+                    'half_paid' => 'Half Paid',
+                    default => 'Unpaid',
+                };
+            @endphp
+            <span class="inv-status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
+        </div>
+        <div class="inv-topbar-actions">
+            @if ($invoice->payment_status !== 'paid')
+                <a href="javascript:void(0)" data-url="{{ route('staff.invoice.confirm-payment', $invoice->id) }}"
+                    data-remaining="{{ $invoice->remaining_amount }}"
+                    class="inv-btn inv-btn-success btn_confirm_payment">
+                    <i class="ti ti-cash"></i> Confirm Payment
+                </a>
+            @endif
+            <button class="inv-btn inv-btn-outline print-page" type="button">
+                <i class="ti ti-printer"></i> Print
+            </button>
+        </div>
+    </div>
+    {{-- ── PRINTABLE INVOICE CARD ── --}}
+    {{-- ALL styles inside here are inline so print renders correctly --}}
+    <div id="printableArea">
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:860px;margin:0 auto;background:#fff;">
+            {{-- Header --}}
+            <div
+                style="background:#0f0e17;padding:26px 36px;display:flex;justify-content:space-between;align-items:center;">
+                <img src="{{ asset('/frontend/assets/ictImg/logo/ictBannerLogo.png') }}" class="dark-logo"
+                    alt="ICT Logo" style="height:54px;width:auto;border-radius:6px;">
+                <div style="text-align:right;">
+                    <div
+                        style="font-family:Arial,sans-serif;font-size:34px;font-weight:900;color:#fff;letter-spacing:3px;line-height:1;">
+                        INVOICE
+                    </div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:5px;letter-spacing:0.5px;">
                         #{{ $invoice->invoice_code }}
-                    </p>
+                    </div>
                 </div>
             </div>
-
-            <!-- Info Section -->
-            <div style="display:flex;justify-content:space-between;margin-bottom:30px;">
-                <div style="width:50%;">
-                    <h4 style="font-size:20px;color:#111;margin-bottom:8px;">Invoice To</h4>
-                    <p>
-                        <strong class="text-capitalize">
-                            {{ $invoice->student->name }}
-                        </strong>
-                    </p>
-                    <p>ICT Professinal Training Center</p>
-                    <br>
-                    <p><strong>A</strong> 📍Location = House No. 240B, Street 132, Village 06, Sangkat Teuk Laok 01,
-                        Khan Toul Kork, Phnom Penh</p>
-                    <p><strong>W</strong> ictskills.center</p>
-                    <p><strong>P</strong> +885 097-702-175 / 096-639-3985</p>
+            {{-- Meta strip --}}
+            @php $count = $invoice->payments->count(); @endphp
+            <div
+                style="background:#f4f4f8;padding:14px 36px;display:flex;align-items:center;gap:32px;border-bottom:1px solid #e8e8f0;">
+                <div>
+                    <div
+                        style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
+                        Invoice Date</div>
+                    <div style="font-size:13px;font-weight:700;color:#222;">{{ $invoice->created_at->format('d M Y') }}
+                    </div>
                 </div>
-                <div style="width:40%;">
-                    <div style="display:flex;gap:30px;margin-bottom:20px;">
+                @if ($count === 1)
+                    @if ($invoice->payment_status === 'half_paid')
                         <div>
-                            <h5 style="font-size:15px;color:#333;margin-bottom:5px;">Inv Date</h5>
-                            <p style="font-size:16px;font-weight:bold;">
-                                {{ date('d/m/Y', strtotime($invoice->created_at)) }}
-                            </p>
+                            <div
+                                style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
+                                Half-Paid</div>
+                            <div style="font-size:13px;font-weight:700;color:#ca8a04;">
+                                {{ $invoice->payments->first()->created_at->format('d M Y') }}</div>
                         </div>
-                        @php $count = $invoice->payments->count(); @endphp
-                        @if ($count === 1)
-                            @if ($invoice->payment_status == 'half_paid')
-                                <div>
-                                    <h5 style="font-size:15px;color:#333;margin-bottom:5px;">Half-Paid </h5>
-                                    <p style="font-size:16px;font-weight:bold;" class="text-warning">
-                                        <strong>
-                                            {{ date('d/m/Y', strtotime($invoice->payments->first()->created_at)) }}
-                                        </strong>
-                                    </p>
-                                </div>
-                            @elseif($invoice->payment_status == 'paid')
-                                <div>
-                                    <h5 style="font-size:15px;color:#333;margin-bottom:5px;">Full-Paid </h5>
-                                    <p style="font-size:16px;font-weight:bold;" class="text-success">
-                                        <strong>
-                                            {{ date('d/m/Y', strtotime($invoice->payments->first()->created_at)) }}
-                                        </strong>
-                                    </p>
-                                </div>
-                            @endif
-                        @elseif ($count > 1)
-                            {{-- show half pay and full pay date --}}
-                            <div>
-                                <h5 style="font-size:15px;color:#333;margin-bottom:5px;">
-                                    Half-Paid
-                                </h5>
-                                <p style="font-size:16px;font-weight:bold;" class="text-warning">
-                                    <strong>
-                                        {{ date('d/m/Y', strtotime($invoice->payments->first()->created_at)) }}
-                                    </strong>
-                                </p>
-                            </div>
-                            <div>
-                                <h5 style="font-size:15px;color:#333;margin-bottom:5px;">Full-Paid </h5>
-                                <p style="font-size:16px;font-weight:bold;" class="text-success">
-                                    <strong>
-                                        {{ date('d/m/Y', strtotime($invoice->payments->last()->created_at)) }}
-                                    </strong>
-                                </p>
-                            </div>
-                        @else
-                            no payment
-                        @endif
+                    @elseif ($invoice->payment_status === 'paid')
+                        <div>
+                            <div
+                                style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
+                                Paid On</div>
+                            <div style="font-size:13px;font-weight:700;color:#16a34a;">
+                                {{ $invoice->payments->first()->created_at->format('d M Y') }}</div>
+                        </div>
+                    @endif
+                @elseif ($count > 1)
+                    <div>
+                        <div
+                            style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
+                            Half-Paid</div>
+                        <div style="font-size:13px;font-weight:700;color:#ca8a04;">
+                            {{ $invoice->payments->first()->created_at->format('d M Y') }}</div>
                     </div>
-                    <div style="background:#f2f2f2;padding:20px;border-radius:12px;text-align:center;">
-                        <h5 style="color:#555;font-size:18px;margin-bottom:6px;">
-                            To Pay
-                        </h5>
-                        <h3 style="font-size:36px;color:#111;">
-                            ${{ number_format($invoice->total_amount, 2) }}
-                        </h3>
+                    <div>
+                        <div
+                            style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
+                            Full-Paid</div>
+                        <div style="font-size:13px;font-weight:700;color:#16a34a;">
+                            {{ $invoice->payments->last()->created_at->format('d M Y') }}</div>
+                    </div>
+                @endif
+                <div style="margin-left:auto;text-align:right;">
+                    <div
+                        style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
+                        {{ $invoice->payment_status === 'paid' ? 'Fully Paid' : 'To Pay' }}
+                    </div>
+                    <div
+                        style="font-size:20px;font-weight:800;color:{{ $invoice->payment_status === 'paid' ? '#16a34a' : '#0f0e17' }};">
+                        ${{ number_format($invoice->remaining_amount, 2) }}
                     </div>
                 </div>
             </div>
-
-            <!-- Table -->
-            <table style="width:100%;border-collapse:collapse;margin-top:20px;">
-                <thead>
-                    <tr>
-                        <th style="padding:16px;text-align:left; background-color: #222633; color:#fff;"
-                            class="text-uppercase">Course</th>
-                        <th style="padding:16px;text-align:left; background-color: #1502a6; color:#fff;"
-                            class="text-uppercase">Schedule</th>
-                        <th style="padding:16px;background-color: #1502a6; color:#fff;" class="text-uppercase">Full
-                            Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($invoice->items as $item)
-                        <tr>
-
-                            <!-- Course -->
-                            <td style="padding:18px;background:#fff;" class="align-top text-capitalize">
-                                <strong>
+            {{-- Parties --}}
+            <div style="padding:28px 36px 0;display:flex;justify-content:space-between;gap:24px;margin-bottom:24px;">
+                <div>
+                    <div
+                        style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:8px;">
+                        Invoice To</div>
+                    <div
+                        style="font-size:18px;font-weight:800;color:#0f0e17;margin-bottom:5px;text-transform:capitalize;">
+                        {{ $invoice->student->name }}
+                    </div>
+                    <div style="font-size:12px;color:#666;">ICT Professional Training Center</div>
+                </div>
+                <div style="text-align:right;">
+                    <div
+                        style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:8px;">
+                        From</div>
+                    <div style="font-size:18px;font-weight:800;color:#0f0e17;margin-bottom:5px;">ICT Skills Center</div>
+                    <div style="font-size:12px;color:#666;line-height:1.8;">
+                        House No. 240B, Street 132<br>
+                        Sangkat Teuk Laok 01, Khan Toul Kork<br>
+                        Phnom Penh<br>
+                        +855 097-702-175 / 096-639-3985
+                    </div>
+                </div>
+            </div>
+            {{-- Course table --}}
+            <div style="padding:0 36px;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#0f0e17;">
+                            <th
+                                style="padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.6);text-align:left;">
+                                Course</th>
+                            <th
+                                style="padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.6);text-align:left;">
+                                Schedule</th>
+                            <th
+                                style="padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.6);text-align:right;">
+                                Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($invoice->items as $item)
+                            <tr style="border-bottom:1px solid #f0f0f5;">
+                                <td style="padding:14px 16px;vertical-align:top;">
                                     <a href="{{ route('staff.courses.show', $item->course->id) }}"
-                                        class="text-decoration-none text-dark">
+                                        style="font-size:13px;font-weight:700;color:#0f0e17;text-decoration:none;text-transform:capitalize;">
                                         {{ $item->course->title }}
                                     </a>
-                                </strong>
-                            </td>
-
-                            <!-- Schedule -->
-                            <td style="padding:18px;background:#fff;">
-                                <strong style="color:#444;" class="text-capitalize">
-                                    {{ $item->course->schedule->study_day }} |
-                                    {{ $item->course->schedule->shift }} |
-                                    {{ \Carbon\Carbon::parse($item->course->schedule->start_time)->format('h:i ') }}
-                                    -
-                                    {{ \Carbon\Carbon::parse($item->course->schedule->end_time)->format('h:i A') }}
-                                    <br>
-                                </strong>
-                            </td>
-
-                            <!-- Price -->
-                            <td style="padding:18px;background:#fff;">
-                                <strong>
+                                </td>
+                                <td style="padding:14px 16px;vertical-align:top;">
+                                    <div style="font-size:13px;color:#333;text-transform:capitalize;">
+                                        {{ $item->course->schedule->study_day }}
+                                    </div>
+                                    <div style="font-size:12px;color:#888;margin-top:2px;">
+                                        {{ \Carbon\Carbon::parse($item->course->schedule->start_time)->format('h:i') }}
+                                        –
+                                        {{ \Carbon\Carbon::parse($item->course->schedule->end_time)->format('h:i A') }}
+                                    </div>
+                                </td>
+                                <td
+                                    style="padding:14px 16px;font-size:13px;font-weight:700;color:#0f0e17;text-align:right;">
                                     ${{ number_format($item->course->price, 2) }}
-                                </strong>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <!-- Bottom Section -->
-            <div style="display:flex;justify-content:space-between;margin-top:35px;gap:30px;">
-                <div style="width:48%;">
-
-                    <h3 style="font-size:26px;margin-bottom:18px;">Terms & Conditions</h3>
-
-                    <!-- Note -->
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            {{-- Summary --}}
+            <div style="padding:24px 36px;display:flex;justify-content:space-between;gap:32px;">
+                {{-- Terms --}}
+                <div
+                    style="flex:1;background:#fff8f8;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:14px 16px;align-self:flex-start;">
                     <div
-                        style="
-                                margin-top:12px;
-                                padding:12px 16px;
-                                background:#fff3f3;
-                                border-left:4px solid #d9534f;
-                                border-radius:6px;
-                                font-size:14px;
-                                color:#444;
-                            ">
-                        <strong style="color:#d9534f;">Note:</strong>
-                        All payments are strictly non-refundable.
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#ef4444;margin-bottom:6px;">
+                        Terms & Conditions</div>
+                    <div style="font-size:12px;color:#555;line-height:1.6;">All payments are strictly non-refundable.
                     </div>
                 </div>
-                <div style="width:48%;">
-                    <table style="width:100%;">
-                        @if ($invoice->extra_charge > 0)
-                            {{-- original price --}}
-                            <tr>
-                                <td style="padding:10px 0;">Full Price</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->items->sum('price'), 2) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px 0;">Extra Charge</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->extra_charge, 2) }}
-                                </td>
-                            </tr>
-                            {{-- Grand total --}}
-                            <tr>
-                                <td style="padding:10px 0;">Total</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->total_amount, 2) }}
-                                </td>
-                            </tr>
-                            {{-- done paid --}}
-                            <tr>
-                                <td style="padding:10px 0;">Paid</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->paid_amount, 2) }}
-                                </td>
-                            </tr>
-                        @elseif ($invoice->discount > 0)
-                            {{-- original price --}}
-                            <tr>
-                                <td style="padding:10px 0;">Full Price</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->items->sum('price'), 2) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px 0;">Discount</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->discount, 2) }}
-                                </td>
-                            </tr>
-                            {{-- Grand total --}}
-                            <tr>
-                                <td style="padding:10px 0;">Total</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->total_amount, 2) }}
-                                </td>
-                            </tr>
-                            {{-- done paid --}}
-                            <tr>
-                                <td style="padding:10px 0;">Paid</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->paid_amount, 2) }}
-                                </td>
-                            </tr>
-                        @elseif ($invoice->extra_charge == 0 && $invoice->discount == 0)
-                            <tr>
-                                <td style="padding:10px 0;">Total Amount</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->total_amount, 2) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px 0;">Paid</td>
-                                <td style="text-align:right;font-weight:bold;">
-                                    ${{ number_format($invoice->paid_amount, 2) }}
-                                </td>
-                            </tr>
-                        @endif
-                    </table>
-                    <div style="margin-top:20px;">
-
-                        <!-- Remaining Total Card -->
+                {{-- Breakdown --}}
+                <div style="width:260px;flex-shrink:0;">
+                    @if ($invoice->extra_charge > 0)
                         <div
-                            style="
-                                background:linear-gradient(135deg,#1502a6,#3a2be2);
-                                color:#fff;
-                                padding:22px 24px;
-                                border-radius:12px;
-                                display:flex;
-                                justify-content:space-between;
-                                align-items:center;
-                                font-size:24px;
-                                font-weight:600;
-                                box-shadow:0 8px 20px rgba(0,0,0,0.15);
-                            ">
-                            <span style="opacity:0.9;">Remaining</span>
-                            <span style="font-size:30px;font-weight:700;">
-                                ${{ number_format($invoice->remaining_amount, 2) }}
-                            </span>
+                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
+                            <span>Full Price</span>
+                            <span
+                                style="font-weight:600;color:#222;">${{ number_format($invoice->items->sum('price'), 2) }}</span>
                         </div>
+                        <div
+                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
+                            <span>Extra Charge</span>
+                            <span
+                                style="font-weight:600;color:#222;">+${{ number_format($invoice->extra_charge, 2) }}</span>
+                        </div>
+                    @elseif ($invoice->discount > 0)
+                        <div
+                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
+                            <span>Full Price</span>
+                            <span
+                                style="font-weight:600;color:#222;">${{ number_format($invoice->items->sum('price'), 2) }}</span>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
+                            <span>Discount</span>
+                            <span
+                                style="font-weight:600;color:#16a34a;">-${{ number_format($invoice->discount, 2) }}</span>
+                        </div>
+                    @endif
+                    <div
+                        style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;font-weight:700;color:#0f0e17;border-bottom:1px solid #f0f0f5;">
+                        <span>Total</span>
+                        <span>${{ number_format($invoice->total_amount, 2) }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;">
+                        <span>Paid</span>
+                        <span
+                            style="font-weight:600;color:#16a34a;">${{ number_format($invoice->paid_amount, 2) }}</span>
+                    </div>
+                    {{-- Remaining card --}}
+                    <div
+                        style="margin-top:14px;background:{{ $invoice->payment_status === 'paid' ? '#16a34a' : '#0f0e17' }};border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:500;">
+                            {{ $invoice->payment_status === 'paid' ? 'Fully Paid' : 'Remaining' }}
+                        </span>
+                        <span style="font-size:26px;font-weight:900;color:#fff;">
+                            ${{ number_format($invoice->remaining_amount, 2) }}
+                        </span>
                     </div>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div style="margin-top:40px;border-top:1px solid #ddd;padding-top:25px;text-align:center;">
-                <h2 style="font-size:26px;margin-bottom:20px;">
-                    Thank you for your business!
-                </h2>
-                <div
-                    style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:15px;color:#444;font-size:8px;">
-                    <div>📞 +885 097-702-175 / 096-639-3985</div>
-                    <div>✉️ ictskills.center</div>
-                    <div>📍Location = House No. 240B, Street 132, Village 06, Sangkat Teuk Laok 01,
-                        Khan Toul Kork, Phnom Penh</div>
+            {{-- Footer --}}
+            <div
+                style="padding:18px 36px;background:#f4f4f8;border-top:1px solid #e8e8f0;display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:15px;font-weight:800;color:#0f0e17;">Thank you for your business!</div>
+                <div style="display:flex;gap:20px;font-size:11px;color:#888;">
+                    <span>📞 +855 097-702-175</span>
+                    <span>🌐 ictskills.center</span>
+                    <span>📍 Khan Toul Kork, Phnom Penh</span>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{{-- ===== ACTION BUTTONS ===== --}}
-<div class="text-end no-print m-4">
-    @if ($invoice->payment_status != 'paid')
-        <a href="javascript:void(0)" data-url="{{ route('staff.invoice.confirm-payment', $invoice->id) }}"
-            class="btn btn-info btn_confirm_payment">
-            <i class="ti ti-cash me-2"></i> Confirm Payment
-        </a>
-    @endif
-    <button class="btn btn-secondary print-page" type="button">
-        <i class="ti ti-printer fs-5"></i> Print Invoice
-    </button>
-</div>
-<div class="modal fade" id="dynamic_invoice_modal" tabindex="-1" aria-labelledby="bs-example-modal-lg"
-    aria-hidden="true">
-    <div class="modal-dialog modal-xl dynamic_invoice_modal_dialog"> <!-- /.modal-content -->
-    </div> <!-- /.modal-dialog -->
+    </div>{{-- /#printableArea --}}
 </div>
 <script>
-    $('.btn_confirm_payment').on('click', function(e) {
+    $(document).off('click', '.btn_confirm_payment').on('click', '.btn_confirm_payment', function(e) {
         e.preventDefault();
         let url = $(this).data('url');
+        let remaining = parseFloat($(this).data('remaining')).toFixed(2);
         Swal.fire({
-            title: "Are you sure?",
-            text: "You are about to confirm the payment for this invoice.",
-            icon: "warning",
+            title: 'Confirm Payment',
+            text: `Confirm receiving $${remaining} from the student?`,
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, confirm it!"
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, confirm it!'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    method: "PUT",
+                    method: 'PUT',
                     url: url,
                     data: {
                         _token: csrf_token,
+                        additional_payment: remaining,
                     },
                     success: function(data) {
                         iziToast.success({
@@ -333,9 +416,14 @@
                             window.location.reload();
                         }, 500);
                     },
-                    error: function(xhr, status, data) {},
-                })
+                    error: function() {
+                        iziToast.error({
+                            message: 'Payment failed. Please try again.',
+                            position: 'bottomRight'
+                        });
+                    }
+                });
             }
         });
-    })
+    });
 </script>
