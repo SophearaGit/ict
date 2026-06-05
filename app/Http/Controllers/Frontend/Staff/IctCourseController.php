@@ -1,6 +1,5 @@
 <?php
 namespace App\Http\Controllers\Frontend\Staff;
-
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use App\Models\ICTCourse;
@@ -16,11 +15,10 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
+use Illuminate\Support\Facades\DB;
 class IctCourseController extends Controller
 {
     use FileUpload;
-
     public function index(Request $request): View
     {
         $perPage = $request->input('per_page', 10);
@@ -32,13 +30,11 @@ class IctCourseController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
-
         return view('frontend.staff.pages.course-management.course', [
             'page_title' => 'ICT | STAFF | COURSES',
             'courses' => $courses,
         ]);
     }
-
     public function show(Request $request, $id): View
     {
         $course = ICTCourse::with([
@@ -48,7 +44,6 @@ class IctCourseController extends Controller
             'schedule',
             'category',
         ])->findOrFail($id);
-
         /*
         |--------------------------------------------------------------------------
         | DATE FILTER (TEACHER ATTENDANCE)
@@ -56,13 +51,11 @@ class IctCourseController extends Controller
         */
         $fromDate = $request->from_date;
         $toDate = $request->to_date;
-
         $attendanceQuery = $course->teacherAttendances();
         if ($fromDate && $toDate) {
             $attendanceQuery->whereBetween('date', [$fromDate, $toDate]);
         }
         $filteredAttendances = $attendanceQuery->orderBy('date')->get();
-
         /*
         |--------------------------------------------------------------------------
         | RECALCULATE ATH (CUMULATIVE)
@@ -74,7 +67,6 @@ class IctCourseController extends Controller
             $att->actual_hours = round($cumulativeATH, 2);
             return $att;
         });
-
         /*
         |--------------------------------------------------------------------------
         | FILTERED CALCULATIONS
@@ -83,11 +75,9 @@ class IctCourseController extends Controller
         $sessionDuration = 1.5;
         $totalHours = $filteredAttendances->sum('total_hours');
         $completedSessions = $totalHours > 0 ? floor($totalHours / $sessionDuration) : 0;
-
         $course->filtered_hours = round($totalHours, 2);
         $course->filtered_sessions = $completedSessions;
         $course->filtered_earnings = round($completedSessions * ($course->price_per_session ?? 0), 2);
-
         /*
         |--------------------------------------------------------------------------
         | ORIGINAL COURSE PROGRESS
@@ -97,19 +87,16 @@ class IctCourseController extends Controller
         $totalATH = $latestAttendance->actual_hours ?? 0;
         $duration = $course->duration ?? 0;
         $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
-
         $course->progress = min(round($progress, 2), 100);
         $course->total_sessions = $duration > 0 ? round($duration / $sessionDuration) : 0;
         $course->completed_sessions = $totalATH > 0 ? floor($totalATH / $sessionDuration) : 0;
         $course->earnings = round($course->completed_sessions * ($course->price_per_session ?? 0), 2);
-
         /*
         |--------------------------------------------------------------------------
         | REPLACE RELATION WITH FILTERED DATA
         |--------------------------------------------------------------------------
         */
         $course->setRelation('teacherAttendances', $filteredAttendances);
-
         /*
         |--------------------------------------------------------------------------
         | STUDENT ATTENDANCE TABLE
@@ -117,7 +104,6 @@ class IctCourseController extends Controller
         */
         $dates = StudentAttendances::where('course_id', $id)->select('date')->distinct()->orderBy('date')->pluck('date');
         $formattedDates = $dates->map(fn($d) => Carbon::parse($d)->format('d/m/Y'));
-
         $rows = [];
         foreach ($course->students as $index => $student) {
             $attendanceMap = [];
@@ -139,7 +125,6 @@ class IctCourseController extends Controller
                 'attendance' => $attendanceMap,
             ];
         }
-
         $attendanceData = [
             'form_metadata' => [
                 'software' => 'Google Sheets',
@@ -154,14 +139,12 @@ class IctCourseController extends Controller
                 'data_rows' => $rows,
             ],
         ];
-
         return view('frontend.staff.pages.course-management.course-detail.course-detail', [
             'page_title' => 'ICT | STAFF | COURSE DETAIL',
             'course' => $course,
             'attendanceData' => $attendanceData,
         ]);
     }
-
     public function create(): View
     {
         return view('frontend.staff.pages.course-management.create', [
@@ -171,7 +154,6 @@ class IctCourseController extends Controller
             'categories' => ICTCourseCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
         ]);
     }
-
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -189,7 +171,6 @@ class IctCourseController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'duration' => 'nullable|numeric|min:0',
         ]);
-
         $course = new ICTCourse();
         $course->title = $request->title;
         $course->khmer_title = $request->khmer_name;
@@ -206,10 +187,8 @@ class IctCourseController extends Controller
         $course->end_date = $request->end_date;
         $course->duration = $request->duration;
         $course->save();
-
         return redirect()->route('staff.courses.index')->with('success', 'Course created successfully.');
     }
-
     public function edit($id): View
     {
         return view('frontend.staff.pages.course-management.edit', [
@@ -220,11 +199,9 @@ class IctCourseController extends Controller
             'categories' => ICTCourseCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
         ]);
     }
-
     public function update(Request $request, $id): RedirectResponse
     {
         $course = ICTCourse::findOrFail($id);
-
         $request->validate([
             'title' => 'required|string|max:255',
             'khmer_title' => 'nullable|string|max:255',
@@ -240,14 +217,12 @@ class IctCourseController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'duration' => 'nullable|numeric|min:0',
         ]);
-
         if ($request->hasFile('thumbnail')) {
             if ($course->thumbnail != '') {
                 $this->deleteIfImageExist($course->thumbnail);
             }
             $course->thumbnail = $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails');
         }
-
         $course->title = $request->title;
         $course->khmer_title = $request->khmer_name;
         $course->price = $request->price;
@@ -262,23 +237,17 @@ class IctCourseController extends Controller
         $course->end_date = $request->end_date;
         $course->duration = $request->duration;
         $course->save();
-
         return redirect()->route('staff.courses.index')->with('success', 'Course updated successfully.');
     }
-
     public function destroy($id): RedirectResponse
     {
         $course = ICTCourse::findOrFail($id);
-
         if ($course->thumbnail != '') {
             $this->deleteIfImageExist($course->thumbnail);
         }
-
         $course->delete();
-
         return redirect()->route('staff.courses.index')->with('success', 'Course deleted successfully.');
     }
-
     public function moveStudent(Request $request, $course_id): RedirectResponse
     {
         $request->validate([
@@ -287,7 +256,6 @@ class IctCourseController extends Controller
             'target_course_id' => 'required|exists:i_c_t_courses,id',
             'charge_difference' => 'nullable|in:0,1',
         ]);
-
         if ($request->target_course_id == $course_id) {
             return redirect()
                 ->back()
@@ -295,71 +263,71 @@ class IctCourseController extends Controller
                     'target_course_id' => 'Destination course must be different from the current course.',
                 ]);
         }
-
         $targetCourseId = $request->target_course_id;
         $targetCourse = ICTCourse::findOrFail($targetCourseId);
         $chargeDifference = $request->input('charge_difference', '0') === '1';
-
-        foreach ($request->student_ids as $studentId) {
-            $invoice = ICTInvoice::where('course_id', $course_id)->where('student_id', $studentId)->first();
-
-            if ($invoice) {
-                $oldPrice = (float) $invoice->price;
-                $newPrice = (float) $targetCourse->price;
-
-                if ($newPrice > $oldPrice && $chargeDifference) {
-                    $newRemaining = $newPrice - (float) $invoice->paid_amount;
-                    $paymentStatus = $newRemaining <= 0 ? 'paid' : 'half_paid';
-
-                    $invoice->update([
-                        'course_id' => $targetCourseId,
-                        'price' => $newPrice,
-                        'total_amount' => $newPrice,
-                        'remaining_amount' => $newRemaining,
-                        'payment_status' => $paymentStatus,
-                    ]);
-                } else {
-                    $invoice->update(['course_id' => $targetCourseId]);
+        $studentCount = count($request->student_ids);
+        DB::transaction(function () use ($request, $course_id, $targetCourseId, $targetCourse, $chargeDifference) {
+            foreach ($request->student_ids as $studentId) {
+                $invoice = ICTInvoice::where('course_id', $course_id)->where('student_id', $studentId)->first();
+                if ($invoice) {
+                    $oldPrice = (float) $invoice->price;
+                    $newPrice = (float) $targetCourse->price;
+                    if ($newPrice > $oldPrice && $chargeDifference) {
+                        $discount = (float) $invoice->discount;
+                        $extraCharge = (float) $invoice->extra_charge;
+                        $newTotal = $newPrice - $discount + $extraCharge;
+                        $newRemaining = $newTotal - (float) $invoice->paid_amount;
+                        $paymentStatus = $newRemaining <= 0 ? 'paid' : 'half_paid';
+                        $invoice->update([
+                            'course_id' => $targetCourseId,
+                            'price' => $newPrice,
+                            'total_amount' => $newTotal,
+                            'remaining_amount' => $newRemaining,
+                            'payment_status' => $paymentStatus,
+                        ]);
+                    } else {
+                        $invoice->update(['course_id' => $targetCourseId]);
+                    }
+                    $item = ICTInvoiceItems::where('invoice_id', $invoice->id)
+                        ->where('course_id', $course_id)
+                        ->first();
+                    $itemDiscount = $item ? (float) $item->discount : 0;
+                    $itemExtraCharge = $item ? (float) $item->extra_charge : 0;
+                    $newItemTotal = $newPrice - $itemDiscount + $itemExtraCharge;
+                    ICTInvoiceItems::where('invoice_id', $invoice->id)
+                        ->where('course_id', $course_id)
+                        ->update([
+                            'course_id' => $targetCourseId,
+                            'price' => $newPrice,
+                            'total' => $chargeDifference ? $newItemTotal : $invoice->total_amount,
+                        ]);
                 }
-
-                ICTInvoiceItems::where('invoice_id', $invoice->id)
-                    ->where('course_id', $course_id)
-                    ->update([
+                ICTCourseEnrollments::where('course_id', $course_id)->where('student_id', $studentId)->delete();
+                if (!ICTCourseEnrollments::where('course_id', $targetCourseId)->where('student_id', $studentId)->exists()) {
+                    ICTCourseEnrollments::create([
+                        'student_id' => $studentId,
                         'course_id' => $targetCourseId,
-                        'price' => $targetCourse->price,
-                        'total' => $chargeDifference ? $targetCourse->price : $invoice->total_amount,
+                        'enrolled_by' => auth()->id(),
+                        'status' => 'active',
+                        'enrolled_at' => now(),
                     ]);
+                }
             }
-
-            ICTCourseEnrollments::where('course_id', $course_id)->where('student_id', $studentId)->delete();
-
-            if (!ICTCourseEnrollments::where('course_id', $targetCourseId)->where('student_id', $studentId)->exists()) {
-                ICTCourseEnrollments::create([
-                    'student_id' => $studentId,
-                    'course_id' => $targetCourseId,
-                    'enrolled_by' => auth()->id(),
-                    'status' => 'active',
-                    'enrolled_at' => now(),
-                ]);
-            }
-        }
-
+        });
         return redirect()
             ->back()
-            ->with('success', count($request->student_ids) . ' student(s) moved successfully.');
+            ->with('success', $studentCount . ' student(s) moved successfully.');
     }
-
     public function removeStudent(Request $request, $course_id): RedirectResponse
     {
         $request->validate([
             'student_ids' => 'required|array|min:1',
             'student_ids.*' => 'exists:users,id',
         ]);
-
         ICTCourseEnrollments::where('course_id', $course_id)
             ->whereIn('student_id', $request->student_ids)
             ->update(['status' => 'dropped']);
-
         return redirect()
             ->back()
             ->with('success', count($request->student_ids) . ' student(s) removed from course.');

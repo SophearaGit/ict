@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Frontend\Staff;
-
 use App\Http\Controllers\Controller;
 use App\Models\ICTInvoice;
 use App\Models\ICTPayments;
@@ -11,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
 class IctInvoiceController extends Controller
 {
     public function getInvoiceDetail(string $invoice_id): string
@@ -21,7 +18,6 @@ class IctInvoiceController extends Controller
         ];
         return view('frontend.staff.pages.partials.inv-body', $data)->render();
     }
-
     public function confirmPayment(string $invoice_id): string
     {
         $data = [
@@ -29,54 +25,40 @@ class IctInvoiceController extends Controller
         ];
         return view('frontend.staff.pages.partials.inv-confirm-payment', $data)->render();
     }
-
     public function updatePayment(Request $request, $id): JsonResponse
     {
         $invoice = ICTInvoice::findOrFail($id);
-
+        $request->validate([
+            'additional_payment' => 'required|numeric|min:0.01|max:' . $invoice->remaining_amount,
+        ]);
         DB::beginTransaction();
-
         try {
-            $remaining = $invoice->remaining_amount;
-
-            // Create payment record
+            $payNow = (float) $request->additional_payment;
+            $newPaid = (float) $invoice->paid_amount + $payNow;
+            $newRemaining = (float) $invoice->remaining_amount - $payNow;
             ICTPayments::create([
                 'invoice_id' => $invoice->id,
-                'amount' => $remaining,
+                'amount' => $payNow,
                 'payment_method' => 'cash',
                 'paid_by' => Auth::id(),
                 'paid_at' => now(),
-                'note' => 'Final payment',
+                'note' => $newRemaining <= 0 ? 'Final payment' : 'Partial payment',
             ]);
-
-            // Update invoice
-            $invoice->paid_amount += $remaining;
-            $invoice->remaining_amount = 0;
-            $invoice->payment_status = 'paid';
-            $invoice->paid_at = now();
+            $invoice->paid_amount = $newPaid;
+            $invoice->remaining_amount = $newRemaining;
+            $invoice->payment_status = $newRemaining <= 0 ? 'paid' : 'half_paid';
+            $invoice->paid_at = $newRemaining <= 0 ? now() : $invoice->paid_at;
             $invoice->save();
-
             DB::commit();
-
-            return response()->json([
-                'message' => 'Payment confirmed successfully',
-            ]);
+            return response()->json(['message' => 'Payment confirmed successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return response()->json(
-                [
-                    'message' => 'Payment failed',
-                ],
-                500,
-            );
+            return response()->json(['message' => 'Payment failed'], 500);
         }
     }
-
     public function invoices(Request $request): View
     {
         $search = $request->input('search');
-
         $invoices = ICTInvoice::with(['student', 'course'])
             ->when($search, function ($query, $search) {
                 $query->where('invoice_code', 'like', "%{$search}%")->orWhereHas('student', function ($q) use ($search) {
@@ -85,10 +67,8 @@ class IctInvoiceController extends Controller
             })
             ->latest()
             ->paginate(5);
-
         // Keep search term in pagination links
         $invoices->appends(['search' => $search]);
-
         return view('frontend.staff.pages.invoice', [
             'page_title' => 'ICT | STAFF | INVOICES',
             'invoices' => $invoices,

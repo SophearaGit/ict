@@ -2,343 +2,454 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @push('styles')
     <style>
-        .custom-pagination .page-link {
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap');
+
+        .invoice-application {
             border: none;
-            color: #6c757d;
-            font-size: 13px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            transition: 0.2s;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
         }
 
-        .custom-pagination .page-item.active .page-link {
-            background-color: #0d6efd;
+        /* ── LEFT PANEL ── */
+        .inv-sidebar {
+            width: 300px;
+            min-width: 300px;
+            background: #0f0e17;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+        }
+
+        .inv-sidebar-header {
+            padding: 20px 18px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .inv-sidebar-header .inv-search-wrap {
+            position: relative;
+        }
+
+        .inv-sidebar-header .inv-search-wrap input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 9px 14px 9px 38px;
+            color: #fff;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .inv-sidebar-header .inv-search-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .inv-sidebar-header .inv-search-wrap input:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .inv-sidebar-header .inv-search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 15px;
+        }
+
+        .inv-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .inv-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .inv-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .inv-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .inv-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.15s;
+            text-decoration: none;
+        }
+
+        .inv-list-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .inv-list-item.active {
+            background: rgba(21, 2, 166, 0.4);
+            border-left: 3px solid #4f46e5;
+        }
+
+        .inv-list-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+
+        .inv-list-avatar.paid {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .inv-list-avatar.half {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+        }
+
+        .inv-list-avatar.unpaid {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .inv-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .inv-list-name {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .inv-list-code {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .inv-list-date {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .inv-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .inv-status-dot.paid {
+            background: #22c55e;
+        }
+
+        .inv-status-dot.half {
+            background: #eab308;
+        }
+
+        .inv-status-dot.unpaid {
+            background: #ef4444;
+        }
+
+        /* Pagination */
+        .inv-pagination {
+            padding: 12px 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .inv-pagination span {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .inv-pagination-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .inv-pagination-btns a,
+        .inv-pagination-btns span {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.06);
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .inv-pagination-btns a:hover {
+            background: rgba(255, 255, 255, 0.12);
             color: #fff;
         }
 
-        .custom-pagination .page-link:hover {
-            background-color: #f1f3f5;
-            color: #0d6efd;
+        .inv-pagination-btns span.disabled {
+            opacity: 0.3;
+            pointer-events: none;
         }
 
-        .custom-pagination .page-item.disabled .page-link {
-            color: #ccc;
-            background: transparent;
+        /* ── RIGHT PANEL ── */
+        .inv-main {
+            flex: 1;
+            background: #f8f8fb;
+            overflow-y: auto;
+            height: calc(100vh - 180px);
+        }
+
+        .inv-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #aaa;
+            gap: 12px;
+        }
+
+        .inv-empty-state i {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+
+        .inv-empty-state p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+        }
+
+        .inv-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        /* Mobile toggle */
+        .inv-mobile-bar {
+            display: none;
+            padding: 12px 16px;
+            background: #0f0e17;
+            gap: 12px;
+            align-items: center;
+        }
+
+        @media (max-width: 991px) {
+            .inv-mobile-bar {
+                display: flex;
+            }
+
+            .inv-sidebar {
+                display: none;
+            }
+
+            .inv-main {
+                height: calc(100vh - 200px);
+            }
         }
     </style>
 @endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
-    <div class="card overflow-hidden invoice-application">
-
-        <div class="d-flex align-items-center justify-content-between gap-3 m-3 d-lg-none">
-            <button class="btn btn-primary d-flex" type="button" data-bs-toggle="offcanvas" data-bs-target="#chat-sidebar"
-                aria-controls="chat-sidebar">
-                <i class="ti ti-menu-2 fs-5"></i>
+    <div class="card invoice-application" style="border-radius:16px;">
+        {{-- Mobile bar --}}
+        <div class="inv-mobile-bar">
+            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#inv-offcanvas">
+                <i class="ti ti-menu-2"></i>
             </button>
-            <form class="position-relative w-100">
-                <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Contact">
-                <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
-            </form>
+            <span style="color:rgba(255,255,255,0.5);font-size:13px;font-family:'DM Sans',sans-serif;">Invoices</span>
         </div>
-
-        <div class="d-flex">
-            <div class="w-25 d-none d-lg-block border-end user-chat-box">
-                <div class="p-3 border-bottom">
-                    <form class="position-relative" method="GET" action="{{ route('staff.invoices') }}">
+        <div class="d-flex" style="height:calc(100vh - 180px);">
+            {{-- ── LEFT SIDEBAR ── --}}
+            <div class="inv-sidebar d-none d-lg-flex flex-column">
+                <div class="inv-sidebar-header">
+                    <form class="inv-search-wrap" method="GET" action="{{ route('staff.invoices') }}">
+                        <i class="ti ti-search"></i>
                         <input type="search" name="search" value="{{ request('search') }}"
-                            class="form-control search-invoice ps-5" placeholder="Search Invoice">
-                        <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+                            placeholder="Search student or code…">
                     </form>
                 </div>
-                <div class="app-invoice">
-                    <ul class="overflow-auto invoice-users" style="height: calc(100vh - 262px)" data-simplebar="init">
-                        <div class="simplebar-wrapper" style="margin: 0px;">
-                            <div class="simplebar-height-auto-observer-wrapper">
-                                <div class="simplebar-height-auto-observer"></div>
-                            </div>
-                            <div class="simplebar-mask">
-                                <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                    <div class="simplebar-content-wrapper" tabindex="0" role="region"
-                                        aria-label="scrollable content" style="height: 100%; overflow: hidden;">
-                                        <div class="simplebar-content" style="padding: 0px;">
-                                            @forelse ($invoices as $invoice)
-                                                <li>
-                                                    <a href="javascript:void(0)"
-                                                        class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user btn_view_invoice_detail"
-                                                        id="invoice-{{ $invoice->id }}"
-                                                        data-invoice-id="{{ $invoice->id }}">
-                                                        <div
-                                                            class="btn
-                                                            {{ $invoice->payment_status == 'paid' ? 'btn-success' : ($invoice->payment_status == 'partial' ? 'btn-warning' : 'btn-danger') }}
-                                                            round rounded-circle d-flex align-items-center justify-content-center">
-                                                            <i class="ti ti-user fs-6"></i>
-                                                        </div>
-                                                        <div class="ms-3 d-inline-block w-75">
-                                                            <h6 class="mb-0 invoice-customer">{{ $invoice->student->name }}
-                                                            </h6>
-                                                            <span
-                                                                class="fs-3 invoice-id text-truncate text-body-color d-block w-85">Code:
-                                                                {{ $invoice->invoice_code }}</span>
-                                                            <span
-                                                                class="fs-3 invoice-date text-nowrap text-body-color d-block">
-                                                                {{ $invoice->created_at->format('d M Y') }}</span>
-                                                            </span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            @empty
-                                                <div class="d-flex align-items-center justify-content-center w-100 py-5">
-                                                    <div class="text-center">
-                                                        <h5 class="mb-3">No Invoices Found</h5>
-                                                        <p class="text-muted">There are no invoices to display at the
-                                                            moment.</p>
-                                                    </div>
-                                                </div>
-                                            @endforelse
-                                        </div>
-                                        {{-- Pagination --}}
-                                        @if ($invoices->hasPages())
-                                            <div class="p-2 border-top bg-white">
-                                                <ul
-                                                    class="pagination pagination-sm justify-content-center mb-0 custom-pagination">
-
-                                                    {{-- Prev --}}
-                                                    <li class="page-item {{ $invoices->onFirstPage() ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $invoices->previousPageUrl() }}">‹</a>
-                                                    </li>
-
-                                                    {{-- Page Info --}}
-                                                    <li class="page-item active">
-                                                        <span class="page-link">{{ $invoices->currentPage() }} /
-                                                            {{ $invoices->lastPage() }}</span>
-                                                    </li>
-
-                                                    {{-- Next --}}
-                                                    <li
-                                                        class="page-item {{ $invoices->hasMorePages() ? '' : 'disabled' }}">
-                                                        <a class="page-link" href="{{ $invoices->nextPageUrl() }}">›</a>
-                                                    </li>
-
-                                                </ul>
-                                            </div>
-                                        @endif
-                                    </div>
+                <ul class="inv-list">
+                    @forelse ($invoices as $invoice)
+                        @php
+                            $statusClass = match ($invoice->payment_status) {
+                                'paid' => 'paid',
+                                'half_paid' => 'half',
+                                default => 'unpaid',
+                            };
+                        @endphp
+                        <li>
+                            <a href="javascript:void(0)" class="inv-list-item btn_view_invoice_detail"
+                                id="invoice-{{ $invoice->id }}" data-invoice-id="{{ $invoice->id }}">
+                                <div class="inv-list-avatar {{ $statusClass }}">
+                                    <i class="ti ti-user"></i>
                                 </div>
-                            </div>
-                            <div class="simplebar-placeholder" style="width: auto; height: 457px;"></div>
+                                <div class="inv-list-info">
+                                    <div class="inv-list-name">{{ $invoice->student->name }}</div>
+                                    <div class="inv-list-code">{{ $invoice->invoice_code }}</div>
+                                </div>
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+                                    <div class="inv-list-date">{{ $invoice->created_at->format('d M') }}</div>
+                                    <div class="inv-status-dot {{ $statusClass }}"></div>
+                                </div>
+                            </a>
+                        </li>
+                    @empty
+                        <li
+                            style="padding:40px 18px;text-align:center;color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:13px;">
+                            No invoices found
+                        </li>
+                    @endforelse
+                </ul>
+                @if ($invoices->hasPages())
+                    <div class="inv-pagination">
+                        <span>{{ $invoices->currentPage() }} / {{ $invoices->lastPage() }}</span>
+                        <div class="inv-pagination-btns">
+                            @if ($invoices->onFirstPage())
+                                <span class="disabled">‹</span>
+                            @else
+                                <a href="{{ $invoices->previousPageUrl() }}">‹</a>
+                            @endif
+                            @if ($invoices->hasMorePages())
+                                <a href="{{ $invoices->nextPageUrl() }}">›</a>
+                            @else
+                                <span class="disabled">›</span>
+                            @endif
                         </div>
-                        <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                        </div>
-                        <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
-                            <div class="simplebar-scrollbar" style="height: 0px; display: none;"></div>
-                        </div>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="w-75 w-xs-100 chat-container">
-                <div class="invoice-inner-part h-100">
-                    <div class="invoiceing-box">
-
                     </div>
-                </div>
+                @endif
             </div>
-            <div class="offcanvas offcanvas-start user-chat-box" tabindex="-1" id="chat-sidebar"
-                aria-labelledby="offcanvasExampleLabel">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasExampleLabel">
-                        Invoices
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="p-3 border-bottom">
-                    <form class="position-relative" method="GET" action="{{ route('staff.invoices') }}">
-                        <input type="search" name="search" value="{{ request('search') }}"
-                            class="form-control search-invoice ps-5" placeholder="Search Invoice">
-                        <i
-                            class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
-                    </form>
-                </div>
-                <div class="app-invoice overflow-auto">
-                    <ul class="invoice-users">
-                        @forelse ($invoices as $invoice)
-                            <li>
-                                <a href="javascript:void(0)"
-                                    class="p-3 bg-hover-light-black border-bottom d-flex align-items-start invoice-user listing-user btn_view_invoice_detail"
-                                    id="invoice-{{ $invoice->id }}" data-invoice-id="{{ $invoice->id }}">
-                                    <div
-                                        class="btn
-                                            {{ $invoice->payment_status == 'paid' ? 'btn-success' : ($invoice->payment_status == 'partial' ? 'btn-warning' : 'btn-danger') }}
-                                            round rounded-circle d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-user fs-6"></i>
-                                    </div>
-                                    <div class="ms-3 d-inline-block w-75">
-                                        <h6 class="mb-0 invoice-customer">{{ $invoice->student->name }}</h6>
-                                        <span class="fs-3 invoice-id text-truncate text-body-color d-block w-85">Code:
-                                            {{ $invoice->invoice_code }}</span>
-                                        <span class="fs-3 invoice-date text-nowrap text-body-color d-block">
-                                            {{ $invoice->created_at->format('d M Y') }}
-                                        </span>
-                                    </div>
-                                </a>
-                            </li>
-                        @empty
-                            <div class="d-flex align-items-center justify-content-center w-100 py-5">
-                                <div class="text-center">
-                                    <h5 class="mb-3">No Invoices Found</h5>
-                                    <p class="text-muted">There are no invoices to display at the moment.</p>
-                                </div>
-                            </div>
-                        @endforelse
-                    </ul>
-                    <div class="p-3 border-top">
-                        <nav>
-                            <ul class="pagination pagination-sm justify-content-center mb-0 custom-pagination">
-
-                                {{-- Previous --}}
-                                @if ($invoices->hasPages())
-
-                                    @if ($invoices->onFirstPage())
-                                        <li class="page-item disabled">
-                                            <span class="page-link">‹</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $invoices->previousPageUrl() }}">‹</a>
-                                        </li>
-                                    @endif
-
-                                    {{-- Pages --}}
-                                    @foreach ($invoices->getUrlRange(1, $invoices->lastPage()) as $page => $url)
-                                        <li class="page-item {{ $page == $invoices->currentPage() ? 'active' : '' }}">
-                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                        </li>
-                                    @endforeach
-
-                                    {{-- Next --}}
-                                    @if ($invoices->hasMorePages())
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $invoices->nextPageUrl() }}">›</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item disabled">
-                                            <span class="page-link">›</span>
-                                        </li>
-                                    @endif
-                                @endif
-                            </ul>
-                        </nav>
+            {{-- ── RIGHT MAIN ── --}}
+            <div class="inv-main">
+                <div class="invoiceing-box h-100">
+                    <div class="inv-empty-state h-100">
+                        <i class="ti ti-file-invoice"></i>
+                        <p>Select an invoice to view details</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {{-- Mobile offcanvas --}}
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="inv-offcanvas" style="background:#0f0e17;width:300px;">
+        <div class="offcanvas-header" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+            <span style="color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">Invoices</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+            <form class="inv-search-wrap" method="GET" action="{{ route('staff.invoices') }}">
+                <i class="ti ti-search"></i>
+                <input type="search" name="search" value="{{ request('search') }}" placeholder="Search…">
+            </form>
+        </div>
+        <ul class="inv-list">
+            @forelse ($invoices as $invoice)
+                @php
+                    $statusClass = match ($invoice->payment_status) {
+                        'paid' => 'paid',
+                        'half_paid' => 'half',
+                        default => 'unpaid',
+                    };
+                @endphp
+                <li>
+                    <a href="javascript:void(0)" class="inv-list-item btn_view_invoice_detail"
+                        id="invoice-mob-{{ $invoice->id }}" data-invoice-id="{{ $invoice->id }}"
+                        data-bs-dismiss="offcanvas">
+                        <div class="inv-list-avatar {{ $statusClass }}">
+                            <i class="ti ti-user"></i>
+                        </div>
+                        <div class="inv-list-info">
+                            <div class="inv-list-name">{{ $invoice->student->name }}</div>
+                            <div class="inv-list-code">{{ $invoice->invoice_code }}</div>
+                        </div>
+                        <div class="inv-status-dot {{ $statusClass }}"></div>
+                    </a>
+                </li>
+            @empty
+                <li style="padding:40px 18px;text-align:center;color:rgba(255,255,255,0.3);font-size:13px;">
+                    No invoices found
+                </li>
+            @endforelse
+        </ul>
+    </div>
 @endsection
 @push('scripts')
-    <!-- ---------------------------------------------- -->
-    <!-- current page js files -->
-    <!-- ---------------------------------------------- -->
     <script src="/admin/assets/dist/js/apps/jquery.PrintArea.js"></script>
-    {{-- <script src="/admin/assets/dist/js/apps/invoice.js"></script> --}}
-
-    <script>
-        $(function() {
-
-            // Search invoice
-            $(".search-invoice").on("keyup", function() {
-                var value = $(this).val().toLowerCase();
-                $(".invoice-users li").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                });
-            });
-
-            // Invoice switch logic
-            var $btns = $(".listing-user").click(function() {
-
-                var getDataInvoiceAttr = $(this).attr("data-invoice-id");
-                var $el = $("." + this.id).show();
-
-                $("#custom-invoice > div").not($el).hide();
-
-                $(".invoice-number").text("#" + getDataInvoiceAttr);
-
-                $btns.removeClass("bg-light");
-                $(this).addClass("bg-light");
-
-            });
-
-            // ✅ Trigger first listing-user only if it exists
-            if ($(".listing-user").length > 0) {
-                $(".listing-user:first").trigger("click");
-            }
-
-        });
-
-        // ✅ Dynamic Print
-        $(document).on("click", ".print-page", function() {
-
-            var options = {
-                mode: "iframe",
-                popClose: false
-            };
-
-            var visibleInvoice = $("#custom-invoice > div:visible");
-
-            if (visibleInvoice.length) {
-                visibleInvoice.printArea(options);
-            } else {
-                alert("No invoice selected to print.");
-            }
-        });
-    </script>
-
-
     <script>
         let loader = `
-            <div class="invoice-header d-flex align-items-center border-bottom p-3">
-                <h4 class="font-medium text-uppercase mb-0">
-                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </h4>
-                <div class="ms-auto">
-
-                </div>
-            </div>
-            <div class="p-3">
-                <div class="invoice-123" id="printableArea" style="display: block;">
-                    <div class="row pt-3">
-                        <div class="d-flex align-items-center justify-content-center w-100 py-5">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         `;
-
-        $('.btn_view_invoice_detail').on('click', function(e) {
+        $(document).on('click', '.btn_view_invoice_detail', function(e) {
             e.preventDefault();
-
+            // Active state
+            $('.inv-list-item').removeClass('active');
+            $(this).addClass('active');
             let invoice_id = $(this).data('invoice-id');
-
             $.ajax({
                 method: 'GET',
                 url: base_url + `/staff/invoice-detail/${invoice_id}`,
-                data: {},
                 beforeSend: function() {
                     $('.invoiceing-box').html(loader);
                 },
                 success: function(data) {
                     $('.invoiceing-box').html(data);
                 },
-                error: function(xhr, status, error) {
-
-                },
-            })
-        })
+                error: function() {
+                    $('.invoiceing-box').html(`
+                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#aaa;font-family:'DM Sans',sans-serif;">
+                            Failed to load invoice.
+                        </div>
+                    `);
+                }
+            });
+        });
+        // Print
+        $(document).on('click', '.print-page', function() {
+            $('#printableArea').printArea({
+                mode: 'iframe',
+                popClose: false
+            });
+        });
+        // Auto-load first
+        if ($('.btn_view_invoice_detail').length > 0) {
+            $('.btn_view_invoice_detail:first').trigger('click');
+        }
     </script>
 @endpush
