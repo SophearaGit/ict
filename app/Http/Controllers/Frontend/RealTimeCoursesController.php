@@ -71,7 +71,7 @@ class RealTimeCoursesController extends Controller
             ->firstOrFail();
 
         // Paginate students (IMPORTANT)
-        $students = $course->students()->paginate(5); // 5 per page
+        $students = $course->students()->paginate(20); // 5 per page
 
         // Total taught hours
         $totalATH = $course->teacherAttendances()->latest()->first()->actual_hours ?? 0;
