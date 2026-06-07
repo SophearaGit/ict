@@ -4,6 +4,27 @@
     $status = $course->studentReports->first()?->approval_status;
 @endphp
 @push('styles')
+    <style>
+        @keyframes savingPulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.45;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .badge.saving {
+            animation: savingPulse 0.8s ease-in-out infinite;
+            cursor: wait;
+            pointer-events: none;
+        }
+    </style>
     @include('frontend.instructor.pages.course-real-time.styling.style')
     <script>
         $(document).on('change', '.score-input', function() {
@@ -11,18 +32,10 @@
             let id = input.data('id');
             let field = input.data('field');
             let value = parseFloat(input.val()) || 0;
-            // ✅ max score per field
             let max = 100;
-            if (field === 'assignment_score') {
-                max = 30;
-            }
-            if (field === 'mini_project_score') {
-                max = 20;
-            }
-            if (field === 'final_project_score') {
-                max = 40;
-            }
-            // ✅ clamp value
+            if (field === 'assignment_score') max = 30;
+            if (field === 'mini_project_score') max = 20;
+            if (field === 'final_project_score') max = 40;
             if (value < 0) value = 0;
             if (value > max) value = max;
             input.val(value);
@@ -32,26 +45,56 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     field: field,
-                    value: value
+                    value: value,
                 },
                 success: function(res) {
-                    input.closest('tr')
-                        .find('.total-score')
-                        .text(res.total_score);
+                    input.closest('tr').find('.total-score').text(res.total_score);
                     let badge = input.closest('tr').find('.badge');
                     badge.text(res.result);
                     badge.removeClass('bg-success bg-danger');
-                    badge.addClass(
-                        res.result === 'pass' ?
-                        'bg-success' :
-                        'bg-danger'
-                    );
-                }
+                    badge.addClass(res.result === 'pass' ? 'bg-success' : 'bg-danger');
+                },
             });
         });
         document.addEventListener('DOMContentLoaded', function() {
             let saveTimeout = null;
             let originalTableHTML = '';
+            /* =========================
+               CONFIRM DIALOG
+            ========================= */
+            function showConfirm(title, message, confirmLabel, type, onConfirm) {
+                $('#confirmOverlay').remove();
+                let borderColor = type === 'danger' ? 'var(--bs-danger)' : '#198754';
+                let btnClass = type === 'danger' ? 'btn-danger' : 'btn-success';
+                let html = `
+                    <div id="confirmOverlay" style="
+                        position: absolute; inset: 0; z-index: 1050;
+                        background: rgba(0,0,0,0.35);
+                        display: flex; align-items: center; justify-content: center;
+                        border-radius: inherit;">
+                        <div style="
+                            background: #fff; border-radius: 12px;
+                            border: 1px solid ${borderColor};
+                            padding: 1.25rem 1.5rem; max-width: 380px; width: 90%;
+                            box-shadow: 0 4px 24px rgba(0,0,0,0.12);">
+                            <p class="fw-semibold mb-1">${title}</p>
+                            <p class="text-muted small mb-3">${message}</p>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-secondary" id="confirmNo">Cancel</button>
+                                <button class="btn btn-sm ${btnClass}" id="confirmYes">${confirmLabel}</button>
+                            </div>
+                        </div>
+                    </div>`;
+                let $anchor = $('.attendance-box').closest('.card');
+                $anchor.css('position', 'relative').append(html);
+                $('#confirmNo').on('click', function() {
+                    $('#confirmOverlay').remove();
+                });
+                $('#confirmYes').on('click', function() {
+                    $('#confirmOverlay').remove();
+                    onConfirm();
+                });
+            }
             /* =========================
                RESET UI
             ========================= */
@@ -76,13 +119,12 @@
                 let rows = '';
                 for (let i = 0; i < 5; i++) {
                     rows += `
-                <tr class="loading-row">
-                    <td><div class="skeleton"></div></td>
-                    <td><div class="skeleton"></div></td>
-                    <td><div class="skeleton"></div></td>
-                    <td><div class="skeleton"></div></td>
-                </tr>
-            `;
+                        <tr class="loading-row">
+                            <td><div class="skeleton"></div></td>
+                            <td><div class="skeleton"></div></td>
+                            <td><div class="skeleton"></div></td>
+                            <td><div class="skeleton"></div></td>
+                        </tr>`;
                 }
                 $('#attendanceTable').html(rows);
             }
@@ -98,41 +140,37 @@
                 showLoading();
                 $.ajax({
                     url: "{{ route('instructor.student-attendance.get') }}",
-                    type: "GET",
+                    type: 'GET',
                     data: {
                         course_id: "{{ $course->id }}",
-                        date: date
+                        date: date,
                     },
                     success: function(res) {
                         restoreTable();
-                        setTimeout(() => {
-                            resetAttendanceUI();
-                            if (!res.success) return;
-                            let data = res.data;
-                            $('#attendanceTable .student-row').each(function() {
-                                let studentId = $(this).data('student-id');
-                                if (!data[studentId]) return;
-                                let status = data[studentId].status;
-                                let note = data[studentId].note;
-                                let row = $(this);
-                                let btn;
-                                if (status === 'present') {
-                                    btn = row.find('.status-toggle span:nth-child(1)');
-                                } else if (status === 'absent') {
-                                    btn = row.find('.status-toggle span:nth-child(2)');
-                                } else {
-                                    btn = row.find('.status-toggle span:nth-child(3)');
-                                }
-                                setStatus(btn[0], status,
-                                    false); // ❗ no autosave on load
-                                row.find('input').val(note);
-                            });
-                            updateSummary();
-                        }, 200);
+                        resetAttendanceUI();
+                        if (!res.success) return;
+                        let data = res.data;
+                        $('#attendanceTable .student-row').each(function() {
+                            let studentId = $(this).data('student-id');
+                            if (!data[studentId]) return;
+                            let status = data[studentId].status;
+                            let note = data[studentId].note;
+                            let row = $(this);
+                            let btn;
+                            if (status === 'present')
+                                btn = row.find('.status-toggle span:nth-child(1)');
+                            else if (status === 'absent')
+                                btn = row.find('.status-toggle span:nth-child(2)');
+                            else
+                                return;
+                            setStatus(btn[0], status, false);
+                            row.find('input').val(note);
+                        });
+                        updateSummary();
                     },
                     error: function(err) {
                         console.error(err);
-                    }
+                    },
                 });
             }
             // 🔒 Lock attendance if report is pending approval
@@ -145,15 +183,13 @@
                     input.setAttribute('disabled', true);
                     input.setAttribute('placeholder', 'Locked');
                 });
-                // Disable row click to auto-mark present
                 $(document).off('click', '#attendanceTable tr');
-                // Disable mark all present button
-                document.querySelector('[onclick="markAllPresent()"]').setAttribute('disabled', true);
-                // Disable note keyup autosave
+                document.querySelector('[onclick="markAllPresent()"]')?.setAttribute('disabled', true);
+                document.querySelector('[onclick="resetAttendance()"]')?.setAttribute('disabled', true);
                 $('#attendanceTable').off('keyup', 'input');
             @endif
             /* =========================
-               AUTO SAVE
+            AUTO SAVE (silent — no toast)
             ========================= */
             function autoSaveAttendance() {
                 let attendances = [];
@@ -169,15 +205,16 @@
                 });
                 $.ajax({
                     url: "{{ route('instructor.student-attendance.store') }}",
-                    type: "POST",
+                    type: 'POST',
                     data: {
                         course_id: "{{ $course->id }}",
                         date: $('#attendance-date').val(),
                         attendances: attendances,
-                        _token: "{{ csrf_token() }}"
+                        _token: "{{ csrf_token() }}",
                     },
                     success: function(res) {
-                        showSavedIndicator();
+                        // ✅ Clear ALL pulsing badges at once
+                        $('#attendanceTable .badge.saving').removeClass('saving');
                         let reports = res.reports;
                         Object.keys(reports).forEach(studentId => {
                             let row = $(`#report-row-${studentId}`);
@@ -185,7 +222,6 @@
                             let report = reports[studentId];
                             row.find('.present').text(report.present);
                             row.find('.absent').text(report.absent);
-                            row.find('.permission').text(report.permission);
                             row.find('.total-score').text(report.total_score);
                             let badge = row.find('.badge');
                             badge.text(report.result);
@@ -193,7 +229,15 @@
                             badge.addClass(report.result === 'pass' ? 'bg-success' :
                                 'bg-danger');
                         });
-                    }
+                        // ✅ Silently refresh session log if it's open
+                        if (typeof window.reloadSessionLog === 'function') {
+                            window.reloadSessionLog();
+                        }
+                    },
+                    error: function() {
+                        // ✅ Same here — clear all on failure too
+                        $('#attendanceTable .badge.saving').removeClass('saving');
+                    },
                 });
             }
 
@@ -204,16 +248,15 @@
                 }, 500);
             }
             /* =========================
-               STATUS
+            STATUS
             ========================= */
             window.setStatus = function(el, status, shouldSave = true) {
                 let parent = el.parentElement;
-                // 🚀 prevent unnecessary updates
                 if (parent.dataset.status === status) return;
                 parent.dataset.status = status;
                 let badges = parent.querySelectorAll('span');
                 badges.forEach(b => {
-                    b.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'active');
+                    b.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'active', 'saving');
                     b.classList.add('bg-light', 'text-dark');
                 });
                 el.classList.remove('bg-light', 'text-dark');
@@ -222,6 +265,8 @@
                     status === 'absent' ? 'bg-danger' : 'bg-warning'
                 );
                 el.classList.add('active');
+                // ✅ Mark this badge as saving
+                if (shouldSave) el.classList.add('saving');
                 updateSummary();
                 if (shouldSave) triggerAutoSave();
             };
@@ -249,19 +294,76 @@
                 $('#unmarkedCount').text(unmarked);
             }
             /* =========================
-               MARK ALL
+               MARK ALL PRESENT (with confirm)
             ========================= */
             window.markAllPresent = function() {
-                let changed = false;
-                document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
-                    if (group.dataset.status === 'present') return;
-                    changed = true;
-                    let presentBtn = group.querySelector('span:nth-child(1)');
-                    // 🔥 USE YOUR EXISTING FUNCTION (BEST PRACTICE)
-                    setStatus(presentBtn, 'present', false);
-                });
-                updateSummary();
-                if (changed) triggerAutoSave();
+                showConfirm(
+                    'Mark all students as present?',
+                    `This will overwrite any statuses already set for <strong>${$('#attendance-date').val()}</strong>. Continue?`,
+                    'Yes, mark all present',
+                    'success',
+                    function() {
+                        let changed = false;
+                        document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
+                            if (group.dataset.status === 'present') return;
+                            changed = true;
+                            let presentBtn = group.querySelector('span:nth-child(1)');
+                            setStatus(presentBtn, 'present', false);
+                        });
+                        updateSummary();
+                        if (changed) triggerAutoSave();
+                    }
+                );
+            };
+            /* =========================
+               RESET ATTENDANCE (with confirm)
+            ========================= */
+            window.resetAttendance = function() {
+                let date = $('#attendance-date').val();
+                showConfirm(
+                    'Reset all attendance for this date?',
+                    `All statuses and notes for <strong>${date}</strong> will be permanently cleared.`,
+                    'Yes, reset',
+                    'danger',
+                    function() {
+                        $.ajax({
+                            url: "{{ route('instructor.student-attendance.reset') }}",
+                            type: 'POST',
+                            data: {
+                                course_id: "{{ $course->id }}",
+                                date: date,
+                                _token: "{{ csrf_token() }}",
+                            },
+                            success: function(res) {
+                                resetAttendanceUI();
+                                // ✅ Sync report table rows
+                                let reports = res.reports;
+                                Object.keys(reports).forEach(studentId => {
+                                    let row = $(`#report-row-${studentId}`);
+                                    if (!row.length) return;
+                                    let report = reports[studentId];
+                                    row.find('.present').text(report.present);
+                                    row.find('.absent').text(report.absent);
+                                    row.find('.total-score').text(report.total_score);
+                                    let badge = row.find('.badge');
+                                    badge.text(report.result);
+                                    badge.removeClass('bg-success bg-danger');
+                                    badge.addClass(report.result === 'pass' ?
+                                        'bg-success' : 'bg-danger');
+                                });
+                                // ✅ Toast only on destructive reset
+                                showSavedIndicator();
+                                // In resetAttendance success callback, after showSavedIndicator():
+                                if (typeof window.reloadSessionLog === 'function') {
+                                    window.reloadSessionLog();
+                                }
+                            },
+                            error: function() {
+                                alert('Something went wrong. Please try again.');
+                            },
+                        });
+                    }
+                );
             };
             /* =========================
                ROW CLICK
@@ -288,10 +390,7 @@
                 today.setHours(0, 0, 0, 0);
                 selected.setHours(0, 0, 0, 0);
                 let diff = Math.floor((selected - today) / (1000 * 60 * 60 * 24));
-                let label = '';
-                if (diff === 0) label = 'Today';
-                else if (diff === 1) label = 'Tomorrow';
-                else label = selected.toDateString();
+                let label = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : selected.toDateString();
                 document.querySelector('.attendance-box small').innerText =
                     `${label} — ${selected.toDateString()}`;
             }
@@ -415,6 +514,12 @@
                                         </a>
                                     </li>
                                     <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="session-log-tab" data-bs-toggle="pill" href="#session-log"
+                                            role="tab" aria-controls="session-log" aria-selected="false" tabindex="-1">
+                                            Session Log
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="report-tab" data-bs-toggle="pill" href="#report"
                                             role="tab" aria-controls="report" aria-selected="false"
                                             tabindex="-1">Student Report</a>
@@ -521,7 +626,6 @@
                                                 <tbody id="attendanceTable">
                                                     @foreach ($students as $index => $student)
                                                         <tr class="student-row" data-student-id="{{ $student->id }}"
-                                                            data-name="{{ strtolower($student->name) }}"
                                                             data-name="{{ strtolower($student->name) }}">
                                                             <td>{{ $index + 1 }}</td>
 
@@ -565,14 +669,24 @@
                                         </div>
 
                                         <!-- ACTION -->
-                                        <div class="text-end mt-3">
-                                            <button class="btn btn-outline-secondary me-2" onclick="markAllPresent()">
-                                                Mark All Present
-                                            </button>
-                                            {{--
-                                            <button class="btn btn-primary" onclick="saveAttendance()">
-                                                💾 Save Attendance
-                                            </button> --}}
+                                        <div class="text-end mt-3 d-flex gap-2 justify-content-end">
+                                            @if ($status !== 'pending')
+                                                <button class="btn btn-outline-danger btn-sm" onclick="resetAttendance()">
+                                                    <i class="fe fe-refresh-cw me-1"></i> Reset Attendance
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm"
+                                                    onclick="markAllPresent()">
+                                                    Mark All Present
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Session Log Tab --}}
+                                <div class="tab-pane fade" id="session-log" role="tabpanel">
+                                    <div id="sessionLogContainer">
+                                        <div class="d-flex justify-content-center py-5">
+                                            <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -854,79 +968,75 @@
                     </div>
                 </div>
             </div>
+            @if ($other_courses->count() > 0)
 
-            <!-- Card -->
-            <div class="pt-8 pb-3">
-                <div class="row d-md-flex align-items-center mb-4">
-                    <div class="col-12">
-                        <h2 class="mb-0">
-                            MY TEACHING COURSES
-                        </h2>
+                <!-- Card -->
+                <div class="pt-8 pb-3">
+                    <div class="row d-md-flex align-items-center mb-4">
+                        <div class="col-12">
+                            <h2 class="mb-0">
+                                MY TEACHING COURSES
+                            </h2>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    @forelse ($other_courses as $course)
-                        <div class="col-lg-3 col-md-6 col-12">
+                    <div class="row">
+                        @forelse ($other_courses as $course)
+                            <div class="col-lg-3 col-md-6 col-12">
 
-                            <!-- Card -->
-                            <div class="card mb-4 card-hover">
-                                <a
-                                    href="
-                                    {{ route('instructor.courses.real_time.show', $course->id) }}
-                                "><img
-                                        src="
-                                        {{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}
-                                    "
-                                        alt="course" class="card-img-top"
-                                        style="height: 160px; object-fit: cover;"></a>
+                                <!-- Card -->
+                                <div class="card mb-4 card-hover">
+                                    <a href="{{ route('instructor.courses.real_time.show', $course->id) }}">
+                                        <img src="{{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}"
+                                            alt="course" class="card-img-top"
+                                            style="height: 160px; object-fit: cover;">
+                                    </a>
 
-                                <!-- Card body -->
-                                <div class="card-body">
-                                    <h4 class="mb-2 text-truncate-line-2">
-                                        <a href="
-                                            {{ route('instructor.courses.real_time.show', $course->id) }}
-                                        "
-                                            class="text-inherit text-capitalize">
-                                            {{ $course->title }}
-                                        </a>
-                                    </h4>
-                                    <ul class="mb-3 list-inline">
-                                        <li class="list-inline-item">
-                                            <span>
-                                                <i class="bi bi-clock"></i>
+                                    <!-- Card body -->
+                                    <div class="card-body">
+                                        <h4 class="mb-2 text-truncate-line-2">
+                                            <a href="{{ route('instructor.courses.real_time.show', $course->id) }}"
+                                                class="text-inherit text-capitalize">
+                                                {{ $course->title }}
+                                            </a>
+                                        </h4>
+                                        <ul class="mb-3 list-inline">
+                                            <li class="list-inline-item">
+                                                <span>
+                                                    <i class="bi bi-clock"></i>
+                                                </span>
+                                                <span>
+                                                    {{ $course->duration ?? 'N/A' }}h
+                                                </span>
+                                            </li>
+                                            <li class="list-inline-item">
+                                                <span>
+                                                    <i class="bi bi-people"></i>
+                                                </span>
+                                                <span>
+                                                    {{ $course->enrollments->count() ?? 0 }} Enrolled
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-3 d-flex align-baseline lh-1">
+                                            <span class="fs-6">
+                                                {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
                                             </span>
-                                            <span>
-                                                {{ $course->duration ?? 'N/A' }}h
-                                            </span>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <span>
-                                                <i class="bi bi-people"></i>
-                                            </span>
-                                            <span>
-                                                {{ $course->enrollments->count() ?? 0 }} Enrolled
-                                            </span>
-                                        </li>
-                                    </ul>
-                                    <div class="mt-3 d-flex align-baseline lh-1">
-                                        <span class="fs-6">
-                                            {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
-                                        </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="card mb-4">
-                                <div class="card-body text-center">
-                                    <h4 class="mb-0">You have no other courses.</h4>
+                        @empty
+                            <div class="col-12">
+                                <div class="card mb-4">
+                                    <div class="card-body text-center">
+                                        <h4 class="mb-0">You have no other courses.</h4>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforelse
+                        @endforelse
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </section>
 
@@ -1026,10 +1136,9 @@
 @endsection
 @push('scripts')
     <script>
-        // Approval modal — loading state on submit
         /* =========================
-           APPROVAL MODAL
-        ========================= */
+                                                                                                           APPROVAL MODAL
+                                                                                                        ========================= */
         document.getElementById('approvalForm')?.addEventListener('submit', function() {
             const submitBtn = document.getElementById('approvalSubmitBtn');
             const cancelBtn = document.getElementById('approvalCancelBtn');
@@ -1133,5 +1242,214 @@
                 });
             });
         });
+        /* =========================
+           SESSION LOG TAB
+        ========================= */
+        (function() {
+            let loaded = false;
+            // ✅ Exposed so autoSaveAttendance can call it
+            window.reloadSessionLog = function() {
+                fetchAndRender();
+            };
+
+            function loadSessionLog() {
+                if (loaded) return;
+                loaded = true;
+                fetchAndRender();
+            }
+
+            function fetchAndRender() {
+                $.ajax({
+                    url: "{{ route('instructor.student-attendance.session-log') }}",
+                    type: 'GET',
+                    data: {
+                        course_id: "{{ $course->id }}"
+                    },
+                    success: function(res) {
+                        if (!res.success) {
+                            $('#sessionLogContainer').html(
+                                '<div class="text-center text-muted py-5">No data returned.</div>'
+                            );
+                            return;
+                        }
+                        renderSessionLog(res.sessions, res.students);
+                    },
+                    error: function() {
+                        $('#sessionLogContainer').html(
+                            '<div class="text-center text-muted py-5">Failed to load session log.</div>'
+                        );
+                    }
+                });
+            }
+            // ✅ Delegated — catches pill tab reliably regardless of init order
+            $(document).on('shown.bs.tab', 'a[href="#session-log"]', function() {
+                loadSessionLog();
+            });
+            // ✅ Handle localStorage tab restore
+            $(document).ready(function() {
+                if ($('#session-log').hasClass('active show')) {
+                    loadSessionLog();
+                }
+            });
+
+            function renderSessionLog(sessions, students) {
+                if (!sessions || !sessions.length) {
+                    $('#sessionLogContainer').html(
+                        `<div class="text-center py-5">
+                    <i class="fe fe-calendar fs-1 text-muted d-block mb-3"></i>
+                    <p class="text-muted mb-0">No attendance recorded yet.</p>
+                </div>`
+                    );
+                    return;
+                }
+                let totalPresent = 0;
+                let totalAbsent = 0;
+                let totalSessions = sessions.length;
+                sessions.forEach(s => {
+                    totalPresent += parseInt(s.present_count || 0);
+                    totalAbsent += parseInt(s.absent_count || 0);
+                });
+                // ✅ Remember which sessions were open so we can restore after re-render
+                let openIndexes = new Set();
+                $('#sessionLogContainer .session-row').each(function() {
+                    let idx = $(this).data('index');
+                    if ($(`.session-detail-${idx}`).is(':visible')) {
+                        openIndexes.add(idx);
+                    }
+                });
+                let html = `
+            <div class="row g-3 mb-4">
+                <div class="col">
+                    <div class="p-3 rounded-3 bg-light text-center">
+                        <div class="text-muted small mb-1">Total Sessions</div>
+                        <div class="fw-bold fs-5">${totalSessions}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#d1e7dd;">
+                        <div class="small mb-1" style="color:#0a3622;">Total Present</div>
+                        <div class="fw-bold fs-5" style="color:#0a3622;">${totalPresent}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#f8d7da;">
+                        <div class="small mb-1" style="color:#58151c;">Total Absent</div>
+                        <div class="fw-bold fs-5" style="color:#58151c;">${totalAbsent}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span class="text-muted small">
+                    <i class="fe fe-list me-1"></i>${totalSessions} session${totalSessions !== 1 ? 's' : ''} recorded
+                </span>
+                <div class="d-flex gap-3 small text-muted">
+                    <span><span class="badge bg-success me-1">&nbsp;</span>Present</span>
+                    <span><span class="badge bg-danger me-1">&nbsp;</span>Absent</span>
+                </div>
+            </div>`;
+                sessions.forEach((session, index) => {
+                    let totalStudents = parseInt(session.total_students || 0);
+                    let presentCount = parseInt(session.present_count || 0);
+                    let absentCount = parseInt(session.absent_count || 0);
+                    let unmarkedCount = parseInt(session.unmarked_count || 0);
+                    let attendanceRate = totalStudents > 0 ?
+                        Math.round((presentCount / totalStudents) * 100) :
+                        0;
+                    let rateColor = attendanceRate >= 80 ? 'text-success' :
+                        attendanceRate >= 50 ? 'text-warning' :
+                        'text-danger';
+                    let records = session.records || {};
+                    let dots = students.map(student => {
+                        let record = records[student.id];
+                        let status = record ? record.status : null;
+                        let color = status === 'present' ? '#198754' :
+                            status === 'absent' ? '#dc3545' :
+                            '#dee2e6';
+                        return `<span title="${student.name}: ${status ?? 'unmarked'}" style="
+                    display:inline-block; width:10px; height:10px;
+                    border-radius:50%; background:${color}; margin:1px;"></span>`;
+                    }).join('');
+                    let detailRows = students.map(student => {
+                        let record = records[student.id];
+                        let status = record ? record.status : null;
+                        let note = record ? (record.note ?? '') : '';
+                        let badgeClass = status === 'present' ? 'bg-success' :
+                            status === 'absent' ? 'bg-danger' :
+                            'bg-light text-dark border';
+                        let initials = student.name.substring(0, 2).toUpperCase();
+                        return `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">
+                                    ${initials}
+                                </div>
+                                <span class="text-capitalize small">${student.name}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge ${badgeClass}" style="font-size:11px;">
+                                ${status ? status.charAt(0).toUpperCase() + status.slice(1) : '—'}
+                            </span>
+                        </td>
+                        <td class="text-muted small">${note || '—'}</td>
+                    </tr>`;
+                    }).join('');
+                    // ✅ Restore open state after re-render
+                    let isOpen = openIndexes.has(index);
+                    let detailDisplay = isOpen ? 'block' : 'none';
+                    let chevronRotate = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+                    html += `
+                <div class="card mb-2 border rounded-3 overflow-hidden">
+                    <div class="p-3 d-flex align-items-center gap-3 session-row"
+                         data-index="${index}" style="cursor:pointer; user-select:none;">
+                        <div class="text-center flex-shrink-0" style="width:46px;">
+                            <div class="fw-bold" style="font-size:18px;line-height:1;">${session.day}</div>
+                            <div class="text-muted" style="font-size:11px;text-transform:uppercase;">${session.month}</div>
+                            <div class="text-muted" style="font-size:11px;">${session.year}</div>
+                        </div>
+                        <div style="width:1px;height:40px;background:#dee2e6;flex-shrink:0;"></div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="mb-1 d-flex align-items-center gap-2">
+                                <span class="small fw-semibold ${rateColor}">${attendanceRate}%</span>
+                                <span class="text-muted small">${presentCount}P / ${absentCount}A
+                                    ${unmarkedCount > 0 ? `/ ${unmarkedCount} unmarked` : ''}
+                                </span>
+                            </div>
+                            <div style="line-height:1;">${dots}</div>
+                        </div>
+                        <div class="text-muted flex-shrink-0 session-chevron" data-index="${index}"
+                             style="transform:${chevronRotate}; transition:transform 0.2s;">
+                            <i class="fe fe-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="session-detail-${index}"
+                         style="display:${detailDisplay}; border-top:1px solid #dee2e6;">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0" style="font-size:13px;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th class="text-center">Status</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${detailRows}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+                });
+                $('#sessionLogContainer').html(html);
+                $('#sessionLogContainer').off('click', '.session-row').on('click', '.session-row', function() {
+                    let idx = $(this).data('index');
+                    let detail = $(`.session-detail-${idx}`);
+                    let chevron = $(`[data-index="${idx}"].session-chevron`);
+                    let isOpen = detail.is(':visible');
+                    detail.slideToggle(150);
+                    chevron.css('transform', isOpen ? 'rotate(0deg)' : 'rotate(180deg)');
+                });
+            }
+        })();
     </script>
 @endpush
