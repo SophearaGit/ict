@@ -369,12 +369,7 @@
                                 <span class="fs-6 ms-4 align-text-top">
                                     {{-- loop 5 time --}}
                                     @for ($i = 0; $i < 5; $i++)
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                            fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
-                                            </path>
-                                        </svg>
+                                        <i class="bi bi-star-fill text-warning"></i>
                                     @endfor
                                 </span>
                                 <span class="text-white">
@@ -382,16 +377,7 @@
                                 </span>
                             </div>
                             <span class="text-white ms-4 d-none d-md-block">
-                                <svg width="16" height="16" viewBox="0 0 16
-                            16"
-                                    fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="3" y="8" width="2" height="6" rx="1" fill="#DBD8E9">
-                                    </rect>
-                                    <rect x="7" y="5" width="2" height="9" rx="1" fill="#DBD8E9">
-                                    </rect>
-                                    <rect x="11" y="2" width="2" height="12" rx="1" fill="#DBD8E9">
-                                    </rect>
-                                </svg>
+                                <i class="bi bi-bar-chart-fill"></i>
                                 <span class="align-middle">Beginner</span>
                             </span>
                         </div>
@@ -482,10 +468,10 @@
                                         <!-- SUMMARY -->
                                         <div class="row text-center mb-4 g-3">
                                             {{-- <div class="col">
-                                                <div class="summary-card">
-                                                    <small>Total</small>
-                                                    <h5 id="totalCount">
-                                                        {{ $students->count() }}
+                                                    <div class="summary-card">
+                                                        <small>Total</small>
+                                                        <h5 id="totalCount">
+                                                            {{ $students->count() }}
                     </h5>
                   </div>
                 </div> --}}
@@ -783,7 +769,7 @@
                     <div class="card  mb-4">
                         <div class="p-1">
                             <div class="d-flex justify-content-center align-items-center rounded border-white border rounded-3 bg-cover"
-                                style="background-image: url({{ asset($course->thumbnail == '' ? '\default-images\staff\no-course-img.png' : $course->thumbnail) }}); height: 210px">
+                                style="background-image: url({{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}); height: 210px">
                             </div>
                         </div>
                     </div>
@@ -874,7 +860,7 @@
                 <div class="row d-md-flex align-items-center mb-4">
                     <div class="col-12">
                         <h2 class="mb-0">
-                            {{-- Your other courses --}}
+                            MY TEACHING COURSES
                         </h2>
                     </div>
                 </div>
@@ -889,7 +875,7 @@
                                     {{ route('instructor.courses.real_time.show', $course->id) }}
                                 "><img
                                         src="
-                                        {{ asset($course->thumbnail == '' ? '\default-images\staff\no-course-img.png' : $course->thumbnail) }}
+                                        {{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}
                                     "
                                         alt="course" class="card-img-top"
                                         style="height: 160px; object-fit: cover;"></a>
@@ -907,16 +893,7 @@
                                     <ul class="mb-3 list-inline">
                                         <li class="list-inline-item">
                                             <span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                                    fill="currentColor" class="bi bi-clock align-baseline"
-                                                    viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z">
-                                                    </path>
-                                                    <path
-                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z">
-                                                    </path>
-                                                </svg>
+                                                <i class="bi bi-clock"></i>
                                             </span>
                                             <span>
                                                 {{ $course->duration ?? 'N/A' }}h
@@ -924,7 +901,7 @@
                                         </li>
                                         <li class="list-inline-item">
                                             <span>
-                                                <i class="fe fe-users align-middle me-1"></i>
+                                                <i class="bi bi-people"></i>
                                             </span>
                                             <span>
                                                 {{ $course->enrollments->count() ?? 0 }} Enrolled
