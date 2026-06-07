@@ -79,6 +79,9 @@ Route::middleware(['auth:web', 'verified', 'check_role:instructor'])
         Route::post('/student-report/cancel-approval/{course}', [StudentReportController::class, 'cancelApproval'])->name('student-report.cancel-approval');
         Route::post('/student-attendance/save', [StudentAttendanceController::class, 'store'])->name('student-attendance.store');
         Route::get('/student-attendance', [StudentAttendanceController::class, 'getByDate'])->name('student-attendance.get');
+        Route::post('/student-attendance/reset', [StudentAttendanceController::class, 'reset'])->name('student-attendance.reset');
+        Route::get('/student-attendance/session-log', [StudentAttendanceController::class, 'sessionLog'])
+            ->name('student-attendance.session-log');
         /*******************************************************
          * CHAPTER
          *******************************************************/
