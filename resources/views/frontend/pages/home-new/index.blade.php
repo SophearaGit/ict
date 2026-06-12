@@ -2,195 +2,90 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @push('styles')
     <style>
-        /* ─── User Dropdown Fix ─── */
-        .user-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .user-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 8px;
-        }
-
-        .user-btn img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .user-dropdown-content {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            min-width: 160px;
-            padding-top: 8px;
-            background: transparent;
-            z-index: 9999;
-            transition: opacity 0.15s ease, visibility 0.15s ease;
-            transition-delay: 120ms;
-        }
-
-        .user-dropdown:hover .user-dropdown-content {
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 0ms;
-        }
-
-        .user-dropdown-content-inner {
-            background: #1e1e1e;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            padding: 6px 0;
-            overflow: hidden;
-        }
-
-        .user-dropdown-content a,
-        .user-dropdown-content .logout-btn {
-            display: block;
-            width: 100%;
-            padding: 10px 16px;
-            text-align: left;
-            text-decoration: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            color: #fff !important;
-            box-sizing: border-box;
-            white-space: nowrap;
-        }
-
-        .user-dropdown-content a:hover,
-        .user-dropdown-content .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        @media (prefers-color-scheme: light) {
-            .user-dropdown-content-inner {
-                background: #ffffff;
-                border-color: rgba(0, 0, 0, 0.1);
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-            }
-
-            .user-dropdown-content a:hover,
-            .user-dropdown-content .logout-btn:hover {
-                background: rgba(0, 0, 0, 0.05);
-            }
-        }
-
         .acb {
             cursor: pointer;
-            transition: all 0.2s ease;
+            pointer-events: all;
+            user-select: none;
+            transition: background-color 0.2s;
         }
 
-        .acb.active-cat {
-            border-bottom: 2px solid #3777ff;
-            color: #3777ff;
-        }
-        .pweekly {
-            height: 120px;
+        .acb:hover {
+            background-color: rgb(230, 230, 230);
         }
 
-        .boxcard.hidden {
+        .acb.active {
+            background-color: #3777ff;
+            color: white;
+        }
+
+        .acb.active p,
+        .acb.active .fa-solid {
+            color: white !important;
+        }
+
+        .category-icon,
+        .acb i {
+            width: 20px;
+            height: 20px;
+            font-size: 20px;
+            object-fit: contain;
+        }
+
+        .empty-course-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            min-height: 300px;
+            padding: 60px 20px;
+        }
+
+        #no-course-found {
+            width: 100%;
             display: none;
         }
 
-        .boxcard.fade-in {
-            animation: fadeIn 0.3s ease forwards;
+        .empty-course-state {
+            width: 100%;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .empty-course-state i {
+            font-size: 50px;
+            color: #999;
+            margin-bottom: 15px;
         }
 
-        @media (min-width: 1025px) {
-            .mainbox {
-                justify-content: space-between !important;
-                gap: 15px !important;
-            }
+        .empty-course-state h3 {
+            margin-bottom: 10px;
+        }
 
-            .mainbox .boxcard {
-                width: calc(25% - 12px) !important;
-                min-width: unset !important;
-            }
+        .empty-course-state p {
+            color: #777;
         }
     </style>
 @endpush
 @section('content')
 
     <!-- ═══ CAROUSEL ═══ -->
-    <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true"
-                aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="{{ asset('frontend/assets-new/images/banner/b1.jpg') }}" class="d-block w-100" alt="">
-                <div class="carousel-caption d-none d-md-block">
-                    <h1>Learn from the Best Teachers</h1>
-                    <p>Some representative placeholder content for the first slide.</p>
-                    <button>Get Started</button>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="{{ asset('frontend/assets-new/images/banner/b2.jpg') }}" class="d-block w-100" alt="Slide 1">
-                <div class="carousel-caption d-none d-md-block">
-                    <h1>Learn from the Best Teachers</h1>
-                    <p>Some representative placeholder content for the first slide.</p>
-                    <button>Get Started</button>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="{{ asset('frontend/assets-new/images/ICT_ShildeShow2.jpg') }}" class="d-block w-100"
-                    alt="Slide 2">
-                <div class="carousel-caption d-none d-md-block">
-                    <h1>Learn from the Best Teachers</h1>
-                    <p>Some representative placeholder content for the first slide.</p>
-                    <button>Get Started</button>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="{{ asset('frontend/assets-new/images/ICT_Slideshow4.jpg') }}" class="d-block w-100"
-                    alt="Slide 3">
-                <div class="carousel-caption d-none d-md-block">
-                    <h1>Learn from the Best Teachers</h1>
-                    <p>Some representative placeholder content for the first slide.</p>
-                    <button>Get Started</button>
-                </div>
+    <div class="video-carousel">
+        <video class="vc-video" src="{{ asset('./frontend/asset/images/video_2024.mp4') }}" autoplay muted playsinline
+            loop></video>
+        <div class="vc-overlay"></div>
+        <div class="vc-caption">
+            <h2>Learn from the <em> Best Teachers</em></h2>
+            <p>We combine expert instructors, hands-on projects, and flexible schedules to help you build a real
+                career in tech — whether you are a complete beginner or looking to level up your skills.</p>
+            <div class="vc-btns">
+                <button class="vc-btn-primary">Get Started</button>
             </div>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying"
-            data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying"
-            data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
     </div>
 
     <!-- ═══ CATEGORY ICONS ═══ -->
@@ -225,18 +120,28 @@
             <button id="desone">Now accepting enrollment - Batch 2026</button>
             <h1>Start Your ICT <br> Professional <br> Journey</h1>
             <p id="p">Master in-demand technology skills through structured online courses and live
-                instructor-led classes designed for real world careers.</p>
+                instructor-led
+                classes designed for real world careers.</p>
             <div class="btndescript">
                 <button id="studyon">Study Online</button>
                 <button id="regis">Register Real Time Class</button>
             </div>
             <div class="studentenroll">
-                <img class="st-pic" src="{{ asset('frontend/assets-new/images/OIP (7).webp') }}" alt="Student">
-                <img class="st-pic" src="{{ asset('frontend/assets-new/images/OIP (3).webp') }}" alt="Student">
-                <img class="st-pic" src="{{ asset('frontend/assets-new/images/OIP (4).webp') }}" alt="Student">
-                <img class="st-pic" src="{{ asset('frontend/assets-new/images/OIP (6).webp') }}" alt="Student">
+                @foreach ($instructors as $instructor)
+                    <img class="st-pic"
+                        src="{{ asset(
+                            empty($instructor->image) || $instructor->image === 'no-img.jpg'
+                                ? 'default-images/user/both.jpg'
+                                : ltrim($instructor->image, '/'),
+                        ) }}"
+                        alt="{{ $instructor->name }}"
+                        title="{{ $instructor->name }} ({{ number_format($instructor->students_count) }} students)">
+                @endforeach
                 <div class="aboutstudent">
-                    <p id="se">+25,000 students enrolled</p>
+                    <p id="se">
+                        +{{ number_format($total_students) }}
+                        students enrolled
+                    </p>
                     <div class="star">
                         <i class="fa-solid fa-star" style="color:gold;"></i>
                         <i class="fa-solid fa-star" style="color:gold;"></i>
@@ -249,11 +154,11 @@
             </div>
         </div>
         <div class="imgdescript">
-            <img src="{{ asset('frontend/assets-new/images/istockphoto-1061639630-170667a.jpg') }}" alt="Hero Image">
+            <img src="{{ asset('./frontend/asset/images/istockphoto-1061639630-170667a.jpg') }}" alt="Hero Image">
         </div>
     </div>
 
-    <!-- Search section -->
+    <!-- Search section  -->
     <div class="search">
         <h2>All COURSE OF ICT</h2>
         <div class="searchbox">
@@ -262,24 +167,21 @@
         </div>
     </div>
 
-    <!-- Course slider -->
+    <!--course slider-->
     <div class="allcoursebox">
         <div class="coursebox">
             <div class="boxcourse">
-                {{-- "All" button --}}
-                <div class="acb active-cat" data-category="all">
-                    <i class="fa-solid fa-border-all"></i>
+                <div class="acb active" data-category="all">
+                    <i class="fa-solid fa-grip"></i>
                     <p>All</p>
                 </div>
                 @foreach ($categories_for_frontend as $category)
                     <div class="acb" data-category="{{ $category->id }}">
-                        @if ($category->icon)
+                        @if (!empty($category->thumbnail))
+                            <img src="{{ asset(ltrim($category->thumbnail, '/')) }}" alt="{{ $category->name }}"
+                                class="category-icon">
+                        @elseif (!empty($category->icon))
                             <i class="{{ $category->icon }}"></i>
-                        @elseif ($category->thumbnail)
-                            <img src="{{ asset($category->thumbnail) }}" alt="{{ $category->name }}"
-                                style="width:34px;height:34px;object-fit:cover;">
-                        @else
-                            <i class="fa-solid fa-book"></i>
                         @endif
                         <p>{{ $category->name }}</p>
                     </div>
@@ -287,58 +189,69 @@
             </div>
         </div>
     </div>
-
     <div class="mainbox">
-        @forelse ($courses as $title => $group)
-            @php $course = $group->first(); @endphp
-            <div class="boxcard" data-category="{{ $course->category_id }}">
-                <img src="{{ $course->thumbnail ?: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXZhMW5qNXpyZ3M1ZG84NHBoa2QyYnBpd3hrZ2F0aDk4b3RvbnR1MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnxpQ3ghPiB2Hp6/giphy.gif' }}"
-                    alt="{{ $course->title }}"
-                    onerror="this.src='https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXZhMW5qNXpyZ3M1ZG84NHBoa2QyYnBpd3hrZ2F0aDk4b3RvbnR1MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnxpQ3ghPiB2Hp6/giphy.gif'">
+        @foreach ($courses->take(16) as $title => $group)
+            @php
+                $course = $group->first();
+            @endphp
+            <a href="{{ route('course.details', $course->slug) }}" class="boxcard"
+                data-category="{{ $course->category_id }}" data-title="{{ strtolower($title) }}">
+                <img src="{{ asset(empty($course->thumbnail) ? 'default-images/ict-courses/loading.gif' : ltrim($course->thumbnail, '/')) }}"
+                    alt="{{ $course->title }}">
                 <div class="teacher">
-                    <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('default-images/user/both.jpg') : asset($course->instructor->image) }}"
-                        alt="{{ $course->instructor->name }}">
-                    <p>{{ $course->instructor->name }}</p>
+                    <div class="teach-name">
+                        <img src="{{ asset(
+                            empty($course->instructor?->image) || $course->instructor?->image === 'no-img.jpg'
+                                ? 'default-images/user/both.jpg'
+                                : ltrim($course->instructor->image, '/'),
+                        ) }}"
+                            alt="{{ $course->instructor?->name }}">
+                        <p>{{ $course->instructor?->name }}</p>
+                    </div>
                     <button>
-                        @if ($course->category)
-                            {{ $course->category->name }}
-                        @else
-                            Uncategorized
-                        @endif
+                        {{ $course->category?->name }}
                     </button>
                 </div>
                 <h2>{{ $title }}</h2>
                 <div class="weekschedule">
                     <i class="fa-regular fa-calendar-days"></i>
-                    <p>Weekly Schedule</p>
-                    <p class="hour">{{ $course->duration }} hours</p>
+                    <p>{{ $group->count() }} Weekly Schedule{{ $group->count() > 1 ? 's' : '' }}</p>
+                    <p class="hour">{{ $course->duration }} hrs</p>
                 </div>
-                <div class="pweekly">
-                    @foreach ($group as $item)
-                        @if ($item->schedule)
-                            <p class="text-capitalize">. {{ $item->schedule->study_day }}
-                                ({{ \Carbon\Carbon::parse($item->schedule->start_time)->format('g:i A') }} -
-                                {{ \Carbon\Carbon::parse($item->schedule->end_time)->format('g:i A') }})
-                            </p>
+                <p class="pweekly">
+                    @foreach ($group->unique('schedule_id')->take(3) as $scheduleCourse)
+                        • {{ $scheduleCourse->schedule?->short_days }}
+                        ({{ $scheduleCourse->schedule?->formatted_time }})
+                        @if (!$loop->last)
+                            <br>
                         @endif
                     @endforeach
-                </div>
+                    @if ($group->unique('schedule_id')->count() > 3)
+                        <br>
+                        +{{ $group->unique('schedule_id')->count() - 3 }} more batches
+                    @endif
+                </p>
                 <div class="prnrate">
                     <h3>${{ number_format($course->price, 2) }}</h3>
                     <div class="starate">
                         <p>4.9</p>
-                        @for ($i = 0; $i < 5; $i++)
-                            <i class="fa-solid fa-star" style="color:gold;"></i>
-                        @endfor
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
                     </div>
                 </div>
-            </div>
-        @empty
-            <p>No courses available at the moment. Please check back later.</p>
-        @endforelse
+            </a>
+        @endforeach
+    </div>
+    <div id="no-course-found" class="empty-course-state" style="display:none;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <h3>No Courses Found</h3>
+        <p>Try searching with another keyword.</p>
     </div>
 
-    <!-- ═══ BLOG VIDEOS ═══ -->
+    <!-- ═══ COURSE CARDS ═══ -->
     <div class="card-areaa">
         <h3 id="blogsection">About Blog Videos <span>›</span></h3>
         <p id="blog_description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium id
@@ -346,60 +259,71 @@
         <div class="wrapperr">
             <div class="box-area">
                 <div class="boxx" class="active">
-                    <img src="{{ asset('frontend/assets-new/images/whatisweb3.jpg') }}" alt="">
+                    <img src="./frontend/asset/images/whatisweb3.jpg" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
                 <div class="boxx">
-                    <img src="{{ asset('frontend/assets-new/images/boxcourseAdvancedExcel.webp') }}" alt="">
+                    <img src="./frontend/asset/images/boxcourseAdvancedExcel.webp" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
                 <div class="boxx">
-                    <img src="{{ asset('frontend/assets-new/images/Blogexcel.webp') }}" alt="">
+                    <img src="./frontend/asset/images/Blogexcel.webp" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
                 <div class="boxx">
-                    <img src="{{ asset('frontend/assets-new/images/whatisweb3.jpg') }}" alt="">
+                    <img src="./frontend/asset/images/whatisweb3.jpg" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
                 <div class="boxx">
-                    <img src="{{ asset('frontend/assets-new/images/front-end-web-developer-html-css-bootstrap.png') }}"
-                        alt="">
+                    <img src="./frontend/asset/images/front-end-web-developer-html-css-bootstrap.png" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
                 <div class="boxx">
-                    <img src="{{ asset('frontend/assets-new/images/whatisweb3.jpg') }}" alt="">
+                    <img src="./frontend/asset/images/whatisweb3.jpg" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
                 <div class="boxx">
-                    <img src="{{ asset('frontend/assets-new/images/dataanalyze.webp') }}" alt="">
+                    <img src="./frontend/asset/images/dataanalyze.webp" alt="">
                     <div class="overlay">
                         <p>Phat Sopheaktra</p>
                         <h3>What is Web Development?</h3>
+
+                        <!-- <a href="#">Learn More</a> -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- ═══ ABOUT SCHOOL ═══ -->
     <div class="aboutschool">
         <div class="text">
             <p>WHY CHOOSE US</p>
@@ -415,7 +339,8 @@
                 <div class="typecategory">
                     <i class="fa-solid fa-users"></i>
                     <p class="aboutdescri"><i>Expert Instructors</i><br>Learn from industry professionals working
-                        at top companies like Google and Meta.</p>
+                        at
+                        top companies like Google and Meta.</p>
                 </div>
                 <div class="typecategory">
                     <i class="fa-solid fa-diagram-project"></i>
@@ -429,49 +354,71 @@
                 </div>
             </div>
         </div>
-        <div class="imgaboutschool" style="height:400px;">
-            <img src="{{ asset('frontend/assets-new/images/banner/b4.png') }}" alt="About Us Image"
-                style="width:100%; height:100%; object-fit:cover; display:block;">
+        <div class="imgaboutschool">
+            <img src="./frontend/asset/images/photo_2026-04-30_15-36-55.jpg" alt="About Us Image">
         </div>
     </div>
 
-    <!-- ═══ EXPERT INSTRUCTORS ═══ -->
+    <!-- CEO founder of ICT Solutions Co,Ltd -->
+    <div class="teacher-img-with-description">
+        <img src="./frontend/asset/images/teacherNhim.jpg" alt="">
+        <div class="teacher-nhim-text-descript">
+            <p>Mr.NHANH NHIM</p>
+            <span>CEO & Founder of ICT Solutions,Co,Ltd.</span>
+            <h3>"Our mission is to empower the next generation of digital innovators with the tools they need to
+                change the world."</h3>
+        </div>
+    </div>
     <div class="teacherictblock">
         <p class="pt" id="pt">EXPERT INSTRUCTORS</p>
         <div class="iconwithtext">
             <i class="fa-solid fa-circle-check" style="color: #3777ff;"></i>
             <h2>Learn From the Best</h2>
         </div>
-        <p class="pt">Our instructors are industry professionals from top companies, passionate about sharing their
-            knowledge.</p>
+        <p class="pt">Our instructors are industry professionals from top companies, passionate about sharing
+            their knowledge.</p>
 
-        <!-- Teacher cards -->
+        <!--Teacher cards -->
         <div class="teacher-cards-grid">
-            @foreach ($instructors as $instructor)
+            @foreach ($featured_instructors as $instructor)
                 <div class="teacher-card">
                     <div class="teacher-avatar-wrap">
-                        <img src="{{ $instructor->image == 'no-img.jpg' ? asset('default-images/user/both.jpg') : asset($instructor->image) }}"
+                        <img src="{{ asset(
+                            empty($instructor->image) || $instructor->image === 'no-img.jpg'
+                                ? 'default-images/user/both.jpg'
+                                : ltrim($instructor->image, '/'),
+                        ) }}"
                             alt="{{ $instructor->name }}">
                     </div>
-                    <h3 class="text-capitalize">{{ $instructor->name }}</h3>
-                    <p class="teacher-role text-capitalize">
-                        {{ $instructor->courses->first()?->title ?? 'Instructor' }}
+                    <h3>{{ $instructor->name }}</h3>
+                    <p class="teacher-role">
+                        {{ $instructor->courses->first()?->title ?? 'ICT Instructor' }}
                     </p>
                     <div class="teacher-rating">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star-half-stroke"></i>
-                        <span>4.7 (5K)</span>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <span>4.9</span>
                     </div>
                     <div class="teacher-divider"></div>
                     <div class="teacher-stats">
                         <div class="stat-item">
-                            <span class="stat-value">{{ number_format($instructor->students_count / 1000, 0) }}K</span>
-                            <span class="stat-label">Students</span>
+                            <span class="stat-value">
+                                {{ number_format($instructor->students_count) }}
+                            </span>
+                            <span class="stat-label">
+                                Students
+                            </span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value">{{ $instructor->courses_count }}</span>
-                            <span class="stat-label">Courses</span>
+                            <span class="stat-value">
+                                {{ $instructor->courses_count }}
+                            </span>
+                            <span class="stat-label">
+                                Courses
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -479,7 +426,7 @@
         </div>
     </div>
 
-    <!-- ═══ PARTNERSHIP ═══ -->
+    <!-- Section partnership and footer -->
     <section class="partnership">
         <h2 class="partnership__title">Our <span>Partnership</span></h2>
         <p class="partnership__sub">Collaborating with Cambodia's leading tech companies and media organizations to
@@ -490,115 +437,169 @@
                 <!-- First set -->
                 <div class="partner-card">
                     <a href="https://www.camboNCT.com" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-camboNCT.jpg') }}" alt="">
+                        <img src="./frontend/asset/images/p-camboNCT.jpg" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-cemintel.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-cemintel.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-emerald.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-emerald.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-ezecom.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-ezecom.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-khmer24.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-khmer24.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-loma_tecc.jpg') }}" alt="">
+                        <img src="./frontend/asset/images/p-loma_tecc.jpg" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-sabay.png') }}" alt="">
+                        <img src="./frontend/asset/images/p-sabay.png" alt="">
                     </a>
                 </div>
 
-                <!-- Duplicate set 2 -->
+                <!-- Duplicate set for seamless loop -->
                 <div class="partner-card">
                     <a href="https://www.camboNCT.com" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-camboNCT.jpg') }}" alt="">
+                        <img src="./frontend/asset/images/p-camboNCT.jpg" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-cemintel.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-cemintel.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-emerald.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-emerald.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-ezecom.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-ezecom.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-khmer24.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-khmer24.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-loma_tecc.jpg') }}" alt="">
+                        <img src="./frontend/asset/images/p-loma_tecc.jpg" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-sabay.png') }}" alt="">
+                        <img src="./frontend/asset/images/p-sabay.png" alt="">
                     </a>
                 </div>
 
-                <!-- Duplicate set 3 -->
+                <!-- Duplicate set for seamless loop -->
                 <div class="partner-card">
                     <a href="https://www.camboNCT.com" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-camboNCT.jpg') }}" alt="">
+                        <img src="./frontend/asset/images/p-camboNCT.jpg" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-cemintel.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-cemintel.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-emerald.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-emerald.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-ezecom.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-ezecom.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-khmer24.webp') }}" alt="">
+                        <img src="./frontend/asset/images/p-khmer24.webp" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-loma_tecc.jpg') }}" alt="">
+                        <img src="./frontend/asset/images/p-loma_tecc.jpg" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('frontend/assets-new/images/p-sabay.png') }}" alt="">
+                        <img src="./frontend/asset/images/p-sabay.png" alt="">
                     </a>
                 </div>
-
             </div>
         </div>
     </section>
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const categories = document.querySelectorAll('.acb');
+            const cards = document.querySelectorAll('.boxcard');
+            const searchInput = document.getElementById('seainput');
+            const emptyState = document.getElementById('no-course-found');
+
+            function applyFilters() {
+                const keyword = searchInput.value.toLowerCase();
+                const activeCategory =
+                    document.querySelector('.acb.active')
+                    ?.dataset.category ?? 'all';
+                let visibleCount = 0;
+                cards.forEach(card => {
+                    const title = card.dataset.title;
+                    const category = card.dataset.category;
+                    const matchSearch =
+                        title.includes(keyword);
+                    const matchCategory =
+                        activeCategory === 'all' ||
+                        category === activeCategory;
+                    if (matchSearch && matchCategory) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                const mainbox = document.querySelector('.mainbox');
+                if (visibleCount === 0) {
+                    mainbox.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    mainbox.style.display = '';
+                    emptyState.style.display = 'none';
+                }
+            }
+            categories.forEach(category => {
+                category.addEventListener('click', e => {
+                    categories.forEach(c =>
+                        c.classList.remove('active')
+                    );
+                    e.currentTarget.classList.add('active');
+                    applyFilters();
+                });
+            });
+            searchInput.addEventListener(
+                'keyup',
+                applyFilters
+            );
+            applyFilters();
+        });
+    </script>
+@endpush

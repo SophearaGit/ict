@@ -17,6 +17,7 @@
             </div>
         </div>
     </div>
+
     {{-- ── BULK ACTION TOOLBAR (appears when ≥1 checked) ── --}}
     <div id="bulkActionBar" class="d-none mb-3">
         <div class="d-flex align-items-center flex-wrap gap-2 p-3 rounded-3 border border-primary bg-light-primary">
@@ -45,6 +46,7 @@
             </button>
         </div>
     </div>
+
     {{-- ── STUDENT CARDS ── --}}
     <div class="row">
         @forelse ($course->students as $student)
@@ -98,7 +100,6 @@
                                 <i class="ti ti-brand-twitter"></i>
                             </a>
                         </li>
-                        {{-- ↓ ADD THIS ↓ --}}
                         <li>
                             <a class="text-success d-flex align-items-center justify-content-center p-2 fs-5 rounded-circle fw-semibold"
                                 href="{{ route('staff.courses.student.invoice', ['course' => $course->id, 'student' => $student->id]) }}"
@@ -120,19 +121,18 @@
             </div>
         @endforelse
     </div>
+
     {{-- ══════════════════════════════════════════
-     PRICE DIFFERENCE CONFIRMATION MODAL
-══════════════════════════════════════════ --}}
+         PRICE DIFFERENCE CONFIRMATION MODAL
+    ══════════════════════════════════════════ --}}
     <div class="modal fade" id="priceDiffModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
-
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title text-warning">
                         <i class="ti ti-coins me-2"></i>Price difference
                     </h5>
                 </div>
-
                 <div class="modal-body">
                     <p class="fs-3 text-muted mb-2">
                         The destination course costs more.
@@ -154,25 +154,21 @@
                         Do you want to charge the student for the difference?
                     </p>
                 </div>
-
                 <div class="modal-footer border-0 pt-0 d-flex gap-2">
-                    {{-- Cancel entirely --}}
                     <button type="button" class="btn btn-light btn-sm flex-fill" id="priceDiffCancel">
                         <i class="ti ti-x me-1"></i> Cancel
                     </button>
-                    {{-- Move without charging --}}
                     <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="priceDiffNo">
                         No, just move
                     </button>
-                    {{-- Move and charge --}}
                     <button type="button" class="btn btn-warning btn-sm flex-fill text-white" id="priceDiffYes">
                         <i class="ti ti-coins me-1"></i> Yes, charge
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
+
     {{-- ══════════════════════════════════════════
          MOVE TO COURSE MODAL
     ══════════════════════════════════════════ --}}
@@ -195,7 +191,15 @@
                         <div id="moveStudentNames" class="mb-3 d-flex flex-wrap gap-1"></div>
                         {{-- Hidden student_ids[] inputs injected by JS --}}
                         <div id="moveStudentInputs"></div>
+
                         <label class="form-label fw-semibold">Destination course</label>
+
+                        {{-- No available courses notice (hidden by default) --}}
+                        <div id="noCoursesNotice" class="alert alert-warning fs-3 py-2 d-none">
+                            <i class="ti ti-info-circle me-1"></i>
+                            All available courses are already enrolled by the selected student(s).
+                        </div>
+
                         <select name="target_course_id" id="targetCourseSelect" class="form-select" required>
                             <option value="">— Choose course —</option>
                             @foreach (\App\Models\ICTCourse::with('schedule')->where('id', '!=', $course->id)->orderBy('title')->get() as $c)
@@ -212,7 +216,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-warning text-white">
+                        <button type="submit" id="moveSubmitBtn" class="btn btn-warning text-white">
                             <i class="ti ti-arrow-right me-1"></i> Move
                         </button>
                     </div>
@@ -220,6 +224,7 @@
             </div>
         </div>
     </div>
+
     {{-- ══════════════════════════════════════════
          REMOVE STUDENT MODAL
     ══════════════════════════════════════════ --}}
@@ -236,7 +241,6 @@
                 <form method="POST" action="{{ route('staff.courses.remove-student', $course->id) }}"
                     id="removeForm">
                     @csrf
-                    <input type="hidden" name="charge_difference" id="chargeDifferenceInput" value="0">
                     <div class="modal-body">
                         <p class="text-muted fs-3 mb-1">
                             The following students will be removed from
@@ -261,11 +265,15 @@
         </div>
     </div>
 </div>
+
 {{-- ══════════════════════════════════════════
      BULK ACTION SCRIPTS
 ══════════════════════════════════════════ --}}
 @push('scripts')
     <script>
+        // Enrollment map: { studentId: [courseId, courseId, ...], ... }
+        const enrollmentMap = @json($enrollmentMap);
+
         (function() {
 
             const bar = document.getElementById('bulkActionBar');
@@ -323,21 +331,63 @@
                 const s = selected();
                 namesEl.innerHTML = s.map(cb =>
                     `<span class="badge bg-light-primary text-primary fw-normal fs-2 py-1 px-2">
-                <i class="ti ti-user me-1"></i>${cb.dataset.name ?? cb.value}
-            </span>`
+                        <i class="ti ti-user me-1"></i>${cb.dataset.name ?? cb.value}
+                    </span>`
                 ).join('');
                 inputsEl.innerHTML = s.map(cb =>
                     `<input type="hidden" name="student_ids[]" value="${cb.value}">`
                 ).join('');
             }
 
+            // ── filter move dropdown: hide courses where ALL selected students are already enrolled ──
+            function filterMoveDropdown() {
+                const selectedIds = selected().map(cb => parseInt(cb.value));
+                const selectEl = document.getElementById('targetCourseSelect');
+                const noCoursesEl = document.getElementById('noCoursesNotice');
+                const submitBtn = document.getElementById('moveSubmitBtn');
+
+                let availableCount = 0;
+
+                [...selectEl.options].forEach(opt => {
+                    const courseId = parseInt(opt.value);
+                    if (!courseId) return; // skip placeholder
+
+                    // A course is blocked only if EVERY selected student is already enrolled in it
+                    const allEnrolled = selectedIds.length > 0 && selectedIds.every(studentId =>
+                        (enrollmentMap[studentId] ?? []).includes(courseId)
+                    );
+
+                    opt.disabled = allEnrolled;
+                    opt.style.display = allEnrolled ? 'none' : '';
+
+                    if (!allEnrolled) availableCount++;
+                });
+
+                // Reset select2 to reflect hidden options
+                $('#targetCourseSelect').val(null).trigger('change');
+
+                // Show warning and disable submit if no courses are available
+                if (availableCount === 0) {
+                    noCoursesEl.classList.remove('d-none');
+                    selectEl.classList.add('d-none');
+                    submitBtn.disabled = true;
+                } else {
+                    noCoursesEl.classList.add('d-none');
+                    selectEl.classList.remove('d-none');
+                    submitBtn.disabled = false;
+                }
+            }
+
+            // ── move modal: populate + filter ──
             document.getElementById('moveCourseModal')?.addEventListener('show.bs.modal', function() {
                 populateModal(
                     document.getElementById('moveStudentNames'),
                     document.getElementById('moveStudentInputs')
                 );
+                filterMoveDropdown();
             });
 
+            // ── remove modal: populate ──
             document.getElementById('removeStudentModal')?.addEventListener('show.bs.modal', function() {
                 populateModal(
                     document.getElementById('removeStudentNames'),
@@ -348,20 +398,18 @@
             // ── intercept Move form submit → check price difference ──
             document.getElementById('moveForm')?.addEventListener('submit', function(e) {
                 const select = document.getElementById('targetCourseSelect');
-                const selected = select.options[select.selectedIndex];
-                const newPrice = parseFloat(selected?.dataset.price ?? 0);
+                const chosen = select.options[select.selectedIndex];
+                const newPrice = parseFloat(chosen?.dataset.price ?? 0);
                 const diff = newPrice - currentCoursePrice;
 
                 if (diff > 0) {
                     e.preventDefault();
 
-                    // populate price diff modal
                     document.getElementById('currentPriceDisplay').textContent = '$' + currentCoursePrice
                         .toFixed(2);
                     document.getElementById('newPriceDisplay').textContent = '$' + newPrice.toFixed(2);
                     document.getElementById('diffDisplay').textContent = '$' + diff.toFixed(2);
 
-                    // hide move modal, show price diff modal
                     bootstrap.Modal.getInstance(document.getElementById('moveCourseModal'))?.hide();
                     new bootstrap.Modal(document.getElementById('priceDiffModal')).show();
                 }
@@ -383,7 +431,6 @@
 
             document.getElementById('priceDiffCancel')?.addEventListener('click', function() {
                 bootstrap.Modal.getInstance(document.getElementById('priceDiffModal'))?.hide();
-                // re-open move modal so staff can pick a different course
                 new bootstrap.Modal(document.getElementById('moveCourseModal')).show();
             });
 

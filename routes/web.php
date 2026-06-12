@@ -1,5 +1,5 @@
 <?php
-use App\Http\Controllers\Frontend\{CourseContentController, CourseController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
+use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
 use App\Http\Controllers\Frontend\Staff\{IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, StudentController, TeacherController, TecherAttendancesController};
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
  * GLOBAL
  *******************************************************/
 Route::get('/', [FrontendController::class, 'index'])->name('home');
+Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
+Route::get('/course', [CoursePageController::class, 'course'])->name('course');
+Route::get('/course/{slug}', [CoursePageController::class, 'courseDetails'])->name('course.details');
+
+
 /*******************************************************
  * STUDENT
  *******************************************************/

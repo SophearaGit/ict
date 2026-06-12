@@ -2,41 +2,47 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\View;
+use App\Models\ICTCourse;
 use App\Models\ICTCourseCategory;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         View::composer('frontend.*', function ($view) {
-            $view->with(
-                'categories_for_frontend',
-                ICTCourseCategory::whereNull('parent_id')
-                    ->whereHas('courses', function ($q) {
-                        $q->where('status', 'active');
-                    })
-                    ->with([
-                        'courses' => function ($q) {
-                            $q->where('status', 'active');
-                        }
-                    ])
-                    ->where('is_active', 1)
-                    ->orderBy('sort_order')
-                    ->get()
-            );
+
+            $categories = ICTCourseCategory::with([
+                'courses' => function ($q) {
+                    $q->where('status', 'active')
+                        ->orderBy('title');
+                }
+            ])
+                ->where('is_active', 1)
+                ->whereHas('courses', function ($q) {
+                    $q->where('status', 'active');
+                })
+                ->orderBy('sort_order')
+                ->get();
+
+            $popularCourses = ICTCourse::withCount('students')
+                ->where('status', 'active')
+                ->get()
+                ->groupBy('title')
+                ->map(fn($group) => $group->first())
+                ->sortByDesc('students_count')
+                ->take(5);
+
+            $view->with([
+                'categories_for_frontend' => $categories,
+                'popularCourses' => $popularCourses,
+            ]);
         });
     }
 }
