@@ -75,7 +75,7 @@
 
     <!-- ═══ CAROUSEL ═══ -->
     <div class="video-carousel">
-        <video class="vc-video" src="{{ asset('./frontend/asset/images/video_2024.mp4') }}" autoplay muted playsinline
+        <video class="vc-video" src="{{ asset('frontend/asset/images/video_2025.mp4') }}" autoplay muted playsinline
             loop></video>
         <div class="vc-overlay"></div>
         <div class="vc-caption">
