@@ -139,10 +139,17 @@ class IctCourseController extends Controller
                 'data_rows' => $rows,
             ],
         ];
+        // after loading $course
+        $enrollmentMap = ICTCourseEnrollments::where('status', 'active')
+            ->whereIn('student_id', $course->students->pluck('id'))
+            ->get()
+            ->groupBy('student_id')
+            ->map(fn($rows) => $rows->pluck('course_id')->toArray());
         return view('frontend.staff.pages.course-management.course-detail.course-detail', [
             'page_title' => 'ICT | STAFF | COURSE DETAIL',
             'course' => $course,
             'attendanceData' => $attendanceData,
+            'enrollmentMap' => $enrollmentMap, // ← add this
         ]);
     }
     public function create(): View
@@ -259,51 +266,90 @@ class IctCourseController extends Controller
         if ($request->target_course_id == $course_id) {
             return redirect()
                 ->back()
-                ->withErrors([
-                    'target_course_id' => 'Destination course must be different from the current course.',
-                ]);
+                ->withErrors(['target_course_id' => 'Destination course must be different from the current course.']);
         }
-        $targetCourseId = $request->target_course_id;
+        $targetCourseId = (int) $request->target_course_id;
         $targetCourse = ICTCourse::findOrFail($targetCourseId);
         $chargeDifference = $request->input('charge_difference', '0') === '1';
         $studentCount = count($request->student_ids);
         DB::transaction(function () use ($request, $course_id, $targetCourseId, $targetCourse, $chargeDifference) {
             foreach ($request->student_ids as $studentId) {
-                $invoice = ICTInvoice::where('course_id', $course_id)->where('student_id', $studentId)->first();
-                if ($invoice) {
-                    $oldPrice = (float) $invoice->price;
+                /*------------------------------------------------------------------
+                 | 1. Find the invoice item for THIS course & student
+                 |    (works for both single and multi-course invoices)
+                 *------------------------------------------------------------------*/
+                $invoiceItem = ICTInvoiceItems::whereHas('invoice', function ($q) use ($studentId) {
+                    $q->where('student_id', $studentId);
+                })
+                    ->where('course_id', $course_id)
+                    ->first();
+                if ($invoiceItem) {
+                    $invoice = $invoiceItem->invoice; // the parent invoice
+                    $oldPrice = (float) $invoiceItem->price;
                     $newPrice = (float) $targetCourse->price;
-                    if ($newPrice > $oldPrice && $chargeDifference) {
-                        $discount = (float) $invoice->discount;
-                        $extraCharge = (float) $invoice->extra_charge;
-                        $newTotal = $newPrice - $discount + $extraCharge;
-                        $newRemaining = $newTotal - (float) $invoice->paid_amount;
-                        $paymentStatus = $newRemaining <= 0 ? 'paid' : 'half_paid';
-                        $invoice->update([
-                            'course_id' => $targetCourseId,
-                            'price' => $newPrice,
-                            'total_amount' => $newTotal,
-                            'remaining_amount' => $newRemaining,
-                            'payment_status' => $paymentStatus,
-                        ]);
+                    /*--------------------------------------------------------------
+                     | 2. Check if target course already has an item on this invoice
+                     |    (student already enrolled in target — avoid duplicate item)
+                     *--------------------------------------------------------------*/
+                    $targetItemExists = ICTInvoiceItems::where('invoice_id', $invoice->id)
+                        ->where('course_id', $targetCourseId)
+                        ->exists();
+                    if ($targetItemExists) {
+                        // Just remove the old item — student is already in target course
+                        $invoiceItem->delete();
                     } else {
-                        $invoice->update(['course_id' => $targetCourseId]);
-                    }
-                    $item = ICTInvoiceItems::where('invoice_id', $invoice->id)
-                        ->where('course_id', $course_id)
-                        ->first();
-                    $itemDiscount = $item ? (float) $item->discount : 0;
-                    $itemExtraCharge = $item ? (float) $item->extra_charge : 0;
-                    $newItemTotal = $newPrice - $itemDiscount + $itemExtraCharge;
-                    ICTInvoiceItems::where('invoice_id', $invoice->id)
-                        ->where('course_id', $course_id)
-                        ->update([
+                        /*----------------------------------------------------------
+                         | 3. Update the invoice item to point to the new course
+                         *----------------------------------------------------------*/
+                        $itemDiscount = (float) $invoiceItem->discount;
+                        $itemExtraCharge = (float) $invoiceItem->extra_charge;
+                        // if ($chargeDifference && $newPrice > $oldPrice) {
+                        //     $newItemTotal = $newPrice - $itemDiscount + $itemExtraCharge;
+                        // } else {
+                        //     // Keep proportional discount, just swap the price
+                        //     $newItemTotal = $newPrice - $itemDiscount + $itemExtraCharge;
+                        // }
+                        $newItemTotal = $newPrice - $itemDiscount + $itemExtraCharge;
+                        $invoiceItem->update([
                             'course_id' => $targetCourseId,
                             'price' => $newPrice,
-                            'total' => $chargeDifference ? $newItemTotal : $invoice->total_amount,
+                            'total' => round($newItemTotal, 2),
                         ]);
+                    }
+                    /*--------------------------------------------------------------
+                     | 4. Recalculate invoice header totals from all remaining items
+                     *--------------------------------------------------------------*/
+                    $allItems = ICTInvoiceItems::where('invoice_id', $invoice->id)->get();
+                    $newFullPrice = $allItems->sum('price');
+                    $newTotalDiscount = $allItems->sum('discount');
+                    $newTotalExtra = $allItems->sum('extra_charge');
+                    $newTotal = $allItems->sum('total');
+                    $newRemaining = round($newTotal - (float) $invoice->paid_amount, 2);
+                    $newRemaining = max($newRemaining, 0);
+                    $paymentStatus = $newRemaining <= 0 ? 'paid' : 'half_paid';
+                    /*--------------------------------------------------------------
+                     | 5. Update invoice header course_id only if it pointed to
+                     |    the course being moved (primary course swap)
+                     *--------------------------------------------------------------*/
+                    $newPrimaryCourseId = (int) $invoice->course_id === (int) $course_id
+                        ? $targetCourseId
+                        : $invoice->course_id;
+                    $invoice->update([
+                        'course_id' => $newPrimaryCourseId,
+                        'price' => round($newFullPrice, 2),
+                        'discount' => round($newTotalDiscount, 2),
+                        'extra_charge' => round($newTotalExtra, 2),
+                        'total_amount' => round($newTotal, 2),
+                        'remaining_amount' => $newRemaining,
+                        'payment_status' => $paymentStatus,
+                    ]);
                 }
-                ICTCourseEnrollments::where('course_id', $course_id)->where('student_id', $studentId)->delete();
+                /*------------------------------------------------------------------
+                 | 6. Move the enrollment
+                 *------------------------------------------------------------------*/
+                ICTCourseEnrollments::where('course_id', $course_id)
+                    ->where('student_id', $studentId)
+                    ->delete();
                 if (!ICTCourseEnrollments::where('course_id', $targetCourseId)->where('student_id', $studentId)->exists()) {
                     ICTCourseEnrollments::create([
                         'student_id' => $studentId,

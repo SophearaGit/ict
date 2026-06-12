@@ -5,18 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        @yield('page_title')
+        @yield('page_title', 'NO TITLE') - ICT Professional Training Center
     </title>
-    <!-- Favicon icon-->
-    <link href="{{ asset('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('/frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
-    <link rel="stylesheet"
-        href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('/frontend/assets-new/css/style.css') }}">
-    <script src="{{ asset('https://code.jquery.com/jquery-3.6.0.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css"
         integrity="sha512-gzw5zNP2TRq+DKyAqZfDclaTG4dOrGJrwob2Fc8xwcJPDPVij0HowLIMZ8c1NefFM0OZZYUUUNoPfcoI5jqudw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('frontend/asset/css/style.css') }}">
     @stack('styles')
 </head>
 
@@ -28,7 +27,8 @@
         @include('frontend.layouts.new.footer')
     </div>
     <!-- end .container -->
-    <script src="{{ asset('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <!-- Dark/Light Mode Script -->
     <script>
         const html = document.documentElement;
@@ -97,78 +97,16 @@
                 $('#trainingevents').text("320+");
             }
         }, 20);
-        const track = document.querySelector('.partner-track-wrap');
-        const inner = document.querySelector('.partner-track');
-        let isDown = false,
-            startX, scrollLeft;
-        // Pause animation on hover (already in your CSS, this is just the drag-to-scroll part)
-        track.addEventListener('mousedown', (e) => {
-            isDown = true;
-            startX = e.pageX - track.offsetLeft;
-            scrollLeft = track.scrollLeft;
-            inner.style.animationPlayState = 'paused';
-        });
-        track.addEventListener('mouseleave', () => {
-            isDown = false;
-            inner.style.animationPlayState = 'running';
-        });
-        track.addEventListener('mouseup', () => {
-            isDown = false;
-            inner.style.animationPlayState = 'running';
-        });
-        track.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - track.offsetLeft;
-            const walk = (x - startX) * 1.5;
-            track.scrollLeft = scrollLeft - walk;
-        });
-        // Touch support (mobile)
-        let touchStartX, touchScrollLeft;
-        track.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].pageX - track.offsetLeft;
-            touchScrollLeft = track.scrollLeft;
-            inner.style.animationPlayState = 'paused';
-        });
-        track.addEventListener('touchend', () => {
-            inner.style.animationPlayState = 'running';
-        });
-        track.addEventListener('touchmove', (e) => {
-            const x = e.touches[0].pageX - track.offsetLeft;
-            const walk = (x - touchStartX) * 1.5;
-            track.scrollLeft = touchScrollLeft - walk;
-        });
+        /* Toggle a dropdown sub-menu open / closed */
+        function toggleMenu(item) {
+            /* Find the <ul class="sub-menu"> right after this item */
+            const subMenu = item.nextElementSibling;
+            /* Toggle the "open" class on both the button and the list */
+            item.classList.toggle('open');
+            subMenu.classList.toggle('open');
+        }
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            function filterCourses(categoryId, el) {
-                document.querySelectorAll('.acb').forEach(a => a.classList.remove('active-cat'));
-                el.classList.add('active-cat');
-
-                document.querySelectorAll('.boxcard').forEach(card => {
-                    console.log('card category:', card.dataset.category);
-                    card.classList.remove('fade-in');
-
-                    if (categoryId === 'all' || card.dataset.category === categoryId) {
-                        card.classList.remove('hidden');
-                        void card.offsetWidth;
-                        card.classList.add('fade-in');
-                    } else {
-                        card.classList.add('hidden');
-                    }
-                });
-            }
-
-            document.querySelectorAll('.acb').forEach(function(el) {
-                console.log('acb category:', el.dataset.category);
-                el.addEventListener('click', function() {
-                    filterCourses(this.dataset.category, this);
-                });
-            });
-
-        });
-    </script>
+    @stack('scripts')
 </body>
 
 </html>
