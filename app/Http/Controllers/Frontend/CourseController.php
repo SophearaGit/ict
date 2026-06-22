@@ -1,29 +1,24 @@
 <?php
-
 namespace App\Http\Controllers\Frontend;
-
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\CourseStoreBasicInfoRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\CourseChapter;
 use App\Models\CourseLanguage;
 use App\Models\CourseLevel;
-
+use App\Models\ICTCourse;
 use Illuminate\Contracts\View\View;
 use App\Traites\FileUpload;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\JsonResponse as HttpFoundationJsonResponse;
-
 class CourseController extends Controller
 {
     use FileUpload;
-
     public function index(): View
     {
         $data = [
@@ -33,7 +28,6 @@ class CourseController extends Controller
         ];
         return view('frontend.instructor.pages.course.index', $data);
     }
-
     public function create(): View
     {
         $data = [
@@ -41,10 +35,8 @@ class CourseController extends Controller
         ];
         return view('frontend.instructor.pages.course.create.basic-info', $data);
     }
-
     public function storeBasicInfo(CourseStoreBasicInfoRequest $request): JsonResponse
     {
-
         $thumbnailPath = $this->uploadFile($request->file('thumbnail'));
         $course = new Course();
         $course->title = $request->title;
@@ -58,16 +50,13 @@ class CourseController extends Controller
         $course->description = $request->description;
         $course->instructor_id = Auth::guard('web')->user()->id;
         $course->save();
-
         Session::put('course_create_id', $course->id);
-
         return response()->json([
             'status' => 'success',
             'message' => 'Basic info saved successfully.',
             'redirect' => route('instructor.courses.edit', ['id' => $course->id, 'step' => $request->next_step])
         ]);
     }
-
     // editBasicInfo
     public function edit(Request $request): View
     {
@@ -123,7 +112,6 @@ class CourseController extends Controller
                 return view('frontend.instructor.pages.course.create.basic-info', $data);
         }
     }
-
     public function update(Request $request): HttpFoundationJsonResponse
     {
         switch ($request->current_step) {
@@ -154,9 +142,7 @@ class CourseController extends Controller
                 $course->description = $request->description;
                 $course->instructor_id = Auth::guard('web')->user()->id;
                 $course->save();
-
                 Session::put('course_create_id', $course->id); // Update session with current course ID
-
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Course basic information updated successfully.',
@@ -222,8 +208,44 @@ class CourseController extends Controller
         }
     }
 
+    public function schedules(ICTCourse $course, Request $request): JsonResponse
+    {
+        // Use the passed title if provided, fall back to the bound course's title.
+        $title = $request->input('title', $course->title);
 
+        $sections = ICTCourse::with(['schedule', 'instructor'])
+            ->withCount('students')          // adds students_count
+            ->where('title', $title)
+            ->where('status', 'active')
+            ->get()
+            ->map(function (ICTCourse $c) {
+                $schedule = $c->schedule;
 
+                // Treat as full only if max_students is set AND exceeded
+                $isFull = isset($c->max_students)
+                    && $c->max_students > 0
+                    && $c->students_count >= $c->max_students;
 
+                return [
+                    'id' => $c->id,
+                    'days' => $schedule?->short_days ?? 'TBA',
+                    'time' => $schedule?->formatted_time ?? 'TBA',
+                    'shift' => $schedule?->shift_label ?? null,   // e.g. "Morning"
+                    'instructor' => $c->instructor?->name ?? null,
+                    'start_date' => $c->start_date?->format('M d, Y') ?? null,
+                    'students' => $c->students_count,
+                    'is_full' => $isFull,
+                ];
+            })
+            // Sort: morning first, then afternoon, then evening, then null
+            ->sortBy(fn($s) => match (strtolower($s['shift'] ?? '')) {
+                'morning' => 0,
+                'afternoon' => 1,
+                'evening' => 2,
+                default => 3,
+            })
+            ->values();
 
+        return response()->json(['sections' => $sections]);
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\ICTCourse;
 use App\Models\ICTCourseCategory;
+use App\Models\TeacherAttendances;
+use App\Observers\TeacherAttendancesObserver;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        TeacherAttendances::observe(TeacherAttendancesObserver::class);
         View::composer('frontend.*', function ($view) {
 
             $categories = ICTCourseCategory::with([

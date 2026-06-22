@@ -1,7 +1,9 @@
 <?php
 use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\Staff\{BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\Student\CourseEnrollmentController;
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 /*******************************************************
@@ -11,8 +13,6 @@ Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::get('/course', [CoursePageController::class, 'course'])->name('course');
 Route::get('/course/{slug}', [CoursePageController::class, 'courseDetails'])->name('course.details');
-
-
 /*******************************************************
  * STUDENT
  *******************************************************/
@@ -20,6 +20,19 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
     ->prefix('student')
     ->name('student.')
     ->group(function (): void {
+        /*
+        |--------------------------------------------------------------------------
+        | COURSE ENROLLMENT + PAYMENT
+        |--------------------------------------------------------------------------
+        */
+        Route::post(
+            '/course/{course}/enroll',
+            [CourseEnrollmentController::class, 'startEnrollment']
+        )->name('course.enroll');
+        Route::get(
+            '/payment/{invoice}',
+            [CourseEnrollmentController::class, 'paymentPage']
+        )->name('payment.page');
         /*******************************************************
          * DASHBOARD
          *******************************************************/
@@ -39,6 +52,8 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
         Route::post('/security-update', [ProfileController::class, 'securityUpdate'])->name('security.update');
         Route::get('/social-profile', [ProfileController::class, 'socialProfile'])->name('social.profile');
         Route::post('/social-profile-update', [ProfileController::class, 'socialProfileUpdate'])->name('social.profile.update');
+        Route::get('/courses/{course}/schedules', [CourseController::class, 'schedules'])
+            ->name('course.schedules');
     });
 /*******************************************************
  * INSTRUCTOR
@@ -161,7 +176,6 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('courses/{course}/students/{student}/invoice', [IctInvoicePaymentController::class, 'studentInvoice'])
             ->name('courses.student.invoice')
             ->scopeBindings();
-
         /*******************************************************
          * MOVE STUDENT TO ANOTHER COURSE & REMOVE STUDENT FROM COURSE
          *******************************************************/
@@ -194,6 +208,13 @@ Route::fallback(function (): Response {
     ];
     return response()->view('errors.404', $data, Response::HTTP_NOT_FOUND);
 })->name('404');
+Route::middleware(['auth:web', 'verified'])
+    ->prefix('bakong')
+    ->name('bakong.')
+    ->group(function () {
+        Route::post('/generate-qr', [BakongPaymentController::class, 'generateQr'])->name('generate-qr');
+        Route::post('/verify-hash', [BakongPaymentController::class, 'verifyByHash'])->name('verify-hash');
+    });
 // Additional Routes
 require __DIR__ . '/admin.php';
 require __DIR__ . '/auth.php';

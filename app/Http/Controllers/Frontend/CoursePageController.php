@@ -3,14 +3,15 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
 use App\Models\ICTCourseCategory;
+use App\Models\ICTCourseEnrollments;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 class CoursePageController extends Controller
 {
     public function course(): View
     {
         $search = request('search');
-
         $groupedCourses = ICTCourse::with([
             'instructor',
             'schedule',
@@ -74,11 +75,24 @@ class CoursePageController extends Controller
             ->get()
             ->groupBy('title')
             ->take(4);
+        // How many active sections share this title (including this one)
+        $siblingCount = ICTCourse::where('title', $course->title)
+            ->where('status', 'active')
+            ->count();
+        $alreadyEnrolled = false;
+        if (Auth::check()) {
+            $alreadyEnrolled = ICTCourseEnrollments::where([
+                'student_id' => Auth::id(),
+                'course_id' => $course->id,
+            ])->exists();
+        }
         return view('frontend.pages.home-new.course-details', [
             'page_title' => 'COURSE DETAILS',
             'course' => $course,
             'batches' => $batches,
             'moreCourses' => $moreCourses,
+            'alreadyEnrolled' => $alreadyEnrolled,
+            'siblingCount' => $siblingCount,
         ]);
     }
 }
