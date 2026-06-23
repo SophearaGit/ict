@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Frontend\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourseEnrollments;
-use App\Models\IctInvoice;
+use App\Models\ICTInvoice;
 use App\Models\ICTPayments;
 use App\Services\BakongService;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +20,7 @@ class BakongPaymentController extends Controller
             'invoice_id' => 'required|integer|exists:i_c_t_invoices,id',
             'currency' => 'nullable|in:USD,KHR',
         ]);
-        $invoice = IctInvoice::findOrFail($request->invoice_id);
+        $invoice = ICTInvoice::findOrFail($request->invoice_id);
         if ($invoice->payment_status === 'paid') {
             return response()->json(['success' => false, 'message' => 'Invoice already paid.'], 422);
         }
@@ -61,7 +61,7 @@ class BakongPaymentController extends Controller
             'hash' => 'required|string|size:8',
             'invoice_id' => 'required|integer|exists:i_c_t_invoices,id',
         ]);
-        $invoice = IctInvoice::findOrFail($request->invoice_id);
+        $invoice = ICTInvoice::findOrFail($request->invoice_id);
         if ($invoice->payment_status === 'paid') {
             return response()->json(['status' => 'success']);
         }
