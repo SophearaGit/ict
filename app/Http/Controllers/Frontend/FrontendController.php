@@ -51,4 +51,12 @@ class FrontendController extends Controller
         return view('frontend.pages.home-new.contact', $data);
     }
 
+    public function about(): View
+    {
+        $data = [
+            'page_title' => 'ABOUT US',
+        ];
+        return view('frontend.pages.home-new.about', $data);
+    }
+
 }
