@@ -73,13 +73,13 @@
             <h4>Download App</h4>
             <p class="app-desc">Download our app from the App Store and Google Play Store.</p>
             <div class="playstore">
-                <img src="{{ asset('frontend/asset/images/palystore.webp') }}" alt="">
+                <img src="{{ asset('frontend/asset/images/palystore.jpg') }}" alt="" class="rounded">
                 <div class="textplaystore">
                     <p>Download on <span><b>Play Store</b></span></p>
                 </div>
             </div>
             <div class="appstore">
-                <img src="{{ asset('frontend/asset/images/appstore.jpg') }}" alt="">
+                <img src="{{ asset('frontend/asset/images/App_Store_(iOS).svg') }}" alt="">
                 <div class="textappstore">
                     <p>Download on <span><b>App Store</b></span></p>
                 </div>

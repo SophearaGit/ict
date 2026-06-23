@@ -77,29 +77,30 @@
                     @endphp
                     <a href="{{ route('course.details', $course->slug) }}" class="boxcard"
                         data-category="{{ $course->category_id }}" data-title="{{ strtolower($course->title) }}">
+
                         <img id="course-imgg"
                             src="{{ asset(empty($course->thumbnail) ? 'default-images/ict-courses/loading.gif' : ltrim($course->thumbnail, '/')) }}"
                             alt="{{ $course->title }}">
+
                         <div class="teacher">
-                            <div class="teach-name">
-                                <img src="{{ asset(
-                                    empty($course->instructor?->image) || $course->instructor?->image === 'no-img.jpg'
-                                        ? 'default-images/user/both.jpg'
-                                        : ltrim($course->instructor->image, '/'),
-                                ) }}"
-                                    alt="{{ $course->instructor?->name }}">
-                                <p>{{ $course->instructor?->name }}</p>
-                            </div>
-                            <button>
-                                {{ $course->category?->name }}
-                            </button>
+                            <img src="{{ asset(
+                                empty($course->instructor?->image) || $course->instructor?->image === 'no-img.jpg'
+                                    ? 'default-images/user/both.jpg'
+                                    : ltrim($course->instructor->image, '/'),
+                            ) }}"
+                                alt="{{ $course->instructor?->name }}">
+                            <p>{{ $course->instructor?->name }}</p>
+                            <button>{{ $course->category?->name }}</button>
                         </div>
+
                         <h2>{{ $title }}</h2>
+
                         <div class="weekschedule">
                             <i class="fa-regular fa-calendar-days"></i>
                             <p>{{ $group->count() }} Weekly Schedule{{ $group->count() > 1 ? 's' : '' }}</p>
                             <p class="hour">{{ $course->duration }} hrs</p>
                         </div>
+
                         <p class="pweekly">
                             @foreach ($group->unique('schedule_id')->take(3) as $scheduleCourse)
                                 • {{ $scheduleCourse->schedule?->short_days }}
@@ -110,23 +111,23 @@
                             @endforeach
                             @if ($group->unique('schedule_id')->count() > 3)
                                 <br>
-                                +{{ $group->unique('schedule_id')->count() - 3 }}
-                                more schedules
+                                +{{ $group->unique('schedule_id')->count() - 3 }} more schedules
                             @endif
                         </p>
+
                         <div class="prnrate">
                             <h3>${{ number_format($course->price, 2) }}</h3>
                             <div class="starate">
                                 <p>4.9</p>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
+                                @for ($i = 0; $i < 5; $i++)
+                                    <i class="fa-solid fa-star" style="color:gold;"></i>
+                                @endfor
                             </div>
                         </div>
+
                     </a>
                 @endforeach
+
                 <div id="no-course-found" style="display:none;">
                     <div class="empty-course-state">
                         <i class="fa-solid fa-magnifying-glass"></i>

@@ -19,7 +19,7 @@ class CourseEnrollmentController extends Controller
         if ($alreadyEnrolled) {
             return back()->with('error', 'You are already enrolled.');
         }
-        $invoice = IctInvoice::create([
+        $invoice = ICTInvoice::create([
             'staff_id' => auth()->id(), // see note below
             'student_id' => auth()->id(),
             'course_id' => $course->id,
@@ -46,7 +46,7 @@ class CourseEnrollmentController extends Controller
             $invoice->id
         );
     }
-    public function paymentPage(IctInvoice $invoice): View
+    public function paymentPage(ICTInvoice $invoice): View
     {
         $invoice->load('course');
         return view(

@@ -87,8 +87,8 @@
         }
 
         /* ════════════════════════════
-                               Schedule Picker Modal
-                               ════════════════════════════ */
+                                                                       Schedule Picker Modal
+                                                                       ════════════════════════════ */
         .sched-backdrop {
             display: none;
             position: fixed;
@@ -573,13 +573,29 @@
             </div>{{-- /.section-oci --}}
             {{-- ════ Sidebar ════ --}}
             <div class="boxcard">
+                {{-- Course Image --}}
                 @if ($course->thumbnail)
                     <img src="{{ asset($course->thumbnail) }}" alt="{{ $course->title }}">
                 @else
                     <div class="skeleton" style="width:100%; height:180px; border-radius:8px;"></div>
                 @endif
-                <h5>{{ $course->title }}</h5>
+                {{-- Price --}}
                 <h3>${{ number_format($course->price, 2) }}</h3>
+                {{-- Enroll Button --}}
+                @if (auth()->check())
+                    @if ($alreadyEnrolled)
+                        <button class="btn btn-success" disabled>Already Enrolled</button>
+                    @else
+                        <button class="text-white"
+                            onclick="openScheduleModal({{ $course->id }}, '{{ addslashes($course->title) }}')">Enroll
+                            Now</button>
+                    @endif
+                @else
+                    <button class="btn btn-primary text-white"
+                        onclick="window.location.href='{{ route('login') }}'">Login To
+                        Enroll</button>
+                @endif
+                {{-- Favorite & Share --}}
                 <div class="fav-share">
                     <div class="fav">
                         <i class="fa-regular fa-heart"></i>
@@ -589,29 +605,19 @@
                         <i class="fa-solid fa-share-nodes"></i>
                         <p>Share</p>
                     </div>
-                    @if (auth()->check())
-                        @if ($alreadyEnrolled)
-                            <button class="btn btn-success w-100 mt-3" disabled>
-                                Already Enrolled
-                            </button>
-                        @else
-                            <button type="button" class="btn btn-primary w-100 mt-3"
-                                onclick="openScheduleModal({{ $course->id }}, '{{ addslashes($course->title) }}')">
-                                Enroll Now
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-primary w-100 mt-3">
-                            Login To Enroll
-                        </a>
-                    @endif
                 </div>
-                {{-- Schedule display --}}
+                {{-- Certificate --}}
+                <div class="certificate-completed">
+                    <i class="fa-solid fa-award"></i>
+                    <p>Certificate of Completion</p>
+                </div>
+                {{-- Weekly Schedule --}}
                 <div class="weekschedule">
                     <i class="fa-regular fa-calendar-days"></i>
                     <p>Weekly Schedule</p>
                     <p class="hour">{{ $course->duration }} hours</p>
                 </div>
+                {{-- Schedule Details --}}
                 @if ($course->schedule)
                     <p class="pweekly">
                         • {{ $course->schedule->short_days }} ({{ $course->schedule->formatted_time }})
@@ -776,19 +782,19 @@
                                     ${s.time}
                                 </span>
                                 ${s.instructor ? `<span>
-                                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                                            <circle cx="12" cy="7" r="4"/>
-                                                        </svg>
-                                                        ${s.instructor}
-                                                    </span>` : ''}
+                                                                                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                                                                                    <circle cx="12" cy="7" r="4"/>
+                                                                                                </svg>
+                                                                                                ${s.instructor}
+                                                                                            </span>` : ''}
                                 ${s.start_date ? `<span>
-                                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                                            <path d="M16 2v4M8 2v4M3 10h18"/>
-                                                        </svg>
-                                                        Starts ${s.start_date}
-                                                    </span>` : ''}
+                                                                                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                                                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                                                                                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                                                                                                </svg>
+                                                                                                Starts ${s.start_date}
+                                                                                            </span>` : ''}
                             </div>
                             ${s.shift ? `<span class="sched-shift ${shiftClass}">${s.shift}</span>` : ''}
                         </div>

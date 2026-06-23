@@ -75,7 +75,7 @@
 
     <!-- ═══ CAROUSEL ═══ -->
     <div class="video-carousel">
-        <video class="vc-video" src="{{ asset('frontend/asset/images/video_2025.mp4') }}" autoplay muted playsinline
+        <video class="vc-video" src="{{ asset('frontend/asset/images/video_2024.mp4') }}" autoplay muted playsinline
             loop></video>
         <div class="vc-overlay"></div>
         <div class="vc-caption">
@@ -131,7 +131,7 @@
                     <img class="st-pic"
                         src="{{ asset(
                             empty($instructor->image) || $instructor->image === 'no-img.jpg'
-                                ? 'default-images/user/both.jpg'
+                                ? asset('default-images/user/both.jpg')
                                 : ltrim($instructor->image, '/'),
                         ) }}"
                         alt="{{ $instructor->name }}"
@@ -199,18 +199,14 @@
                 <img src="{{ asset(empty($course->thumbnail) ? 'default-images/ict-courses/loading.gif' : ltrim($course->thumbnail, '/')) }}"
                     alt="{{ $course->title }}">
                 <div class="teacher">
-                    <div class="teach-name">
-                        <img src="{{ asset(
-                            empty($course->instructor?->image) || $course->instructor?->image === 'no-img.jpg'
-                                ? 'default-images/user/both.jpg'
-                                : ltrim($course->instructor->image, '/'),
-                        ) }}"
-                            alt="{{ $course->instructor?->name }}">
-                        <p>{{ $course->instructor?->name }}</p>
-                    </div>
-                    <button>
-                        {{ $course->category?->name }}
-                    </button>
+                    <img src="{{ asset(
+                        empty($course->instructor?->image) || $course->instructor?->image === 'no-img.jpg'
+                            ? 'default-images/user/both.jpg'
+                            : ltrim($course->instructor->image, '/'),
+                    ) }}"
+                        alt="{{ $course->instructor?->name }}">
+                    <p>{{ $course->instructor?->name }}</p>
+                    <button>{{ $course->category?->name }}</button>
                 </div>
                 <h2>{{ $title }}</h2>
                 <div class="weekschedule">
@@ -227,19 +223,16 @@
                         @endif
                     @endforeach
                     @if ($group->unique('schedule_id')->count() > 3)
-                        <br>
-                        +{{ $group->unique('schedule_id')->count() - 3 }} more batches
+                        <br>• +{{ $group->unique('schedule_id')->count() - 3 }} more batches
                     @endif
                 </p>
                 <div class="prnrate">
                     <h3>${{ number_format($course->price, 2) }}</h3>
                     <div class="starate">
                         <p>4.9</p>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        @for ($i = 0; $i < 5; $i++)
+                            <i class="fa-solid fa-star" style="color:gold;"></i>
+                        @endfor
                     </div>
                 </div>
             </a>
@@ -437,59 +430,59 @@
                 <!-- First set -->
                 <div class="partner-card">
                     <a href="https://www.camboNCT.com" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-camboNCT.jpg" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-camboNCT.jpg') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-cemintel.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-cemintel.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-emerald.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-emerald.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-ezecom.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-ezecom.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-khmer24.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-khmer24.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-loma_tecc.jpg" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-loma_tecc.jpg') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-sabay.png" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-sabay.png') }}" alt="">
                     </a>
                 </div>
 
                 <!-- Duplicate set for seamless loop -->
                 <div class="partner-card">
                     <a href="https://www.camboNCT.com" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-camboNCT.jpg" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-camboNCT.jpg') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-cemintel.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-cemintel.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-emerald.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-emerald.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
                     <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="./frontend/asset/images/p-ezecom.webp" alt="">
+                        <img src="{{ asset('frontend/asset/images/p-ezecom.webp') }}" alt="">
                     </a>
                 </div>
                 <div class="partner-card">
