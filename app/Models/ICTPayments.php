@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
+use App\Models\ICTInvoice;
 
 class ICTPayments extends Model
 {
@@ -22,6 +24,6 @@ class ICTPayments extends Model
 
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(IctInvoice::class, 'invoice_id');
+        return $this->belongsTo(ICTInvoice::class, 'invoice_id');
     }
 }
