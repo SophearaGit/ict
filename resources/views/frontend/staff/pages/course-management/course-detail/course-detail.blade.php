@@ -50,7 +50,6 @@
                     </div>
                 </div>
             </div>
-
             {{-- Instructor chip --}}
             <div class="instructor-chip">
                 <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? 'default-images/user/both.jpg' : $course->instructor->image) }}"
@@ -60,7 +59,6 @@
                     <div class="instructor-chip__role">Instructor</div>
                 </div>
             </div>
-
             {{-- ── REMAINING highlight ── --}}
             @php
                 $sessionDuration = 1.5;
@@ -85,7 +83,6 @@
                     <div class="remain-card__sub">of {{ $totalSessions }} total</div>
                 </div>
             </div>
-
             {{-- ── Stat Cards ── --}}
             <div class="stat-grid" style="grid-template-columns: 1fr 1fr;">
                 {{-- Students --}}
@@ -130,7 +127,6 @@
                     </div>
                 </div>
             </div>
-
             {{-- Progress --}}
             <div class="card border-0 shadow-none"
                 style="background:#f8fafc;border:1px solid #e9ecef!important;border-radius:14px;">
@@ -141,10 +137,9 @@
                     </div>
                     <div class="stat-progress">
                         @php
-                            $pColor = $progress <= 50 ? '#ef4444' : ($progress <= 80 ? '#f59e0b' : '#22c55e');
-                        @endphp
-                        <div class="stat-progress__bar"
-                            style="width:{{ $progress }}%;background:{{ $pColor }};"></div>
+                        $pColor = $progress <= 50 ? '#ef4444' : ($progress <= 80 ? '#f59e0b' : '#22c55e'); @endphp <div class="stat-progress__bar"
+                            style="width:{{ $progress }}%;background:{{ $pColor }};">
+                        </div>
                     </div>
                     <div class="d-flex justify-content-between mt-2">
                         <small class="text-muted">{{ $completedSessions }} sessions done</small>
@@ -152,7 +147,6 @@
                     </div>
                 </div>
             </div>
-
             {{-- Category / Room quick info --}}
             <div class="info-strip mt-3">
                 <div class="info-strip__item">
@@ -193,7 +187,6 @@
                                     <div class="sub-title">Teacher's Attendance</div>
                                 </div>
                             </div>
-
                             {{-- Info strip --}}
                             <div class="info-strip mb-4">
                                 <div class="info-strip__item">
@@ -212,7 +205,6 @@
                                     </div>
                                 @endif
                             </div>
-
                             {{-- Filter --}}
                             <form method="GET" class="mb-4">
                                 <div class="p-3 rounded-3 bg-light border">
@@ -243,7 +235,6 @@
                                     </div>
                                 </div>
                             </form>
-
                             {{-- Attendance Table --}}
                             <form action="{{ route('staff.teacher.attendance.update') }}" method="POST"
                                 id="attendanceForm">
@@ -251,7 +242,6 @@
                                 <input type="hidden" name="course_id" value="{{ $course->id }}">
                                 <input type="hidden" name="teacher_id" value="{{ $course->instructor->id ?? '' }}">
                                 <input type="hidden" name="schedule_id" value="{{ $course->schedule->id ?? '' }}">
-
                                 <table id="attendanceTable">
                                     <thead>
                                         <tr>
@@ -268,17 +258,14 @@
                                     </thead>
                                     <tbody id="attendanceBody">
                                         @php $attendances = $course->teacherAttendances; @endphp
-
                                         @foreach ($attendances as $index => $attendance)
                                             <tr>
                                                 <td style="padding:10px">{{ $index + 1 }}</td>
-
                                                 {{-- Hidden ID --}}
                                                 <td style="display:none;">
                                                     <input type="hidden" name="attendances[{{ $index }}][id]"
                                                         value="{{ $attendance->id }}">
                                                 </td>
-
                                                 {{-- DATE — locked by default, unlock button alongside --}}
                                                 <td>
                                                     <div class="date-lock-wrap">
@@ -294,7 +281,6 @@
                                                         </button>
                                                     </div>
                                                 </td>
-
                                                 <td>
                                                     <input type="time"
                                                         name="attendances[{{ $index }}][start_time]"
@@ -340,17 +326,14 @@
                                                 </td>
                                             </tr>
                                         @endforeach
-
                                         {{-- ── NEW ROW — date is freely editable, defaults to today ── --}}
                                         @php $nextIndex = $attendances->count(); @endphp
                                         <tr class="table-active">
                                             <td style="padding:10px">{{ $nextIndex + 1 }}</td>
-
                                             <td style="display:none;">
                                                 <input type="hidden" name="attendances[{{ $nextIndex }}][id]"
                                                     value="">
                                             </td>
-
                                             {{-- No lock button on the new row — always editable --}}
                                             <td>
                                                 <div class="new-row-date-wrap">
@@ -359,7 +342,6 @@
                                                         class="form-control form-control-sm">
                                                 </div>
                                             </td>
-
                                             <td>
                                                 <input type="time" name="attendances[{{ $nextIndex }}][start_time]"
                                                     class="form-control form-control-sm">
@@ -395,16 +377,13 @@
                                         </tr>
                                     </tbody>
                                 </table>
-
                                 <button type="submit" class="btn btn-primary mt-3">
                                     <i class="ti ti-device-floppy me-1"></i> Save Attendance
                                 </button>
                             </form>
-
                         </div>
                     </div>
                 </div>{{-- /pills-attendance --}}
-
                 {{-- ── Student Attendance ── --}}
                 <div class="tab-pane fade" id="pills-student-attendance" role="tabpanel">
                     @php
@@ -418,9 +397,11 @@
                                 </div>
                                 <div class="col-md-3"><strong>Room:</strong> {{ $data['form_metadata']['room'] }}</div>
                                 <div class="col-md-3"><strong>Lecturer:</strong>
-                                    {{ $data['form_metadata']['lecturer_name'] }}</div>
+                                    {{ $data['form_metadata']['lecturer_name'] }}
+                                </div>
                                 <div class="col-md-3"><strong>Phone:</strong>
-                                    {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}</div>
+                                    {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
+                                </div>
                             </div>
                         </div>
                         <div class="attendance-table-container">
@@ -459,7 +440,6 @@
                         </div>
                     </div>
                 </div>
-
                 {{-- ── Student Report ── --}}
                 <div class="tab-pane fade" id="pills-student-report" role="tabpanel">
                     @php
@@ -476,7 +456,6 @@
                         ];
                         $avatarText = ['text-primary', 'text-warning', 'text-info', 'text-danger', 'text-success'];
                     @endphp
-
                     {{-- Summary pills --}}
                     <div class="d-flex flex-wrap gap-3 mb-4">
                         <div class="stat-card flex-row align-items-center gap-3"
@@ -520,7 +499,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="card border-0" style="border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);">
                         {{-- Header banner --}}
                         <div class="card-body"
@@ -612,7 +590,8 @@
                                                 </td>
                                                 <td class="text-center" style="min-width:90px;">
                                                     <p class="mb-1 fs-3 fw-semibold">
-                                                        {{ number_format($report->assignment_score) }}</p>
+                                                        {{ number_format($report->assignment_score) }}
+                                                    </p>
                                                     <div class="progress {{ $trackClass }}" style="height:4px;">
                                                         <div class="progress-bar {{ $barClass }}"
                                                             style="width:{{ $assignPct }}%"></div>
@@ -620,7 +599,8 @@
                                                 </td>
                                                 <td class="text-center" style="min-width:90px;">
                                                     <p class="mb-1 fs-3 fw-semibold">
-                                                        {{ number_format($report->mini_project_score) }}</p>
+                                                        {{ number_format($report->mini_project_score) }}
+                                                    </p>
                                                     <div class="progress {{ $trackClass }}" style="height:4px;">
                                                         <div class="progress-bar {{ $barClass }}"
                                                             style="width:{{ $miniPct }}%"></div>
@@ -628,7 +608,8 @@
                                                 </td>
                                                 <td class="text-center" style="min-width:90px;">
                                                     <p class="mb-1 fs-3 fw-semibold">
-                                                        {{ number_format($report->final_project_score) }}</p>
+                                                        {{ number_format($report->final_project_score) }}
+                                                    </p>
                                                     <div class="progress {{ $trackClass }}" style="height:4px;">
                                                         <div class="progress-bar {{ $barClass }}"
                                                             style="width:{{ $finalPct }}%"></div>
@@ -689,12 +670,10 @@
                         </div>
                     </div>
                 </div>{{-- /pills-student-report --}}
-
             </div>{{-- /tab-content --}}
         </div>{{-- /col right --}}
     </div>{{-- /row --}}
 @endsection
-
 @push('scripts')
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
@@ -717,7 +696,6 @@
                 width: '100%'
             });
         }
-
         /* ── Tab persistence ── */
         document.addEventListener('DOMContentLoaded', function() {
             const tabButtons = document.querySelectorAll('#pills-tab button[data-bs-toggle="pill"]');
@@ -729,14 +707,12 @@
                 localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
             }));
         });
-
         /* ── Datepicker (filter bar) ── */
         $('#date-range').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true,
             todayHighlight: true
         });
-
         /* ── Hours auto-calculation ── */
         function calculateRow(row) {
             const start = row.querySelector('input[name*="[start_time]"]');
@@ -750,18 +726,15 @@
                 let diff = (new Date(`1970-01-01T${end.value}:00`) - new Date(`1970-01-01T${start.value}:00`)) / 3600000;
                 if (diff < 0) diff += 24;
                 total.value = diff.toFixed(2);
-
                 // accumulate from the previous row's actual hours
                 const prevRow = row.previousElementSibling;
                 const prevATH = prevRow ? parseFloat(prevRow.querySelector('.actual-hours')?.value) || 0 : 0;
                 actual.value = (prevATH + diff).toFixed(2);
             }
-
             start.addEventListener('change', calc);
             end.addEventListener('change', calc);
         }
         document.querySelectorAll('#attendanceTable tbody tr').forEach(r => calculateRow(r));
-
         /* ── Date lock / unlock toggle ── */
         document.querySelectorAll('.btn-date-lock').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -769,7 +742,6 @@
                 const input = wrap.querySelector('.date-input');
                 const icon = this.querySelector('i');
                 const locked = input.disabled; // currently locked → we unlock
-
                 if (locked) {
                     // Unlock
                     input.disabled = false;
@@ -786,7 +758,6 @@
                 }
             });
         });
-
         /* ── Re-enable disabled date inputs before form submit
                so their values are included in the POST payload ── */
         document.getElementById('attendanceForm').addEventListener('submit', function() {

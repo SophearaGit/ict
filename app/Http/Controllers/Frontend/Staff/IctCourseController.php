@@ -5,7 +5,6 @@ use Carbon\Carbon;
 use App\Models\ICTCourse;
 use App\Models\ICTCourseCategory;
 use App\Models\ICTCourseEnrollments;
-use App\Models\ICTInvoice;
 use App\Models\ICTInvoiceItems;
 use App\Models\ICTSchedule;
 use App\Models\StudentAttendances;

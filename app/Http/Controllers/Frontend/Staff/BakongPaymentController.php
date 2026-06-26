@@ -1,18 +1,26 @@
 <?php
 namespace App\Http\Controllers\Frontend\Staff;
+
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\ICTCourseEnrollments;
 use App\Models\ICTInvoice;
 use App\Models\ICTPayments;
+use App\Notifications\Admin\PaymentVerifiedNotification;
 use App\Services\BakongService;
+use App\Services\TelegramService; // ← add this import
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+
 class BakongPaymentController extends Controller
 {
-    public function __construct(protected BakongService $bakong)
-    {
+    public function __construct(
+        protected readonly BakongService $bakong,
+        protected readonly TelegramService $telegram, // ← add this property
+    ) {
+
     }
     public function generateQr(Request $request): JsonResponse
     {
@@ -61,20 +69,26 @@ class BakongPaymentController extends Controller
             'hash' => 'required|string|size:8',
             'invoice_id' => 'required|integer|exists:i_c_t_invoices,id',
         ]);
+
         $invoice = ICTInvoice::findOrFail($request->invoice_id);
+
         if ($invoice->payment_status === 'paid') {
             return response()->json(['status' => 'success']);
         }
+
         if (auth()->user()->role === 'student' && $invoice->student_id !== auth()->id()) {
             abort(403);
         }
+
         $amount = (float) $invoice->total_amount;
         $currency = 'USD';
+
         $response = $this->bakong->checkTransactionByShortHash(
             hash: $request->hash,
             amount: $amount,
             currency: $currency,
         );
+
         if (($response['responseCode'] ?? 1) !== 0 || empty($response['data'])) {
             return response()->json([
                 'status' => 'failed',
@@ -82,22 +96,27 @@ class BakongPaymentController extends Controller
                     ?? 'Transaction not found. Please check your Bakong hash and try again.',
             ]);
         }
+
         $txnData = $response['data'];
         $expectedMerchant = config('services.bakong.merchant_id');
+
         if (($txnData['toAccountId'] ?? '') !== $expectedMerchant) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'This transaction was not paid to the correct account.',
             ]);
         }
+
         $paidAmount = (float) ($txnData['amount'] ?? 0);
+
         if ($paidAmount < $amount) {
             return response()->json([
                 'status' => 'failed',
                 'message' => "Amount mismatch. Expected \${$amount}, received \${$paidAmount}.",
             ]);
         }
-        DB::transaction(function () use ($invoice, $txnData, $request) {
+
+        DB::transaction(function () use ($invoice, $txnData, $request, $paidAmount) {
             ICTPayments::firstOrCreate(
                 ['invoice_id' => $invoice->id],
                 [
@@ -108,6 +127,7 @@ class BakongPaymentController extends Controller
                     'paid_at' => now(),
                 ]
             );
+
             $invoice->update([
                 'paid_amount' => $txnData['amount'] ?? $invoice->total_amount,
                 'remaining_amount' => 0,
@@ -115,11 +135,38 @@ class BakongPaymentController extends Controller
                 'paid_at' => now(),
                 'bakong_hash' => $txnData['hash'] ?? $request->hash,
             ]);
+
             ICTCourseEnrollments::firstOrCreate(
                 ['student_id' => $invoice->student_id, 'course_id' => $invoice->course_id],
                 ['enrolled_by' => $invoice->student_id, 'status' => 'active', 'enrolled_at' => now()]
             );
+
+            // ── In-system notification to all admins ──────────────────────
+            Admin::all()->each(
+                fn($admin) => $admin->notify(new PaymentVerifiedNotification(
+                    invoice: $invoice,
+                    hash: $request->hash,
+                    paidAmount: $paidAmount,
+                ))
+            );
         });
+
+        // ── Telegram notification (outside transaction — non-critical) ────
+        $student = $invoice->student ?? auth()->user();
+
+        $this->telegram->send(                                          // ← called here
+            message: "✅ <b>Payment Confirmed</b>\n\n" .
+            "👤 Student: <b>{$student->name}</b>\n" .
+            "📄 Invoice: <b>{$invoice->invoice_code}</b>\n" .
+            "💵 Amount: <b>\${$paidAmount}</b>\n" .
+            "🔑 Hash: <code>{$request->hash}</code>\n" .
+            "🕐 Time: " . now()->format('d M Y, H:i') . "\n\n" .
+            "📌 Please review in the admin dashboard.",
+            chatId: config('services.telegram.payment_verify_chat_id'),   // TELEGRAM_ADMIN_CHAT_ID_VERIFY_PAYMENT
+            botToken: config('services.telegram.bot_token_payment_verify'), // TELEGRAM_BOT_TOKEN_VERIFY_PAYMENT
+        );
+
         return response()->json(['status' => 'success']);
     }
+
 }

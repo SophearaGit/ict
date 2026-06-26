@@ -26,14 +26,8 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
         | COURSE ENROLLMENT + PAYMENT
         |--------------------------------------------------------------------------
         */
-        Route::post(
-            '/course/{course}/enroll',
-            [CourseEnrollmentController::class, 'startEnrollment']
-        )->name('course.enroll');
-        Route::get(
-            '/payment/{invoice}',
-            [CourseEnrollmentController::class, 'paymentPage']
-        )->name('payment.page');
+        Route::post('/course/{course}/enroll', [CourseEnrollmentController::class, 'startEnrollment'])->name('course.enroll');
+        Route::get('/payment/{invoice}', [CourseEnrollmentController::class, 'paymentPage'])->name('payment.page');
         /*******************************************************
          * DASHBOARD
          *******************************************************/
