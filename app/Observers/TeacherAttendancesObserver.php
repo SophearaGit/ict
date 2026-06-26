@@ -9,10 +9,5 @@ class TeacherAttendancesObserver
         if (!$course || $course->status !== 'active') {
             return;
         }
-        $totalHours = TeacherAttendances::where('course_id', $course->id)
-            ->sum('actual_hours');
-        if ($totalHours >= $course->duration) {
-            $course->update(['status' => 'inactive']);
-        }
     }
 }

@@ -31,6 +31,8 @@ return [
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID'),
+        'payment_verify_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID_VERIFY_PAYMENT'),
+        'bot_token_payment_verify' => env('TELEGRAM_BOT_TOKEN_VERIFY_PAYMENT'),
     ],
      'bakong' => [
         'api_url'       => env('BAKONG_API_URL', 'https://api-bakong.nbc.gov.kh'),
