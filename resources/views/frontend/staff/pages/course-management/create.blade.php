@@ -1,483 +1,741 @@
 @extends('frontend.staff.layout.master')
-@section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
-
+@section('page_title', isset($page_title) ? $page_title : 'Create Course')
 @push('styles')
+    {{-- Flatpickr --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        /* ── Select2 base ── */
-        .select2-container--default .select2-selection--single {
-            border-radius: var(--bs-border-radius-lg);
-            height: 42px;
-            padding: 6px 12px;
-            border: 1px solid var(--bs-border-color);
+        /* ── CSS tokens ─────────────────────────────────── */
+        :root {
+            --form-radius: 10px;
+            --section-gap: 2rem;
+            --accent: var(--bs-info);
+            --accent-soft: rgba(var(--bs-info-rgb), .08);
+            --border-subtle: var(--bs-border-color);
+            --label-color: var(--bs-secondary-color);
         }
 
-        .select2-container--default .select2-selection--single:focus {
-            border-color: var(--bs-primary);
-            box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.15);
+        /* ── Card shell ─────────────────────────────────── */
+        .course-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, .06);
+        }
+
+        /* ── Section labels ─────────────────────────────── */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--label-color);
+            margin-bottom: 1.1rem;
+        }
+
+        .section-label .icon-wrap {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-subtle);
+            margin-left: 4px;
+        }
+
+        /* ── Form sections ──────────────────────────────── */
+        .form-section {
+            padding: 1.5rem;
+            border-radius: var(--form-radius);
+            background: var(--bs-body-bg);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: var(--section-gap);
+            transition: border-color .2s;
+        }
+
+        .form-section:focus-within {
+            border-color: rgba(var(--bs-info-rgb), .4);
+        }
+
+        /* ── Floating label tweaks ──────────────────────── */
+        .form-floating>.form-control,
+        .form-floating>.form-select {
+            border-radius: var(--form-radius);
+        }
+
+        .form-floating>label {
+            color: var(--label-color);
+            font-size: 13px;
+        }
+
+        /* ── Non-floating labels ─────────────────────────── */
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--label-color);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ── Thumbnail upload zone ──────────────────────── */
+        .thumbnail-zone {
+            position: relative;
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--form-radius);
+            padding: 2rem 1.5rem;
+            background: var(--bs-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            min-height: 150px;
+            text-align: center;
+        }
+
+        .thumbnail-zone:hover,
+        .thumbnail-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .thumbnail-zone .tz-icon {
+            font-size: 2.4rem;
+            color: var(--bs-secondary-color);
+            transition: color .2s;
+        }
+
+        .thumbnail-zone:hover .tz-icon {
+            color: var(--accent);
+        }
+
+        .thumbnail-zone .tz-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--bs-body-color);
+            margin: 0;
+        }
+
+        .thumbnail-zone .tz-sub {
+            font-size: 12px;
+            color: var(--bs-secondary-color);
+            margin: 0;
+        }
+
+        .thumbnail-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Preview */
+        #thumbnail-preview {
+            display: none;
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: calc(var(--form-radius) - 2px);
+        }
+
+        /* ── Select2 ────────────────────────────────────── */
+        .select2-container--default .select2-selection--single {
+            border-radius: var(--form-radius);
+            height: 42px;
+            padding: 6px 12px;
+            border: 1px solid var(--border-subtle);
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 .2rem rgba(var(--bs-info-rgb), .15);
+            outline: none;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             line-height: 30px;
+            color: var(--bs-body-color);
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 42px;
         }
 
-        /* ── Optgroup labels ── */
-        .select2-results__group {
-            font-weight: 600;
-            font-size: 13px;
-            padding: 8px 12px;
-            color: var(--bs-heading-color);
-            background: var(--bs-light);
+        .select2-dropdown {
+            border-radius: var(--form-radius);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+            overflow: hidden;
         }
 
-        /* ── Section dividers ── */
-        .form-section-label {
+        .select2-results__group {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: 8px 14px;
+            color: var(--label-color);
+            background: var(--bs-light);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .select2-results__option--highlighted {
+            background-color: var(--accent-soft) !important;
+            color: var(--bs-body-color) !important;
+        }
+
+        /* ── Flatpickr overrides ────────────────────────── */
+        .flatpickr-input {
+            border-radius: var(--form-radius) !important;
+        }
+
+        .flatpickr-calendar {
+            border-radius: 12px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .12) !important;
+            border: 1px solid var(--border-subtle) !important;
+        }
+
+        .flatpickr-day.selected,
+        .flatpickr-day.selected:hover {
+            background: var(--bs-info) !important;
+            border-color: var(--bs-info) !important;
+        }
+
+        .flatpickr-day.inRange {
+            background: var(--accent-soft) !important;
+            border-color: transparent !important;
+            box-shadow: -5px 0 0 var(--accent-soft), 5px 0 0 var(--accent-soft) !important;
+        }
+
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: var(--bs-info) !important;
+        }
+
+        /* ── Pricing badge chip ──────────────────────────── */
+        .price-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--bs-secondary-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 1rem;
+            color: var(--bs-success);
+            background: rgba(var(--bs-success-rgb), .1);
+            border-radius: 20px;
+            padding: 2px 8px;
+            margin-top: 4px;
         }
 
-        .form-section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--bs-border-color);
+        /* ── Capacity bar hint ───────────────────────────── */
+        .cap-hint {
+            font-size: 11px;
+            color: var(--label-color);
+            margin-top: 4px;
         }
 
-        /* ── Thumbnail upload zone ── */
-        .thumbnail-zone {
-            border: 2px dashed var(--bs-border-color);
-            border-radius: var(--bs-border-radius-lg);
-            padding: 1.25rem 1rem;
-            background: var(--bs-light);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: border-color 0.2s;
+        /* ── Submit button ──────────────────────────────── */
+        .btn-submit {
+            min-width: 160px;
+            border-radius: 50px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            padding: .6rem 1.8rem;
+            transition: transform .15s, box-shadow .15s;
         }
 
-        .thumbnail-zone:hover {
-            border-color: var(--bs-info);
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(var(--bs-info-rgb), .35);
         }
 
-        .thumbnail-zone .upload-icon {
-            font-size: 2rem;
-            color: var(--bs-secondary-color);
-            flex-shrink: 0;
-        }
-
-        .thumbnail-zone .upload-text {
-            font-size: 13px;
-            color: var(--bs-secondary-color);
-            margin: 0;
-        }
-
-        .thumbnail-zone input[type="file"] {
-            border: none;
-            background: transparent;
-            padding: 0;
-            font-size: 13px;
-        }
-
-        /* ── Category pill options ── */
-        .select2-category .select2-results__option {
-            padding: 6px 12px;
+        /* ── Char counter ───────────────────────────────── */
+        .char-count {
+            font-size: 11px;
+            color: var(--label-color);
+            text-align: right;
+            margin-top: 4px;
         }
     </style>
 @endpush
-
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card course-card">
+                <div class="card-body p-4">
                     {{-- ── Header ── --}}
-                    <div class="d-md-flex align-items-center mb-4">
+                    <div class="d-flex align-items-start justify-content-between mb-4 pb-3 border-bottom">
                         <div>
-                            <h5 class="card-title fw-semibold mb-1">Course (Create)</h5>
-                            <p class="card-subtitle text-muted">You can create new courses from this page.</p>
+                            <h4 class="fw-bold mb-1">Create a new course</h4>
+                            <p class="text-muted mb-0" style="font-size:13px">
+                                Fill in the details below. Fields marked <span class="text-danger">*</span> are required.
+                            </p>
                         </div>
-                        <div class="ms-auto mt-3 mt-md-0">
-                            <a href="{{ route('staff.courses.index') }}" class="btn btn-outline-secondary">
-                                <i class="ti ti-arrow-back-up me-1"></i> Back
-                            </a>
-                        </div>
+                        <a href="{{ route('staff.courses.index') }}"
+                            class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            <i class="ti ti-arrow-back-up me-1"></i> Back
+                        </a>
                     </div>
-
-                    <form action="{{ route('staff.courses.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('staff.courses.store') }}" method="POST" enctype="multipart/form-data"
+                        id="courseForm">
                         @csrf
-
-                        {{-- ═══════════════════════════════════════ --}}
-                        {{-- SECTION 1 · Thumbnail                  --}}
-                        {{-- ═══════════════════════════════════════ --}}
-                        <div class="form-section-label">
-                            <i class="ti ti-photo fs-5"></i> Thumbnail
+                        {{-- ══════════════════════════════════════ --}}
+                        {{-- 1 · THUMBNAIL                         --}}
+                        {{-- ══════════════════════════════════════ --}}
+                        <div class="section-label">
+                            <span class="icon-wrap"><i class="ti ti-photo"></i></span>
+                            Thumbnail
                         </div>
-
-                        <div class="thumbnail-zone mb-4">
-                            <i class="ti ti-cloud-upload upload-icon"></i>
-                            <div>
-                                <p class="upload-text mb-1">Upload a course thumbnail image</p>
-                                <input type="file" name="thumbnail" accept="image/*">
-                            </div>
-                        </div>
-                        <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mb-3" />
-
-                        {{-- ═══════════════════════════════════════ --}}
-                        {{-- SECTION 2 · Basic Info                 --}}
-                        {{-- ═══════════════════════════════════════ --}}
-                        <div class="form-section-label">
-                            <i class="ti ti-info-circle fs-5"></i> Basic info
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            {{-- Title (English) --}}
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" placeholder="Course Title" name="title"
-                                        value="{{ old('title') }}">
-                                    <label>
-                                        <i class="ti ti-book me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">Title (English)</span>
-                                    </label>
+                        <div class="form-section">
+                            <div class="row g-3 align-items-start">
+                                <div class="col-md-8">
+                                    <div class="thumbnail-zone" id="thumbnailZone">
+                                        <img id="thumbnail-preview" alt="Preview">
+                                        <i class="ti ti-cloud-upload tz-icon" id="tzIcon"></i>
+                                        <p class="tz-title" id="tzTitle">Drop image here or click to browse</p>
+                                        <p class="tz-sub" id="tzSub">PNG, JPG, WEBP · max 3 MB</p>
+                                        <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*">
+                                    </div>
+                                    <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
                                 </div>
-                                <x-input-error :messages="$errors->get('title')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- Title (Khmer) --}}
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" placeholder="ឈ្មោះវគ្គសិក្សា"
-                                        name="khmer_name" value="{{ old('khmer_name') }}">
-                                    <label>
-                                        <i class="ti ti-book me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">ឈ្មោះ (ខ្មែរ)</span>
-                                    </label>
+                                <div class="col-md-4">
+                                    <div class="rounded p-3"
+                                        style="background:var(--bs-light);border-radius:var(--form-radius)!important;font-size:12px;color:var(--bs-secondary-color);line-height:1.7;">
+                                        <p class="fw-semibold text-body mb-2" style="font-size:13px;">
+                                            <i class="ti ti-info-circle me-1 text-info"></i> Tips
+                                        </p>
+                                        <ul class="ps-3 mb-0">
+                                            <li>Recommended: <strong>1280 × 720 px</strong></li>
+                                            <li>16:9 aspect ratio works best</li>
+                                            <li>Keep file size under 3 MB</li>
+                                            <li>Use a clear, high-contrast image</li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                <x-input-error :messages="$errors->get('khmer_name')" class="text-danger mt-1" />
                             </div>
                         </div>
-
-                        {{-- ═══════════════════════════════════════ --}}
-                        {{-- SECTION 3 · Assignment                 --}}
-                        {{-- ═══════════════════════════════════════ --}}
-                        <div class="form-section-label">
-                            <i class="ti ti-users fs-5"></i> Assignment
+                        {{-- ══════════════════════════════════════ --}}
+                        {{-- 2 · BASIC INFO                        --}}
+                        {{-- ══════════════════════════════════════ --}}
+                        <div class="section-label">
+                            <span class="icon-wrap"><i class="ti ti-info-circle"></i></span>
+                            Basic info
                         </div>
-
-                        <div class="row g-3 mb-4">
-                            {{-- Instructor --}}
-                            <div class="col-md-3">
-                                <label class="form-label text-muted small mb-1">
-                                    <i class="ti ti-user-circle me-1"></i> Instructor
-                                </label>
-                                <select class="form-select select2-instructor" name="instructor_id" id="instructor_id">
-                                    <option value="" disabled selected>Search instructor…</option>
-                                    @foreach ($instructors as $instructor)
-                                        <option value="{{ $instructor->id }}"
-                                            data-image="{{ $instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($instructor->image) }}"
-                                            {{ old('instructor_id') == $instructor->id ? 'selected' : '' }}>
-                                            {{ $instructor->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-1" />
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" placeholder="Course Title" name="title"
+                                            id="title" value="{{ old('title') }}" required>
+                                        <label for="title">
+                                            <i class="ti ti-book me-2 text-info"></i>
+                                            Title (English) <span class="text-danger">*</span>
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('title')" class="text-danger mt-1" />
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" placeholder="ឈ្មោះវគ្គសិក្សា"
+                                            name="khmer_name" id="khmer_name" value="{{ old('khmer_name') }}">
+                                        <label for="khmer_name">
+                                            <i class="ti ti-book me-2 text-info"></i>
+                                            ឈ្មោះ (ខ្មែរ)
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('khmer_name')" class="text-danger mt-1" />
+                                </div>
                             </div>
-
-                            {{-- Category --}}
-                            <div class="col-md-3">
-                                <label class="form-label text-muted small mb-1">
-                                    <i class="ti ti-category me-1"></i> Category
-                                </label>
-                                <select class="form-select select2-category" name="category_id" id="category_id">
-                                    <option value="" disabled selected>Select category…</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}"
-                                            data-icon="{{ $category->icon ?? 'ti ti-category' }}"
-                                            {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('category_id')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- Schedule --}}
-                            <div class="col-md-4">
-                                <label class="form-label text-muted small mb-1">
-                                    <i class="ti ti-calendar-time me-1"></i> Schedule
-                                </label>
-                                <select class="form-select select2-schedule" name="schedule_id">
-                                    <option value="" selected disabled>Please select schedule</option>
-                                    @foreach ($schedules as $studyDay => $daySchedules)
-                                        <optgroup label="{{ Str::title(str_replace('-', ' • ', $studyDay)) }}">
-                                            @foreach ($daySchedules as $schedule)
-                                                <option value="{{ $schedule->id }}"
-                                                    data-shift="{{ strtolower($schedule->shift) }}"
-                                                    data-start="{{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i') }}"
-                                                    data-end="{{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}">
-                                                    {{ ucfirst($schedule->shift) }}
-                                                </option>
-                                            @endforeach
-                                        </optgroup>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('schedule_id')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- Status --}}
-                            <div class="col-md-2">
-                                <div class="form-floating">
-                                    <select class="form-select" name="status" id="status">
-                                        <option value="" disabled selected>Select status</option>
+                        </div>
+                        {{-- ══════════════════════════════════════ --}}
+                        {{-- 3 · ASSIGNMENT                        --}}
+                        {{-- ══════════════════════════════════════ --}}
+                        <div class="section-label">
+                            <span class="icon-wrap"><i class="ti ti-users"></i></span>
+                            Assignment
+                        </div>
+                        <div class="form-section">
+                            <div class="row g-3">
+                                {{-- Instructor --}}
+                                <div class="col-md-3">
+                                    <label class="field-label">
+                                        <i class="ti ti-user-circle text-info"></i>
+                                        Instructor <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select select2-instructor" name="instructor_id" id="instructor_id">
+                                        <option value="" disabled selected>Search instructor…</option>
+                                        @foreach ($instructors as $instructor)
+                                            <option value="{{ $instructor->id }}"
+                                                data-image="{{ $instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($instructor->image) }}"
+                                                {{ old('instructor_id') == $instructor->id ? 'selected' : '' }}>
+                                                {{ $instructor->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('instructor_id')" class="text-danger mt-1" />
+                                </div>
+                                {{-- Category --}}
+                                <div class="col-md-3">
+                                    <label class="field-label">
+                                        <i class="ti ti-category text-info"></i>
+                                        Category
+                                    </label>
+                                    <select class="form-select select2-category" name="category_id" id="category_id">
+                                        <option value="" disabled selected>Select category…</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                data-icon="{{ $category->icon ?? 'ti ti-category' }}"
+                                                {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('category_id')" class="text-danger mt-1" />
+                                </div>
+                                {{-- Schedule --}}
+                                <div class="col-md-4">
+                                    <label class="field-label">
+                                        <i class="ti ti-calendar-time text-info"></i>
+                                        Schedule <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select select2-schedule" name="schedule_id">
+                                        <option value="" disabled selected>Select a schedule…</option>
+                                        @foreach ($schedules as $studyDay => $daySchedules)
+                                            <optgroup label="{{ Str::title(str_replace('-', ' • ', $studyDay)) }}">
+                                                @foreach ($daySchedules as $schedule)
+                                                    <option value="{{ $schedule->id }}"
+                                                        data-shift="{{ strtolower($schedule->shift) }}"
+                                                        data-start="{{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i') }}"
+                                                        data-end="{{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}">
+                                                        {{ ucfirst($schedule->shift) }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('schedule_id')" class="text-danger mt-1" />
+                                </div>
+                                {{-- Status --}}
+                                <div class="col-md-2">
+                                    <label class="field-label">
+                                        <i class="ti ti-flag text-info"></i>
+                                        Status <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" name="status" id="status"
+                                        style="border-radius:var(--form-radius);height:42px;">
+                                        <option value="" disabled selected>Select…</option>
                                         <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active
                                         </option>
                                         <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>
                                             Inactive</option>
                                     </select>
-                                    <label>
-                                        <i class="ti ti-flag me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">Status</span>
-                                    </label>
+                                    <x-input-error :messages="$errors->get('status')" class="text-danger mt-1" />
                                 </div>
-                                <x-input-error :messages="$errors->get('status')" class="text-danger mt-1" />
                             </div>
                         </div>
-
-                        {{-- ═══════════════════════════════════════ --}}
-                        {{-- SECTION 4 · Dates & Pricing            --}}
-                        {{-- ═══════════════════════════════════════ --}}
-                        <div class="form-section-label">
-                            <i class="ti ti-calendar-dollar fs-5"></i> Dates &amp; pricing
+                        {{-- ══════════════════════════════════════ --}}
+                        {{-- 4 · DATES & PRICING                   --}}
+                        {{-- ══════════════════════════════════════ --}}
+                        <div class="section-label">
+                            <span class="icon-wrap"><i class="ti ti-calendar-dollar"></i></span>
+                            Dates &amp; Pricing
                         </div>
-
-                        <div class="row g-3 mb-4">
-                            {{-- Start Date --}}
-                            <div class="col-md-2">
-                                <div class="form-floating">
-                                    <input type="date" class="form-control" placeholder="Start Date" name="start_date"
-                                        value="{{ old('start_date') }}">
-                                    <label>
-                                        <i class="ti ti-calendar-start me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">Start date</span>
+                        <div class="form-section">
+                            {{-- Row 1: Start date · End date · Price · Price/session --}}
+                            <div class="row g-3 mb-3">
+                                {{-- Start date --}}
+                                <div class="col-md-6">
+                                    <label class="field-label">
+                                        <i class="ti ti-calendar-event text-info"></i>
+                                        Start date
                                     </label>
+                                    <input type="text" class="form-control" id="start_date" name="start_date"
+                                        placeholder="Pick a date…" value="{{ old('start_date') }}" autocomplete="off">
+                                    <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-1" />
                                 </div>
-                                <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- End Date --}}
-                            <div class="col-md-2">
-                                <div class="form-floating">
-                                    <input type="date" class="form-control" placeholder="End Date" name="end_date"
-                                        value="{{ old('end_date') }}">
-                                    <label>
-                                        <i class="ti ti-calendar-end me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">End date</span>
+                                {{-- End date --}}
+                                <div class="col-md-6">
+                                    <label class="field-label">
+                                        <i class="ti ti-calendar-due text-info"></i>
+                                        End date
                                     </label>
+                                    <input type="text" class="form-control" id="end_date" name="end_date"
+                                        placeholder="Pick a date…" value="{{ old('end_date') }}" autocomplete="off">
+                                    <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-1" />
                                 </div>
-                                <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- Price --}}
-                            <div class="col-md-2">
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" placeholder="Price" name="price"
-                                        step="0.01" value="{{ old('price') }}">
-                                    <label>
-                                        <i class="ti ti-currency-dollar me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">Price ($)</span>
-                                    </label>
+                                {{-- Price --}}
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" placeholder="0.00" name="price"
+                                            id="price" step="0.01" min="0" value="{{ old('price') }}"
+                                            required>
+                                        <label for="price">
+                                            <i class="ti ti-currency-dollar me-1 text-info"></i>
+                                            Total price ($) <span class="text-danger">*</span>
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('price')" class="text-danger mt-1" />
                                 </div>
-                                <x-input-error :messages="$errors->get('price')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- Price per Session --}}
-                            <div class="col-md-3">
-                                <div class="form-floating">
-                                    <select class="form-select" name="price_per_session" id="price_per_session">
-                                        <option value="" disabled selected>Select…</option>
-                                        <option value="0.00" {{ old('price_per_session') == '0.00' ? 'selected' : '' }}>
-                                            Free (0.00 $)
-                                        </option>
-                                        @for ($i = 5; $i <= 10; $i += 0.5)
-                                            <option value="{{ number_format($i, 2) }}"
-                                                {{ old('price_per_session') == number_format($i, 2) ? 'selected' : '' }}>
-                                                {{ number_format($i, 2) }} $
+                                {{-- Price / session --}}
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <select class="form-select" name="price_per_session" id="price_per_session">
+                                            <option value="" disabled selected>Select…</option>
+                                            <option value="0.00"
+                                                {{ old('price_per_session') == '0.00' ? 'selected' : '' }}>
+                                                Free (0.00 $)
                                             </option>
-                                        @endfor
-                                    </select>
-                                    <label>
-                                        <i class="ti ti-currency-dollar me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">Price / session</span>
-                                    </label>
+                                            @for ($i = 5; $i <= 10; $i += 0.5)
+                                                <option value="{{ number_format($i, 2) }}"
+                                                    {{ old('price_per_session') == number_format($i, 2) ? 'selected' : '' }}>
+                                                    {{ number_format($i, 2) }} $
+                                                </option>
+                                            @endfor
+                                        </select>
+                                        <label for="price_per_session">
+                                            <i class="ti ti-receipt me-1 text-info"></i>
+                                            Price / session
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-1" />
                                 </div>
-                                <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-1" />
-                            </div>
-
-                            {{-- Duration --}}
-                            <div class="col-md-3">
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" placeholder="Duration" name="duration"
-                                        step="0.1" value="{{ old('duration') }}">
-                                    <label>
-                                        <i class="ti ti-clock me-2 fs-4 text-info"></i>
-                                        <span class="border-start border-info ps-3">Duration (hrs)</span>
-                                    </label>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" placeholder="0" name="duration"
+                                            id="duration" step="0.5" min="0" value="{{ old('duration') }}">
+                                        <label for="duration">
+                                            <i class="ti ti-clock me-1 text-info"></i>
+                                            Duration (hrs)
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('duration')" class="text-danger mt-1" />
                                 </div>
-                                <x-input-error :messages="$errors->get('duration')" class="text-danger mt-1" />
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" placeholder="0" name="capacity"
+                                            id="capacity" min="1" step="1" value="{{ old('capacity') }}">
+                                        <label for="capacity">
+                                            <i class="ti ti-users me-1 text-info"></i>
+                                            Capacity (seats)
+                                        </label>
+                                    </div>
+                                    <p class="cap-hint"><i class="ti ti-info-circle me-1"></i>Max students allowed to
+                                        enrol</p>
+                                    <x-input-error :messages="$errors->get('capacity')" class="text-danger mt-1" />
+                                </div>
                             </div>
                         </div>
-
-                        {{-- ═══════════════════════════════════════ --}}
-                        {{-- SECTION 5 · Description                --}}
-                        {{-- ═══════════════════════════════════════ --}}
-                        <div class="form-section-label">
-                            <i class="ti ti-align-left fs-5"></i> Description
+                        {{-- ══════════════════════════════════════ --}}
+                        {{-- 5 · DESCRIPTION                       --}}
+                        {{-- ══════════════════════════════════════ --}}
+                        <div class="section-label">
+                            <span class="icon-wrap"><i class="ti ti-align-left"></i></span>
+                            Description
                         </div>
-
-                        <div class="mb-4">
-                            <textarea class="form-control" placeholder="Course description…" name="description" id="description"
-                                style="height: 140px"></textarea>
+                        <div class="form-section">
+                            <textarea class="form-control" name="description" id="description"
+                                placeholder="Write a clear, concise course description…"
+                                style="min-height:160px;border-radius:var(--form-radius);resize:vertical;"></textarea>
+                            <div class="char-count"><span id="charCount">0</span> characters</div>
                             <x-input-error :messages="$errors->get('description')" class="text-danger mt-1" />
                         </div>
-
-                        {{-- ── Submit ── --}}
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-info rounded-pill px-4">
-                                <i class="ti ti-send me-2 fs-5"></i> Submit
+                        {{-- ── Submit bar ── --}}
+                        <div class="d-flex justify-content-end align-items-center gap-3 pt-2">
+                            <a href="{{ route('staff.courses.index') }}" class="btn btn-link text-muted px-3">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-info btn-submit">
+                                <i class="ti ti-send me-2"></i> Publish course
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
         </div>
     </div>
 @endsection
-
 @push('scripts')
+    {{-- Flatpickr --}}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // ── Instructor Select2 ──────────────────────────────────────────
-        $('.select2-instructor').select2({
-            width: '100%',
-            placeholder: 'Search instructor…',
-            allowClear: true,
-            templateResult: formatInstructor,
-            templateSelection: formatInstructorSelection,
-            escapeMarkup: markup => markup,
-        });
-
-        function formatInstructor(option) {
-            if (!option.id) return option.text;
-            const img = $(option.element).data('image');
-            return `
-                <div class="d-flex align-items-center gap-2 py-1">
-                    <img src="${img}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;">
-                    <span>${option.text}</span>
-                </div>`;
-        }
-
-        function formatInstructorSelection(option) {
-            if (!option.id) return option.text;
-            const img = $(option.element).data('image');
-            return `
-                <div class="d-flex align-items-center gap-2">
-                    <img src="${img}" class="rounded-circle" style="width:22px;height:22px;object-fit:cover;">
-                    <strong>${option.text}</strong>
-                </div>`;
-        }
-
-        // ── Category Select2 ────────────────────────────────────────────
-        $('.select2-category').select2({
-            width: '100%',
-            placeholder: 'Select category…',
-            allowClear: true,
-            templateResult: formatCategory,
-            templateSelection: formatCategorySelection,
-            escapeMarkup: markup => markup,
-        });
-
-        function formatCategory(option) {
-            if (!option.id) return option.text;
-            const icon = $(option.element).data('icon') || 'ti ti-category';
-            return `
-                <div class="d-flex align-items-center gap-2 py-1">
-                    <i class="${icon} fs-5 text-info"></i>
-                    <span>${option.text}</span>
-                </div>`;
-        }
-
-        function formatCategorySelection(option) {
-            if (!option.id) return option.text;
-            const icon = $(option.element).data('icon') || 'ti ti-category';
-            return `
-                <div class="d-flex align-items-center gap-2">
-                    <i class="${icon} fs-5 text-info"></i>
-                    <strong>${option.text}</strong>
-                </div>`;
-        }
-
-        // ── Schedule Select2 ────────────────────────────────────────────
         $(document).ready(function() {
+            /* ── Flatpickr: linked date range ──────────────────── */
+            const startPicker = flatpickr('#start_date', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'M j, Y',
+                allowInput: false,
+                disableMobile: true,
+                onChange(dates) {
+                    if (dates[0]) {
+                        endPicker.set('minDate', dates[0]);
+                    }
+                },
+            });
+            const endPicker = flatpickr('#end_date', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'M j, Y',
+                allowInput: false,
+                disableMobile: true,
+                onChange(dates) {
+                    if (dates[0]) {
+                        startPicker.set('maxDate', dates[0]);
+                    }
+                },
+            });
+            /* ── Thumbnail preview ─────────────────────────────── */
+            $('#thumbnailInput').on('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const preview = $('#thumbnail-preview');
+                    preview.attr('src', e.target.result).show();
+                    $('#tzIcon, #tzTitle, #tzSub').hide();
+                };
+                reader.readAsDataURL(file);
+            });
+            /* Drag visual feedback */
+            const zone = document.getElementById('thumbnailZone');
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+            });
+            /* ── Instructor Select2 ─────────────────────────────── */
+            $('.select2-instructor').select2({
+                width: '100%',
+                placeholder: 'Search instructor…',
+                allowClear: true,
+                templateResult: formatInstructor,
+                templateSelection: formatInstructorSelection,
+                escapeMarkup: m => m,
+            });
+
+            function formatInstructor(opt) {
+                if (!opt.id) return opt.text;
+                const img = $(opt.element).data('image');
+                return `<div class="d-flex align-items-center gap-2 py-1">
+                        <img src="${img}" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;">
+                        <span>${opt.text}</span>
+                    </div>`;
+            }
+
+            function formatInstructorSelection(opt) {
+                if (!opt.id) return opt.text;
+                const img = $(opt.element).data('image');
+                return `<div class="d-flex align-items-center gap-2">
+                        <img src="${img}" class="rounded-circle" style="width:20px;height:20px;object-fit:cover;">
+                        <strong>${opt.text}</strong>
+                    </div>`;
+            }
+            /* ── Category Select2 ──────────────────────────────── */
+            $('.select2-category').select2({
+                width: '100%',
+                placeholder: 'Select category…',
+                allowClear: true,
+                templateResult: formatCategory,
+                templateSelection: formatCategorySelection,
+                escapeMarkup: m => m,
+            });
+
+            function formatCategory(opt) {
+                if (!opt.id) return opt.text;
+                const icon = $(opt.element).data('icon') || 'ti ti-category';
+                return `<div class="d-flex align-items-center gap-2 py-1">
+                        <i class="${icon} fs-5 text-info"></i>
+                        <span>${opt.text}</span>
+                    </div>`;
+            }
+
+            function formatCategorySelection(opt) {
+                if (!opt.id) return opt.text;
+                const icon = $(opt.element).data('icon') || 'ti ti-category';
+                return `<div class="d-flex align-items-center gap-2">
+                        <i class="${icon} fs-5 text-info"></i>
+                        <strong>${opt.text}</strong>
+                    </div>`;
+            }
+            /* ── Schedule Select2 ──────────────────────────────── */
             const shiftColor = {
                 morning: 'var(--bs-success)',
                 afternoon: 'var(--bs-warning)',
                 evening: 'var(--bs-primary)',
             };
-
             $('.select2-schedule').select2({
                 width: '100%',
-                placeholder: 'Please select schedule',
+                placeholder: 'Select a schedule…',
                 allowClear: true,
                 templateResult: formatSchedule,
-                templateSelection: formatSelection,
-                escapeMarkup: markup => markup,
+                templateSelection: formatScheduleSelection,
+                escapeMarkup: m => m,
             });
 
-            function formatSchedule(option) {
-                if (!option.id) return option.text;
-                const shift = $(option.element).data('shift');
-                const start = $(option.element).data('start');
-                const end = $(option.element).data('end');
+            function formatSchedule(opt) {
+                if (!opt.id) return opt.text;
+                const shift = $(opt.element).data('shift');
+                const start = $(opt.element).data('start');
+                const end = $(opt.element).data('end');
                 const color = shiftColor[shift] ?? 'var(--bs-secondary)';
                 const label = shift.charAt(0).toUpperCase() + shift.slice(1);
-                return `
-                    <div class="d-flex align-items-center gap-2 py-1">
-                        <span class="badge" style="background:${color};border-radius:var(--bs-border-radius-pill);">
-                            ${label}
-                        </span>
-                        <strong class="text-body">${start} – ${end}</strong>
+                return `<div class="d-flex align-items-center gap-2 py-1">
+                        <span class="badge rounded-pill" style="background:${color};font-size:11px;">${label}</span>
+                        <span class="text-body">${start} – ${end}</span>
                     </div>`;
             }
 
-            function formatSelection(option) {
-                if (!option.id) return option.text;
-                const day = $(option.element).parent('optgroup').attr('label') || '';
-                const shift = $(option.element).data('shift');
-                const start = $(option.element).data('start');
-                const end = $(option.element).data('end');
+            function formatScheduleSelection(opt) {
+                if (!opt.id) return opt.text;
+                const day = $(opt.element).parent('optgroup').attr('label') || '';
+                const shift = $(opt.element).data('shift');
+                const start = $(opt.element).data('start');
+                const end = $(opt.element).data('end');
                 const label = shift.charAt(0).toUpperCase() + shift.slice(1);
-                return `<span style="font-weight:600;">${day} • ${label} ( ${start} – ${end} )</span>`;
+                return `<strong>${day}</strong> &nbsp;·&nbsp; ${label} &nbsp; ${start} – ${end}`;
             }
-        });
-
-        // ── TinyMCE ─────────────────────────────────────────────────────
-        tinymce.init({
-            selector: '#description',
-            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            /* ── Description char counter ──────────────────────── */
+            $('#description').on('input', function() {
+                $('#charCount').text($(this).val().length);
+            });
+            /* ── TinyMCE ───────────────────────────────────────── */
+            tinymce.init({
+                selector: '#description',
+                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                setup(editor) {
+                    editor.on('input keyup', () => {
+                        const len = editor.getContent({
+                            format: 'text'
+                        }).length;
+                        $('#charCount').text(len);
+                    });
+                },
+            });
         });
     </script>
 @endpush
