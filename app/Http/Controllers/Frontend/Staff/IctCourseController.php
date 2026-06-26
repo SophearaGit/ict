@@ -176,6 +176,7 @@ class IctCourseController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'duration' => 'nullable|numeric|min:0',
+            'capacity' => 'nullable|integer|min:1',
         ]);
         $course = new ICTCourse();
         $course->title = $request->title;
@@ -192,6 +193,7 @@ class IctCourseController extends Controller
         $course->start_date = $request->start_date;
         $course->end_date = $request->end_date;
         $course->duration = $request->duration;
+        $course->capacity = $request->capacity;
         $course->save();
         return redirect()->route('staff.courses.index')->with('success', 'Course created successfully.');
     }
@@ -222,6 +224,7 @@ class IctCourseController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'duration' => 'nullable|numeric|min:0',
+            'capacity' => 'nullable|integer|min:1',
         ]);
         if ($request->hasFile('thumbnail')) {
             if ($course->thumbnail != '') {
@@ -230,7 +233,7 @@ class IctCourseController extends Controller
             $course->thumbnail = $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails');
         }
         $course->title = $request->title;
-        $course->khmer_title = $request->khmer_name;
+        $course->khmer_title = $request->khmer_title;
         $course->price = $request->price;
         $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
@@ -242,6 +245,7 @@ class IctCourseController extends Controller
         $course->start_date = $request->start_date;
         $course->end_date = $request->end_date;
         $course->duration = $request->duration;
+        $course->capacity = $request->capacity;
         $course->save();
         return redirect()->route('staff.courses.index')->with('success', 'Course updated successfully.');
     }

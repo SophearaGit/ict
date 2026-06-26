@@ -16,7 +16,7 @@ class ICTCourse extends Model
         'end_date' => 'date',
         'duration' => 'float',
     ];
-    protected $fillable = ['instructor_id', 'schedule_id', 'thumbnail', 'title', 'khmer_title', 'slug', 'description', 'price', 'price_per_session', 'status', 'start_date', 'end_date', 'duration', 'category_id'];
+    protected $fillable = ['instructor_id', 'schedule_id', 'thumbnail', 'title', 'khmer_title', 'slug', 'description', 'price', 'price_per_session', 'status', 'start_date', 'end_date', 'duration', 'category_id', 'capacity'];
     public function studentReports()
     {
         return $this->hasMany(StudentReports::class, 'course_id');
