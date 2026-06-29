@@ -8,12 +8,14 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 col-md-12 col-12">
+
             <!-- Page Header -->
             <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
                 <div class="mb-3 mb-md-0">
                     <h1 class="mb-1 h2 fw-bold">
                         Courses
                     </h1>
+
                     <!-- Breadcrumb -->
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -291,9 +293,9 @@
                                                             {{-- <td>
                                                                 <input type="text"
                                                                     name="attendances[{{ $index }}][room]"
-            value="{{ $attendance->room }}"
-            class="form-control text-uppercase text-dark text-center">
-            </td> --}}
+                        value="{{ $attendance->room }}"
+                        class="form-control text-uppercase text-dark text-center">
+                        </td> --}}
                                                             <td>
                                                                 <input type="number"
                                                                     name="attendances[{{ $index }}][late_minutes]"
@@ -326,19 +328,19 @@
                                                 <div class="row text-sm">
                                                     <div class="col-md-3"><strong>Start:</strong>
                                                         {{ $data['form_metadata']['class_start'] }}
-        </div>
-        <div class="col-md-3"><strong>Room:</strong>
-         {{ $data['form_metadata']['room'] }}
-        </div>
-        <div class="col-md-3"><strong>Lecturer:</strong>
-         {{ $data['form_metadata']['lecturer_name'] }}
-        </div>
-        <div class="col-md-3"><strong>Phone:</strong>
-         {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
-        </div>
-       </div>
-      </div>
-     </div> --}}
+                </div>
+                <div class="col-md-3"><strong>Room:</strong>
+                  {{ $data['form_metadata']['room'] }}
+                </div>
+                <div class="col-md-3"><strong>Lecturer:</strong>
+                  {{ $data['form_metadata']['lecturer_name'] }}
+                </div>
+                <div class="col-md-3"><strong>Phone:</strong>
+                  {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
+                </div>
+              </div>
+            </div>
+          </div> --}}
 
                                         <!-- TABLE -->
                                         <div class="card">
@@ -710,17 +712,17 @@
                                 <span class="text-dark fw-bold h2">
                                     Course Revenue:
                                     ${{ number_format($course->enrollments->sum(fn($enrollment) => $enrollment->course->price)) }}
-   </span><br>
-   <span class="fs-4">
+      </span><br>
+      <span class="fs-4">
                                     Teacher Earning:
                                     ${{ number_format($course->enrollments->sum(fn($enrollment) => $enrollment->course->price) * 0.7) }}
                                 </span>
-  </div>
-  <div class="d-grid">
-   <a href="#" class="btn btn-primary mb-2">Start Free Month</a>
-   <a href="pricing.html" class="btn btn-outline-primary">Get Full Access</a>
-  </div>
- </div> --}}
+    </div>
+    <div class="d-grid">
+      <a href="#" class="btn btn-primary mb-2">Start Free Month</a>
+      <a href="pricing.html" class="btn btn-outline-primary">Get Full Access</a>
+    </div>
+  </div> --}}
                     </div>
 
                     <!-- Card -->
@@ -737,17 +739,49 @@
                                     <i class="fe fe-users"></i>
                                 </div>
                             </div>
+                            {{--
 
-                            <!-- Start Date -->
+ <!-- Start Date -->
                             <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded-3 bg-light">
                                 <div>
                                     <h6 class="mb-0 text-muted">Start Date</h6>
                                     <h6 class="mb-0 fw-semibold">
                                         {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
-                                    </h6>
+      </h6>
+    </div>
+    <div class="text-info fs-3">
+      <i class="fe fe-calendar"></i>
+    </div>
+  </div> --}}
+                            <div class="position-relative mb-3 p-3 rounded-3 bg-light">
+
+                                <!-- Top Right Icon -->
+                                <div class="position-absolute top-0 end-0 p-3">
+                                    <i class="fe fe-calendar text-info fs-3 opacity-75"></i>
                                 </div>
-                                <div class="text-info fs-3">
-                                    <i class="fe fe-calendar"></i>
+                                <h6 class="mb-3 text-muted">Course Schedule</h6>
+                                <div class="d-flex align-items-center">
+
+                                    <!-- Start -->
+                                    <div class="pe-4">
+                                        <span class="badge bg-success-subtle text-success mb-2">
+                                            Start Date
+                                        </span>
+                                        <div class="fw-semibold text-dark">
+                                            {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div class="vr mx-2"></div>
+
+                                    <!-- End -->
+                                    <div class="ps-2">
+                                        <span class="badge bg-danger-subtle text-danger mb-2">
+                                            End Date
+                                        </span>
+                                        <div class="fw-semibold text-dark">
+                                            {{ $course->end_date ? $course->end_date->format('d M, Y') : 'N/A' }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -852,7 +886,7 @@
                         <div class="card-body">
                             {{-- <p class="text-muted mb-3" style="font-size:13px;line-height:1.6;">
                                 {{ $course->instructor->headline ?? 'No bio available for this instructor.' }}
-   </p> --}}
+        </p> --}}
                             <a href="instructor-profile.html"
                                 class="d-inline-flex align-items-center gap-1 text-primary fw-semibold"
                                 style="font-size:13px;text-decoration:none;">
