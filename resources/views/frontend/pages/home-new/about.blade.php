@@ -1,7 +1,6 @@
 @extends('frontend.layouts.new.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
-
     <!-- about body section start -->
     <div class="about-container">
         <div class="text-about-description">
@@ -11,7 +10,7 @@
         </div>
         <div class="message-teacher-block">
             <div class="message-by-kru-nhim">
-                <img id="message-by-kru-nhim-img" src="{{ asset('frontend/asset/images/kru-nhim2.jpg') }}" alt="">
+                <img id="message-by-kru-nhim-img" src="frontend/asset/images/kru-nhim2.JPG" alt="">
                 <div class="message-text">
                     <h3>Message from the director & Founder</h3>
                     <p>
@@ -34,7 +33,7 @@
                         Thank you for choosing ICT Professional Training Center as your learning partner. We look
                         forward to supporting your journey toward sucess in the ever-evolving world of technology.
                     </p>
-                    <span>Mr. Nanh Nhim</span>
+                    <span>Mr. Nhanh Nhim</span>
                     <p id="color-p">Director & Founder of ICT Professional Training Center</p>
                 </div>
             </div>
@@ -75,8 +74,7 @@
                 <div class="timeline-spacer"></div>
                 <div class="timeline-icon"><i class="fa-solid fa-flag"></i></div>
                 <div class="timeline-card">
-                    <div class="card-img"><img src="{{ asset('frontend/asset/images/slide-cut-v19.jpg') }}" alt="">
-                    </div>
+                    <div class="card-img"><img src="frontend/asset/images/slide-cut-v19.jpg" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2019</span>
                         <h3>Our Beginning</h3>
@@ -90,8 +88,7 @@
             <!-- 2020 - left side -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"> <img src="{{ asset('frontend/asset/images/slide-cut-v15.jpg') }}" alt="">
-                    </div>
+                    <div class="card-img"> <img src="frontend/asset/images/slide-cut-v15.jpg" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2020</span>
                         <h3>Bridging the Skills Gap</h3>
@@ -108,8 +105,7 @@
                 <div class="timeline-spacer"></div>
                 <div class="timeline-icon"><i class="fa-solid fa-flag"></i></div>
                 <div class="timeline-card">
-                    <div class="card-img"> <img src="{{ asset('frontend/asset/images/slide-cut-v12.jpg') }}" alt="">
-                    </div>
+                    <div class="card-img"> <img src="frontend/asset/images/slide-cut-v6.jpg" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2021</span>
                         <h3>Expanding Training Programs</h3>
@@ -123,8 +119,7 @@
             <!-- 2021 - left side -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"><img src="{{ asset('frontend/asset/images/cybersecurity.webp') }}" alt="">
-                    </div>
+                    <div class="card-img"><img src="frontend/asset/images/cybersecurity.webp" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2023</span>
                         <h3>Empowering Future Professionals</h3>
@@ -142,8 +137,7 @@
                 <div class="timeline-spacer"></div>
                 <div class="timeline-icon"><i class="fa-solid fa-building-columns"></i></div>
                 <div class="timeline-card">
-                    <div class="card-img"><img src="{{ asset('frontend/asset/images/slide-cut-v16.jpg') }}" alt="">
-                    </div>
+                    <div class="card-img"><img src="frontend/asset/images/slide-cut-v17.jpg" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2026</span>
                         <h3>Continuing Our Mission</h3>
@@ -157,8 +151,7 @@
             <!-- 2021 - left side (repeat) -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"><img src="{{ asset('frontend/asset/images/istockphoto-1061639630-170667a.jpg') }}"
-                            alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/istockphoto-1061639630-170667a.jpg" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2021</span>
                         <h3>Continuing Our Mission</h3>
@@ -212,15 +205,15 @@
     </div>
 
     <!-- <div class="staff-binary-tree">
-                                                                <h2>Organization Structure</h2>
-                                                                <p>Meet the Leadership team driving our vision forward.</p>
-                                                             </div> -->
+                        <h2>Organization Structure</h2>
+                        <p>Meet the Leadership team driving our vision forward.</p>
+                     </div> -->
     <div class="section-title">
         <h2>Organizational Structure</h2>
         <p>Meet the leadership team driving our vision forward.</p>
     </div>
     <div class="top-card">
-        <img src="{{ asset('frontend/asset/images/teacherNhim.jpg') }}" alt="Mr.Nhanh Nhim">
+        <img src="frontend/asset/images/teacherNhim.jpg" alt="Mr.Nhanh Nhim">
         <h3>Mr.Nhanh Nhim</h3>
         <p class="role">CEO &amp; Founder</p>
         <div class="social-icons">
@@ -233,7 +226,7 @@
 
     <!-- ── Level 2: Manager ── -->
     <div class="mid-card">
-        <img src="{{ asset('frontend/asset/images/OIP (3).webp') }}" alt="Mrs.So Theavy">
+        <img src="frontend/asset/images/OIP (3).webp" alt="Mrs.So Theavy">
         <h3>Mrs.So Theavy</h3>
         <p class="role">CEO &amp; Founder</p>
     </div>
@@ -254,74 +247,328 @@
 
     <!-- ── Level 3: Departments ── -->
     <div class="bottom-row">
-        <div class="dept-card">
-            <p class="dept-name">Academic Department</p>
-            <div class="person">
-                <img src="{{ asset('frontend/asset/images/teacherSengChhunyeang.jpg') }}" alt="">
-                <div>
-                    <h4>Mr.Nhanh Nhim</h4>
-                    <span>CEO &amp; Founder</span>
+
+        <!-- Column 1 -->
+        <div class="dept-col">
+            <div class="dept-card">
+                <p class="dept-name">Academic Department</p>
+                <div class="person">
+                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
+                    <div>
+                        <h4>Mr.Nhanh Nhim</h4>
+                        <span>Head of Academics</span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <button class="view-team-btn" onclick="toggleTeam(this)">
+                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="team-dropdown">
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
+                    <h4>Staff Name 1</h4>
+                    <p class="role">Lead Instructor</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
+                    <h4>Staff Name 2</h4>
+                    <p class="role">Curriculum Designer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
+                    <h4>Staff Name 3</h4>
+                    <p class="role">Senior Lecturer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="dept-card">
-            <p class="dept-name">Marketing</p>
-            <div class="person">
-                <img src="{{ asset('frontend/asset/images/teacherHengVattey.jpg') }}" alt="">
-                <div>
-                    <h4>Mr.Nhanh Nhim</h4>
-                    <span>CEO &amp; Founder</span>
+
+        <!-- end Column 1 -->
+
+        <!-- Column 2 -->
+        <div class="dept-col">
+            <div class="dept-card">
+                <p class="dept-name">IT &amp; Development</p>
+                <div class="person">
+                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
+                    <div>
+                        <h4>Mr.Nhanh Nhim</h4>
+                        <span>CTO</span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <button class="view-team-btn" onclick="toggleTeam(this)">
+                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="team-dropdown">
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
+                    <h4>Staff Name 1</h4>
+                    <p class="role">Lead Developer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
+                    <h4>Staff Name 2</h4>
+                    <p class="role">Systems Architect</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
+                    <h4>Staff Name 3</h4>
+                    <p class="role">Frontend Engineer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="dept-card">
-            <p class="dept-name">Academic Department</p>
-            <div class="person">
-                <img src="{{ asset('frontend/asset/images/teachervornsarn.jpg') }}" alt="">
-                <div>
-                    <h4>Mr.Nhanh Nhim</h4>
-                    <span>CEO &amp; Founder</span>
+
+        <!-- end Column 2 -->
+
+        <!-- Column 3 -->
+        <div class="dept-col">
+            <div class="dept-card">
+                <p class="dept-name">Marketing</p>
+                <div class="person">
+                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                    <div>
+                        <h4>Mr.Nhanh Nhim</h4>
+                        <span>CMO</span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <button class="view-team-btn" onclick="toggleTeam(this)">
+                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="team-dropdown">
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                    <h4>Staff Name 1</h4>
+                    <p class="role">Campaign Manager</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                    <h4>Staff Name 2</h4>
+                    <p class="role">Content Strategist</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                    <h4>Staff Name 3</h4>
+                    <p class="role">Social Media</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="dept-card">
-            <p class="dept-name">Academic Department</p>
-            <div class="person">
-                <img src="{{ asset('frontend/asset/images/teacherSinMany.jpg') }}" alt="">
-                <div>
-                    <h4>Mr.Nhanh Nhim</h4>
-                    <span>CEO &amp; Founder</span>
+
+        <!-- end Column 3 -->
+
+        <!-- Column 4 -->
+        <div class="dept-col">
+            <div class="dept-card">
+                <p class="dept-name">Student Affairs</p>
+                <div class="person">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <div>
+                        <h4>Mr.Nhanh Nhim</h4>
+                        <span>Director of Student</span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <button class="view-team-btn" onclick="toggleTeam(this)">
+                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="team-dropdown">
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 1</h4>
+                    <p class="role">Career Counselor</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 2</h4>
+                    <p class="role">Alumni Coordinator</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 3</h4>
+                    <p class="role">Student Support</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="dept-card">
-            <p class="dept-name">Academic Department</p>
-            <div class="person">
-                <img src="{{ asset('frontend/asset/images/teacherSinMany.jpg') }}" alt="">
-                <div>
-                    <h4>Mr.Nhanh Nhim</h4>
-                    <span>CEO &amp; Founder</span>
+
+        <!-- end Column 4 -->
+
+        <!-- Column 5 -->
+        <div class="dept-col">
+            <div class="dept-card">
+                <p class="dept-name">Admin &amp; Finance</p>
+                <div class="person">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <div>
+                        <h4>Mr.Nhanh Nhim</h4>
+                        <span>CFO</span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <button class="view-team-btn" onclick="toggleTeam(this)">
+                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="team-dropdown">
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 1</h4>
+                    <p class="role">Financial Analyst</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 2</h4>
+                    <p class="role">Operations Manager</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 3</h4>
+                    <p class="role">Admin Officer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="dept-card">
-            <p class="dept-name">Academic Department</p>
-            <div class="person">
-                <img src="{{ asset('frontend/asset/images/teacherSinMany.jpg') }}" alt="">
-                <div>
-                    <h4>Mr.Nhanh Nhim</h4>
-                    <span>CEO &amp; Founder</span>
+
+        <!-- end Column 5 -->
+
+        <!-- Column 6 -->
+        <div class="dept-col">
+            <div class="dept-card">
+                <p class="dept-name">UI/UX Design</p>
+                <div class="person">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <div>
+                        <h4>Mr.Nhanh Nhim</h4>
+                        <span>Design Lead</span>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <button class="view-team-btn" onclick="toggleTeam(this)">
+                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="team-dropdown">
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 1</h4>
+                    <p class="role">UI Designer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 2</h4>
+                    <p class="role">UX Researcher</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-member-card">
+                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                    <h4>Staff Name 3</h4>
+                    <p class="role">Graphic Designer</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- end Column 6 -->
     </div>
+
+    <!-- end .bottom-row -->
     <div class="website-dev-team-block">
         <h2>Website Development Team</h2>
         <p>The Technical core behind ICT Center's digital presence and platform architecture.</p>
         <div class="developer-team-box">
             <div class="project-manager-web">
                 <div class="img-name-role">
-                    <img id="img" src="{{ asset('frontend/asset/images/teacherNhim.jpg') }}" alt="">
+                    <img id="img" src="frontend/asset/images/staff/backend(bong pheara).jpg" alt="">
                     <div class="name-role">
                         <h5>Dev.Seth Sopheara</h5>
                         <p>Project Manager <br> <span>Full-Stack</span></p>
@@ -339,7 +586,7 @@
             <div class="member-team-block">
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="{{ asset('frontend/asset/images/teacherNhim.jpg') }}" alt="">
+                        <img src="frontend/asset/images/staff/frontend(theary).jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Uy sotheary</h5>
                             <p>Frontend Developer</p>
@@ -353,7 +600,7 @@
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="{{ asset('frontend/asset/images/teacherNhim.jpg') }}" alt="">
+                        <img src="frontend/asset/images/staff/backend(bong pheara).jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Seth Sopheara</h5>
                             <p>Backend Developer</p>
@@ -367,7 +614,7 @@
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="{{ asset('frontend/asset/images/teacherNhim.jpg') }}" alt="">
+                        <img src="frontend/asset/images/teacherNhim.jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Phat Sopheaktra</h5>
                             <p>UX/UI & QAT</p>
@@ -381,7 +628,7 @@
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="{{ asset('frontend/asset/images/teacherNhim.jpg') }}" alt="">
+                        <img src="frontend/asset/images/teacherNhim.jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Chay Lymeng</h5>
                             <p>QAT</p>
@@ -408,87 +655,94 @@
             </div>
             <div id="All" class="tabcontent active" style="display: block;">
                 <div class="about-gallery">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v8.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v11.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v13.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v12.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v14.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v15.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v16.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v17.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v18.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v19.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v21.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v5.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v6.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v7.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v9.jpg') }}" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_ShildeShow2.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
                 </div>
             </div>
             <div id="Classes" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v15.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v11.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v13.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v12.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v14.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v8.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v16.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v17.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v18.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v19.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v21.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v5.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v6.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v7.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v9.jpg') }}" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_ShildeShow2.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
                 </div>
             </div>
             <div id="Competition" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v8.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v11.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v21.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v12.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v14.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v15.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v16.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v17.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v18.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v19.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v13.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v5.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v6.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v7.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v9.jpg') }}" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_SlideShow.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
                 </div>
             </div>
             <div id="Graduation" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v9.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v19.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v13.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v12.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v14.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v15.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v16.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v17.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v18.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v11.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v21.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v5.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v6.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v7.jpg') }}" alt="2">
-                    <img src="{{ asset('frontend/asset/images/slide-cut-v8.jpg') }}" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/ICT_ShildeShow2.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- about body section end -->
 @endsection
 @push('scripts')
     <script>
+        /* Toggle a dropdown sub-menu open / closed */
+        function toggleMenu(item) {
+            /* Find the <ul class="sub-menu"> right after this item */
+            const subMenu = item.nextElementSibling;
+            /* Toggle the "open" class on both the button and the list */
+            item.classList.toggle('open');
+            subMenu.classList.toggle('open');
+        }
         // Scroll-triggered animation for message block
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -517,6 +771,18 @@
                 cityTab.style.display = "block";
             }
             evt.currentTarget.className += " active";
+        }
+        //------script-tree-binary-dropdown--------
+        function toggleTeam(btn) {
+            // team-dropdown is the next sibling after dept-card
+            const deptCol = btn.closest('.dept-col');
+            const teamDropdown = deptCol.querySelector('.team-dropdown');
+            const isOpen = teamDropdown.classList.contains('show');
+            const count = teamDropdown.querySelectorAll('.team-member-card').length;
+            teamDropdown.classList.toggle('show');
+            btn.innerHTML = isOpen ?
+                `View Team (${count}) <i class="fa-solid fa-chevron-down"></i>` :
+                `Hide Team <i class="fa-solid fa-chevron-up"></i>`;
         }
     </script>
 @endpush
