@@ -10,6 +10,7 @@
         Route::is('admin.courses.realtime.create') ||
         Route::is('admin.courses.realtime.edit') ||
         Route::is('admin.courses.student.invoice');
+    $isReport = Route::is('admin.student-report.index') || Route::is('admin.staff-report.index');
 @endphp
 <nav class="navbar-vertical navbar">
     <div class="vh-100" data-simplebar>
@@ -26,19 +27,36 @@
                     <i class="nav-icon fe fe-home me-2"></i> Dashboard
                 </a>
             </li>
-            {{-- ── Student Report ── --}}
-            <li class="nav-item">
-                <a class="nav-link {{ Route::is('admin.student-report.index') ? 'active' : '' }}"
-                    href="{{ route('admin.student-report.index') }}">
-                    <i class="nav-icon fe fe-flag me-2"></i> Student Report
-                </a>
-            </li>
             {{-- ── Instructor Request ── --}}
             <li class="nav-item">
                 <a class="nav-link {{ Route::is('admin.instructor-request.index') ? 'active' : '' }}"
                     href="{{ route('admin.instructor-request.index') }}">
-                    <i class="nav-icon fe fe-help-circle me-2"></i> Instructor Request
+                    <i class="nav-icon fe fe-help-circle me-2"></i> Teacher Request
                 </a>
+            </li>
+            {{-- ── Report (collapsible) ── --}}
+            <li class="nav-item">
+                <a class="nav-link {{ $isReport ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+                    data-bs-target="#navReport" aria-expanded="{{ $isReport ? 'true' : 'false' }}"
+                    aria-controls="navReport">
+                    <i class="nav-icon fe fe-flag me-2"></i> Report
+                </a>
+                <div id="navReport" class="collapse {{ $isReport ? 'show' : '' }}" data-bs-parent="#sideNavbar">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::is('admin.student-report.index') ? 'active' : '' }}"
+                                href="{{ route('admin.student-report.index') }}">
+                                Student
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Route::is('admin.staff-report.index') ? 'active' : '' }}"
+                                href="{{ route('admin.staff-report.index') }}">
+                                Staff
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
             {{-- ── Users (collapsible) ── --}}
             <li class="nav-item">
@@ -84,14 +102,6 @@
                                 All
                             </a>
                         </li>
-                        {{-- Add new course sub-links here, e.g:
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.courses.realtime.create') ? 'active' : '' }}"
-      href="{{ route('admin.courses.realtime.create') }}">
-      Create
-      </a>
-   </li>
-   --}}
                     </ul>
                 </div>
             </li>

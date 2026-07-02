@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Frontend\Staff;
-
 use App\Http\Controllers\Controller;
 use App\Models\ICTStaffReport;
 use Exception;
@@ -10,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-
 class IctStaffReportController extends Controller
 {
     /**
@@ -41,7 +38,6 @@ class IctStaffReportController extends Controller
         ];
         return view('frontend.staff.pages.report.report', $data);
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -52,25 +48,24 @@ class IctStaffReportController extends Controller
         ];
         return view('frontend.staff.pages.report.add', $data);
     }
-
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): Response
     {
-        $request->validate([
-            'report_content' => 'required|string'
+        $validated = $request->validate([
+            'report_content' => ['required', 'string'],
         ]);
-
         ICTStaffReport::create([
             'reported_by' => Auth::id(),
-            'report_content' => $request->report_content,
-            'status' => 'pending'
+            'report_content' => $validated['report_content'],
+            'status' => 'pending',
         ]);
-
-        return back()->with('success', 'Report submitted successfully.');
+        return response([
+            'status' => 'success',
+            'message' => 'Report submitted successfully.',
+        ], 201);
     }
-
     /**
      * Display the specified resource.
      */
@@ -78,56 +73,57 @@ class IctStaffReportController extends Controller
     {
         //
     }
-
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id): View
     {
         $report = ICTStaffReport::where('reported_by', Auth::id())->findOrFail($id);
-
         $data = [
             'page_title' => 'ICT | Staff | Edit Report',
             'report' => $report,
         ];
         return view('frontend.staff.pages.report.edit', $data);
     }
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): Response
     {
-        $report = ICTStaffReport::where('reported_by', Auth::id())->findOrFail($id);
-
-        $request->validate([
-            'report_content' => 'required|string'
+        $report = ICTStaffReport::where('reported_by', Auth::id())
+            ->findOrFail($id);
+        $validated = $request->validate([
+            'report_content' => ['required', 'string'],
         ]);
-
         $report->update([
-            'report_content' => $request->report_content,
-            'status' => 'pending' // Reset status to pending on update
+            'report_content' => $validated['report_content'],
+            'status' => 'pending', // Re-submit for approval
         ]);
-
-        return back()->with('success', 'Report updated successfully.');
+        return response([
+            'status' => 'success',
+            'message' => 'Report updated successfully.',
+        ]);
     }
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id): Response
     {
         try {
-            $report = ICTStaffReport::where('reported_by', Auth::id())->findOrFail($id);
+            $report = ICTStaffReport::where('reported_by', Auth::id())
+                ->findOrFail($id);
             $report->delete();
             return response([
-                'message' => 'Report deleted successfully!',
                 'status' => 'success',
+                'message' => 'Report deleted successfully.',
                 'redirect_url' => route('staff.reports.index'),
-            ], 200);
+            ]);
         } catch (Exception $e) {
-            logger("Lesson Error >>" . $e);
-            return response(['message' => 'Something when wrong!', 500]);
+            logger()->error($e);
+            return response([
+                'status' => 'error',
+                'message' => 'Something went wrong.',
+            ], 500);
         }
     }
 }

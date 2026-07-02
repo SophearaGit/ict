@@ -107,6 +107,25 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => 'intern',
+                'khmer_name' => 'សុខា',
+                'dob' => '1998-03-15',
+                'email' => 'intern@gmail.com',
+                'phone' => '011111111',
+                'gender' => 'male',
+                'image' => '',
+                'email_verified_at' => now(),
+                'password' => bcrypt('12345678'),
+                'role' => 'intern',
+                'approval_status' => 'approved',
+                'document' => 'document.jpg',
+                'status' => 'active',
+                'location' => 'Phnom Penh',
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
         User::insert($users);
     }
