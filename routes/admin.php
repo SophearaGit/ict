@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
 use App\Http\Controllers\Admin\RealTimeCoursesController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StaffReportController;
 use App\Http\Controllers\Admin\StudentInvoicePaymentDetailController;
 use App\Http\Controllers\Admin\StudentReportController;
 use App\Http\Controllers\Frontend\Staff\IctInvoicePaymentController;
@@ -94,6 +95,11 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/student-report', [StudentReportController::class, 'studentReport'])->name('student-report.index');
     Route::post('/student-report/approve/{course}', [StudentReportController::class, 'approve'])->name('student-report.approve');
     Route::patch('/student-report/reject/{course}', [StudentReportController::class, 'reject'])->name('student-report.reject');
+    /*******************************************************
+     *  STAFF REPORT
+     *******************************************************/
+    Route::get('/staff-report', [StaffReportController::class, 'index'])->name('staff-report.index');
+    Route::patch('/staff-report/{report}/review', [StaffReportController::class, 'review'])->name('staff-report.review');
     /*******************************************************
      *  NOTIFICATION
      *******************************************************/
