@@ -32,10 +32,10 @@
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
-                {{-- Users Dropdown (Teachers & Students) --}}
+                {{-- Users Dropdown (Teachers, Students & Interns) --}}
                 <li
-                    class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') ? 'selected' : '' }}">
-                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') ? 'active' : '' }}"
+                    class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') || request()->routeIs('staff.intern.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') || request()->routeIs('staff.intern.*') ? 'active' : '' }}"
                         href="javascript:;" aria-expanded="false">
                         <span>
                             <i class="ti ti-users"></i>
@@ -43,7 +43,7 @@
                         <span class="hide-menu">Users</span>
                     </a>
                     <ul aria-expanded="false"
-                        class="collapse first-level {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') ? 'in' : '' }}">
+                        class="collapse first-level {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') || request()->routeIs('staff.intern.*') ? 'in' : '' }}">
                         {{-- Teachers --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.teacher.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.teacher.index') }}"
@@ -62,6 +62,16 @@
                                     <i class="ti ti-user-plus fs-3"></i>
                                 </div>
                                 <span class="hide-menu">Students</span>
+                            </a>
+                        </li>
+                        {{-- Interns --}}
+                        <li class="sidebar-item {{ request()->routeIs('staff.intern.*') ? 'active' : '' }}">
+                            <a href="{{ route('staff.intern.index') }}"
+                                class="sidebar-link {{ request()->routeIs('staff.intern.*') ? 'active' : '' }}">
+                                <div class="round-16 d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-id-badge-2 fs-3"></i>
+                                </div>
+                                <span class="hide-menu">Interns</span>
                             </a>
                         </li>
                     </ul>

@@ -21,6 +21,8 @@
                         Teachers
                     @elseif(Route::is('staff.student.index'))
                         Students
+                    @elseif(Route::is('staff.intern.index'))
+                        Interns
                     @elseif(Route::is('staff.course-categories.index'))
                         Categories
                     @endif
@@ -55,6 +57,8 @@
                                 Teachers
                             @elseif(Route::is('staff.student.index'))
                                 Students
+                            @elseif(Route::is('staff.intern.index') || Route::is('staff.intern.create') || Route::is('staff.intern.edit'))
+                                Interns
                             @elseif(Route::is('staff.course-categories.index'))
                                 Categories
                             @endif
