@@ -1,6 +1,6 @@
 <?php
 use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\Staff\{BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StudentController, TeacherController, TecherAttendancesController};
 use App\Http\Controllers\Frontend\Student\CourseEnrollmentController;
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use Illuminate\Support\Facades\Http;
@@ -134,6 +134,9 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          *******************************************************/
         Route::resource('/teacher', TeacherController::class);
         Route::resource('/student', StudentController::class);
+        Route::resource('/intern', InternController::class);
+
+
         /*******************************************************
          * PROFILE
          *******************************************************/
