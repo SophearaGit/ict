@@ -557,10 +557,14 @@
                                         @forelse ($course->studentReports as $i => $report)
                                             @php
                                                 $idx = $i % count($avatarBg);
-                                                $initials = collect(explode(' ', $report->student->name))
+                                                $initials = collect(explode(' ', trim($report->student->name ?? '')))
+                                                    ->filter()
                                                     ->take(2)
-                                                    ->map(fn($w) => strtoupper($w[0]))
+                                                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
                                                     ->implode('');
+                                                if ($initials === '') {
+                                                    $initials = '--';
+                                                }
                                                 $isFail = $report->result === 'fail';
                                                 $assignPct = min(100, (int) (($report->assignment_score / 30) * 100));
                                                 $miniPct = min(100, (int) (($report->mini_project_score / 20) * 100));
