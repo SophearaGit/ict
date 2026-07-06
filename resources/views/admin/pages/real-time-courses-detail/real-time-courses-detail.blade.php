@@ -258,11 +258,8 @@
                                                                     name="attendances[{{ $index }}][id]"
                                                                     value="{{ $attendance->id }}">
                                                             </td>
-                                                            <td>
-                                                                <input type="date"
-                                                                    name="attendances[{{ $index }}][date]"
-                                                                    value="{{ $attendance->date }}"
-                                                                    class="form-control text-dark" readonly>
+                                                            <td class="text-center fw-semibold">
+                                                                {{ \Carbon\Carbon::parse($attendance->date)->format('d M, Y') }}
                                                             </td>
                                                             <td>
                                                                 <input type="time"

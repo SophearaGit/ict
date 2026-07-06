@@ -21,17 +21,37 @@ class IctCourseController extends Controller
     public function index(Request $request): View
     {
         $perPage = $request->input('per_page', 10);
-        $courses = ICTCourse::with(['instructor', 'schedule', 'category'])
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('title', 'like', '%' . $request->search . '%');
+
+        $sortField = $request->input('sort', 'title');
+        $sortDirection = $request->input('direction', 'asc');
+
+        $allowedSorts = ['title', 'price', 'start_date', 'duration', 'created_at'];
+        if (!in_array($sortField, $allowedSorts)) {
+            $sortField = 'title';
+        }
+        $sortDirection = $sortDirection === 'desc' ? 'desc' : 'asc';
+
+        $query = ICTCourse::with(['instructor', 'schedule', 'category', 'students'])
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%');
             })
-            ->orderBy('title', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->when($request->filled('status') && in_array($request->status, ['active', 'inactive']), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+            ->orderBy($sortField, $sortDirection);
+
+        $showingAll = $perPage === 'all';
+
+        $courses = $showingAll
+            ? $query->get()
+            : $query->paginate((int) $perPage)->withQueryString();
+
         return view('frontend.staff.pages.course-management.course', [
             'page_title' => 'ICT | STAFF | COURSES',
             'courses' => $courses,
+            'showingAll' => $showingAll,
+            'sortField' => $sortField,
+            'sortDirection' => $sortDirection,
         ]);
     }
     public function show(Request $request, $id): View
