@@ -12,7 +12,6 @@ trait FileUpload
         $file->move(public_path($directory), $filename);
         return '/' . $directory . '/' . $filename;
     }
-
     public function deleteIfImageExist(?string $path): bool
     {
         if (file_exists(public_path($path))) {
@@ -22,4 +21,5 @@ trait FileUpload
     }
 
 }
+
 

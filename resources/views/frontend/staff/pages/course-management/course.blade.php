@@ -135,6 +135,12 @@
                                                 class="rounded-circle" width="24" height="24"
                                                 style="object-fit: cover;">
                                             <span class="fs-2">{{ $course->instructor->name }}</span>
+                                            @if ($course->telegram_group_link)
+                                                <a href="{{ $course->telegram_group_link }}" target="_blank"
+                                                    rel="noopener" class="text-info ms-1" title="Open Telegram group">
+                                                    <i class="ti ti-brand-telegram fs-4"></i>
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -167,7 +173,7 @@
                             <td class="ps-0">
                                 @if ($course->capacity)
                                     <span
-                                        class="fw-semibold">{{ $course->students->count() ?? 0 }}/{{ $course->capacity }}</span>
+                                        class="fw-semibold">{{ $course->students_count ?? 0 }}/{{ $course->capacity }}</span>
                                 @else
                                     <span class="text-muted">Unlimited</span>
                                 @endif
@@ -203,7 +209,7 @@
                                         </li>
                                         <li>
                                             <a class="dropdown-item d-flex align-items-center gap-3"
-                                                href="{{ route('staff.courses.edit', $course->id) }}">
+                                                href="{{ route('staff.courses.edit', [$course, 'redirect' => url()->full()]) }}">
                                                 <i class="ti ti-edit fs-4"></i> Edit
                                             </a>
                                         </li>
@@ -256,7 +262,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center gap-3"
-                                            href="{{ route('staff.courses.edit', $course->id) }}">
+                                            href="{{ route('staff.courses.edit', [$course, 'redirect' => url()->full()]) }}">
                                             <i class="ti ti-edit fs-4"></i> Edit
                                         </a>
                                     </li>
@@ -280,9 +286,17 @@
                                             {{ $course->title }}
                                         </h6>
                                     </a>
-                                    @if ($course->khmer_title)
-                                        <span class="fs-2 text-muted d-block">{{ $course->khmer_title }}</span>
-                                    @endif
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if ($course->khmer_title)
+                                            <span class="fs-2 text-muted">{{ $course->khmer_title }}</span>
+                                        @endif
+                                        @if ($course->telegram_group_link)
+                                            <a href="{{ $course->telegram_group_link }}" target="_blank" rel="noopener"
+                                                class="text-info" title="Open Telegram group">
+                                                <i class="ti ti-brand-telegram fs-4"></i>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
                                 <img src="{{ $course->instructor->image == 'no-img.jpg'
                                     ? asset('/default-images/user/both.jpg')
@@ -305,7 +319,7 @@
                                 <div class="d-flex align-items-center justify-content-between mt-2">
                                     <span class="fs-3 text-muted">Enrollment</span>
                                     <span
-                                        class="fs-3 fw-semibold">{{ $course->students->count() ?? 0 }}/{{ $course->capacity }}</span>
+                                        class="fs-3 fw-semibold">{{ $course->students_count ?? 0 }}/{{ $course->capacity }}</span>
                                 </div>
                             @endif
                             {{-- Dates row --}}

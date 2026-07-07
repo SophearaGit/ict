@@ -66,9 +66,9 @@
                         </ol>
                     </nav>
                 </div>
-                <div>
+                {{-- <div>
                     <button class="btn btn-primary add_new_course_btn">Add New Course</button>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -230,13 +230,23 @@
                                                         class="text-inherit">{{ $course->title }}</a>
                                                 </h4>
                                                 {{-- Instructor --}}
-                                                <div class="d-flex align-items-center gap-2 mb-2">
-                                                    <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}"
-                                                        class="rounded-circle"
-                                                        style="height:22px;width:22px;object-fit:cover;" alt="">
-                                                    <span class="text-muted small">
-                                                        {{ $course->instructor ? $course->instructor->name : 'N/A' }}
-                                                    </span>
+                                                {{-- Instructor --}}
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}"
+                                                            class="rounded-circle"
+                                                            style="height:22px;width:22px;object-fit:cover;"
+                                                            alt="">
+                                                        <span class="text-muted small">
+                                                            {{ $course->instructor ? $course->instructor->name : 'N/A' }}
+                                                        </span>
+                                                    </div>
+                                                    @if ($course->telegram_group_link)
+                                                        <a href="{{ $course->telegram_group_link }}" target="_blank"
+                                                            rel="noopener" class="text-info" title="Open Telegram group">
+                                                            <i class="fe fe-send"></i>
+                                                        </a>
+                                                    @endif
                                                 </div>
                                                 <div class="d-flex justify-content-between border-bottom py-2">
                                                     <span>Class Start</span>
@@ -288,7 +298,6 @@
                                                     <span>Revenue</span>
                                                     <span
                                                         class="text-dark fw-semibold">${{ number_format($course->total_revenue ?? 0, 2) }}</span>
-
                                                 </div>
                                                 <div class="d-flex justify-content-between pt-2">
                                                     <span>Full Price</span>
@@ -378,11 +387,19 @@
                                                     <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}"
                                                         alt="" class="img-4by3-lg rounded">
                                                     <div class="ms-3">
-                                                        <h4 class="mb-0 text-primary-hover">
+                                                        <h4
+                                                            class="mb-0 text-primary-hover d-flex align-items-center gap-2">
                                                             <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
                                                                 class="text-inherit">
                                                                 {{ $course->title }}
                                                             </a>
+                                                            @if ($course->telegram_group_link)
+                                                                <a href="{{ $course->telegram_group_link }}"
+                                                                    target="_blank" rel="noopener" class="text-info"
+                                                                    title="Open Telegram group">
+                                                                    <i class="fe fe-send"></i>
+                                                                </a>
+                                                            @endif
                                                         </h4>
                                                     </div>
                                                 </div>

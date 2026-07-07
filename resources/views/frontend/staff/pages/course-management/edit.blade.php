@@ -313,10 +313,11 @@
                             <i class="ti ti-arrow-back-up me-1"></i> Back
                         </a>
                     </div>
-                    <form action="{{ route('staff.courses.update', $course->id) }}" method="POST"
-                        enctype="multipart/form-data" id="courseForm">
+                    <form action="{{ route('staff.courses.update', $course) }}" method="POST" enctype="multipart/form-data"
+                        id="courseForm">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" name="redirect" value="{{ request('redirect') }}">
                         {{-- ══════════════════════════════════════ --}}
                         {{-- 1 · THUMBNAIL                         --}}
                         {{-- ══════════════════════════════════════ --}}
@@ -367,6 +368,9 @@
                         {{-- ══════════════════════════════════════ --}}
                         {{-- 2 · BASIC INFO                        --}}
                         {{-- ══════════════════════════════════════ --}}
+                        {{-- ══════════════════════════════════════ --}}
+                        {{-- 2 · BASIC INFO                        --}}
+                        {{-- ══════════════════════════════════════ --}}
                         <div class="section-label">
                             <span class="icon-wrap"><i class="ti ti-info-circle"></i></span>
                             Basic info
@@ -396,6 +400,18 @@
                                     </div>
                                     <x-input-error :messages="$errors->get('khmer_title')" class="text-danger mt-1" />
                                 </div>
+                                <div class="col-md-12">
+                                    <div class="form-floating">
+                                        <input type="url" class="form-control" placeholder="https://t.me/your-group"
+                                            name="telegram_group_link" id="telegram_group_link"
+                                            value="{{ old('telegram_group_link', $course->telegram_group_link) }}">
+                                        <label for="telegram_group_link">
+                                            <i class="ti ti-brand-telegram me-2 text-info"></i>
+                                            Telegram group link
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('telegram_group_link')" class="text-danger mt-1" />
+                                </div>
                             </div>
                         </div>
                         {{-- ══════════════════════════════════════ --}}
@@ -413,7 +429,8 @@
                                         <i class="ti ti-user-circle text-info"></i>
                                         Instructor <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select select2-instructor" name="instructor_id" id="instructor_id">
+                                    <select class="form-select select2-instructor" name="instructor_id"
+                                        id="instructor_id">
                                         <option value="" disabled>Search instructor…</option>
                                         @foreach ($instructors as $instructor)
                                             <option value="{{ $instructor->id }}"
