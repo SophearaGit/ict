@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         /* ── CSS tokens ─────────────────────────────────── */
+
         :root {
             --form-radius: 10px;
             --section-gap: 2rem;
@@ -15,6 +16,7 @@
         }
 
         /* ── Card shell ─────────────────────────────────── */
+
         .course-card {
             border: none;
             border-radius: 16px;
@@ -22,6 +24,7 @@
         }
 
         /* ── Section labels ─────────────────────────────── */
+
         .section-label {
             display: flex;
             align-items: center;
@@ -56,6 +59,7 @@
         }
 
         /* ── Form sections ──────────────────────────────── */
+
         .form-section {
             padding: 1.5rem;
             border-radius: var(--form-radius);
@@ -70,6 +74,7 @@
         }
 
         /* ── Floating label tweaks ──────────────────────── */
+
         .form-floating>.form-control,
         .form-floating>.form-select {
             border-radius: var(--form-radius);
@@ -81,6 +86,7 @@
         }
 
         /* ── Non-floating labels ─────────────────────────── */
+
         .field-label {
             font-size: 12px;
             font-weight: 600;
@@ -92,6 +98,7 @@
         }
 
         /* ── Thumbnail upload zone ──────────────────────── */
+
         .thumbnail-zone {
             position: relative;
             border: 2px dashed var(--border-subtle);
@@ -148,6 +155,7 @@
         }
 
         /* Preview */
+
         #thumbnail-preview {
             display: none;
             width: 100%;
@@ -157,6 +165,7 @@
         }
 
         /* ── Select2 ────────────────────────────────────── */
+
         .select2-container--default .select2-selection--single {
             border-radius: var(--form-radius);
             height: 42px;
@@ -205,6 +214,7 @@
         }
 
         /* ── Flatpickr overrides ────────────────────────── */
+
         .flatpickr-input {
             border-radius: var(--form-radius) !important;
         }
@@ -233,6 +243,7 @@
         }
 
         /* ── Pricing badge chip ──────────────────────────── */
+
         .price-chip {
             display: inline-flex;
             align-items: center;
@@ -247,6 +258,7 @@
         }
 
         /* ── Capacity bar hint ───────────────────────────── */
+
         .cap-hint {
             font-size: 11px;
             color: var(--label-color);
@@ -254,6 +266,7 @@
         }
 
         /* ── Submit button ──────────────────────────────── */
+
         .btn-submit {
             min-width: 160px;
             border-radius: 50px;
@@ -269,6 +282,7 @@
         }
 
         /* ── Char counter ───────────────────────────────── */
+
         .char-count {
             font-size: 11px;
             color: var(--label-color);
@@ -364,6 +378,18 @@
                                         </label>
                                     </div>
                                     <x-input-error :messages="$errors->get('khmer_name')" class="text-danger mt-1" />
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-floating">
+                                        <input type="url" class="form-control" placeholder="https://t.me/your-group"
+                                            name="telegram_group_link" id="telegram_group_link"
+                                            value="{{ old('telegram_group_link') }}">
+                                        <label for="telegram_group_link">
+                                            <i class="ti ti-brand-telegram me-2 text-info"></i>
+                                            Telegram group link
+                                        </label>
+                                    </div>
+                                    <x-input-error :messages="$errors->get('telegram_group_link')" class="text-danger mt-1" />
                                 </div>
                             </div>
                         </div>

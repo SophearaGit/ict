@@ -134,7 +134,6 @@ class RealTimeCoursesController extends Controller
     public function realtimeIndex(Request $request)
     {
         $courses = ICTCourse::query();
-
         // Search
         if ($request->filled('search_query')) {
             $courses->where(function ($q) use ($request) {
@@ -142,24 +141,20 @@ class RealTimeCoursesController extends Controller
                     ->orWhere('description', 'like', '%' . $request->search_query . '%');
             });
         }
-
         // Schedule filter
         if ($request->filled('schedule_ids')) {
             $courses->whereHas('schedule', function ($q) use ($request) {
                 $q->whereIn('id', $request->schedule_ids);
             });
         }
-
         // Status filter (active / inactive / draft)
         if ($request->filled('status')) {
             $courses->where('status', $request->status);
         }
-
         // Month filter — filters by the month of start_date
         if ($request->filled('month')) {
             $courses->whereMonth('start_date', $request->month);
         }
-
         // Revenue + enrollment count
         $courses->withCount('enrollments')->addSelect([
             'total_revenue' => DB::table('i_c_t_invoice_items')
@@ -173,7 +168,6 @@ class RealTimeCoursesController extends Controller
                 ), 0)
             "),
         ]);
-
         // Sorting
         match ($request->sort_by) {
             'revenue' => $courses->orderByDesc('total_revenue'),
@@ -184,11 +178,8 @@ class RealTimeCoursesController extends Controller
             'end_desc' => $courses->orderByDesc('end_date'),
             default => $courses->orderBy('start_date', 'asc'),
         };
-
         $courses = $courses->paginate(6)->withQueryString();
-
         $groupedSchedules = ICTSchedule::all()->groupBy('study_day');
-
         return view('admin.pages.real-time-courses.real-time-courses', [
             'page_title' => 'ICT | ADMIN | REAL TIME COURSES',
             'courses' => $courses,

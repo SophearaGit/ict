@@ -1,37 +1,34 @@
 <?php
 namespace App\Http\Controllers\Frontend\Staff;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
+use App\Models\User;
 use App\Models\ICTCourse;
+use App\Models\ICTSchedule;
+use App\Models\ICTInvoiceItems;
 use App\Models\ICTCourseCategory;
 use App\Models\ICTCourseEnrollments;
-use App\Models\ICTInvoiceItems;
-use App\Models\ICTSchedule;
-use App\Models\StudentAttendances;
-use App\Models\User;
+use App\Services\Course\CourseDetailService;
 use App\Traites\FileUpload;
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 class IctCourseController extends Controller
 {
     use FileUpload;
     public function index(Request $request): View
     {
-        $perPage = $request->input('per_page', 10);
-
+        $perPage = $request->input('per_page', 9);
         $sortField = $request->input('sort', 'title');
         $sortDirection = $request->input('direction', 'asc');
-
         $allowedSorts = ['title', 'price', 'start_date', 'duration', 'created_at'];
         if (!in_array($sortField, $allowedSorts)) {
             $sortField = 'title';
         }
         $sortDirection = $sortDirection === 'desc' ? 'desc' : 'asc';
-
-        $query = ICTCourse::with(['instructor', 'schedule', 'category', 'students'])
+        $query = ICTCourse::with(['instructor', 'schedule', 'category'])
+            ->withCount('students')
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%');
             })
@@ -39,13 +36,10 @@ class IctCourseController extends Controller
                 $q->where('status', $request->status);
             })
             ->orderBy($sortField, $sortDirection);
-
         $showingAll = $perPage === 'all';
-
         $courses = $showingAll
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
-
         return view('frontend.staff.pages.course-management.course', [
             'page_title' => 'ICT | STAFF | COURSES',
             'courses' => $courses,
@@ -54,122 +48,15 @@ class IctCourseController extends Controller
             'sortDirection' => $sortDirection,
         ]);
     }
-    public function show(Request $request, $id): View
-    {
-        $course = ICTCourse::with([
-            'students.student_attendances' => fn($q) => $q->where('course_id', $id),
-            'studentReports.student',
-            'instructor',
-            'schedule',
-            'category',
-        ])->findOrFail($id);
-        /*
-        |--------------------------------------------------------------------------
-        | DATE FILTER (TEACHER ATTENDANCE)
-        |--------------------------------------------------------------------------
-        */
-        $fromDate = $request->from_date;
-        $toDate = $request->to_date;
-        $attendanceQuery = $course->teacherAttendances();
-        if ($fromDate && $toDate) {
-            $attendanceQuery->whereBetween('date', [$fromDate, $toDate]);
-        }
-        $filteredAttendances = $attendanceQuery->orderBy('date')->get();
-        /*
-        |--------------------------------------------------------------------------
-        | RECALCULATE ATH (CUMULATIVE)
-        |--------------------------------------------------------------------------
-        */
-        $cumulativeATH = 0;
-        $filteredAttendances = $filteredAttendances->map(function ($att) use (&$cumulativeATH) {
-            $cumulativeATH += (float) $att->total_hours;
-            $att->actual_hours = round($cumulativeATH, 2);
-            return $att;
-        });
-        /*
-        |--------------------------------------------------------------------------
-        | FILTERED CALCULATIONS
-        |--------------------------------------------------------------------------
-        */
-        $sessionDuration = 1.5;
-        $totalHours = $filteredAttendances->sum('total_hours');
-        $completedSessions = $totalHours > 0 ? floor($totalHours / $sessionDuration) : 0;
-        $course->filtered_hours = round($totalHours, 2);
-        $course->filtered_sessions = $completedSessions;
-        $course->filtered_earnings = round($completedSessions * ($course->price_per_session ?? 0), 2);
-        /*
-        |--------------------------------------------------------------------------
-        | ORIGINAL COURSE PROGRESS
-        |--------------------------------------------------------------------------
-        */
-        $latestAttendance = $course->teacherAttendances()->latest()->first();
-        $totalATH = $latestAttendance->actual_hours ?? 0;
-        $duration = $course->duration ?? 0;
-        $progress = $duration > 0 ? ($totalATH / $duration) * 100 : 0;
-        $course->progress = min(round($progress, 2), 100);
-        $course->total_sessions = $duration > 0 ? round($duration / $sessionDuration) : 0;
-        $course->completed_sessions = $totalATH > 0 ? floor($totalATH / $sessionDuration) : 0;
-        $course->earnings = round($course->completed_sessions * ($course->price_per_session ?? 0), 2);
-        /*
-        |--------------------------------------------------------------------------
-        | REPLACE RELATION WITH FILTERED DATA
-        |--------------------------------------------------------------------------
-        */
-        $course->setRelation('teacherAttendances', $filteredAttendances);
-        /*
-        |--------------------------------------------------------------------------
-        | STUDENT ATTENDANCE TABLE
-        |--------------------------------------------------------------------------
-        */
-        $dates = StudentAttendances::where('course_id', $id)->select('date')->distinct()->orderBy('date')->pluck('date');
-        $formattedDates = $dates->map(fn($d) => Carbon::parse($d)->format('d/m/Y'));
-        $rows = [];
-        foreach ($course->students as $index => $student) {
-            $attendanceMap = [];
-            foreach ($student->student_attendances as $att) {
-                $formatted = Carbon::parse($att->date)->format('d/m/Y');
-                $attendanceMap[$formatted] = match ($att->status) {
-                    'present' => 'P',
-                    'absent' => 'A',
-                    'late' => 'L',
-                    default => '-',
-                };
-            }
-            $rows[] = [
-                'no' => $index + 1,
-                'student_name' => $student->name,
-                'sex' => $student->gender ?? 'M',
-                'day' => $course->schedule->study_day ?? 'Sunday',
-                'shift' => optional($course->schedule)->start_time && optional($course->schedule)->end_time ? Carbon::parse($course->schedule->start_time)->format('g:i') . '-' . Carbon::parse($course->schedule->end_time)->format('g:i A') : '-',
-                'attendance' => $attendanceMap,
-            ];
-        }
-        $attendanceData = [
-            'form_metadata' => [
-                'software' => 'Google Sheets',
-                'class_title' => $course->title,
-                'class_start' => optional($course->created_at)->format('d-M-Y'),
-                'room' => 'D',
-                'lecturer_name' => $course->instructor->name ?? '',
-                'lecturer_phone' => $course->instructor->phone ?? null,
-            ],
-            'table_structure' => [
-                'columns' => array_merge(['NO', 'Student Name', 'Sex', 'Date', 'Shift'], $formattedDates->toArray()),
-                'data_rows' => $rows,
-            ],
-        ];
-        // after loading $course
-        $enrollmentMap = ICTCourseEnrollments::where('status', 'active')
-            ->whereIn('student_id', $course->students->pluck('id'))
-            ->get()
-            ->groupBy('student_id')
-            ->map(fn($rows) => $rows->pluck('course_id')->toArray());
-        return view('frontend.staff.pages.course-management.course-detail.course-detail', [
-            'page_title' => 'ICT | STAFF | COURSE DETAIL',
-            'course' => $course,
-            'attendanceData' => $attendanceData,
-            'enrollmentMap' => $enrollmentMap, // ← add this
-        ]);
+    public function show(
+        Request $request,
+        ICTCourse $course,
+        CourseDetailService $service
+    ): View {
+        return view(
+            'frontend.staff.pages.course-management.course-detail.course-detail',
+            $service->getData($course, $request)
+        );
     }
     public function create(): View
     {
@@ -197,6 +84,7 @@ class IctCourseController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'duration' => 'nullable|numeric|min:0',
             'capacity' => 'nullable|integer|min:1',
+            'telegram_group_link' => 'nullable|url',
         ]);
         $course = new ICTCourse();
         $course->title = $request->title;
@@ -214,22 +102,25 @@ class IctCourseController extends Controller
         $course->end_date = $request->end_date;
         $course->duration = $request->duration;
         $course->capacity = $request->capacity;
+        $course->telegram_group_link = $request->telegram_group_link;
         $course->save();
         return redirect()->route('staff.courses.index')->with('success', 'Course created successfully.');
     }
-    public function edit($id): View
+    public function edit(ICTCourse $course): View
     {
         return view('frontend.staff.pages.course-management.edit', [
             'page_title' => 'ICT | STAFF | EDIT COURSE',
-            'course' => ICTCourse::findOrFail($id),
+            'course' => $course,
             'instructors' => User::where('role', 'instructor')->orderBy('name')->get(),
             'schedules' => ICTSchedule::latest()->get()->groupBy('study_day'),
-            'categories' => ICTCourseCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
+            'categories' => ICTCourseCategory::where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
-    public function update(Request $request, $id): RedirectResponse
+    public function update(Request $request, ICTCourse $course): RedirectResponse
     {
-        $course = ICTCourse::findOrFail($id);
         $request->validate([
             'title' => 'required|string|max:255',
             'khmer_title' => 'nullable|string|max:255',
@@ -245,6 +136,7 @@ class IctCourseController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'duration' => 'nullable|numeric|min:0',
             'capacity' => 'nullable|integer|min:1',
+            'telegram_group_link' => 'nullable|url',
         ]);
         if ($request->hasFile('thumbnail')) {
             if ($course->thumbnail != '') {
@@ -266,17 +158,19 @@ class IctCourseController extends Controller
         $course->end_date = $request->end_date;
         $course->duration = $request->duration;
         $course->capacity = $request->capacity;
+        $course->telegram_group_link = $request->telegram_group_link;
         $course->save();
-        return redirect()->route('staff.courses.index')->with('success', 'Course updated successfully.');
+        return redirect($request->redirect ?? route('staff.courses.index'))
+            ->with('success', 'Course updated successfully.');
     }
-    public function destroy($id): RedirectResponse
+    public function destroy(ICTCourse $course): RedirectResponse
     {
-        $course = ICTCourse::findOrFail($id);
-        if ($course->thumbnail != '') {
+        if ($course->thumbnail) {
             $this->deleteIfImageExist($course->thumbnail);
         }
         $course->delete();
-        return redirect()->route('staff.courses.index')->with('success', 'Course deleted successfully.');
+        return redirect()->route('staff.courses.index')
+            ->with('success', 'Course deleted successfully.');
     }
     public function moveStudent(Request $request, $course_id): RedirectResponse
     {

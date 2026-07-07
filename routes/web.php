@@ -160,10 +160,12 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses', [IctCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [IctCourseController::class, 'create'])->name('courses.create');
         Route::post('/courses/create', [IctCourseController::class, 'store'])->name('courses.store');
-        Route::get('/courses/{id}/edit', [IctCourseController::class, 'edit'])->name('courses.edit');
-        Route::put('/courses/{id}', [IctCourseController::class, 'update'])->name('courses.update');
-        Route::get('/courses/{id}', [IctCourseController::class, 'show'])->name('courses.show');
-        Route::delete('courses/{id}', [IctCourseController::class, 'destroy'])->name('courses.destroy');
+        Route::get('/courses/{course}/edit', [IctCourseController::class, 'edit'])->name('courses.edit');
+        Route::put('/courses/{course}', [IctCourseController::class, 'update'])
+            ->name('courses.update');
+        Route::get('/courses/{course}', [IctCourseController::class, 'show'])->name('courses.show');
+        Route::delete('courses/{course}', [IctCourseController::class, 'destroy'])
+            ->name('courses.destroy');
         /*******************************************************
          * CATEGORY
          *******************************************************/
