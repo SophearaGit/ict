@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\InstructorRequestController;
 use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\InternController;
+// use App\Http\Controllers\Admin\InternReportController;
+use App\Http\Controllers\Admin\InternReportController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
 use App\Http\Controllers\Admin\RealTimeCoursesController;
 use App\Http\Controllers\Admin\StaffController;
@@ -22,6 +25,8 @@ use App\Http\Controllers\Admin\StaffReportController;
 use App\Http\Controllers\Admin\StudentInvoicePaymentDetailController;
 use App\Http\Controllers\Admin\StudentReportController;
 use App\Http\Controllers\Frontend\Staff\IctInvoicePaymentController;
+
+
 use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'guest:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('x8472/academic-control-center/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -47,8 +52,14 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('instructor-doc-download/{user}', [InstructorRequestController::class, 'download'])->name('instructor-doc-download');
     Route::resource('instructor-request', InstructorRequestController::class);
     /*******************************************************
-     * INSTRUCTOR & STUDENT & STAFF
+     * INSTRUCTOR & STUDENT & STAFF & INTERN
      *******************************************************/
+    // intern resource route
+    Route::resource('intern', InternController::class);
+    Route::patch('/staff/{user}/toggle', [InternController::class, 'toggle'])->name('intern.toggle');
+
+
+
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
     Route::post('/instructor', [InstructorControlller::class, 'store'])->name('instructor.store');
     Route::get('/instructor/{id}', [InstructorControlller::class, 'instructorShowDetail'])->name('instructor.show.detail');
@@ -100,6 +111,11 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
      *******************************************************/
     Route::get('/staff-report', [StaffReportController::class, 'index'])->name('staff-report.index');
     Route::patch('/staff-report/{report}/review', [StaffReportController::class, 'review'])->name('staff-report.review');
+    /*******************************************************
+     *  ITERN REPORT
+     *******************************************************/
+    Route::get('/intern-report', [InternReportController::class, 'index'])->name('intern-report.index');
+    Route::patch('/intern-report/{report}/review', [InternReportController::class, 'review'])->name('intern-report.review');
     /*******************************************************
      *  NOTIFICATION
      *******************************************************/

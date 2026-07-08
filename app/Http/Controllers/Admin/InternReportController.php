@@ -1,21 +1,25 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
-use App\Models\ICTStaffReport;
+use App\Models\InternReport;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\User;
-class StaffReportController extends Controller
+
+class InternReportController extends Controller
 {
     public function index(Request $request): View
     {
-        $years = ICTStaffReport::selectRaw('YEAR(created_at) as y')
+        $years = InternReport::selectRaw('YEAR(created_at) as y')
             ->distinct()
             ->orderByDesc('y')
             ->pluck('y');
-        $reports = ICTStaffReport::with(['staff', 'reviewer'])
+
+        $reports = InternReport::with(['reporter', 'reviewer'])
             ->when($request->filled('status'), function ($query) use ($request): void {
                 $query->where('status', $request->status);
             })
@@ -31,18 +35,18 @@ class StaffReportController extends Controller
             ->when($request->filled('week'), function ($query) use ($request): void {
                 $query->whereRaw('CEIL(DAY(created_at)/7) = ?', [$request->week]);
             })
-            ->when($request->sort == 'staff_asc', function ($query): void {
-                $query->whereHas('staff')
+            ->when($request->sort == 'intern_asc', function ($query): void {
+                $query->whereHas('reporter')
                     ->orderBy(
                         User::select('name')
-                            ->whereColumn('users.id', 'i_c_t_staff_reports.reported_by')
+                            ->whereColumn('users.id', 'intern_reports.reported_by')
                     );
             })
-            ->when($request->sort == 'staff_desc', function ($query): void {
-                $query->whereHas('staff')
+            ->when($request->sort == 'intern_desc', function ($query): void {
+                $query->whereHas('reporter')
                     ->orderByDesc(
                         User::select('name')
-                            ->whereColumn('users.id', 'i_c_t_staff_reports.reported_by')
+                            ->whereColumn('users.id', 'intern_reports.reported_by')
                     );
             })
             ->when(!$request->filled('sort'), function ($query): void {
@@ -50,21 +54,26 @@ class StaffReportController extends Controller
             })
             ->paginate(10)
             ->appends($request->query());
+
         $data = [
-            'page_title' => 'Staff Reports',
+            'page_title' => 'Intern Reports',
             'years' => $years,
             'reports' => $reports,
         ];
-        return view('admin.pages.Report.Staff.index', $data);
+
+        return view('admin.pages.Report.Intern.index', $data);
     }
+
     public function review(string $id): Response
     {
-        $report = ICTStaffReport::findOrFail($id);
+        $report = InternReport::findOrFail($id);
+
         $report->update([
             'status' => 'reviewed',
             'reviewed_by' => Auth::guard('admin')->id(),
             'reviewed_at' => now(),
         ]);
+
         return response(['message' => 'Report marked as reviewed.'], 200);
     }
 }
