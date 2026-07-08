@@ -82,11 +82,7 @@
         let price = parseFloat($('#price').val()) || 0;
         let discount = parseFloat($('#discount').val()) || 0;
         let extra = parseFloat($('#extra_charge').val()) || 0;
-        let paid = {
-            {
-                $invoice - > paid_amount
-            }
-        };
+        let paid = {{ $invoice->paid_amount }};
         let total = (price - discount) + extra;
         let remaining = total - paid;
         if (remaining < 0) {
