@@ -135,8 +135,6 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::resource('/teacher', TeacherController::class);
         Route::resource('/student', StudentController::class);
         Route::resource('/intern', InternController::class);
-
-
         /*******************************************************
          * PROFILE
          *******************************************************/
@@ -149,6 +147,15 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/invoices', [IctInvoiceController::class, 'invoices'])->name('invoices');
         Route::get('/invoice-detail/{invoice_id}', [IctInvoiceController::class, 'getInvoiceDetail'])->name('invoice.detail');
         Route::put('/invoice/{invoice_id}/confirm-payment', [IctInvoiceController::class, 'updatePayment'])->name('invoice.confirm-payment');
+        /*
+        |--------------------------------------------------------------------------
+        | Edit Invoice
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/invoice/{invoice_id}/edit', [IctInvoiceController::class, 'edit'])
+            ->name('invoice.edit');
+        Route::put('/invoice/{invoice_id}', [IctInvoiceController::class, 'update'])
+            ->name('invoice.update');
         /*******************************************************
          * STUDENT REGISTRATION
          *******************************************************/
@@ -219,4 +226,3 @@ Route::middleware(['auth:web', 'verified'])
 require __DIR__ . '/admin.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/intern.php';
-

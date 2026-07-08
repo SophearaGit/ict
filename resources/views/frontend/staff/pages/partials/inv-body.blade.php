@@ -132,6 +132,9 @@
         }
     }
 </style>
+@php
+    $editMode = false;
+@endphp
 <div class="inv-detail-wrap no-select">
     {{-- ── TOPBAR (screen only) ── --}}
     <div class="inv-topbar no-print">
@@ -154,15 +157,28 @@
             <span class="inv-status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
         </div>
         <div class="inv-topbar-actions">
+            <button type="button" class="inv-btn inv-btn-dark btn_enable_edit">
+                <i class="ti ti-edit"></i>
+                Edit
+            </button>
+            <button type="button" class="inv-btn inv-btn-success d-none btn_save_invoice">
+                <i class="ti ti-device-floppy"></i>
+                Save Changes
+            </button>
+            <button type="button" class="inv-btn inv-btn-outline d-none btn_cancel_edit">
+                Cancel
+            </button>
             @if ($invoice->payment_status !== 'paid')
                 <a href="javascript:void(0)" data-url="{{ route('staff.invoice.confirm-payment', $invoice->id) }}"
                     data-remaining="{{ $invoice->remaining_amount }}"
                     class="inv-btn inv-btn-success btn_confirm_payment">
-                    <i class="ti ti-cash"></i> Confirm Payment
+                    <i class="ti ti-cash"></i>
+                    Confirm Payment
                 </a>
             @endif
-            <button class="inv-btn inv-btn-outline print-page" type="button">
-                <i class="ti ti-printer"></i> Print
+            <button class="inv-btn inv-btn-outline print-page">
+                <i class="ti ti-printer"></i>
+                Print
             </button>
         </div>
     </div>
@@ -203,7 +219,8 @@
                                 style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
                                 Half-Paid</div>
                             <div style="font-size:13px;font-weight:700;color:#ca8a04;">
-                                {{ $invoice->payments->first()->created_at->format('d M Y') }}</div>
+                                {{ $invoice->payments->first()->created_at->format('d M Y') }}
+                            </div>
                         </div>
                     @elseif ($invoice->payment_status === 'paid')
                         <div>
@@ -211,7 +228,8 @@
                                 style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
                                 Paid On</div>
                             <div style="font-size:13px;font-weight:700;color:#16a34a;">
-                                {{ $invoice->payments->first()->created_at->format('d M Y') }}</div>
+                                {{ $invoice->payments->first()->created_at->format('d M Y') }}
+                            </div>
                         </div>
                     @endif
                 @elseif ($count > 1)
@@ -220,14 +238,16 @@
                             style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
                             Half-Paid</div>
                         <div style="font-size:13px;font-weight:700;color:#ca8a04;">
-                            {{ $invoice->payments->first()->created_at->format('d M Y') }}</div>
+                            {{ $invoice->payments->first()->created_at->format('d M Y') }}
+                        </div>
                     </div>
                     <div>
                         <div
                             style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
                             Full-Paid</div>
                         <div style="font-size:13px;font-weight:700;color:#16a34a;">
-                            {{ $invoice->payments->last()->created_at->format('d M Y') }}</div>
+                            {{ $invoice->payments->last()->created_at->format('d M Y') }}
+                        </div>
                     </div>
                 @endif
                 <div style="margin-left:auto;text-align:right;">
@@ -303,7 +323,9 @@
                                 </td>
                                 <td
                                     style="padding:14px 16px;font-size:13px;font-weight:700;color:#0f0e17;text-align:right;">
-                                    ${{ number_format($item->course->price, 2) }}
+                                    <span class="view-mode">
+                                        ${{ number_format($invoice->price, 2) }}
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach
@@ -323,52 +345,55 @@
                 </div>
                 {{-- Breakdown --}}
                 <div style="width:260px;flex-shrink:0;">
-                    @if ($invoice->extra_charge > 0)
-                        <div
-                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
-                            <span>Full Price</span>
-                            <span
-                                style="font-weight:600;color:#222;">${{ number_format($invoice->items->sum('price'), 2) }}</span>
-                        </div>
-                        <div
-                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
-                            <span>Extra Charge</span>
-                            <span
-                                style="font-weight:600;color:#222;">+${{ number_format($invoice->extra_charge, 2) }}</span>
-                        </div>
-                    @elseif ($invoice->discount > 0)
-                        <div
-                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
-                            <span>Full Price</span>
-                            <span
-                                style="font-weight:600;color:#222;">${{ number_format($invoice->items->sum('price'), 2) }}</span>
-                        </div>
-                        <div
-                            style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;border-bottom:1px solid #f0f0f5;">
-                            <span>Discount</span>
-                            <span
-                                style="font-weight:600;color:#16a34a;">-${{ number_format($invoice->discount, 2) }}</span>
-                        </div>
-                    @endif
                     <div
-                        style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;font-weight:700;color:#0f0e17;border-bottom:1px solid #f0f0f5;">
-                        <span>Total</span>
-                        <span>${{ number_format($invoice->total_amount, 2) }}</span>
+                        style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
+                        <span>Full Price</span>
+                        <span class="view-mode">
+                            ${{ number_format($invoice->price, 2) }}
+                        </span>
+                        <input name="price" id="price" type="number"
+                            class="form-control form-control-sm edit-mode d-none invoice-calc"
+                            value="{{ $invoice->price }}">
                     </div>
-                    <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#555;">
+                    <div
+                        style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
+                        <span>Discount</span>
+                        <span class="view-mode">
+                            ${{ number_format($invoice->discount, 2) }}
+                        </span>
+                        <input name="discount" id="discount" type="number"
+                            class="form-control form-control-sm edit-mode d-none invoice-calc"
+                            value="{{ $invoice->discount }}">
+                    </div>
+                    <div
+                        style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
+                        <span>Extra Charge</span>
+                        <span class="view-mode">
+                            ${{ number_format($invoice->extra_charge, 2) }}
+                        </span>
+                        <input name="extra_charge" id="extra_charge" type="number"
+                            class="form-control form-control-sm edit-mode d-none invoice-calc"
+                            value="{{ $invoice->extra_charge }}">
+                    </div>
+                    <div
+                        style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
+                        <strong>Total</strong>
+                        <strong id="invoice_total">
+                            ${{ number_format($invoice->total_amount, 2) }}
+                        </strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:7px 0;">
                         <span>Paid</span>
-                        <span
-                            style="font-weight:600;color:#16a34a;">${{ number_format($invoice->paid_amount, 2) }}</span>
+                        <span>
+                            ${{ number_format($invoice->paid_amount, 2) }}
+                        </span>
                     </div>
-                    {{-- Remaining card --}}
                     <div
-                        style="margin-top:14px;background:{{ $invoice->payment_status === 'paid' ? '#16a34a' : '#0f0e17' }};border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:500;">
-                            {{ $invoice->payment_status === 'paid' ? 'Fully Paid' : 'Remaining' }}
-                        </span>
-                        <span style="font-size:26px;font-weight:900;color:#fff;">
+                        style="margin-top:14px;background:#0f0e17;border-radius:12px;padding:18px;display:flex;justify-content:space-between;">
+                        <span style="color:white;">Remaining</span>
+                        <strong id="invoice_remaining" style="color:white;">
                             ${{ number_format($invoice->remaining_amount, 2) }}
-                        </span>
+                        </strong>
                     </div>
                 </div>
             </div>
@@ -385,6 +410,89 @@
         </div>
     </div>{{-- /#printableArea --}}
 </div>
+<script>
+    $(document).on('click', '.btn_save_invoice', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{{ route('staff.invoice.update', $invoice->id) }}",
+            type: "POST",
+            data: {
+                _token: csrf_token,
+                _method: "PUT",
+                price: $('#price').val(),
+                discount: $('#discount').val(),
+                extra_charge: $('#extra_charge').val()
+            },
+            beforeSend: function() {
+                $('.btn_save_invoice')
+                    .prop('disabled', true)
+                    .html('<i class="ti ti-loader-2"></i> Saving...');
+            },
+            success: function(res) {
+                $('.btn_save_invoice')
+                    .prop('disabled', false)
+                    .html('<i class="ti ti-device-floppy"></i> Save Changes');
+                iziToast.success({
+                    message: res.message,
+                    position: 'bottomRight'
+                });
+                $('.btn_view_invoice_detail[data-invoice-id="{{ $invoice->id }}"]').trigger(
+                    'click');
+            },
+            error: function(xhr) {
+                $('.btn_save_invoice')
+                    .prop('disabled', false)
+                    .html('<i class="ti ti-device-floppy"></i> Save Changes');
+                iziToast.error({
+                    message: xhr.responseJSON?.message ?? 'Something went wrong.',
+                    position: 'bottomRight'
+                });
+            }
+        });
+    });
+
+    function calculateInvoice() {
+        let price = parseFloat($('#price').val()) || 0;
+        let discount = parseFloat($('#discount').val()) || 0;
+        if (discount > price) {
+            iziToast.error({
+                message: 'Discount cannot exceed the price.'
+            });
+            return;
+        }
+        let extra = parseFloat($('#extra_charge').val()) || 0;
+        let paid = {
+            {
+                $invoice - > paid_amount
+            }
+        };
+        let total = (price - discount) + extra;
+        let remaining = Math.max(0, total - paid);
+        $('#invoice_total').text('$' + total.toFixed(2));
+        $('#invoice_remaining').text('$' + remaining.toFixed(2));
+    }
+    $(document).on('keyup change', '.invoice-calc', calculateInvoice);
+</script>
+<script>
+    $(document).on('click', '.btn_enable_edit', function() {
+        $('.view-mode').hide();
+        $('.edit-mode').removeClass('d-none');
+        $('.btn_enable_edit').addClass('d-none');
+        $('.btn_save_invoice').removeClass('d-none');
+        $('.btn_cancel_edit').removeClass('d-none');
+    });
+    $(document).on('click', '.btn_cancel_edit', function() {
+        $('#price').val('{{ $invoice->price }}');
+        $('#discount').val('{{ $invoice->discount }}');
+        $('#extra_charge').val('{{ $invoice->extra_charge }}');
+        calculateInvoice();
+        $('.view-mode').show();
+        $('.edit-mode').addClass('d-none');
+        $('.btn_enable_edit').removeClass('d-none');
+        $('.btn_save_invoice').addClass('d-none');
+        $('.btn_cancel_edit').addClass('d-none');
+    });
+</script>
 <script>
     $(document).off('click', '.btn_confirm_payment').on('click', '.btn_confirm_payment', function(e) {
         e.preventDefault();
