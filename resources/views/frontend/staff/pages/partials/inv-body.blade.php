@@ -461,11 +461,7 @@
             return;
         }
         let extra = parseFloat($('#extra_charge').val()) || 0;
-        let paid = {
-            {
-                $invoice - > paid_amount
-            }
-        };
+        let paid = {{ $invoice->paid_amount }};
         let total = (price - discount) + extra;
         let remaining = Math.max(0, total - paid);
         $('#invoice_total').text('$' + total.toFixed(2));
