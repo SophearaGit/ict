@@ -90,26 +90,33 @@
 
     <!-- ═══ CATEGORY ICONS ═══ -->
     <div class="catagoryicon">
+        <h1>Empowering Learnings, Creating Opportunities</h1>
+        <p id="category-title-block">We are committed to providing high-quality education and training to empower learners
+            and create meaningful opportunities in the field of Information and Communication Technology.</p>
         <div class="mainboxicon">
             <div class="boxcategory">
-                <i class="fa-solid fa-user-graduate" style="font-size:34px;"></i>
+                <i class="fa-solid fa-user-graduate"></i>
                 <p id="activest">2,500+</p>
                 <p class="clp">Active Student</p>
+                <span>Learners from diverse backgrounds growing together with us.</span>
             </div>
             <div class="boxcategory">
-                <i class="fa-solid fa-person-chalkboard" style="font-size:36px;"></i>
+                <i class="fa-solid fa-person-chalkboard"></i>
                 <p id="professionaltea">1,200+</p>
                 <p class="clp">Professional Teacher</p>
+                <span>Experienced educations dedicated to guiding your success.</span>
             </div>
             <div class="boxcategory">
-                <i class="fa-solid fa-file-code" style="font-size:34px;"></i>
+                <i class="fa-solid fa-file-code"></i>
                 <p id="languagesavail">28+</p>
                 <p class="clp">Languages Available</p>
+                <span>A wide range of proggramming languages and technologies to learn.</span>
             </div>
             <div class="boxcategory">
-                <i class="fa-regular fa-calendar-days" style="font-size:34px;"></i>
+                <i class="fa-regular fa-calendar-days"></i>
                 <p id="trainingevents">320+</p>
                 <p class="clp">Training Event</p>
+                <span>Workshop, webinars and bootcamps to boost your skills.</span>
             </div>
         </div>
     </div>

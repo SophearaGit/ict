@@ -14,6 +14,9 @@ Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::get('/course', [CoursePageController::class, 'course'])->name('course');
 Route::get('/course/{slug}', [CoursePageController::class, 'courseDetails'])->name('course.details');
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
+Route::get('/blog', [FrontendController::class, 'blog'])->name('blog');
+Route::get('/blog/{slug}', [FrontendController::class, 'blogDetails'])->name('blog.details');
+
 /*******************************************************
  * STUDENT
  *******************************************************/
