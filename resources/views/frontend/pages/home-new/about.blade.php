@@ -38,6 +38,35 @@
                 </div>
             </div>
         </div>
+        <!-- ═══ CATEGORY ICONS ═══ -->
+        <div class="catagoryicon">
+            <div class="mainboxicon">
+                <div class="boxcategory">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <p id="activest">2,500+</p>
+                    <p class="clp">Active Student</p>
+                    <span>Learners from diverse backgrounds growing together with us.</span>
+                </div>
+                <div class="boxcategory">
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                    <p id="professionaltea">1,200+</p>
+                    <p class="clp">Professional Teacher</p>
+                    <span>Experienced educations dedicated to guiding your success.</span>
+                </div>
+                <div class="boxcategory">
+                    <i class="fa-solid fa-file-code"></i>
+                    <p id="languagesavail">28+</p>
+                    <p class="clp">Languages Available</p>
+                    <span>A wide range of proggramming languages and technologies to learn.</span>
+                </div>
+                <div class="boxcategory">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <p id="trainingevents">320+</p>
+                    <p class="clp">Training Event</p>
+                    <span>Workshop, webinars and bootcamps to boost your skills.</span>
+                </div>
+            </div>
+        </div>
         <div class="mision-vision">
             <div class="our-mision-vision-content">
                 <i class="fa-solid fa-earth-europe"></i>
@@ -151,7 +180,8 @@
             <!-- 2021 - left side (repeat) -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"><img src="frontend/asset/images/istockphoto-1061639630-170667a.jpg" alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/istockphoto-1061639630-170667a.jpg"
+                            alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2021</span>
                         <h3>Continuing Our Mission</h3>
@@ -204,10 +234,7 @@
         </div>
     </div>
 
-    <!-- <div class="staff-binary-tree">
-                        <h2>Organization Structure</h2>
-                        <p>Meet the Leadership team driving our vision forward.</p>
-                     </div> -->
+
     <div class="section-title">
         <h2>Organizational Structure</h2>
         <p>Meet the leadership team driving our vision forward.</p>
@@ -226,340 +253,340 @@
 
     <!-- ── Level 2: Manager ── -->
     <div class="mid-card">
-        <img src="frontend/asset/images/OIP (3).webp" alt="Mrs.So Theavy">
+        <img src="frontend/asset/images/staff/vasotheavy-Deputy-director.jpg" alt="Mrs.So Theavy">
         <h3>Mrs.So Theavy</h3>
-        <p class="role">CEO &amp; Founder</p>
+        <p class="role">Deputy Director of ICT</p>
     </div>
     <div class="line-down"></div>
 
-    <!-- Horizontal connector -->
-    <div class="line-horizontal"></div>
+    <div class="line-controll">
+        <!-- Horizontal connector -->
+        <div class="line-horizontal"></div>
 
-    <!-- 4 branch lines -->
-    <div class="line-branches">
-        <div class="branch"></div>
-        <div class="branch"></div>
-        <div class="branch"></div>
-        <div class="branch"></div>
-        <div class="branch"></div>
-        <div class="branch"></div>
+        <!-- ── Level 3: Departments ── -->
+        <div class="bottom-row">
+
+            <!-- Column 1 -->
+            <div class="dept-col">
+                <div class="branch"></div>
+                <div class="dept-card">
+                    <p class="dept-name">Human Resourses</p>
+                    <div class="person">
+                        <img src="frontend/asset/images/staff/Channy.jpg" alt="">
+                        <div>
+                            <h4>Tha Channy</h4>
+                            <span>Human Resourse</span>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="view-team-btn" onclick="toggleTeam(this)">
+                        View Team (2) <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="team-dropdown">
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Lin.jpg" alt="">
+                        <h4>Choeun Dalin</h4>
+                        <p class="role">Human Resourse</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Soriya.jpg" alt="">
+                        <h4>Hout Soriya<h4>
+                                <p class="role">Human Resourse</p>
+                                <div class="social-icons">
+                                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- end Column 1 -->
+
+            <!-- Column 2 -->
+            <div class="dept-col">
+                <div class="branch"></div>
+                <div class="dept-card">
+                    <p class="dept-name">Digital Marketing</p>
+                    <div class="person">
+                        <img src="frontend/asset/images/staff/Kongkea.jpg" alt="">
+                        <div>
+                            <h4>Vatha Chetkongkea</h4>
+                            <span>Digital Marketing</span>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="view-team-btn" onclick="toggleTeam(this)">
+                        View Team (1) <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="team-dropdown">
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Lyna.jpg" alt="">
+                        <h4>Reth annalina</h4>
+                        <p class="role">Digital Marketing</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- end Column 2 -->
+
+            <!-- Column 3 -->
+            <div class="dept-col">
+                <div class="branch"></div>
+                <div class="dept-card">
+                    <p class="dept-name">Video Editing</p>
+                    <div class="person">
+                        <img src="frontend/asset/images/staff/Chan.jpg" alt="">
+                        <div>
+                            <h4>Than Chantheary</h4>
+                            <span>Video editor</span>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="view-team-btn" onclick="toggleTeam(this)">
+                        View Team (0) <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <!-- <div class="team-dropdown">
+                                    <div class="team-member-card">
+                                        <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                                        <h4>Staff Name 1</h4>
+                                        <p class="role">Campaign Manager</p>
+                                        <div class="social-icons">
+                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="team-member-card">
+                                        <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                                        <h4>Staff Name 2</h4>
+                                        <p class="role">Content Strategist</p>
+                                        <div class="social-icons">
+                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="team-member-card">
+                                        <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
+                                        <h4>Staff Name 3</h4>
+                                        <p class="role">Social Media</p>
+                                        <div class="social-icons">
+                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                        </div>
+                                    </div>
+                                </div> -->
+            </div>
+
+            <!-- end Column 3 -->
+
+            <!-- Column 4 -->
+            <div class="dept-col">
+                <div class="branch"></div>
+                <div class="dept-card">
+                    <p class="dept-name">App Development</p>
+                    <div class="person">
+                        <img src="frontend/asset/images/staff/Rasmey.jpg" alt="">
+                        <div>
+                            <h4>Savean Raksmey</h4>
+                            <span>Mobile App developer</span>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="view-team-btn" onclick="toggleTeam(this)">
+                        View Team (0) <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <!-- <div class="team-dropdown">
+                                    <div class="team-member-card">
+                                        <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                                        <h4>Staff Name 1</h4>
+                                        <p class="role">Career Counselor</p>
+                                        <div class="social-icons">
+                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="team-member-card">
+                                        <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                                        <h4>Staff Name 2</h4>
+                                        <p class="role">Alumni Coordinator</p>
+                                        <div class="social-icons">
+                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="team-member-card">
+                                        <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
+                                        <h4>Staff Name 3</h4>
+                                        <p class="role">Student Support</p>
+                                        <div class="social-icons">
+                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                        </div>
+                                    </div>
+                                </div> -->
+            </div>
+
+            <!-- end Column 4 -->
+
+            <!-- Column 5 -->
+            <div class="dept-col">
+                <div class="branch"></div>
+                <div class="dept-card">
+                    <p class="dept-name">UX/UI Design</p>
+                    <div class="person">
+                        <img src="frontend/asset/images/staff/Tra.jpg" alt="">
+                        <div>
+                            <h4>Phat Sopheaktra</h4>
+                            <span>UX/UI Designer</span>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="view-team-btn" onclick="toggleTeam(this)">
+                        View Team (2) <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="team-dropdown">
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Limey.jpg" alt="">
+                        <h4>Liv Limey</h4>
+                        <p class="role">UX/UI Designer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Serey.jpg" alt="">
+                        <h4>Yin Prasethy Serey</h4>
+                        <p class="role">UX/UI Designer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- end Column 5 -->
+
+            <!-- Column 6 -->
+            <div class="dept-col">
+                <div class="branch"></div>
+                <div class="dept-card">
+                    <p class="dept-name">Web Development</p>
+                    <div class="person">
+                        <img src="frontend/asset/images/staff/Ra.jpg" alt="">
+                        <div>
+                            <h4>Seth Sopheara</h4>
+                            <span>Full-Stack Developer</span>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="view-team-btn" onclick="toggleTeam(this)">
+                        View Team (7) <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="team-dropdown">
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Theary.jpg" alt="">
+                        <h4>Uy Sotheary</h4>
+                        <p class="role">Frontend Developer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Lymeng.jpg" alt="">
+                        <h4>Chhay Lymeng</h4>
+                        <p class="role">Tester</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/rathana.jpg" alt="">
+                        <h4>Srin Rathana</h4>
+                        <p class="role">Backend Developer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Sak.jpg" alt="">
+                        <h4>Tep Panhahsak</h4>
+                        <p class="role">Backend Developer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Vathana.jpg" alt="">
+                        <h4>Roeun Vathana</h4>
+                        <p class="role">Backend Developer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Sothon.jpg" alt="">
+                        <h4>Yeong Vachekasy sothon</h4>
+                        <p class="role">Backend Developer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <img src="frontend/asset/images/staff/Sothy.jpg" alt="">
+                        <h4>Keurn Sothy</h4>
+                        <p class="role">Backend Developer</p>
+                        <div class="social-icons">
+                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- end Column 6 -->
+        </div>
+
     </div>
 
-    <!-- ── Level 3: Departments ── -->
-    <div class="bottom-row">
-
-        <!-- Column 1 -->
-        <div class="dept-col">
-            <div class="dept-card">
-                <p class="dept-name">Academic Department</p>
-                <div class="person">
-                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
-                    <div>
-                        <h4>Mr.Nhanh Nhim</h4>
-                        <span>Head of Academics</span>
-                        <div class="social-icons">
-                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <button class="view-team-btn" onclick="toggleTeam(this)">
-                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="team-dropdown">
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
-                    <h4>Staff Name 1</h4>
-                    <p class="role">Lead Instructor</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
-                    <h4>Staff Name 2</h4>
-                    <p class="role">Curriculum Designer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSengChhunyeang.JPG" alt="">
-                    <h4>Staff Name 3</h4>
-                    <p class="role">Senior Lecturer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- end Column 1 -->
-
-        <!-- Column 2 -->
-        <div class="dept-col">
-            <div class="dept-card">
-                <p class="dept-name">IT &amp; Development</p>
-                <div class="person">
-                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
-                    <div>
-                        <h4>Mr.Nhanh Nhim</h4>
-                        <span>CTO</span>
-                        <div class="social-icons">
-                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <button class="view-team-btn" onclick="toggleTeam(this)">
-                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="team-dropdown">
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
-                    <h4>Staff Name 1</h4>
-                    <p class="role">Lead Developer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
-                    <h4>Staff Name 2</h4>
-                    <p class="role">Systems Architect</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherHengVattey.jpg" alt="">
-                    <h4>Staff Name 3</h4>
-                    <p class="role">Frontend Engineer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- end Column 2 -->
-
-        <!-- Column 3 -->
-        <div class="dept-col">
-            <div class="dept-card">
-                <p class="dept-name">Marketing</p>
-                <div class="person">
-                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                    <div>
-                        <h4>Mr.Nhanh Nhim</h4>
-                        <span>CMO</span>
-                        <div class="social-icons">
-                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <button class="view-team-btn" onclick="toggleTeam(this)">
-                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="team-dropdown">
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                    <h4>Staff Name 1</h4>
-                    <p class="role">Campaign Manager</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                    <h4>Staff Name 2</h4>
-                    <p class="role">Content Strategist</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                    <h4>Staff Name 3</h4>
-                    <p class="role">Social Media</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- end Column 3 -->
-
-        <!-- Column 4 -->
-        <div class="dept-col">
-            <div class="dept-card">
-                <p class="dept-name">Student Affairs</p>
-                <div class="person">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <div>
-                        <h4>Mr.Nhanh Nhim</h4>
-                        <span>Director of Student</span>
-                        <div class="social-icons">
-                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <button class="view-team-btn" onclick="toggleTeam(this)">
-                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="team-dropdown">
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 1</h4>
-                    <p class="role">Career Counselor</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 2</h4>
-                    <p class="role">Alumni Coordinator</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 3</h4>
-                    <p class="role">Student Support</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- end Column 4 -->
-
-        <!-- Column 5 -->
-        <div class="dept-col">
-            <div class="dept-card">
-                <p class="dept-name">Admin &amp; Finance</p>
-                <div class="person">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <div>
-                        <h4>Mr.Nhanh Nhim</h4>
-                        <span>CFO</span>
-                        <div class="social-icons">
-                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <button class="view-team-btn" onclick="toggleTeam(this)">
-                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="team-dropdown">
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 1</h4>
-                    <p class="role">Financial Analyst</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 2</h4>
-                    <p class="role">Operations Manager</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 3</h4>
-                    <p class="role">Admin Officer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- end Column 5 -->
-
-        <!-- Column 6 -->
-        <div class="dept-col">
-            <div class="dept-card">
-                <p class="dept-name">UI/UX Design</p>
-                <div class="person">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <div>
-                        <h4>Mr.Nhanh Nhim</h4>
-                        <span>Design Lead</span>
-                        <div class="social-icons">
-                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <button class="view-team-btn" onclick="toggleTeam(this)">
-                    View Team (3) <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="team-dropdown">
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 1</h4>
-                    <p class="role">UI Designer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 2</h4>
-                    <p class="role">UX Researcher</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="team-member-card">
-                    <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                    <h4>Staff Name 3</h4>
-                    <p class="role">Graphic Designer</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- end Column 6 -->
-    </div>
 
     <!-- end .bottom-row -->
     <div class="website-dev-team-block">
@@ -578,9 +605,9 @@
                     overseeing architecture design, code reviews, and deployment pipelines.</p>
                 <div class="technicial-skill">
                     <button>Full-Stack</button>
-                    <button>Full-Stack</button>
-                    <button>Full-Stack</button>
-                    <button>Full-Stack</button>
+                    <button>Frontend</button>
+                    <button>Backend</button>
+                    <button>System Design</button>
                 </div>
             </div>
             <div class="member-team-block">
@@ -593,9 +620,9 @@
                         </div>
                     </div>
                     <div class="technicial-skill">
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
+                        <button>Frontend</button>
+                        <button>React</button>
+                        <button>UI Development</button>
                     </div>
                 </div>
                 <div class="member-team-dev">
@@ -607,37 +634,37 @@
                         </div>
                     </div>
                     <div class="technicial-skill">
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
+                        <button>Backend</button>
+                        <button>API</button>
+                        <button>Database</button>
                     </div>
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="frontend/asset/images/teacherNhim.jpg" alt="">
+                        <img src="frontend/asset/images/staff/QAT(bong pheaktra).JPG" alt="">
                         <div class="name-role">
                             <h5>Dev.Phat Sopheaktra</h5>
                             <p>UX/UI & QAT</p>
                         </div>
                     </div>
                     <div class="technicial-skill">
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
+                        <button>UI/UX</button>
+                        <button>Figma</button>
+                        <button>QAT</button>
                     </div>
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="frontend/asset/images/teacherNhim.jpg" alt="">
+                        <img src="frontend/asset/images/staff/chay-lymeng-web-dev-team.JPG" alt="">
                         <div class="name-role">
                             <h5>Dev.Chay Lymeng</h5>
                             <p>QAT</p>
                         </div>
                     </div>
                     <div class="technicial-skill">
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
-                        <button>Full-Stack</button>
+                        <button>Tester</button>
+                        <button>QAT</button>
+                        <button>Bug Report</button>
                     </div>
                 </div>
             </div>
@@ -674,29 +701,20 @@
             </div>
             <div id="Classes" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
+
                     <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
                     <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_ShildeShow2.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v22.JPG" alt="2">
+                    <img src="frontend/asset/images/slide-cut-v23.JPG" alt="2">
                     <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
+
                 </div>
             </div>
             <div id="Competition" class="tabcontent" style="display:none">
                 <div class="about-gallery">
                     <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
                     <img src="frontend/asset/images/ICT_SlideShow.jpg" alt="2">
@@ -704,8 +722,6 @@
                     <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
                 </div>
@@ -731,7 +747,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 @push('scripts')
     <script>

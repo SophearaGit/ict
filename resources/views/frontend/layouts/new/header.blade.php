@@ -1,85 +1,9 @@
-<style>
-    .user-dropdown {
-        position: relative;
-    }
-
-    .user-dropdown::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        right: 0;
-        width: 220px;
-        height: 15px;
-    }
-
-    .user-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        padding: 8px 12px;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        color: inherit;
-    }
-
-    .user-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #eee;
-    }
-
-    .user-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        min-width: 220px;
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
-        overflow: hidden;
-        display: none;
-        z-index: 9999;
-    }
-
-    .user-dropdown:hover .user-menu {
-        display: block;
-    }
-
-    .user-menu a,
-    .user-menu button {
-        width: 100%;
-        display: block;
-        padding: 14px 18px;
-        border: none;
-        background: transparent;
-        text-align: left;
-        text-decoration: none;
-        color: #333;
-        cursor: pointer;
-        font-size: 15px;
-    }
-
-    .user-menu a:hover,
-    .user-menu button:hover {
-        background: #f5f5f5;
-    }
-
-    .user-menu form {
-        margin: 0;
-    }
-</style>
 <div class="header">
     <div class="schoollogo">
 
         <!-- a tag with logo and tittle -->
-        <a href="{{ route('home') }}" class="logo">
-            <img src="{{ asset('./frontend/asset/images/ICTLogo9.jpg') }}" alt="navimg">
+        <a href="{{ route('home') }}">
+            <img src="{{ asset('frontend/asset/images/ICTLogo9.jpg') }}" alt="navimg" title="Go to Home page">
         </a>
         <h2>ICT PROFESSIONAL<br><span> TRAINING CENTER</span></h2>
     </div>
@@ -87,7 +11,7 @@
     <!-- Desktop nav -->
     <ul>
         <li class="dropdown">
-            <a href="{{ route('course') }}" class="dropbtn">Course</a>
+            <a href="{{ route('course') }}" class="dropbtn" title="Click Me">Course</a>
             <div class="dropdown-content">
                 <div class="dropdown-column">
                     @foreach ($categories_for_frontend as $category)
@@ -109,7 +33,7 @@
             </div>
         </li>
         <li><a href="{{ route('about') }}">About</a></li>
-        <li><a href="#">Blog</a></li>
+        <li><a href="{{ route('blog') }}">Blog</a></li>
         <li><a href="{{ route('contact') }}">Contact</a></li>
     </ul>
     <button class="theme-toggle-btn" id="themeToggle">
@@ -120,6 +44,11 @@
             <button id="loginbtn" onclick="window.location.href='{{ route('login') }}'">
                 Login
             </button>
+            <div class="">
+                <button id="registerbtn" onclick="#" disabled>
+                    Register
+                </button>
+            </div>
         @else
             <div class="user-dropdown">
                 <button class="user-btn">

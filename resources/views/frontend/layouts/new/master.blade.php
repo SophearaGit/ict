@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.35.0/tabler-icons.min.css"
         integrity="sha512-gzw5zNP2TRq+DKyAqZfDclaTG4dOrGJrwob2Fc8xwcJPDPVij0HowLIMZ8c1NefFM0OZZYUUUNoPfcoI5jqudw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <!-- Favicon icon-->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('frontend/assets/ictImg/logo/ictLogo.jpg') }}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,6 +18,82 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="{{ asset('frontend/asset/css/style.css') }}">
     @stack('styles')
+    <style>
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-dropdown::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 220px;
+            height: 15px;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eee;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            min-width: 220px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            overflow: hidden;
+            display: none;
+            z-index: 9999;
+        }
+
+        .user-dropdown:hover .user-menu {
+            display: block;
+        }
+
+        .user-menu a,
+        .user-menu button {
+            width: 100%;
+            display: block;
+            padding: 14px 18px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            text-decoration: none;
+            color: #333;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .user-menu a:hover,
+        .user-menu button:hover {
+            background: #f5f5f5;
+        }
+
+        .user-menu form {
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -26,6 +103,7 @@
         @yield('content')
         @include('frontend.layouts.new.footer')
     </div>
+
     <!-- end .container -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
