@@ -429,7 +429,6 @@
         .manual-panel {
             /* linear red */
             background: linear-gradient(135deg, #fee2e2, #fef9c3);
-
             border: 1.5px solid #fde68a;
             border-radius: 16px;
             padding: 1.25rem 1.5rem;
@@ -574,6 +573,47 @@
                         <div class="type-tabs">
                             <button type="button" class="type-tab active" data-type="new">New Student</button>
                             <button type="button" class="type-tab" data-type="existing">Existing Student</button>
+                        </div>
+                        <div class="d-none" id="prefillBanner"
+                            style="
+    background: linear-gradient(135deg, #fef2f2, #fff1f2);
+    border: 1.5px solid #fecaca;
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div
+                                    style="
+            width: 34px; height: 34px; flex-shrink: 0;
+            background: #dc2626; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        ">
+                                    <i class="ti ti-user-check" style="color:#fff;font-size:1.1rem;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size:.85rem;font-weight:600;color:#7f1d1d;">
+                                        Continuing registration for <span id="prefillStudentName">this student</span>
+                                    </div>
+                                    <div style="font-size:.75rem;color:#b91c1c;">
+                                        Their previous invoice was removed. Select a course and payment below to finish.
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-invoices" id="btnPickOtherStudent"
+                                style="
+        white-space:nowrap;
+        background:#fff;
+        color:#dc2626;
+        border-color:#fecaca;
+    ">
+                                <i class="ti ti-user-x me-1"></i> Not this student? Pick another
+                            </button>
                         </div>
                         <input type="hidden" name="student_type" id="studentTypeInput" value="new">
                         {{-- Existing student selector --}}
@@ -815,6 +855,52 @@
             $('#studentSelect').select2({
                 width: '100%',
                 placeholder: 'Search student by name or email'
+            });
+            // ==============================
+            // PRE-FILL FROM DELETED INVOICE (?student_id=...)
+            // Must run AFTER select2 init and AFTER .type-tab handler is bound
+            // ==============================
+            // ==============================
+            // PRE-FILL FROM DELETED INVOICE (?student_id=...)
+            // ==============================
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedStudentId = urlParams.get('student_id');
+            let studentLocked = false;
+            if (preselectedStudentId) {
+                $('.type-tab[data-type="existing"]').trigger('click');
+                $('#studentSelect').val(preselectedStudentId).trigger('change');
+                studentLocked = true;
+                $('.type-tab[data-type="new"]')
+                    .prop('disabled', true)
+                    .css({
+                        opacity: 0.4,
+                        cursor: 'not-allowed',
+                        pointerEvents: 'none'
+                    });
+                const selectedText = $('#studentSelect option:selected').text().trim();
+                if (selectedText) {
+                    $('#prefillStudentName').text(selectedText);
+                }
+                $('#prefillBanner').removeClass('d-none');
+            }
+            // Block the dropdown from opening while locked — value still submits normally
+            $('#studentSelect').on('select2:opening', function(e) {
+                if (studentLocked) {
+                    e.preventDefault();
+                }
+            });
+            $('#btnPickOtherStudent').on('click', function() {
+                studentLocked = false;
+                $('.type-tab[data-type="new"]')
+                    .prop('disabled', false)
+                    .css({
+                        opacity: 1,
+                        cursor: 'pointer',
+                        pointerEvents: 'auto'
+                    });
+                $('#studentSelect').val(null).trigger('change');
+                $('#prefillBanner').addClass('d-none');
+                window.history.replaceState({}, document.title, window.location.pathname);
             });
             // ==============================
             // PAYMENT BADGES

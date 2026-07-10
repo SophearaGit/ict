@@ -132,9 +132,6 @@
         }
     }
 </style>
-@php
-    $editMode = false;
-@endphp
 <div class="inv-detail-wrap no-select">
     {{-- ── TOPBAR (screen only) ── --}}
     <div class="inv-topbar no-print">
@@ -157,16 +154,11 @@
             <span class="inv-status-badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
         </div>
         <div class="inv-topbar-actions">
-            <button type="button" class="inv-btn inv-btn-dark btn_enable_edit">
-                <i class="ti ti-edit"></i>
-                Edit
-            </button>
-            <button type="button" class="inv-btn inv-btn-success d-none btn_save_invoice">
-                <i class="ti ti-device-floppy"></i>
-                Save Changes
-            </button>
-            <button type="button" class="inv-btn inv-btn-outline d-none btn_cancel_edit">
-                Cancel
+            <button type="button" class="inv-btn inv-btn-outline btn_delete_invoice"
+                style="color:#dc2626;border-color:#fecaca;" data-id="{{ $invoice->id }}"
+                data-student-id="{{ $invoice->student_id }}">
+                <i class="ti ti-trash"></i>
+                Delete &amp; Re-register
             </button>
             @if ($invoice->payment_status !== 'paid')
                 <a href="javascript:void(0)" data-url="{{ route('staff.invoice.confirm-payment', $invoice->id) }}"
@@ -411,85 +403,47 @@
     </div>{{-- /#printableArea --}}
 </div>
 <script>
-    $(document).on('click', '.btn_save_invoice', function(e) {
+    $(document).off('click', '.btn_delete_invoice').on('click', '.btn_delete_invoice', function(e) {
         e.preventDefault();
-        $.ajax({
-            url: "{{ route('staff.invoice.update', $invoice->id) }}",
-            type: "POST",
-            data: {
-                _token: csrf_token,
-                _method: "PUT",
-                price: $('#price').val(),
-                discount: $('#discount').val(),
-                extra_charge: $('#extra_charge').val()
-            },
-            beforeSend: function() {
-                $('.btn_save_invoice')
-                    .prop('disabled', true)
-                    .html('<i class="ti ti-loader-2"></i> Saving...');
-            },
-            success: function(res) {
-                $('.btn_save_invoice')
-                    .prop('disabled', false)
-                    .html('<i class="ti ti-device-floppy"></i> Save Changes');
-                iziToast.success({
-                    message: res.message,
-                    position: 'bottomRight'
-                });
-                $('.btn_view_invoice_detail[data-invoice-id="{{ $invoice->id }}"]').trigger(
-                    'click');
-            },
-            error: function(xhr) {
-                $('.btn_save_invoice')
-                    .prop('disabled', false)
-                    .html('<i class="ti ti-device-floppy"></i> Save Changes');
-                iziToast.error({
-                    message: xhr.responseJSON?.message ?? 'Something went wrong.',
-                    position: 'bottomRight'
-                });
-            }
+        const invoiceId = $(this).data('id');
+        const studentId = $(this).data('student-id');
+        Swal.fire({
+            title: 'Delete this invoice?',
+            html: 'This will permanently delete this invoice, its items, and its payment records — ' +
+                'and remove the student\'s enrollment for this course.<br><br>' +
+                '<strong>This cannot be undone.</strong>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, delete it'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            $.ajax({
+                url: "{{ route('staff.invoice.destroy', $invoice->id) }}",
+                type: 'DELETE',
+                data: {
+                    _token: csrf_token,
+                },
+                success: function(res) {
+                    iziToast.success({
+                        message: res.message,
+                        position: 'bottomRight'
+                    });
+                    window.location.href =
+                        "{{ route('staff.student.registration') }}?student_id=" +
+                        studentId;
+                },
+                error: function(xhr) {
+                    iziToast.error({
+                        message: xhr.responseJSON?.message ??
+                            'Failed to delete invoice.',
+                        position: 'bottomRight'
+                    });
+                }
+            });
         });
     });
-
-    function calculateInvoice() {
-        let price = parseFloat($('#price').val()) || 0;
-        let discount = parseFloat($('#discount').val()) || 0;
-        if (discount > price) {
-            iziToast.error({
-                message: 'Discount cannot exceed the price.'
-            });
-            return;
-        }
-        let extra = parseFloat($('#extra_charge').val()) || 0;
-        let paid = {{ $invoice->paid_amount }};
-        let total = (price - discount) + extra;
-        let remaining = Math.max(0, total - paid);
-        $('#invoice_total').text('$' + total.toFixed(2));
-        $('#invoice_remaining').text('$' + remaining.toFixed(2));
-    }
-    $(document).on('keyup change', '.invoice-calc', calculateInvoice);
-</script>
-<script>
-    $(document).on('click', '.btn_enable_edit', function() {
-        $('.view-mode').hide();
-        $('.edit-mode').removeClass('d-none');
-        $('.btn_enable_edit').addClass('d-none');
-        $('.btn_save_invoice').removeClass('d-none');
-        $('.btn_cancel_edit').removeClass('d-none');
-    });
-    $(document).on('click', '.btn_cancel_edit', function() {
-        $('#price').val('{{ $invoice->price }}');
-        $('#discount').val('{{ $invoice->discount }}');
-        $('#extra_charge').val('{{ $invoice->extra_charge }}');
-        calculateInvoice();
-        $('.view-mode').show();
-        $('.edit-mode').addClass('d-none');
-        $('.btn_enable_edit').removeClass('d-none');
-        $('.btn_save_invoice').addClass('d-none');
-        $('.btn_cancel_edit').addClass('d-none');
-    });
-</script>
-<script>
     $(document).off('click', '.btn_confirm_payment').on('click', '.btn_confirm_payment', function(e) {
         e.preventDefault();
         let url = $(this).data('url');
