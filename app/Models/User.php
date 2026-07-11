@@ -1,72 +1,86 @@
 <?php
-
 namespace App\Models;
-
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        // Basic Information
+        'image',
         'name',
+        'khmer_name',
         'email',
         'password',
-        'role',
-        'approval_status',
-        'document',
-        'registered_by_staff_id',
-        'student_type',
-        'phone',
-        'alternate_phone',
+        'bio',
+        'headline',
+
+        // Personal Information
         'gender',
         'dob',
         'nationality',
+        'document',
         'location',
-        'image',
-    ];
 
+        // Contact Information
+        'phone',
+        'alternate_phone',
+
+        // Social Media
+        'facebook',
+        'x',
+        'linkedin',
+        'website',
+        'github',
+        'instagram',
+        'telegram',
+        'tiktok',
+        'youtube',
+
+        // Account Information
+        'role',
+        'approval_status',
+        'status',
+        'email_verified_at',
+        'remember_token',
+
+        // System Information
+        'login_as',
+        'registered_by_staff_id',
+    ];
     public function student_attendances()
     {
         return $this->hasMany(StudentAttendances::class, 'student_id');
     }
-
     public function attendances()
     {
         return $this->hasMany(TeacherAttendances::class, 'teacher_id');
     }
-
     public function reports(): HasMany
     {
         return $this->hasMany(ICTStaffReport::class, 'reported_by');
     }
-
-
     public function students(): HasMany
     {
         return $this->hasMany(User::class, 'registered_by_staff_id', 'id')->where('role', 'student');
     }
-
     public function courses(): HasMany
     {
         return $this->hasMany(ICTCourse::class, 'instructor_id');
     }
-
     public function enrollments(): HasMany
     {
         return $this->hasMany(ICTCourseEnrollments::class, 'student_id');
     }
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -76,7 +90,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
     /**
      * Get the attributes that should be cast.
      *

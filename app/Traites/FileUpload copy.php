@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Traites;
+
 use Illuminate\Http\UploadedFile;
+
 trait FileUpload
 {
     public function uploadFile(UploadedFile $file, string $directory = 'uploads'): string
@@ -11,13 +14,12 @@ trait FileUpload
     }
     public function deleteIfImageExist(?string $path): bool
     {
-        if (empty($path) || trim($path, '/') === '') {
-            return false;
-        }
-        $fullPath = public_path($path);
-        if (is_file($fullPath)) {
-            return unlink($fullPath);
+        if (file_exists(public_path($path))) {
+            return unlink(public_path($path));
         }
         return false;
     }
+
 }
+
+

@@ -394,27 +394,34 @@
 
                         <!-- item-->
                         <div class="dropdown-header noti-title">
-                            <h6 class="text-overflow m-0">Welcome !</h6>
+                            <h6 class="text-overflow m-0">
+                                Welcome
+                                {{ auth()->user()->gender === 'male' ? 'Mr.' : 'Mrs.' }}
+                                {{ auth()->user()->name }}!
+                            </h6>
                         </div>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
+                        <a href="{{ route('intern.profile.edit') }}" class="dropdown-item">
                             <i class="ti ti-user-hexagon me-1 fs-17 align-middle"></i>
                             <span class="align-middle">My Account</span>
                         </a>
                         {{--
+
  <!-- item-->
                         <a href="javascript:void(0);" class="dropdown-item">
                             <i class="ti ti-wallet me-1 fs-17 align-middle"></i>
                             <span class="align-middle">Wallet : <span class="fw-semibold">$985.25</span></span>
                         </a> --}}
                         {{--
+
  <!-- item-->
                         <a href="javascript:void(0);" class="dropdown-item">
                             <i class="ti ti-settings me-1 fs-17 align-middle"></i>
                             <span class="align-middle">Settings</span>
                         </a> --}}
                         {{--
+
  <!-- item-->
                         <a href="javascript:void(0);" class="dropdown-item">
                             <i class="ti ti-lifebuoy me-1 fs-17 align-middle"></i>
@@ -422,6 +429,7 @@
                         </a> --}}
                         <div class="dropdown-divider"></div>
                         {{--
+
  <!-- item-->
                         <a href="javascript:void(0);" class="dropdown-item">
                             <i class="ti ti-lock-square-rounded me-1 fs-17 align-middle"></i>

@@ -25,13 +25,34 @@
     <!-- Icons css -->
     <link href="/frontend/intern/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     @stack('styles')
+    <style>
+        .sidenav-menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidenav-menu [data-simplebar] {
+            flex: 1 1 auto;
+            min-height: 0;
+            /* required for simplebar to shrink properly inside flex */
+        }
+
+        .sidenav-bottom {
+            flex-shrink: 0;
+            border-top: 1px dashed var(--bs-border-color);
+            padding: 8px 0;
+        }
+
+        .sidenav-bottom .side-nav {
+            margin-bottom: 0;
+        }
+    </style>
 </head>
 
 <body>
 
     <!-- Begin page -->
     <div class="wrapper">
-
         @include('frontend.Intern.layout.partials.sidenav-menu')
         @include('frontend.Intern.layout.partials.app-topbar')
         @include('frontend.Intern.layout.partials.search-modal')
@@ -43,9 +64,9 @@
         <!-- ============================================================== -->
         <div class="page-content">
             <div class="page-container">
-
                 @yield('content')
             </div>
+
             <!-- container -->
             @include('frontend.Intern.layout.partials.footer')
         </div>

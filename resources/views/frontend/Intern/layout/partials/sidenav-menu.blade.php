@@ -34,6 +34,7 @@
     <button class="button-close-fullsidebar">
         <i class="ti ti-x align-middle"></i>
     </button>
+
     <div data-simplebar>
 
         <!--- Sidenav Menu -->
@@ -55,6 +56,31 @@
             </li>
         </ul>
         <div class="clearfix"></div>
+    </div>
+
+    <!-- Sidenav Bottom (Profile / Logout) -->
+    <div class="sidenav-bottom">
+        <ul class="side-nav">
+            <li class="side-nav-item {{ request()->routeIs('intern.profile.*') ? 'active' : '' }}">
+                <a href="{{ route('intern.profile.edit') }}"
+                    class="side-nav-link {{ request()->routeIs('intern.profile.*') ? 'active' : '' }}">
+                    <span class="menu-icon"><i class="ti ti-user-cog"></i></span>
+                    <span class="menu-text"> Profile Settings </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="#" class="side-nav-link text-danger"
+                    onclick="event.preventDefault(); document.getElementById('sidenav-logout-form').submit();">
+                    <span class="menu-icon"><i class="ti ti-logout"></i></span>
+                    <span class="menu-text"> Logout </span>
+                </a>
+            </li>
+        </ul>
+
+        <form id="sidenav-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
     </div>
 </div>
 
