@@ -1,9 +1,12 @@
 <?php
 namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
+use App\Models\Blog;
 use App\Models\ICTCourse;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
+
 class FrontendController extends Controller
 {
     public function index(): View
@@ -59,12 +62,51 @@ class FrontendController extends Controller
         return view('frontend.pages.home-new.about', $data);
     }
 
-    public function blog(): View
+
+    public function blog(Request $request)
     {
-        $data = [
-            'page_title' => 'BLOG',
-        ];
-        return view('frontend.pages.home-new.blog', $data);
+        $featured = Blog::published()
+            ->where('is_featured', true)
+            ->latest('published_at')
+            ->first();
+
+        $blogs = Blog::published()
+            ->when(
+                $request->filled('search'),
+                fn($q) => $q->where(function ($query) use ($request) {
+                    $query->where('title', 'like', "%{$request->search}%")
+                        ->orWhere('excerpt', 'like', "%{$request->search}%");
+                })
+            )
+            ->when(
+                $request->filled('type'),
+                fn($q) => $q->where('type', $request->type)
+            )
+            ->latest('published_at')
+            ->paginate(9)
+            ->withQueryString();
+
+        return view('frontend.pages.home-new.blog', compact(
+            'featured',
+            'blogs'
+        ));
     }
 
+    public function blogDetails(string $slug)
+    {
+        $blog = Blog::published()
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $blog->increment('views');
+
+        $related = Blog::published()
+            ->where('id', '!=', $blog->id)
+            ->where('type', $blog->type)
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        return view('frontend.pages.home-new.blog-details', compact('blog', 'related'));
+    }
 }
