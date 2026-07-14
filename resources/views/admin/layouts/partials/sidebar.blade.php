@@ -24,8 +24,8 @@
                 <a class="nav-link {{ Route::is('admin.instructor-request.index') ? 'active' : '' }}"
                     href="{{ route('admin.instructor-request.index') }}">
                     <i class="nav-icon fe fe-help-circle me-2"></i> Teacher Request
-                </a>
-            </li> --}}
+                    </a>
+                    </li> --}}
             {{-- ── Report (collapsible) ── --}}
             <li class="nav-item">
                 <a class="nav-link {{ $isReport ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
@@ -118,6 +118,13 @@
                         </li>
                     </ul>
                 </div>
+            </li>
+            {{-- ── Blogs ── --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Route::is('admin.blogs.*') ? 'active' : '' }}"
+                    href="{{ route('admin.blogs.index') }}">
+                    <i class="nav-icon fe fe-edit-3 me-2"></i> Blogs
+                </a>
             </li>
         </ul>
     </div>

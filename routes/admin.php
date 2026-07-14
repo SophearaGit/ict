@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Auth\NewPasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CourseCategoryController;
 use App\Http\Controllers\Admin\CourseLanguageController;
 use App\Http\Controllers\Admin\CourseLevelController;
@@ -127,4 +128,8 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/profile', [ProfileUpdateController::class, 'profile'])->name('profile.index');
     Route::post('/profile', [ProfileUpdateController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [ProfileUpdateController::class, 'updatePassword'])->name('profile.password.update');
+    /*******************************************************
+     *  Blog
+     *******************************************************/
+    Route::resource('blogs', BlogController::class);
 });

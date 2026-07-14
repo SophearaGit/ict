@@ -1,5 +1,5 @@
 @extends('frontend.layouts.new.master')
-@section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@section('page_title', isset($page_title) ? $page_title : 'Blog')
 @push('styles')
     <style>
         .blog-header {
@@ -31,7 +31,6 @@
         .blog-wrapper {
             padding-top: 20px;
             width: 97%;
-            /* max-width: 1150px; */
             margin: 0 auto;
         }
 
@@ -43,6 +42,9 @@
             height: 360px;
             margin-bottom: 40px;
             border: none;
+            display: block;
+            color: inherit;
+            text-decoration: none;
         }
 
         .hero-cardd img {
@@ -50,15 +52,12 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.4s ease;
-            /* smooth zoom animation */
         }
 
         .hero-cardd:hover img {
             transform: scale(1.08);
-            /* zoom in on hover */
         }
 
-        /* dark gradient so text stays readable over the photo */
         .hero-overlay {
             position: absolute;
             inset: 0;
@@ -129,11 +128,15 @@
             font-weight: 500;
             cursor: pointer;
             transition: 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: inline-block;
         }
 
         .pill.active {
             background-color: dodgerblue;
             color: #fff;
+            border-color: dodgerblue;
         }
 
         .search-box-blogg {
@@ -145,7 +148,6 @@
             width: 330px;
             height: 40px;
             padding: 10px;
-            /* min-width: 260px; */
         }
 
         .search-box-blogg input {
@@ -155,6 +157,13 @@
             width: 90%;
             height: 34px;
             margin: 8px;
+            background: transparent;
+        }
+
+        .search-box-blogg button {
+            border: none;
+            background: transparent;
+            padding: 0;
         }
 
         .search-box-blogg i {
@@ -167,7 +176,6 @@
             margin: auto;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            /* 3 equal columns */
             gap: 48px;
         }
 
@@ -176,17 +184,23 @@
             border-radius: 16px;
             overflow: hidden;
             transition: box-shadow 0.2s ease, transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            color: inherit;
+            text-decoration: none;
+            background: #fff;
         }
 
         .blog-card-section:hover {
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
             transform: translateY(-4px);
-            /* card lifts slightly */
+            color: inherit;
         }
 
         .card-img-blog {
             position: relative;
             height: 200px;
+            background-color: #0f172a;
         }
 
         .card-img-blog img {
@@ -205,10 +219,14 @@
             font-weight: 600;
             padding: 4px 12px;
             border-radius: 20px;
+            text-transform: capitalize;
         }
 
         .card-body-blog {
             padding: 18px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
         .card-body-blog h3 {
@@ -222,6 +240,7 @@
             color: grey;
             line-height: 1.5;
             margin-bottom: 16px;
+            flex: 1;
         }
 
         .card-footer-blog {
@@ -246,31 +265,29 @@
 
         .more-blog {
             display: flex;
-            gap: 20px;
+            gap: 8px;
             margin-top: 40px;
             justify-content: center;
             align-items: center;
         }
 
-        .more-blog .blog-number-page {
-            margin-top: 50px;
-            width: 38px;
-            height: 38px;
-            border-radius: 20%;
-            border: none;
-            background: #0585ed;
-            color: white;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        .more-blog nav {
+            margin: 0;
+        }
+
+        .more-blog .pagination {
+            margin: 0;
+        }
+
+        .empty-blog-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: grey;
         }
 
         /* ============================================= */
         /* ===== Responsive: Blog Page ===== */
         /* ============================================= */
-        /* ----- 1024px: Tablet / small laptop ----- */
         @media (max-width: 1024px) {
             .blog-header {
                 height: 160px;
@@ -305,7 +322,6 @@
             }
         }
 
-        /* ----- 768px: Tablet portrait ----- */
         @media (max-width: 768px) {
             .blog-header {
                 height: auto;
@@ -336,7 +352,6 @@
 
             .hero-overlay p {
                 display: none;
-                /* hide long description on smaller screens */
             }
 
             .filter-row {
@@ -354,7 +369,6 @@
 
             .filter-pills .pill {
                 flex: 0 1 auto;
-                /* allow wrapping instead of forcing single line */
             }
 
             .search-box-blogg {
@@ -370,15 +384,12 @@
         @media (max-width: 690px) {
             .filter-pills {
                 flex-wrap: wrap;
-                /* let pills drop to a new line instead of scrolling */
                 overflow-x: visible;
-                /* cancel the scroll behavior inherited from 768px */
                 gap: 8px;
             }
 
             .filter-pills .pill {
                 flex: 0 1 auto;
-                /* allow wrapping, no forced single line */
                 padding: 7px 16px;
                 font-size: 13px;
             }
@@ -409,7 +420,6 @@
 
             .blog-card-section .card-body-blog p {
                 font-size: 9px;
-                /* line-height: 1.4; */
             }
 
             .card-img-blog {
@@ -417,24 +427,16 @@
             }
 
             .card-img-blog .badge-category {
-                position: absolute;
                 top: 12px;
                 left: 12px;
-                background: #fff;
-                color: blue;
                 font-size: 10px;
-                font-weight: 600;
                 padding: 4px 11px;
-                border-radius: 20px;
             }
 
             .card-body-blog h3 {
                 font-size: 17px;
             }
 
-            /* .card-body-blog p{
-                        font-size: 9px;
-                    } */
             .card-footer-blog {
                 font-size: 11px;
             }
@@ -448,7 +450,6 @@
             }
         }
 
-        /* ----- 480px: Mobile ----- */
         @media (max-width: 560px) {
             .blog-wrapper {
                 width: 92%;
@@ -481,15 +482,12 @@
 
             .filter-pills {
                 flex-wrap: wrap;
-                /* let pills drop to a new line instead of scrolling */
                 overflow-x: visible;
-                /* cancel the scroll behavior inherited from 768px */
                 gap: 8px;
             }
 
             .filter-pills .pill {
                 flex: 0 1 auto;
-                /* allow wrapping, no forced single line */
                 padding: 7px 16px;
                 font-size: 13px;
             }
@@ -520,7 +518,6 @@
 
             .blog-card-section .card-body-blog p {
                 font-size: 9px;
-                /* line-height: 1.4; */
             }
 
             .card-img-blog {
@@ -528,24 +525,16 @@
             }
 
             .card-img-blog .badge-category {
-                position: absolute;
                 top: 12px;
                 left: 12px;
-                background: #fff;
-                color: blue;
                 font-size: 9px;
-                font-weight: 600;
                 padding: 3px 8px;
-                border-radius: 20px;
             }
 
             .card-body-blog h3 {
                 font-size: 11px;
             }
 
-            /* .card-body-blog p{
-                        font-size: 9px;
-                    } */
             .card-footer-blog {
                 font-size: 9px;
             }
@@ -561,159 +550,88 @@
             .more-blog {
                 gap: 12px;
             }
-
-            .more-blog .blog-number-page {
-                width: 32px;
-                height: 32px;
-                font-size: 15px;
-            }
         }
     </style>
 @endpush
 @section('content')
     <div class="blog-container">
-
-        <!-- =======================================blog-code-start========================================== -->
         <div class="blog-header">
             <h1>Our Blog</h1>
             <p>Insights, tutorials, and news from the ICT Center team and industry experts.</p>
         </div>
         <div class="blog-wrapper">
-
-            <!-- ===== Hero / Feature Card ===== -->
-            <div class="hero-cardd">
-                <img src="frontend/asset/images/blog-slide.avif" alt="Feature post">
-                <div class="hero-overlay">
-                    <span class="badge-feature">Feature</span>
-                    <h1>The Future of Web Development in 2026</h1>
-                    <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                    <div class="hero-meta"><span>Phat Sopheaktra</span> &nbsp;•&nbsp; 5 min Read</div>
-                </div>
-            </div>
-
-            <!-- ===== Filter Pills + Search ===== -->
-            <div class="filter-row">
+            {{-- ===== Hero / Feature Card ===== --}}
+            @if ($featured)
+                <a href="{{ route('blog.details', $featured->slug) }}" class="hero-cardd">
+                    <img src="{{ $featured->thumbnail ?? asset('frontend/asset/images/blog-slide.avif') }}"
+                        alt="{{ $featured->title }}">
+                    <div class="hero-overlay">
+                        <span class="badge-feature">Feature</span>
+                        <h1>{{ $featured->title }}</h1>
+                        @if ($featured->excerpt)
+                            <p>{{ Str::limit($featured->excerpt, 140) }}</p>
+                        @endif
+                        <div class="hero-meta">
+                            <span>{{ $featured->admin?->name ?? 'ICT Team' }}</span>
+                            &nbsp;•&nbsp;
+                            {{ $featured->published_at?->format('M d, Y') }}
+                        </div>
+                    </div>
+                </a>
+            @endif
+            {{-- ===== Filter Pills + Search ===== --}}
+            <form method="GET" action="{{ route('blog') }}" class="filter-row" id="blog-filter-form">
                 <div class="filter-pills">
-                    <button class="pill active">Technology</button>
-                    <button class="pill">Design</button>
-                    <button class="pill">career</button>
-                    <button class="pill">AI</button>
-                    <button class="pill">Tutorials</button>
-                    <button class="pill">News</button>
+                    <a href="{{ route('blog', array_filter(['search' => request('search')])) }}"
+                        class="pill {{ request('type') ? '' : 'active' }}">All</a>
+                    @foreach (['article', 'facebook', 'tiktok', 'youtube'] as $type)
+                        <a href="{{ route('blog', array_filter(['type' => $type, 'search' => request('search')])) }}"
+                            class="pill {{ request('type') === $type ? 'active' : '' }}">
+                            {{ ucfirst($type) }}
+                        </a>
+                    @endforeach
                 </div>
                 <div class="search-box-blogg">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Search articles...">
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search articles...">
+                    @if (request('type'))
+                        <input type="hidden" name="type" value="{{ request('type') }}">
+                    @endif
                 </div>
-            </div>
-
-            <!-- ===== Card Grid (CSS Grid) ===== -->
-            <div class="card-grid">
-
-                <!-- Card 1 -->
-                <div class="blog-card-section">
-                    <div class="card-img-blog">
-                        <span class="badge-category">Technology</span>
-                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500" alt="Blog thumbnail">
-                    </div>
-                    <div class="card-body-blog">
-                        <h3>The Future of Web Development in 2026</h3>
-                        <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                        <div class="card-footer-blog">
-                            <span><i class="fa-regular fa-clock"></i> 5 min read</span>
-                            <a href="blog-detail.html">Read More <i class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
+            </form>
+            {{-- ===== Card Grid ===== --}}
+            @if ($blogs->count())
+                <div class="card-grid">
+                    @foreach ($blogs as $blog)
+                        {{-- Card grid --}}
+                        <a href="{{ route('blog.details', $blog->slug) }}" class="blog-card-section">
+                            <div class="card-img-blog">
+                                <span class="badge-category">{{ $blog->type }}</span>
+                                <img src="{{ $blog->thumbnail ?? asset('frontend/asset/images/blog-slide.avif') }}"
+                                    alt="{{ $blog->title }}">
+                            </div>
+                            <div class="card-body-blog">
+                                <h3>{{ $blog->title }}</h3>
+                                <p>{{ Str::limit($blog->excerpt, 100) }}</p>
+                                <div class="card-footer-blog">
+                                    <span><i class="fa-regular fa-clock"></i>
+                                        {{ $blog->published_at?->format('M d, Y') }}</span>
+                                    <span>Read More <i class="fa-solid fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
-
-                <!-- Card 2 -->
-                <div class="blog-card-section">
-                    <div class="card-img-blog">
-                        <span class="badge-category">Technology</span>
-                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500" alt="Blog thumbnail">
-                    </div>
-                    <div class="card-body-blog">
-                        <h3>The Future of Web Development in 2026</h3>
-                        <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                        <div class="card-footer-blog">
-                            <span><i class="fa-regular fa-clock"></i> 5 min read</span>
-                            <a href="blog-detail.html">Read More <i class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
+                <div class="more-blog">
+                    {{ $blogs->onEachSide(1)->links() }}
                 </div>
-
-                <!-- Card 3 -->
-                <div class="blog-card-section">
-                    <div class="card-img-blog">
-                        <span class="badge-category">Technology</span>
-                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500" alt="Blog thumbnail">
-                    </div>
-                    <div class="card-body-blog">
-                        <h3>The Future of Web Development in 2026</h3>
-                        <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                        <div class="card-footer-blog">
-                            <span><i class="fa-regular fa-clock"></i> 5 min read</span>
-                            <a href="blog-detail.html">Read More <i class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
+            @else
+                <div class="empty-blog-state">
+                    <i class="fa-regular fa-newspaper fa-2x mb-3"></i>
+                    <p>No blog posts found{{ request('search') ? ' for "' . request('search') . '"' : '' }}.</p>
                 </div>
-
-                <!-- Card 4 -->
-                <div class="blog-card-section">
-                    <div class="card-img-blog">
-                        <span class="badge-category">Technology</span>
-                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500" alt="Blog thumbnail">
-                    </div>
-                    <div class="card-body-blog">
-                        <h3>The Future of Web Development in 2026</h3>
-                        <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                        <div class="card-footer-blog">
-                            <span><i class="fa-regular fa-clock"></i> 5 min read</span>
-                            <a href="blog-detail.html">Read More <i class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="blog-card-section">
-                    <div class="card-img-blog">
-                        <span class="badge-category">Technology</span>
-                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500" alt="Blog thumbnail">
-                    </div>
-                    <div class="card-body-blog">
-                        <h3>The Future of Web Development in 2026</h3>
-                        <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                        <div class="card-footer-blog">
-                            <span><i class="fa-regular fa-clock"></i> 5 min read</span>
-                            <a href="blog-detail.html">Read More <i class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 6 -->
-                <div class="blog-card-section">
-                    <div class="card-img-blog">
-                        <span class="badge-category">Technology</span>
-                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500" alt="Blog thumbnail">
-                    </div>
-                    <div class="card-body-blog">
-                        <h3>The Future of Web Development in 2026</h3>
-                        <p>Explore the latest trends and technologies shaping the future of web development.</p>
-                        <div class="card-footer-blog">
-                            <span><i class="fa-regular fa-clock"></i> 5 min read</span>
-                            <a href="blog-detail.html">Read More <i class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="more-blog">
-                <div class="blog-number-page">1</div>
-                <div class="blog-number-page">2</div>
-                <div class="blog-number-page">3</div>
-            </div>
+            @endif
         </div>
-
-        <!-- =======================================blog-code-=====end===================================== -->
     </div>
 @endsection
 @push('scripts')
