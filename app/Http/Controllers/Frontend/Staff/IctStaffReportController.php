@@ -15,28 +15,21 @@ class IctStaffReportController extends Controller
      */
     public function index(Request $request): View
     {
-        $data = [
+        $perPage = $request->integer('per_page', 10);
+        $reports = ICTStaffReport::where('reported_by', Auth::id())
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where('report_content', 'like', '%' . $request->search . '%');
+            })
+            ->latest()
+            ->paginate($perPage)
+            ->appends($request->query());
+        return view('frontend.staff.pages.report.report', [
             'page_title' => 'ICT | Staff | Reports',
-            // 'courses' => Course::with('instructor')
-            //     ->when($request->filled('status'), function ($query) use ($request) {
-            //         $query->where('is_approved', $request->status);
-            //     })
-            //     ->when($request->filled('search'), function ($query) use ($request) {
-            //         $query->where('title', 'like', '%' . $request->search . '%');
-            //     })
-            //     ->latest()
-            //     ->paginate(10),
-            'reports' => ICTStaffReport::where('reported_by', Auth::id())
-                ->when($request->filled('status'), function ($query) use ($request): void {
-                    $query->where('status', $request->status);
-                })
-                ->when($request->filled('search'), function ($query) use ($request): void {
-                    $query->where('report_content', 'like', '%' . $request->search . '%');
-                })
-                ->latest()
-                ->paginate(10),
-        ];
-        return view('frontend.staff.pages.report.report', $data);
+            'reports' => $reports,
+        ]);
     }
     /**
      * Show the form for creating a new resource.

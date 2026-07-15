@@ -4,11 +4,13 @@
 @endpush
 @section('content')
     <div class="row">
+
         <!-- Page Header -->
         <div class="col-lg-12 col-md-12 col-12">
             <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
                 <div class="mb-3 mb-md-0">
                     <h1 class="mb-1 h2 fw-bold">Blogs</h1>
+
                     <!-- Breadcrumb -->
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -38,6 +40,7 @@
                     <select name="status" class="form-select">
                         <option value="">All statuses</option>
                         <option value="draft" @selected(request('status') === 'draft')>Draft</option>
+                        <option value="scheduled" @selected(request('status') === 'scheduled')>Scheduled</option>
                         <option value="published" @selected(request('status') === 'published')>Published</option>
                     </select>
                 </div>
@@ -56,7 +59,6 @@
                 </div>
             </form>
         </div>
-
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
@@ -88,12 +90,46 @@
                                 <div class="fw-semibold text-gray-800">{{ $blog->title }}</div>
                                 <div class="text-body small">{{ Str::limit($blog->excerpt, 60) }}</div>
                             </td>
-                            <td><span
-                                    class="badge bg-light-secondary text-dark-secondary text-capitalize">{{ $blog->type }}</span>
+                            <td>
+                                @switch($blog->type)
+                                    @case('article')
+                                        <span class="badge bg-white text-dark border">
+                                            <i class="fe fe-file-text me-1"></i> Article
+                                        </span>
+                                    @break
+
+                                    @case('facebook')
+                                        <span class="badge bg-light-primary text-primary">
+                                            <i class="fe fe-facebook me-1"></i> Facebook
+                                        </span>
+                                    @break
+
+                                    @case('tiktok')
+                                        <span class="badge bg-light-dark text-dark">
+                                            <i class="fe fe-music me-1"></i> TikTok
+                                        </span>
+                                    @break
+
+                                    @case('youtube')
+                                        <span class="badge bg-light-danger text-danger">
+                                            <i class="fe fe-youtube me-1"></i> YouTube
+                                        </span>
+                                    @break
+
+                                    @default
+                                        <span class="badge bg-light-secondary text-secondary">
+                                            <i class="fe fe-globe me-1"></i> {{ ucfirst($blog->type) }}
+                                        </span>
+                                @endswitch
                             </td>
                             <td>
                                 @if ($blog->status === 'published')
                                     <span class="badge bg-light-success text-dark-success">Published</span>
+                                @elseif ($blog->status === 'scheduled')
+                                    <span class="badge bg-light-info text-dark-info"
+                                        title="{{ $blog->published_at?->timezone('Asia/Phnom_Penh')->format('F j, Y \a\t g:i A') }}">
+                                        Scheduled
+                                    </span>
                                 @else
                                     <span class="badge bg-light-warning text-dark-warning">Draft</span>
                                 @endif
@@ -106,7 +142,9 @@
                                 @endif
                             </td>
                             <td>{{ number_format($blog->views) }}</td>
-                            <td>{{ $blog->published_at?->format('M d, Y') ?? '—' }}</td>
+                            <td>
+                                {{ $blog->published_at?->timezone('Asia/Phnom_Penh')->format('F j, Y \a\t g:i A') ?? '—' }}
+                            </td>
                             <td class="text-end">
                                 <div class="dropdown">
                                     <button class="btn btn-icon btn-sm btn-ghost" type="button" data-bs-toggle="dropdown">
@@ -134,21 +172,20 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-body">No blogs found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if ($blogs->hasPages())
-            <div class="card-footer">
-                {{ $blogs->links() }}
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-5 text-body">No blogs found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        @endif
-    </div>
-@endsection
-@push('scripts')
-@endpush
+            @if ($blogs->hasPages())
+                <div class="card-footer">
+                    {{ $blogs->appends(request()->query())->links('components.paginate-geek') }}
+                </div>
+            @endif
+        </div>
+    @endsection
+    @push('scripts')
+    @endpush

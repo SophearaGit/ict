@@ -34,11 +34,10 @@ return [
         'payment_verify_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID_VERIFY_PAYMENT'),
         'bot_token_payment_verify' => env('TELEGRAM_BOT_TOKEN_VERIFY_PAYMENT'),
     ],
-     'bakong' => [
-        'api_url'       => env('BAKONG_API_URL', 'https://api-bakong.nbc.gov.kh'),
-        'token'         => env('BAKONG_TOKEN', ''),
-        'merchant_id'   => env('BAKONG_MERCHANT_ID', 'yourname@wing'),   // e.g. ictschool@acleda
+    'bakong' => [
+        'api_url' => env('BAKONG_API_URL', 'https://api-bakong.nbc.gov.kh'),
+        'token' => env('BAKONG_TOKEN', ''),
+        'merchant_id' => env('BAKONG_MERCHANT_ID', 'yourname@wing'),   // e.g. ictschool@acleda
         'merchant_name' => env('BAKONG_MERCHANT_NAME', 'ICT Solutions'),
     ],
 ];
-

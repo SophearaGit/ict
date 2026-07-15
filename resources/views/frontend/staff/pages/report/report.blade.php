@@ -97,7 +97,7 @@
         </div>
         @if ($reports->hasPages())
             <div class="mt-3">
-                {{ $reports->appends(request()->query())->links() }}
+                {{ $reports->links('components.ui-pagination') }}
             </div>
         @endif
     </div>
