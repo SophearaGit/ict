@@ -17,9 +17,9 @@ class UpdateBlogRequest extends FormRequest
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'type' => ['required', Rule::in(['article', 'facebook', 'tiktok', 'youtube'])],
             'embed_url' => ['nullable', 'required_unless:type,article', 'string', 'max:5000'],
-            'status' => ['required', Rule::in(['draft', 'published'])],
+            'status' => 'required|in:draft,scheduled,published',
             'is_featured' => ['nullable', 'boolean'],
-            'published_at' => ['nullable', 'date'],
+            'published_at' => 'nullable|date|required_if:status,scheduled',
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
         ];

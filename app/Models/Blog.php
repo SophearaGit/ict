@@ -37,6 +37,16 @@ class Blog extends Model
             }
         });
     }
+    public function scopeScheduled($query)
+    {
+        return $query->where('status', 'scheduled')
+            ->where('published_at', '<=', now());
+    }
+
+    public function isScheduled(): bool
+    {
+        return $this->status === 'scheduled' && $this->published_at?->isFuture();
+    }
     public static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
     {
         $slug = Str::slug($title);

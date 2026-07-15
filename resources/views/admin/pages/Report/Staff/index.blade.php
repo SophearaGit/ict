@@ -265,14 +265,7 @@
                     </div>
                 @endforelse
             </div>
-            @if ($reports->hasPages())
-                <div class="mt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span class="text-muted fs-2">
-                        Showing {{ $reports->firstItem() }}–{{ $reports->lastItem() }} of {{ $reports->total() }}
-                    </span>
-                    {{ $reports->appends(request()->query())->links() }}
-                </div>
-            @endif
+            {{ $reports->appends(request()->query())->links('components.paginate-geek') }}
         </div>
     </div>
     {{-- Report modal --}}

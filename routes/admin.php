@@ -132,4 +132,5 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
      *  Blog
      *******************************************************/
     Route::resource('blogs', BlogController::class);
+    Route::post('blogs/fetch-thumbnail', [BlogController::class, 'fetchThumbnail'])->name('blogs.fetch-thumbnail');
 });
