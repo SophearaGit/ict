@@ -33,36 +33,28 @@ class AdminDashboardController extends Controller
             $from = Carbon::now()->startOfMonth();
             $to = Carbon::now()->endOfMonth();
         }
-
         $selectedMonth = $from->format('Y-m');
-
         // Courses active in this month
         $courseQuery = ICTCourse::where('start_date', '<=', $to)->where('end_date', '>=', $from);
-
         $totalCourses = $courseQuery->count();
         $pendingCourses = (clone $courseQuery)->where('status', 'inactive')->count();
-
         // Revenue — payments made during this month
         $totalRevenue = ICTPayments::whereBetween('created_at', [$from, $to])->sum('amount');
-
         // Compare vs previous month
         $prevFrom = $from->copy()->subMonth()->startOfMonth();
         $prevTo = $from->copy()->subMonth()->endOfMonth();
         $prevRevenue = ICTPayments::whereBetween('created_at', [$prevFrom, $prevTo])->sum('amount');
         $revenueChange = $totalRevenue - $prevRevenue;
-
         // Students registered this month
         $totalStudents = User::where('role', 'student')
             ->whereNull('document')
             ->whereBetween('created_at', [$from, $to])
             ->count();
-
         // Instructors registered this month
         $totalInstructors = User::where('role', 'instructor')
             ->where('document', '!=', '')
             ->whereBetween('created_at', [$from, $to])
             ->count();
-
         // Instructors list
         $newInstructorsList = User::where('role', 'instructor')
             ->where('document', '!=', '')
@@ -78,7 +70,24 @@ class AdminDashboardController extends Controller
                     'student_count' => $instructor->courses->sum('enrollments_count'),
                 ],
             );
-
+        // Students list (for quick-view modal)
+        $newStudentsList = User::where('role', 'student')
+            ->whereNull('document')
+            ->whereBetween('created_at', [$from, $to])
+            ->latest()
+            ->get()
+            ->map(
+                fn($student) => [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'email' => $student->email,
+                    'phone' => $student->phone ?? '-',
+                    'image' => $student->image && $student->image !== 'no-img.jpg'
+                        ? asset($student->image)
+                        : asset('/default-images/user/both.jpg'),
+                    'registered' => $student->created_at->format('M d, Y'),
+                ],
+            );
         // Recent courses active in this month
         $recentCourses = ICTCourse::with('instructor')->where('start_date', '<=', $to)->where('end_date', '>=', $from)->latest('start_date')->take(8)->get()->map(
             fn($course) => [
@@ -88,7 +97,6 @@ class AdminDashboardController extends Controller
                 'instructor_image' => $course->instructor?->image === 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor?->image ?? '/default-images/user/both.jpg'),
             ],
         );
-
         // Activity
         $activities = auth('admin')
             ->user()
@@ -106,7 +114,6 @@ class AdminDashboardController extends Controller
                     'is_read' => !is_null($n->read_at),
                 ],
             );
-
         // Today's courses — active courses that span today
         $todaysCourses = ICTCourse::with(['instructor', 'schedule'])
             ->withCount('enrollments')
@@ -135,7 +142,6 @@ class AdminDashboardController extends Controller
                     'schedule_time' => $course->schedule?->formatted_time,
                 ],
             );
-
         $data = [
             'page_title' => 'ICT | ADMIN | DASHBOARD',
             'selected_month' => $selectedMonth,
@@ -152,8 +158,8 @@ class AdminDashboardController extends Controller
             'recent_courses' => $recentCourses,
             'activities' => $activities,
             'todays_courses' => $todaysCourses,
+            'new_students_list' => $newStudentsList,
         ];
-
         return view('admin.pages.dashboard', $data);
     }
 }
