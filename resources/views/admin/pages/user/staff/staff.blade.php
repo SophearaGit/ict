@@ -2,14 +2,16 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
     <div class="row">
+
         <!-- Page Header -->
         <div class="col-lg-12 col-md-12 col-12">
             <div class="border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
                 <div class="mb-2 mb-lg-0">
                     <h1 class="mb-1 h2 fw-bold">
                         Staff
-                        <span class="fs-5">( {{ $staffs->count() }} )</span>
+                        <span class="fs-5">( {{ $staffs->total() }} )</span>
                     </h1>
+
                     <!-- Breadcrumb  -->
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -26,7 +28,6 @@
                         data-bs-target="#tabPaneGrid">
                         <span class="fe fe-grid"></span>
                     </button>
-
                     <button class="btn btn-outline-secondary" data-tab="list" data-bs-toggle="tab"
                         data-bs-target="#tabPaneList">
                         <span class="fe fe-list"></span>
@@ -41,8 +42,10 @@
     </div>
     <div class="row">
         <div class="col-lg-12 col-md-12 col-12">
+
             <!-- Tab -->
             <div class="tab-content">
+
                 <!-- Tab pane -->
                 <div class="tab-pane fade" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
                     <div class="mb-4">
@@ -58,8 +61,10 @@
                                     $staff->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $staff->image;
                             @endphp
                             <div class="col-xl-3 col-lg-6 col-md-6 col-12">
+
                                 <!-- Card -->
                                 <div class="card mb-4">
+
                                     <!-- Card body -->
                                     <div class="card-body">
                                         <div class="text-center">
@@ -119,12 +124,18 @@
                             </div>
                         @endforelse
                         <!-- Pagination Below -->
+                        <div class="mt-4">
+                            {{ $staffs->appends(request()->query())->links('components.paginate-geek') }}
+                        </div>
                     </div>
                 </div>
+
                 <!-- tab pane -->
                 <div class="tab-pane fade" id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
+
                     <!-- card -->
                     <div class="card">
+
                         <!-- card header -->
                         <div class="card-header">
                             <form action="{{ route('admin.staff.index') }}" method="GET">
@@ -132,6 +143,7 @@
                                     value="{{ request()->search ?? '' }}">
                             </form>
                         </div>
+
                         <!-- table -->
                         <div class="table-responsive">
                             <table class="table mb-0 text-nowrap table-hover table-centered">
@@ -211,7 +223,6 @@
                                                                     method="POST">
                                                                     @csrf
                                                                     @method('PATCH')
-
                                                                     <button type="submit" class="dropdown-item">
                                                                         <i class="fe fe-x dropdown-item-icon"></i>
                                                                         Disable
@@ -245,18 +256,20 @@
                                     @endforelse
                                 </tbody>
                             </table>
+
                             <!-- Pagination Below -->
+                            <div class="mb-3">
+                                {{ $staffs->appends(request()->query())->links('components.paginate-geek') }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="dynamic_staff_modal" tabindex="-1" aria-labelledby="addStaffModalLabel"
         aria-hidden="true">
         <div class="modal-dialog dynamic_staff_modal_content">
-
         </div>
     </div>
 @endsection
@@ -281,12 +294,9 @@
                 success: function(data) {
                     $('.dynamic_staff_modal_content').html(data);
                 },
-                error: function(xhr, status, error) {
-
-                },
+                error: function(xhr, status, error) {},
             })
         })
-
         $('.edit_staff_btn').on('click', function(e) {
             e.preventDefault();
             $('#dynamic_staff_modal').modal('show');
@@ -307,12 +317,9 @@
                 success: function(data) {
                     $('.dynamic_staff_modal_content').html(data);
                 },
-                error: function(xhr, status, error) {
-
-                },
+                error: function(xhr, status, error) {},
             })
         })
-
         $('.del_staff_btn').on('click', function(e) {
             e.preventDefault();
             let url = $(this).data('url');
@@ -346,7 +353,6 @@
                 }
             });
         })
-
         document.addEventListener('DOMContentLoaded', function() {
             const activeTab = localStorage.getItem('staff_active_tab') || 'grid';
             const trigger = document.querySelector(`[data-tab="${activeTab}"]`);
@@ -354,7 +360,6 @@
                 new bootstrap.Tab(trigger).show();
             }
         });
-
         document.querySelectorAll('[data-tab]').forEach(btn => {
             btn.addEventListener('click', function() {
                 localStorage.setItem('staff_active_tab', this.dataset.tab);
