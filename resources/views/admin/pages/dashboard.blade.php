@@ -257,7 +257,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fs-6 text-uppercase fw-semibold ls-md text-muted">Students</span>
-                        <span class="fe fe-users fs-3 text-primary"></span>
+                        <button type="button" class="btn btn-ghost btn-icon rounded-circle p-0 border-0"
+                            style="width: 32px; height: 32px;" data-bs-toggle="modal"
+                            data-bs-target="#studentsQuickViewModal" title="Quick view students">
+                            <span class="fe fe-users fs-3 text-primary"></span>
+                        </button>
                     </div>
                     <h2 class="fw-bold mb-1">{{ $total_students }}</h2>
                     <span class="text-success fw-semibold">
@@ -308,7 +312,8 @@
                                 <i class="fe fe-grid"></i>
                             </button>
                         </div>
-                        <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-secondary btn-sm">View
+                        <a href="{{ route('admin.courses.realtime.index') }}"
+                            class="btn btn-outline-secondary btn-sm">View
                             all</a>
                     </div>
                 </div>
@@ -681,79 +686,213 @@
             </div>
         </div>
     </div>
-@endsection
-@push('scripts')
-    <script src="https://npmcdn.com/flatpickr/dist/plugins/monthSelect/index.js"></script>
-    <script>
-        (function() {
-            // ── Month-only Flatpickr ──────────────────────────────────────────────
-            const fp = flatpickr("#month-picker", {
-                plugins: [
-                    new monthSelectPlugin({
-                        shorthand: false, // e.g. "January" not "Jan"
-                        dateFormat: "Y-m", // value sent to server: 2025-05
-                        altFormat: "F Y", // display: "May 2025"
-                    })
-                ],
-                disableMobile: true, // always use flatpickr, not native on mobile
-            });
-            // ── Prev / Next buttons ───────────────────────────────────────────────
-            const form = document.getElementById('month-filter-form');
+    {{-- ─── Students Quick View Modal ─────────────────────────────────────── --}}
+    <div class="modal fade" id="studentsQuickViewModal" tabindex="-1" aria-labelledby="studentsQuickViewLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="modal-title mb-0" id="studentsQuickViewLabel">
+                            Students Registered
+                        </h5>
+                        <span class="text-muted small">
+                            ({{ \Carbon\Carbon::createFromFormat('Y-m', $selected_month)->format('F Y') }})
+                        </span>
+                        @if (!$new_students_list->isEmpty())
+                            <span class="badge bg-secondary rounded-pill">{{ $new_students_list->count() }}</span>
+                        @endif
+                    </div>
+                    <div class="d-flex align-items-center gap-2 ms-auto me-2">
+                        <div class="btn-group" role="group" aria-label="Students view toggle"
+                            id="students-view-toggle">
+                            <button type="button" class="btn btn-sm btn-outline-secondary active"
+                                id="btn-students-list-view" title="List view" aria-pressed="true">
+                                <i class="fe fe-list"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-students-grid-view"
+                                title="Grid view" aria-pressed="false">
+                                <i class="fe fe-grid"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    @if ($new_students_list->isEmpty())
+                        <div class="text-center text-muted py-5">
+                            <i class="fe fe-user-x fs-2 d-block mb-2"></i>
+                            <p class="mb-0 small">No students registered this month</p>
+                        </div>
+                    @else
+                        {{-- ── LIST VIEW (table) ─────────────────────────────────────── --}}
+                        <div id="students-list-view">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Student</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th class="pe-4">Registered</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($new_students_list as $student)
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="{{ $student['image'] }}" alt="{{ $student['name'] }}"
+                                                            class="rounded-circle"
+                                                            style="width: 32px; height: 32px; object-fit: cover;">
+                                                        <span class="fw-semibold">{{ $student['name'] }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="small">{{ $student['email'] }}</td>
+                                                <td class="small">{{ $student['phone'] }}</td>
+                                                <td class="pe-4 small text-muted">{{ $student['registered'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {{-- ── GRID VIEW (cards) ─────────────────────────────────────── --}}
+                        <div id="students-grid-view" class="d-none p-4">
+                            <div class="row g-3">
+                                @foreach ($new_students_list as $student)
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="scc-thumb-free border rounded-3 p-3 h-100 d-flex align-items-center gap-3"
+                                            style="border-color:#ebebeb;">
+                                            <img src="{{ $student['image'] }}" alt="{{ $student['name'] }}"
+                                                class="rounded-circle flex-shrink-0"
+                                                style="width: 48px; height: 48px; object-fit: cover;">
+                                            <div class="min-w-0">
+                                                <p class="mb-0 fw-semibold text-truncate">{{ $student['name'] }}</p>
+                                                <p class="mb-0 small text-muted text-truncate">{{ $student['email'] }}</p>
+                                                <p class="mb-0 small text-muted">{{ $student['phone'] }}</p>
+                                                <p class="mb-0 small text-muted mt-1">
+                                                    <i class="fe fe-calendar me-1"></i>{{ $student['registered'] }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                    <div class="modal-footer">
+                        {{-- adjust route name to your actual students index route --}}
+                        <a href="{{ route('admin.student.index') }}" class="btn btn-outline-secondary btn-sm">
+                            View all students
+                        </a>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endsection
+    @push('scripts')
+        <script src="https://npmcdn.com/flatpickr/dist/plugins/monthSelect/index.js"></script>
+        <script>
+            // ── Students modal grid / list toggle ─────────────────────────────────
+            (function() {
+                const btnList = document.getElementById('btn-students-list-view');
+                const btnGrid = document.getElementById('btn-students-grid-view');
+                const listView = document.getElementById('students-list-view');
+                const gridView = document.getElementById('students-grid-view');
+                if (!btnList || !btnGrid) return; // no students — elements don't exist
+                const STORAGE_KEY = 'students_modal_view';
 
-            function shiftMonth(dir) {
-                const val = document.getElementById('month-picker').value; // "Y-m"
-                if (!val) return;
-                const [y, m] = val.split('-').map(Number);
-                let nm = m + dir,
-                    ny = y;
-                if (nm < 1) {
-                    nm = 12;
-                    ny--;
+                function setView(mode) {
+                    const isGrid = mode === 'grid';
+                    listView.classList.toggle('d-none', isGrid);
+                    gridView.classList.toggle('d-none', !isGrid);
+                    btnList.classList.toggle('active', !isGrid);
+                    btnGrid.classList.toggle('active', isGrid);
+                    btnList.setAttribute('aria-pressed', String(!isGrid));
+                    btnGrid.setAttribute('aria-pressed', String(isGrid));
+                    try {
+                        localStorage.setItem(STORAGE_KEY, mode);
+                    } catch (_) {}
                 }
-                if (nm > 12) {
-                    nm = 1;
-                    ny++;
-                }
-                const newVal = `${ny}-${String(nm).padStart(2, '0')}`;
-                fp.setDate(newVal + '-01', false, 'Y-m-d'); // set internal date
-                document.getElementById('month-picker').value = newVal; // keep raw value
-                form.submit();
-            }
-            document.getElementById('prev-month').addEventListener('click', () => shiftMonth(-1));
-            document.getElementById('next-month').addEventListener('click', () => shiftMonth(1));
-        })();
-        // ── Schedule grid / list toggle ───────────────────────────────────────
-        (function() {
-            const btnList = document.getElementById('btn-list-view');
-            const btnGrid = document.getElementById('btn-grid-view');
-            const listView = document.getElementById('schedule-list-view');
-            const gridView = document.getElementById('schedule-grid-view');
-            if (!btnList || !btnGrid) return; // no courses — elements don't exist
-            const STORAGE_KEY = 'dashboard_schedule_view';
-
-            function setView(mode) {
-                const isGrid = mode === 'grid';
-                // toggle visibility
-                listView.classList.toggle('d-none', isGrid);
-                gridView.classList.toggle('d-none', !isGrid);
-                // toggle button active states
-                btnList.classList.toggle('active', !isGrid);
-                btnGrid.classList.toggle('active', isGrid);
-                btnList.setAttribute('aria-pressed', String(!isGrid));
-                btnGrid.setAttribute('aria-pressed', String(isGrid));
-                // persist preference
+                let saved = 'list';
                 try {
-                    localStorage.setItem(STORAGE_KEY, mode);
+                    saved = localStorage.getItem(STORAGE_KEY) || 'list';
                 } catch (_) {}
-            }
-            // restore saved preference
-            let saved = 'list';
-            try {
-                saved = localStorage.getItem(STORAGE_KEY) || 'list';
-            } catch (_) {}
-            setView(saved);
-            btnList.addEventListener('click', () => setView('list'));
-            btnGrid.addEventListener('click', () => setView('grid'));
-        })();
-    </script>
-@endpush
+                setView(saved);
+                btnList.addEventListener('click', () => setView('list'));
+                btnGrid.addEventListener('click', () => setView('grid'));
+            })();
+            (function() {
+                // ── Month-only Flatpickr ──────────────────────────────────────────────
+                const fp = flatpickr("#month-picker", {
+                    plugins: [
+                        new monthSelectPlugin({
+                            shorthand: false, // e.g. "January" not "Jan"
+                            dateFormat: "Y-m", // value sent to server: 2025-05
+                            altFormat: "F Y", // display: "May 2025"
+                        })
+                    ],
+                    disableMobile: true, // always use flatpickr, not native on mobile
+                });
+                // ── Prev / Next buttons ───────────────────────────────────────────────
+                const form = document.getElementById('month-filter-form');
+
+                function shiftMonth(dir) {
+                    const val = document.getElementById('month-picker').value; // "Y-m"
+                    if (!val) return;
+                    const [y, m] = val.split('-').map(Number);
+                    let nm = m + dir,
+                        ny = y;
+                    if (nm < 1) {
+                        nm = 12;
+                        ny--;
+                    }
+                    if (nm > 12) {
+                        nm = 1;
+                        ny++;
+                    }
+                    const newVal = `${ny}-${String(nm).padStart(2, '0')}`;
+                    fp.setDate(newVal + '-01', false, 'Y-m-d'); // set internal date
+                    document.getElementById('month-picker').value = newVal; // keep raw value
+                    form.submit();
+                }
+                document.getElementById('prev-month').addEventListener('click', () => shiftMonth(-1));
+                document.getElementById('next-month').addEventListener('click', () => shiftMonth(1));
+            })();
+            // ── Schedule grid / list toggle ───────────────────────────────────────
+            (function() {
+                const btnList = document.getElementById('btn-list-view');
+                const btnGrid = document.getElementById('btn-grid-view');
+                const listView = document.getElementById('schedule-list-view');
+                const gridView = document.getElementById('schedule-grid-view');
+                if (!btnList || !btnGrid) return; // no courses — elements don't exist
+                const STORAGE_KEY = 'dashboard_schedule_view';
+
+                function setView(mode) {
+                    const isGrid = mode === 'grid';
+                    // toggle visibility
+                    listView.classList.toggle('d-none', isGrid);
+                    gridView.classList.toggle('d-none', !isGrid);
+                    // toggle button active states
+                    btnList.classList.toggle('active', !isGrid);
+                    btnGrid.classList.toggle('active', isGrid);
+                    btnList.setAttribute('aria-pressed', String(!isGrid));
+                    btnGrid.setAttribute('aria-pressed', String(isGrid));
+                    // persist preference
+                    try {
+                        localStorage.setItem(STORAGE_KEY, mode);
+                    } catch (_) {}
+                }
+                // restore saved preference
+                let saved = 'list';
+                try {
+                    saved = localStorage.getItem(STORAGE_KEY) || 'list';
+                } catch (_) {}
+                setView(saved);
+                btnList.addEventListener('click', () => setView('list'));
+                btnGrid.addEventListener('click', () => setView('grid'));
+            })();
+        </script>
+    @endpush
