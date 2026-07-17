@@ -14,24 +14,19 @@ class IctInvoiceController extends Controller
     public function destroy(string $invoice_id): JsonResponse
     {
         $invoice = ICTInvoice::findOrFail($invoice_id);
-
         DB::beginTransaction();
         try {
             $studentId = $invoice->student_id;
             $courseId = $invoice->course_id;
-
             // Deletes the invoice; items and payments cascade automatically
             // via FK cascadeOnDelete().
             $invoice->delete();
-
             // Remove the matching enrollment so the student can be
             // re-registered for this course cleanly.
             ICTCourseEnrollments::where('student_id', $studentId)
                 ->where('course_id', $courseId)
                 ->delete();
-
             DB::commit();
-
             return response()->json([
                 'message' => 'Invoice deleted. Redirecting to registration to re-enter correct details.',
                 'student_id' => $studentId,
@@ -55,6 +50,17 @@ class IctInvoiceController extends Controller
             'invoice' => ICTInvoice::with(['student', 'course.schedule'])->findOrFail($invoice_id),
         ];
         return view('frontend.staff.pages.partials.inv-confirm-payment', $data)->render();
+    }
+    protected function recalculateInvoice(ICTInvoice $invoice): void
+    {
+        $totalPaid = (float) $invoice->payments()->sum('amount');
+        $remaining = max(0, (float) $invoice->total_amount - $totalPaid);
+        $invoice->update([
+            'paid_amount' => $totalPaid,
+            'remaining_amount' => $remaining,
+            'payment_status' => $remaining <= 0 ? 'paid' : ($totalPaid > 0 ? 'partial' : 'unpaid'),
+            'paid_at' => $remaining <= 0 ? now() : $invoice->paid_at,
+        ]);
     }
     public function updatePayment(Request $request, $id): JsonResponse
     {
