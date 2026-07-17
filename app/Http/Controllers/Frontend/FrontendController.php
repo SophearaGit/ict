@@ -42,6 +42,10 @@ class FrontendController extends Controller
             'total_students' => User::where('role', 'student')
                 ->where('approval_status', 'approved')
                 ->count(),
+            'latest_blogs' => Blog::published()
+                ->latest('published_at')
+                ->take(7)
+                ->get(),
         ];
         return view('frontend.pages.home-new.index', $data);
     }

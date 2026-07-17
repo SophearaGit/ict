@@ -252,78 +252,28 @@
     </div>
 
     <!-- ═══ COURSE CARDS ═══ -->
-    <div class="card-areaa">
-        <h3 id="blogsection">About Blog Videos <span>›</span></h3>
-        <p id="blog_description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium id
-            repellendus ipsa ipsam nulla. Quibusdam sint quisquam placeat.</p>
-        <div class="wrapperr">
-            <div class="box-area">
-                <div class="boxx" class="active">
-                    <img src="./frontend/asset/images/whatisweb3.jpg" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
-                </div>
-                <div class="boxx">
-                    <img src="./frontend/asset/images/boxcourseAdvancedExcel.webp" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
-                </div>
-                <div class="boxx">
-                    <img src="./frontend/asset/images/Blogexcel.webp" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
-                </div>
-                <div class="boxx">
-                    <img src="./frontend/asset/images/whatisweb3.jpg" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
-                </div>
-                <div class="boxx">
-                    <img src="./frontend/asset/images/front-end-web-developer-html-css-bootstrap.png" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
-                </div>
-                <div class="boxx">
-                    <img src="./frontend/asset/images/whatisweb3.jpg" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
-                </div>
-                <div class="boxx">
-                    <img src="./frontend/asset/images/dataanalyze.webp" alt="">
-                    <div class="overlay">
-                        <p>Phat Sopheaktra</p>
-                        <h3>What is Web Development?</h3>
-
-                        <!-- <a href="#">Learn More</a> -->
-                    </div>
+    @if ($latest_blogs->isNotEmpty())
+        <div class="card-areaa">
+            <h3 id="blogsection">About Blog Videos <span>›</span></h3>
+            <p id="blog_description">Explore our latest articles and video content covering web development,
+                data, and everything ICT.</p>
+            <div class="wrapperr">
+                <div class="box-area">
+                    @foreach ($latest_blogs as $blog)
+                        <a href="{{ route('blog.details', $blog->slug) }}"
+                            class="boxx{{ $loop->first ? ' active' : '' }}">
+                            <img src="{{ asset(empty($blog->thumbnail) ? 'default-images/blog/loading.gif' : ltrim($blog->thumbnail, '/')) }}"
+                                alt="{{ $blog->title }}">
+                            <div class="overlay">
+                                <p>{{ ucfirst($blog->type) }}</p>
+                                <h3>{{ $blog->title }}</h3>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </div>
+    @endif
     <div class="aboutschool">
         <div class="text">
             <p>WHY CHOOSE US</p>
