@@ -94,6 +94,7 @@
             margin: 0;
         }
     </style>
+    @stack('meta')
 </head>
 
 <body>
