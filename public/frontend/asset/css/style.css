@@ -236,6 +236,57 @@
   list-style: none;
 }
 
+/* Ensure mobile drawer is always hidden on desktop widths and
+   make desktop nav/buttons visible regardless of other rules */
+@media (min-width: 769px) {
+  .mobile-drawer,
+  .mobile-drawer.open,
+  .hamburger {
+    display: none !important;
+  }
+
+  .header > ul {
+    display: flex !important;
+  }
+
+  .navbtn {
+    display: flex !important;
+  }
+}
+
+.mobile-drawer .acc-img{
+  display: flex;
+  padding: 10px;
+  border-radius: 10px;
+  gap: 10px;
+}
+.mobile-drawer .acc-img img{
+  border: 1px solid rgb(200, 199, 199);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.acc-img .name-userr{
+  line-height: 0.7;
+}
+.mobile-drawer .acc-img .name-userr p{
+  margin-top: 1px;
+  font-weight: 600;
+  color: #000;
+  font-size: 18px;
+}
+
+.mobile-drawer .acc-img .name-userr span{
+  font-weight: 600;
+  font-size: 13px;
+  color: #567df1;
+  background-color: #e7eefd;
+  padding: 4px;
+  border-radius: 5px;
+}
+
+
 /* ── Every nav item row ── */
 
 nav ul li a {
@@ -298,7 +349,7 @@ nav .course-mobile-dropdown h4:hover {
 
 /* ── Arrow for items that have sub-menus ── */
 
-.arrow {
+.arrow-one {
   margin-left: auto;
   font-size: 11px;
   transition: transform 0.3s ease;
@@ -306,9 +357,9 @@ nav .course-mobile-dropdown h4:hover {
   cursor: pointer;
 }
 
-/* Rotate arrow when open */
+/* Rotate arrow-one when open */
 
-.menu-item.open .arrow {
+.menu-item.open .arrow-one {
   transform: rotate(180deg);
   color: #8892a4;
 }
@@ -569,6 +620,10 @@ nav .course-mobile-dropdown h4:hover {
   color: #0f172a;
 }
 
+[data-theme="dark"] .timeline::before {
+  border: 1px solid #eff0f1;
+}
+
 /* ── THEME TOGGLE BUTTON ── */
 
 .theme-toggle-btn {
@@ -615,7 +670,7 @@ nav .course-mobile-dropdown h4:hover {
 .vc-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   /*fix it, i want color black than this rgba(6, 5, 5, 0.4) but with more opacity */
   backdrop-filter: blur(1px);
   /* background: linear-gradient(
@@ -628,7 +683,7 @@ nav .course-mobile-dropdown h4:hover {
 
 .vc-caption {
   position: absolute;
-  top: 60%;
+  top: 55%;
   left: 20%;
   width: 70%;
   transform: translateY(-50%);
@@ -657,7 +712,7 @@ nav .course-mobile-dropdown h4:hover {
 .vc-caption p {
   width: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   color: white;
   font-weight: 600;
   line-height: 1.7;
@@ -731,9 +786,16 @@ nav .course-mobile-dropdown h4:hover {
     height: 320px;
   }
 
+  .vc-caption  {
+    /* max-width: 90%;
+    width: 70%;
+    position: absolute; */
+    top: 55%;
+    left: 20%;
+  }
   .vc-caption h2 {
     width: 100%;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .vc-caption p {
@@ -745,9 +807,12 @@ nav .course-mobile-dropdown h4:hover {
   }
 
   .vc-btn-primary {
-    width: 60%;
-    max-width: 220px;
+    width: 39%;
+    max-width: 190px;
     text-align: center;
+    padding: 5px;
+    font-size: 12px;
+    margin-top: -20px;
   }
 }
 
@@ -1104,6 +1169,7 @@ nav .course-mobile-dropdown h4:hover {
 }
 
 .boxcard {
+  max-width: 100%;
   position: relative;
   padding: 5px;
   box-shadow: 0 0 5px rgba(18, 19, 20, 0.5);
@@ -1125,10 +1191,10 @@ nav .course-mobile-dropdown h4:hover {
 
 .boxcard > img {
   max-width: 100%;
+  height: auto;
   /* width: 100%; */
-  /* aspect-ratio: 4 / 3; */
-  height: 150px;
-  object-fit: cover;
+  aspect-ratio: 4 / 2.6; /*new important*/
+  /* height: 165px; */
   background: #e5e7eb;
   border-radius: 10px;
 }
@@ -1315,6 +1381,7 @@ nav .course-mobile-dropdown h4:hover {
   height: 290px;
   border-radius: 5px;
   display: block;
+  object-fit: cover;
   transition: transform 0.5s;
 }
 
@@ -1878,6 +1945,11 @@ footer {
   color: #2d3136;
   /* color: var(--muted); */
   line-height: 1.5;
+}
+.contact-text a{
+  text-decoration: none;
+  color: #0e0e0f;
+  font-size: 13px;
 }
 
 /* App col */
@@ -3332,12 +3404,13 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
 
 .message-by-kru-nhim #message-by-kru-nhim-img {
   transition: transform 0.4s ease;
-  /* width: 35%; */
+  width: 34%;
   max-width: 100%;
-  height: 490px;
-  display: flex;
+  height: auto;
+  /* height: 490px; */
+  /* display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; */
   border-radius: 16px;
   background-color: #eee;
 }
@@ -3346,9 +3419,10 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   transform: scale(1.03);
 }
 
-.message-text {
+/* .message-text {
   width: 60%;
-}
+  background-color: #012142;
+} */
 
 .message-by-kru-nhim h3 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -3441,6 +3515,8 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
 
 /* ── Timeline wrapper ── */
 
+/* ── Timeline wrapper ── */
+
 .timeline {
   position: relative;
   max-width: 750px;
@@ -3455,9 +3531,25 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 1px;
-  background: #0e0e0f;
+  width: 2px;
+  border: 1px solid #0c0c0c;;
+  /* background: #3f3ff7; */
   transform: translateX(-50%);
+}
+
+/* ── Pink progress line that fills as you scroll ── */
+
+.timeline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 4px;
+  height: var(--line-progress, 0%);
+  background: #007bff;
+  transform: translateX(-50%);
+  z-index: 1;
+  transition: height 0.1s linear;
 }
 
 /* ── Each row ── */
@@ -3505,15 +3597,15 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   width: 36px;
   height: 36px;
   background: #ffffff;
-  border: 2px solid #1c1d1f;
+  border: 3px solid #447ae5;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #131823;
   font-size: 16px;
   z-index: 2;
   margin: 0 24px;
+  color: #007bff;
 }
 
 /* ── Card ── */
@@ -3587,6 +3679,42 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
 
 .timeline-item.right .card-text {
   text-align: left;
+}
+
+/* ── Scroll-in animation ── */
+
+.timeline-item {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+
+.timeline-item.animate {
+  opacity: 1;
+}
+
+.timeline-item .timeline-card {
+  transition: transform 0.7s ease-out;
+}
+
+.timeline-item.left .timeline-card {
+  transform: translateX(-60px);
+}
+
+.timeline-item.right .timeline-card {
+  transform: translateX(60px);
+}
+
+.timeline-item.animate .timeline-card {
+  transform: translateX(0);
+}
+
+.timeline-item .timeline-icon {
+  transform: scale(0);
+  transition: transform 0.5s ease-out 0.2s; /* slight delay so it pops after the card starts moving */
+}
+
+.timeline-item.animate .timeline-icon {
+  transform: scale(1);
 }
 
 .card-text h3 {
@@ -3849,7 +3977,7 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   margin-top: 12px;
   padding-top: 10px;
   border: none;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #dadada;
   background: none;
   font-size: 12px;
   color: #8892a4;
@@ -4758,6 +4886,19 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   }
 } */
 
+@media (max-width: 1200px) {
+   .message-by-kru-nhim #message-by-kru-nhim-img {
+    position: sticky;
+    top: 95px;
+    max-width: 100%;
+    width: 330px;
+    height: 450px;
+  }
+  .message-text {
+    width: 60%;
+  }
+}
+
 /* --- Tablet landscape  (≤ 1024px) --- */
 
 @media (max-width: 1024px) {
@@ -4795,12 +4936,13 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   .message-by-kru-nhim #message-by-kru-nhim-img {
     position: sticky;
     top: 95px;
-    width: 45%;
-    height: 420px;
+    max-width: 100%;
+    height: 450px;
+    width: 310px;
   }
 
   .message-text {
-    width: 65%;
+    width: 55%;
   }
 
   .message-text h3 {
@@ -5231,7 +5373,6 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
 }
 
 @media (max-width: 1024px) {
-  /* Header */
 
   .header .schoollogo h2 {
     font-size: 15px;
@@ -5379,7 +5520,7 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
 
   .question-block {
     padding: 40px 30px;
-  }
+  } 
 }
 
 @media (max-width: 768px) {
@@ -5582,20 +5723,24 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   /* ── Course cards — 1 column ── ================================================  boxcard update   ===================== */
 
   .mainbox {
+    width: 94%;
     padding: 24px 16px;
     gap: 16px;
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .mainbox .boxcard {
-    width: 68%;
-    min-width: unset;
+    width: 100%;
+    /* min-width: unset; */
     margin: 0 auto;
   }
 
   .mainbox .boxcard img {
-    height: 200px;
+    /* height: 180px; */
+    height: auto;
+    max-width: 100%;
+    width: 100%;
   }
 
   .mainbox .boxcard .teacher img {
@@ -5603,6 +5748,40 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
     height: 30px;
     border-radius: 50%;
     background-color: #1877f2;
+  }
+  .teacher > p{
+    font-size: 12px;
+    margin-top: 14px;
+    
+  }
+  .boxcard h2{
+    font-size: 13px;
+    margin-top: -5px;
+  }
+   .boxcard .weekschedule {
+    margin-top: 1px;
+  }
+  .boxcard .weekschedule i{
+    font-size: 10px;
+  }
+  .boxcard .weekschedule p{
+    font-size: 11px;
+  }
+  .boxcard .pweekly {
+    color: #767575;
+    font-size: 9px;
+  }
+  .boxcard .prnrate{
+    margin-top: -10px;
+  }
+  .prnrate h3{
+    font-size: 13px;
+  }
+  .prnrate .starate p{
+    font-size: 11px;
+  }
+   .prnrate .starate i{
+    font-size: 9px;
   }
 
   /* ── About school ── */
@@ -5927,7 +6106,7 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
     padding: 16px 12px;
     row-gap: 24px;
     width: 100%;
-    /* grid-template-columns: 1fr; */
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* .mainbox.boxcard {width:60%; background-color: #1877f2;} */
@@ -5937,16 +6116,47 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   }
 
   .boxcard h2 {
-    font-size: 14px;
+    font-size: 10px;
   }
 
   .teacher button {
     width: 90px;
     font-size: 12px;
   }
+  .teacher p{
+    font-size: 10px;
+  }
 
   .prnrate h3 {
-    font-size: 14px;
+    font-size: 11px;
+  }
+  .boxcard .weekschedule {
+    margin-top: -6px;
+  }
+  .boxcard .weekschedule p{
+    font-size: 7px;
+  }
+  .boxcard .pweekly {
+    color: #828282;
+    margin-top: -10px;
+    height: 47px;
+    font-size: 7px;
+  }
+  .boxcard .prnrate{
+    height: 28px;
+  }
+   .boxcard .prnrate h3{
+    /* background-color: rgb(106, 207, 241); */
+    font-size: 10px;
+  }
+  .prnrate .starate{
+    margin-top: 3px;
+  }
+  .prnrate .starate p{
+    font-size: 10px;
+  }
+  .prnrate .starate i{
+    font-size: 7px;
   }
 
   /* ── About school — single column ── */
@@ -6118,9 +6328,12 @@ input[type="checkbox"]:checked + .acc-item label .arrow {
   .timeline::before {
     left: 27px;
   }
+  .timeline::after {
+    left: 27px;
+}
 
   /* .timeline-card .card-img {
-      width: 100%;
+      width: 100%; 
       margin: auto;
     } */
 

@@ -10,7 +10,7 @@
             <label for="">Your Name:</label>
             <input type="text" placeholder="Enter your name...">
             <label for="">Phone Number:</label>
-            <input type="text">
+            <input type="text" placeholder="Enter your phone number...">
             <label for="">Your Message:</label>
             <textarea name="" id="" cols="30" rows="10" placeholder="Write your message here..."></textarea>
             <button>Send Message</button>

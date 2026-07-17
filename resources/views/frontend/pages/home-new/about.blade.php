@@ -1,6 +1,7 @@
 @extends('frontend.layouts.new.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
+
     <!-- about body section start -->
     <div class="about-container">
         <div class="text-about-description">
@@ -38,6 +39,7 @@
                 </div>
             </div>
         </div>
+
         <!-- ═══ CATEGORY ICONS ═══ -->
         <div class="catagoryicon">
             <div class="mainboxicon">
@@ -148,7 +150,7 @@
             <!-- 2021 - left side -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"><img src="frontend/asset/images/cybersecurity.webp" alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/slide-cut-v22.JPG" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2023</span>
                         <h3>Empowering Future Professionals</h3>
@@ -233,8 +235,6 @@
             </div>
         </div>
     </div>
-
-
     <div class="section-title">
         <h2>Organizational Structure</h2>
         <p>Meet the leadership team driving our vision forward.</p>
@@ -258,8 +258,8 @@
         <p class="role">Deputy Director of ICT</p>
     </div>
     <div class="line-down"></div>
-
     <div class="line-controll">
+
         <!-- Horizontal connector -->
         <div class="line-horizontal"></div>
 
@@ -279,6 +279,7 @@
                             <div class="social-icons">
                                 <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-solid fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -294,6 +295,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -303,6 +305,7 @@
                                 <div class="social-icons">
                                     <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                     <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                    <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                 </div>
                     </div>
                 </div>
@@ -323,6 +326,7 @@
                             <div class="social-icons">
                                 <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-solid fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -338,6 +342,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
@@ -358,6 +363,7 @@
                             <div class="social-icons">
                                 <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-solid fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -365,6 +371,7 @@
                         View Team (0) <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
+
                 <!-- <div class="team-dropdown">
                                     <div class="team-member-card">
                                         <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
@@ -373,6 +380,7 @@
                                         <div class="social-icons">
                                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                         </div>
                                     </div>
                                     <div class="team-member-card">
@@ -382,6 +390,7 @@
                                         <div class="social-icons">
                                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                         </div>
                                     </div>
                                     <div class="team-member-card">
@@ -391,6 +400,7 @@
                                         <div class="social-icons">
                                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                         </div>
                                     </div>
                                 </div> -->
@@ -411,6 +421,7 @@
                             <div class="social-icons">
                                 <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-solid fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -418,6 +429,7 @@
                         View Team (0) <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
+
                 <!-- <div class="team-dropdown">
                                     <div class="team-member-card">
                                         <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
@@ -426,6 +438,7 @@
                                         <div class="social-icons">
                                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                         </div>
                                     </div>
                                     <div class="team-member-card">
@@ -435,6 +448,7 @@
                                         <div class="social-icons">
                                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                         </div>
                                     </div>
                                     <div class="team-member-card">
@@ -444,6 +458,7 @@
                                         <div class="social-icons">
                                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                                         </div>
                                     </div>
                                 </div> -->
@@ -464,6 +479,7 @@
                             <div class="social-icons">
                                 <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-solid fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -479,6 +495,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -488,6 +505,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
@@ -508,6 +526,7 @@
                             <div class="social-icons">
                                 <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#"><i class="fa-solid fa-envelope"></i></a>
                             </div>
                         </div>
                     </div>
@@ -523,6 +542,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -532,6 +552,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -541,6 +562,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -550,6 +572,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -559,6 +582,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -568,6 +592,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                     <div class="team-member-card">
@@ -577,6 +602,7 @@
                         <div class="social-icons">
                             <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
                             <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
@@ -584,9 +610,7 @@
 
             <!-- end Column 6 -->
         </div>
-
     </div>
-
 
     <!-- end .bottom-row -->
     <div class="website-dev-team-block">
@@ -595,7 +619,7 @@
         <div class="developer-team-box">
             <div class="project-manager-web">
                 <div class="img-name-role">
-                    <img id="img" src="frontend/asset/images/staff/backend(bong pheara).jpg" alt="">
+                    <img id="img" src="frontend/asset/images/staff/Ra.jpg" alt="">
                     <div class="name-role">
                         <h5>Dev.Seth Sopheara</h5>
                         <p>Project Manager <br> <span>Full-Stack</span></p>
@@ -613,7 +637,7 @@
             <div class="member-team-block">
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="frontend/asset/images/staff/frontend(theary).jpg" alt="">
+                        <img src="frontend/asset/images/staff/Theary.jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Uy sotheary</h5>
                             <p>Frontend Developer</p>
@@ -627,7 +651,7 @@
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="frontend/asset/images/staff/backend(bong pheara).jpg" alt="">
+                        <img src="frontend/asset/images/staff/Ra.jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Seth Sopheara</h5>
                             <p>Backend Developer</p>
@@ -641,7 +665,7 @@
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="frontend/asset/images/staff/QAT(bong pheaktra).JPG" alt="">
+                        <img src="frontend/asset/images/staff/Tra.jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Phat Sopheaktra</h5>
                             <p>UX/UI & QAT</p>
@@ -655,7 +679,7 @@
                 </div>
                 <div class="member-team-dev">
                     <div class="img-name-role">
-                        <img src="frontend/asset/images/staff/chay-lymeng-web-dev-team.JPG" alt="">
+                        <img src="frontend/asset/images/staff/Lymeng.jpg" alt="">
                         <div class="name-role">
                             <h5>Dev.Chay Lymeng</h5>
                             <p>QAT</p>
@@ -701,14 +725,12 @@
             </div>
             <div id="Classes" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-
                     <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
                     <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v22.JPG" alt="2">
                     <img src="frontend/asset/images/slide-cut-v23.JPG" alt="2">
                     <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
                     <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
-
                 </div>
             </div>
             <div id="Competition" class="tabcontent" style="display:none">
@@ -758,6 +780,14 @@
             item.classList.toggle('open');
             subMenu.classList.toggle('open');
         }
+        /* Toggle a dropdown sub-menu open / closed */
+        function toggleMenu(item) {
+            /* Find the <ul class="sub-menu"> right after this item */
+            const subMenu = item.nextElementSibling;
+            /* Toggle the "open" class on both the button and the list */
+            item.classList.toggle('open');
+            subMenu.classList.toggle('open');
+        }
         // Scroll-triggered animation for message block
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -799,5 +829,37 @@
                 `View Team (${count}) <i class="fa-solid fa-chevron-down"></i>` :
                 `Hide Team <i class="fa-solid fa-chevron-up"></i>`;
         }
+        //add code animation with timeline block
+        document.addEventListener('DOMContentLoaded', function() {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            const timelineObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                        timelineObserver.unobserve(entry.target); // animate once only
+                    }
+                });
+            }, {
+                threshold: 0.2 // triggers when 20% of the item is visible
+            });
+            timelineItems.forEach((item) => timelineObserver.observe(item));
+        });
+        //animation code timeline::before / after bock
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeline = document.querySelector('.timeline');
+
+            function updateLineProgress() {
+                if (!timeline) return;
+                const rect = timeline.getBoundingClientRect();
+                const viewportMiddle = window.innerHeight / 2;
+                // progress = how far the middle of the viewport has moved past the top of the timeline
+                let progress = (viewportMiddle - rect.top) / rect.height;
+                progress = Math.max(0, Math.min(1, progress)); // clamp between 0 and 1
+                timeline.style.setProperty('--line-progress', (progress * 100) + '%');
+            }
+            window.addEventListener('scroll', updateLineProgress);
+            window.addEventListener('resize', updateLineProgress);
+            updateLineProgress(); // run once on load in case timeline is already in view
+        });
     </script>
 @endpush

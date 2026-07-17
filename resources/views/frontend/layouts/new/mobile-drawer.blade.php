@@ -1,120 +1,66 @@
- <!-- ═══ MOBILE DRAWER ═══ -->
- <div class="mobile-drawer" id="mobileDrawer">
-     <nav>
-         <div class="course-mobile-dropdown">
-             <h4>Course</h4>
-             <ul>
-                 <li>
-                     <div class="menu-item" onclick="toggleMenu(this)">
-                         Programming
-                         <span class="arrow">▼</span>
-                     </div>
-                     <ul class="sub-menu">
-                         <li><a href="#">C++</a></li>
-                         <li><a href="#">C#</a></li>
-                         <li><a href="#">Java Programming I</a></li>
-                         <li><a href="#">Java Programming II</a></li>
-                         <li><a href="#">Python Programming</a></li>
-                         <li><a href="#">DevOps</a></li>
-                         <li><a href="#">Project Managerment</a></li>
-                         <li><a href="#">Software Development with C++</a></li>
-                         <li><a href="#">Software Development with Java</a></li>
-                         <li><a href="#">Software Development with Python</a></li>
-                     </ul>
-                 </li>
-
-                 <!-- Posts (has dropdown) -->
-                 <li>
-                     <div class="menu-item" onclick="toggleMenu(this)">
-                         Website
-                         <span class="arrow">▼</span>
-                     </div>
-                     <ul class="sub-menu">
-                         <li><a href="#">Web Frontend</a></li>
-                         <li><a href="#">Web Backend</a></li>
-                         <li><a href="#">Full Stack Development</a></li>
-                         <li><a href="#">Web Backend (Node js)</a></li>
-                     </ul>
-                 </li>
-                 <li>
-                     <div class="menu-item" onclick="toggleMenu(this)">
-                         Design
-                         <span class="arrow">▼</span>
-                     </div>
-                     <ul class="sub-menu">
-                         <li><a href="#">UX/UI Design</a></li>
-                         <li><a href="#">Graphic Design</a></li>
-                         <li><a href="#">Video Editor</a></li>
-                     </ul>
-                 </li>
-                 <li>
-                     <div class="menu-item" onclick="toggleMenu(this)">
-                         Data Course
-                         <span class="arrow">▼</span>
-                     </div>
-                     <ul class="sub-menu">
-                         <li><a href="#">Data Managerment System</a></li>
-                         <li><a href="#">Data Analytic</a></li>
-                         <li><a href="#">Machine Learning</a></li>
-                         <li><a href="#">Deep Learning</a></li>
-                         <li><a href="#">Power BI</a></li>
-                     </ul>
-                 </li>
-                 <li>
-                     <div class="menu-item" onclick="toggleMenu(this)">
-                         Computer Office
-                         <span class="arrow">▼</span>
-                     </div>
-                     <ul class="sub-menu">
-                         <li><a href="#">Microsoft Office</a></li>
-                         <li><a href="#">Advance Excel</a></li>
-                         <li><a href="#">Excel VBA</a></li>
-                     </ul>
-                 </li>
-                 <li>
-                     <div class="menu-item" onclick="toggleMenu(this)">
-                         Computer Office
-                         <span class="arrow">▼</span>
-                     </div>
-                     <ul class="sub-menu">
-                         <li><a href="#"></a></li>
-                         <li><a href="#">Networking CCNA</a></li>
-                         <li><a href="#">Cyber Security</a></li>
-                         <li><a href="#">Cloud Computing</a></li>
-                     </ul>
-                 </li>
-             </ul>
-         </div>
-         <ul>
-             <li>
-                 <a href="#">
-                     About
-                 </a>
-             </li>
-             <li>
-                 <a href="#">
-                     Blog
-                 </a>
-             </li>
-             <li>
-                 <a href="#">
-                     Contact
-                 </a>
-             </li>
-         </ul>
-     </nav>
-
-     <!-- <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
-            <a href="#"><i class="fa-solid fa-laptop"></i>Website</a>
-            <a href="#"><i  class="fa-solid fa-palette"></i>Design</a>
-            <a href="#"><i class="fa-solid fa-code"></i> Programming</a>
-            <a href="#"><i class="fa-solid fa-mobile-screen"></i>Course Data</a>
-            <a href="#"><i class="fa-solid fa-chalkboard-user"></i> Computer Office</a>
-            <a href="#"><i class="fa-solid fa-code"></i> Networking</a>
-            <a href="blog.html"><i class="fa-solid fa-newspaper"></i> Blog</a>
-            <a href="index.html"><i class="fa-solid fa-phone"></i> Contact</a> -->
-     <div class="drawer-btns">
-         <button class="drawer-login">Login</button>
-         <button class="drawer-register">Register</button>
-     </div>
- </div>
+<!-- ═══ MOBILE DRAWER ═══ -->
+<div class="mobile-drawer" id="mobileDrawer">
+    @auth
+        <div class="acc-img">
+            <img src="{{ asset(
+                empty(Auth::user()->image) || Auth::user()->image === 'no-img.jpg'
+                    ? 'default-images/user/both.jpg'
+                    : ltrim(Auth::user()->image, '/'),
+            ) }}"
+                alt="account-img-mobile">
+            <div class="name-userr">
+                <p>{{ Auth::user()->name }}</p>
+                <span>{{ ucfirst(Auth::user()->role) }}</span>
+            </div>
+        </div>
+    @endauth
+    <nav>
+        <div class="course-mobile-dropdown">
+            <h4><a href="{{ route('course') }}" style="text-decoration: none;">Course</a></h4>
+            <ul>
+                @foreach ($categories_for_frontend as $category)
+                    <li>
+                        <div class="menu-item" onclick="toggleMenu(this)">
+                            {{ $category->name }}
+                            <span class="arrow-one">▼</span>
+                        </div>
+                        <ul class="sub-menu">
+                            @foreach ($category->courses->unique('title') as $course)
+                                <li>
+                                    <a href="{{ route('course', ['search' => $course->title]) }}">
+                                        {{ $course->title }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+        <ul>
+            <li><a href="{{ route('about') }}">About</a></li>
+            <li><a href="{{ route('blog') }}">Blog</a></li>
+            <li><a href="{{ route('contact') }}">Contact</a></li>
+            @auth
+                <li>
+                    <a href="{{ route(Auth::user()->role . '.dashboard') }}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+            @endauth
+        </ul>
+    </nav>
+    <div class="drawer-btns">
+        @guest
+            <button class="drawer-login" onclick="window.location.href='{{ route('login') }}'">Login</button>
+            <button class="drawer-register" disabled>Register</button>
+        @else
+            <form action="{{ route('logout') }}" method="POST" style="width:100%;">
+                @csrf
+                <button type="submit" class="drawer-login" style="width:100%;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        @endguest
+    </div>
+</div>
