@@ -103,6 +103,22 @@
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
                                             <span>
+                                                Manage Staff Access
+                                            </span>
+                                            <span class="text-dark">
+                                                @if ($staff->admin_approval_edit_staff)
+                                                    <span class="badge bg-success">
+                                                        Granted
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary">
+                                                        Not Granted
+                                                    </span>
+                                                @endif
+                                            </span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom py-2">
+                                            <span>
                                                 Joined
                                             </span>
                                             <span class="text-dark">
@@ -123,6 +139,7 @@
                                 </div>
                             </div>
                         @endforelse
+
                         <!-- Pagination Below -->
                         <div class="mt-4">
                             {{ $staffs->appends(request()->query())->links('components.paginate-geek') }}
@@ -153,6 +170,7 @@
                                         <th>Email</th>
                                         <th>Reports</th>
                                         <th>Approval Status</th>
+                                        <th>Manage Access</th>
                                         <th>Joined</th>
                                         <th>Action</th>
                                     </tr>
@@ -193,6 +211,17 @@
                                                 @endif
                                             </td>
                                             <td>
+                                                @if ($staff->admin_approval_edit_staff)
+                                                    <span class="badge bg-success">
+                                                        Granted
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary">
+                                                        Not Granted
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
                                                 {{ $staff->created_at->format('d M, Y') }}
                                             </td>
                                             <td>
@@ -205,7 +234,7 @@
                                                         </a>
                                                         <span class="dropdown-menu">
                                                             <span class="dropdown-header">Settings</span>
-                                                            {{-- disable --}}
+                                                            {{-- account status: enable/disable --}}
                                                             @if ($staff->role == 'unknown')
                                                                 <form
                                                                     action="{{ route('admin.staff.toggle', $staff->id) }}"
@@ -229,6 +258,30 @@
                                                                     </button>
                                                                 </form>
                                                             @endif
+                                                            {{-- manage-other-staff permission: separate action --}}
+                                                            @if ($staff->admin_approval_edit_staff)
+                                                                <form
+                                                                    action="{{ route('admin.staff.toggle-access', $staff->id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PATCH')
+                                                                    <button type="submit" class="dropdown-item">
+                                                                        <i class="fe fe-shield-off dropdown-item-icon"></i>
+                                                                        Revoke Staff Access
+                                                                    </button>
+                                                                </form>
+                                                            @else
+                                                                <form
+                                                                    action="{{ route('admin.staff.toggle-access', $staff->id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PATCH')
+                                                                    <button type="submit" class="dropdown-item">
+                                                                        <i class="fe fe-shield dropdown-item-icon"></i>
+                                                                        Grant Staff Access
+                                                                    </button>
+                                                                </form>
+                                                            @endif
                                                             <a class="dropdown-item edit_staff_btn"
                                                                 href="javascript:void(0)" data-id="{{ $staff->id }}">
                                                                 <i class="fe fe-edit dropdown-item-icon"></i>
@@ -247,7 +300,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center">
+                                            <td colspan="7" class="text-center">
                                                 <h5 class="mb-0">No staffs found.</h5>
                                                 <p class="mb-0">There are currently no approved staffs with
                                                     uploaded documents.</p>

@@ -55,6 +55,7 @@ class StaffController extends Controller
             'role' => 'staff',
             'approval_status' => 'approved',
             'document' => $filePath,
+            'admin_approval_edit_staff' => false,
         ]);
         return redirect()->route('admin.staff.index')
             ->with('success', 'Staff member added successfully.');
@@ -94,6 +95,22 @@ class StaffController extends Controller
         }
         $staff->save();
         return back()->with('success', 'Staff member status updated successfully.');
+    }
+    /**
+     * Grant / revoke this staff member's permission to add, edit, delete,
+     * and manage OTHER staff members. Deliberately separate from toggle()
+     * above — disabling an account and revoking manage-staff access are
+     * different actions.
+     */
+    public function toggleAccess($id): RedirectResponse
+    {
+        $staff = User::findOrFail($id);
+        $staff->admin_approval_edit_staff = !$staff->admin_approval_edit_staff;
+        $staff->save();
+        $message = $staff->admin_approval_edit_staff
+            ? 'Staff member granted access to manage other staff.'
+            : "Staff member's access to manage other staff has been revoked.";
+        return back()->with('success', $message);
     }
     public function destroy($id): JsonResponse
     {
