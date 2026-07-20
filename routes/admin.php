@@ -57,8 +57,7 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
      *******************************************************/
     // intern resource route
     Route::resource('intern', InternController::class);
-    Route::patch('/staff/{user}/toggle', [InternController::class, 'toggle'])->name('intern.toggle');
-
+    Route::patch('/intern/{user}/toggle', [InternController::class, 'toggle'])->name('intern.toggle');
 
 
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
@@ -75,6 +74,7 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::put('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
     Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
     Route::patch('/staff/{id}/toggle', [StaffController::class, 'toggle'])->name('staff.toggle');
+    Route::patch('/staff/{id}/toggle-access', [StaffController::class, 'toggleAccess'])->name('staff.toggle-access');
     /*******************************************************
      * LANGUAGE, LEVEL, CATEGORY
      *******************************************************/

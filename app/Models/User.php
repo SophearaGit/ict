@@ -56,6 +56,10 @@ class User extends Authenticatable
         // System Information
         'login_as',
         'registered_by_staff_id',
+        'admin_approval_edit_staff',
+    ];
+    protected $casts = [
+        'admin_approval_edit_staff' => 'boolean',
     ];
     public function student_attendances()
     {
