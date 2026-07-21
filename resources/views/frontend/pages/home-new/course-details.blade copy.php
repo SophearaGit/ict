@@ -1,26 +1,94 @@
 @extends('frontend.layouts.new.master')
-@section('page_title', isset($page_title) ? $page_title : $course->title)
+@section('page_title', isset($page_title) ? $page_title : 'Course Details')
 @push('styles')
     <style>
-        .tab-content {
-            display: none;
+        /* ── Skeleton shimmer ── */
+        @keyframes shimmer {
+            0% {
+                background-position: -600px 0;
+            }
+
+            100% {
+                background-position: 600px 0;
+            }
         }
 
-        .tab-content.active {
-            display: block;
+        .skeleton {
+            background: linear-gradient(90deg,
+                    var(--skeleton-base, #e8e8e8) 25%,
+                    var(--skeleton-shine, #f5f5f5) 50%,
+                    var(--skeleton-base, #e8e8e8) 75%);
+            background-size: 600px 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+            border-radius: 6px;
         }
 
-        .tab-item {
-            cursor: pointer;
+        [data-theme="dark"] {
+            --skeleton-base: #2a2a2a;
+            --skeleton-shine: #3a3a3a;
         }
 
-        .tab-item.active {
-            color: #2563eb;
-            font-weight: 600;
-            border-bottom: 2px solid #2563eb;
+        .no-data-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 36px 20px;
+            border-radius: 10px;
+            border: 1.5px dashed #ccc;
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
         }
 
-        /* Schedule Picker Modal */
+        [data-theme="dark"] .no-data-block {
+            border-color: #444;
+            color: #666;
+        }
+
+        .no-data-block i {
+            font-size: 32px;
+            opacity: .45;
+        }
+
+        .skeleton-line {
+            height: 14px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-line.w-80 {
+            width: 80%;
+        }
+
+        .skeleton-line.w-60 {
+            width: 60%;
+        }
+
+        .skeleton-line.w-40 {
+            width: 40%;
+        }
+
+        .content-ready {
+            animation: fadeIn .4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ════════════════════════════
+                                                                       Schedule Picker Modal
+                                                                       ════════════════════════════ */
         .sched-backdrop {
             display: none;
             position: fixed;
@@ -44,6 +112,19 @@
             margin: 16px;
             box-shadow: 0 24px 64px rgba(0, 0, 0, .18);
             overflow: hidden;
+            animation: modal-up .22s ease;
+        }
+
+        @keyframes modal-up {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .sched-modal-head {
@@ -76,6 +157,7 @@
             padding: 2px;
             line-height: 1;
             flex-shrink: 0;
+            transition: color .15s;
         }
 
         .sched-close:hover {
@@ -95,6 +177,15 @@
             padding-right: 4px;
         }
 
+        .sched-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sched-list::-webkit-scrollbar-thumb {
+            background: #d0d5dd;
+            border-radius: 4px;
+        }
+
         .sched-option {
             display: flex;
             align-items: flex-start;
@@ -103,6 +194,7 @@
             border: 1.5px solid #E4E7EC;
             border-radius: 12px;
             cursor: pointer;
+            transition: border-color .15s, background .15s;
             user-select: none;
         }
 
@@ -226,16 +318,6 @@
             gap: 10px;
         }
 
-        @keyframes shimmer {
-            0% {
-                background-position: -600px 0;
-            }
-
-            100% {
-                background-position: 600px 0;
-            }
-        }
-
         .sched-skel-row {
             height: 80px;
             border-radius: 12px;
@@ -260,6 +342,7 @@
             font-weight: 500;
             cursor: pointer;
             color: #344054;
+            transition: background .15s;
         }
 
         .btn-sched-cancel:hover {
@@ -275,6 +358,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: opacity .15s;
         }
 
         .btn-sched-confirm:disabled {
@@ -324,6 +408,7 @@
     <form id="enroll-form" action="" method="POST" style="display:none">
         @csrf
     </form>
+    {{-- ════════════ Page Header ════════════ --}}
     <div class="headerdetail">
         <a href="{{ route('home') }}">Home/ </a>
         <a href="{{ route('course') }}">Courses/ </a>
@@ -372,119 +457,121 @@
             @endif
         </div>
     </div>
-
-    <!-- =============================body-section-start========================================= -->
+    {{-- ════════════ Body ════════════ --}}
     <div class="overview-section">
         <div class="overview-information-instruction">
-            <ul class="course-tabs">
-                <li class="tab-item" data-target="#section1">Overview</li>
-                <li class="tab-item" data-target="#section2">Curriculum</li>
-                <li class="tab-item" data-target="#section3">Instructor</li>
+            <ul>
+                <li id="Overview">Overview</li>
+                <li id="curriculum">Curriculum</li>
+                <li id="instructor">Instructor</li>
             </ul>
             <hr>
         </div>
         <div class="detail-body">
             <div class="section-oci">
-                <section id="section1" class="tab-content">
-                    @if ($course->description)
-                        {!! $course->description !!}
-                    @else
-                        <p>No description has been added for this course yet.</p>
-                    @endif
+                {{-- Overview --}}
+                <section id="section1" class="active">
+                    <div id="detail-descrip-block">
+                        <h3>Description</h3>
+                        @if ($course->description)
+                            <div class="content-ready">{!! nl2br(e($course->description)) !!}</div>
+                        @else
+                            <div class="no-data-block">
+                                <i class="fa-regular fa-file-lines"></i>
+                                <p>No description has been added for this course yet.</p>
+                                <div class="skeleton skeleton-line w-80"></div>
+                                <div class="skeleton skeleton-line w-60"></div>
+                                <div class="skeleton skeleton-line w-40"></div>
+                            </div>
+                        @endif
+                    </div>
+                    <div id="requiment-detail">
+                        <h3>Requirements</h3>
+                        <div class="no-data-block">
+                            <i class="fa-solid fa-list-check"></i>
+                            <p>Requirements will be listed here once the instructor adds them.</p>
+                        </div>
+                    </div>
+                    <div id="what-you-learn">
+                        <h3>What you'll learn</h3>
+                        <div class="no-data-block">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <p>Learning outcomes haven't been set yet. Check back soon.</p>
+                        </div>
+                    </div>
                 </section>
-                <section id="section2" class="tab-content">
-                    @php
-                        $chapters = $course->chapters->where('status', true)->values();
-                        $totalLectures = $chapters->sum(
-                            fn($chapter) => $chapter->lessons->where('status', true)->count(),
-                        );
-                    @endphp
+                {{-- Curriculum --}}
+                <section id="section2">
                     <div class="curriculum-setion">
-                        <h3> <b>Course Curriculum</b></h3>
+                        <h3><b>Course Content</b></h3>
                         <div class="section-lecture-hour">
-                            <p>{{ $chapters->count() }} Chapter{{ $chapters->count() !== 1 ? 's' : '' }}</p>
-                            <p>{{ $totalLectures }} Lesson{{ $totalLectures !== 1 ? 's' : '' }}</p>
-                            <p>Study: {{ $course->duration }} Hours</p>
+                            <p>{{ $course->total_sessions }} Sessions</p>
+                            <p>{{ $course->duration }} Hours total</p>
+                            @if ($course->completed_sessions > 0)
+                                <p>{{ $course->completed_sessions }} Completed</p>
+                            @endif
                         </div>
                     </div>
                     <div class="section-content">
-                        @if ($chapters->isNotEmpty())
-                            <div class="acc-wrap">
-                                @foreach ($chapters as $i => $chapter)
-                                    @php $chapterLessons = $chapter->lessons->where('status', true)->values(); @endphp
-                                    <input type="checkbox" id="s{{ $i + 1 }}" />
-                                    <div class="acc-item">
-                                        <label for="s{{ $i + 1 }}">
-                                            <div class="acc-left">
-                                                <div class="arrow"></div>
-                                                <span class="acc-title">{{ $chapter->title }}</span>
-                                            </div>
-                                            <span class="acc-meta">{{ $chapterLessons->count() }}
-                                                Lesson{{ $chapterLessons->count() !== 1 ? 's' : '' }}</span>
-                                        </label>
-                                        <div class="acc-body">
-                                            <div class="acc-inner">
-                                                <ul>
-                                                    @forelse ($chapterLessons as $lesson)
-                                                        <li>{{ $lesson->title }}</li>
-                                                    @empty
-                                                        <li>No lessons added yet.</li>
-                                                    @endforelse
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
+                        <div class="no-data-block" style="margin-top: 16px;">
+                            <i class="fa-solid fa-book-open"></i>
+                            <strong>Curriculum coming soon</strong>
                             <p>The instructor hasn't uploaded the course content yet.</p>
-                        @endif
+                            <div class="skeleton skeleton-line w-80"></div>
+                            <div class="skeleton skeleton-line w-60"></div>
+                            <div class="skeleton skeleton-line w-80"></div>
+                            <div class="skeleton skeleton-line w-40"></div>
+                        </div>
                     </div>
                 </section>
-                <section id="section3" class="tab-content">
+                {{-- Instructor --}}
+                <section id="section3">
                     @if ($course->instructor)
-                        @php $instructor = $course->instructor; @endphp
-                        <div class="profile-card">
+                        <div class="profile-card content-ready">
                             <div class="top-info">
                                 <div class="profile-image">
-                                    <img src="{{ $instructor->image && $instructor->image !== 'no-img.jpg' ? asset($instructor->image) : asset('images/default-profile.png') }}"
-                                        alt="{{ $instructor->name }}">
+                                    @if ($course->instructor->avatar)
+                                        <img src="{{ asset('storage/' . $course->instructor->avatar) }}"
+                                            alt="{{ $course->instructor->name }}">
+                                    @else
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($course->instructor->name) }}&background=random&size=128"
+                                            alt="{{ $course->instructor->name }}">
+                                    @endif
                                 </div>
                                 <div class="stats">
                                     <p><i class="fa-solid fa-star"></i> No rating yet</p>
                                     <p><i class="fa-regular fa-circle-check"></i> No reviews yet</p>
-                                    <p><i class="fa-solid fa-users"></i> — Students</p>
-                                    <p><i class="fa-regular fa-bookmark"></i> {{ $instructor->courses()->count() }}
-                                        Course{{ $instructor->courses()->count() !== 1 ? 's' : '' }}</p>
+                                    <p><i class="fa-solid fa-users"></i>
+                                        {{ $course->instructor->taught_students_count ?? '—' }} Students
+                                    </p>
+                                    <p><i class="fa-regular fa-bookmark"></i>
+                                        {{ $course->instructor->courses_count ?? '—' }} Courses
+                                    </p>
                                 </div>
                             </div>
-                            <h3 class="text-capitalize">{{ $instructor->name }}</h3>
-                            <h5 class="text-capitalize">
-                                {{ $instructor->designation ?? ($instructor->headline ?? 'Instructor') }}
-                            </h5>
+                            <h3>{{ $course->instructor->name }}</h3>
+                            <h5>{{ $course->instructor->job_title ?? 'Instructor' }}</h5>
                             <div class="descriptionn">
-                                @if ($instructor->bio)
-                                    {!! nl2br(e($instructor->bio)) !!}
+                                @if ($course->instructor->bio)
+                                    <p>{{ $course->instructor->bio }}</p>
                                 @else
-                                    <p>Instructor bio not available yet.</p>
+                                    <div class="no-data-block" style="border:none; padding:12px 0;">
+                                        <i class="fa-regular fa-user"></i>
+                                        <p>Instructor bio not available yet.</p>
+                                    </div>
                                 @endif
                             </div>
-                            @if (!empty($instructor->expertise))
-                                <div class="expertise">
-                                    <h5>Expertise</h5>
-                                    <ul>
-                                        @foreach ($instructor->expertise as $skill)
-                                            <li>{{ $skill }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
                         </div>
                     @else
-                        <p>This course hasn't been assigned an instructor yet.</p>
+                        <div class="no-data-block">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            <strong>Instructor not assigned</strong>
+                            <p>This course hasn't been assigned an instructor yet.</p>
+                        </div>
                     @endif
                 </section>
-            </div>
+            </div>{{-- /.section-oci --}}
+            {{-- ════ Sidebar ════ --}}
             <div class="boxcard">
                 {{-- Course Image --}}
                 @if ($course->thumbnail)
@@ -505,8 +592,7 @@
                     @endif
                 @else
                     <button class="btn btn-primary text-white"
-                        onclick="window.location.href='{{ route('login') }}'">Login
-                        To
+                        onclick="window.location.href='{{ route('login') }}'">Login To
                         Enroll</button>
                 @endif
                 {{-- Favorite & Share --}}
@@ -548,11 +634,10 @@
                     </div>
                 @endif
             </div>{{-- /.boxcard --}}
-        </div>
-    </div>
-
-    <!-- =============================body-section-end============================================= -->
-    <h2 id="h2-more-course">More Course</h2>
+        </div>{{-- /.detail-body --}}
+    </div>{{-- /.overview-section --}}
+    {{-- More Courses --}}
+    <h2 id="h2-more-course">More Courses</h2>
     <div class="more-course-detail">
         @if ($moreCourses->isNotEmpty())
             <div class="mainbox">
@@ -561,15 +646,21 @@
                     <a href="{{ route('course.details', $mc->slug) }}" class="boxcard">
                         @if ($mc->thumbnail)
                             <img src="{{ asset($mc->thumbnail) }}" alt="{{ $mc->title }}">
+                        @else
+                            <div class="skeleton" style="width:100%;height:160px;border-radius:8px 8px 0 0;"></div>
                         @endif
                         <div class="teacher">
-                            @if ($mc->instructor)
-                                <img src="{{ $mc->instructor->image && $mc->instructor->image !== 'no-img.jpg' ? asset($mc->instructor->image) : asset('images/default-profile.png') }}"
-                                    alt="{{ $mc->instructor->name }}">
-                                <p>{{ $mc->instructor->name }}</p>
-                            @else
-                                <p>—</p>
-                            @endif
+                            <div class="teach-name">
+                                @if ($mc->instructor)
+                                    <img src="{{ $mc->instructor->avatar
+                                        ? asset('storage/' . $mc->instructor->avatar)
+                                        : 'https://ui-avatars.com/api/?name=' . urlencode($mc->instructor->name) . '&size=40&background=random' }}"
+                                        alt="{{ $mc->instructor->name }}">
+                                    <p>{{ $mc->instructor->name }}</p>
+                                @else
+                                    <p>—</p>
+                                @endif
+                            </div>
                             @if ($mc->category)
                                 <button>{{ $mc->category->name }}</button>
                             @endif
@@ -582,7 +673,7 @@
                         </div>
                         @if ($mc->schedule)
                             <p class="pweekly">
-                                . {{ $mc->schedule->short_days }} ({{ $mc->schedule->formatted_time }})
+                                • {{ $mc->schedule->short_days }} ({{ $mc->schedule->formatted_time }})
                                 @if ($group->count() > 1)
                                     <br>+{{ $group->count() - 1 }} more schedules
                                 @endif
@@ -591,51 +682,46 @@
                         <div class="prnrate">
                             <h3>${{ number_format($mc->price, 2) }}</h3>
                             <div class="starate">
-                                {{-- @if ($mc->rating)
-                                    <p>{{ number_format($mc->rating, 1) }}</p>
-          @for ($i = 0; $i < 5; $i++) <i class="fa-solid fa-star" style="color:gold;"></i>
-            @endfor
-            @else
-            <p>—</p>
-            <i class="fa-regular fa-star" style="color:gold;"></i>
-            @endif --}}
-                                <p>4.9</p>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
+                                <p>—</p>
+                                <i class="fa-regular fa-star" style="color:gold;"></i>
                             </div>
                         </div>
                     </a>
                 @endforeach
             </div>
         @else
-            <p style="text-align:center; margin: 0 auto 40px;">There are no other courses in this category right now. <a
-                    href="{{ route('course') }}">Browse all courses →</a></p>
+            <div class="no-data-block" style="margin:0 auto 40px; max-width:500px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <strong>No other courses found</strong>
+                <p>There are no other courses in this category right now.</p>
+                <a href="{{ route('course') }}" style="font-size:13px; color:inherit; text-decoration:underline;">
+                    Browse all courses →
+                </a>
+            </div>
         @endif
     </div>
 @endsection
 @push('scripts')
     <script>
-        /* ── Tab navigation — fully dynamic: loops whatever .tab-item/.tab-content
-                               pairs exist, no hardcoded count, and auto-activates the first tab
-                               on load instead of relying on hardcoded "active" classes in the HTML. ── */
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabs = document.querySelectorAll('.tab-item');
-            const panels = document.querySelectorAll('.tab-content');
-
-            function activate(tab) {
-                tabs.forEach(t => t.classList.remove('active'));
-                panels.forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                const target = document.querySelector(tab.dataset.target);
-                if (target) target.classList.add('active');
-            }
-            tabs.forEach(tab => tab.addEventListener('click', () => activate(tab)));
-            if (tabs.length) activate(tabs[0]);
+        /* ── Tab navigation ── */
+        ['Overview', 'curriculum', 'instructor'].forEach((key, i) => {
+            const secId = '#section' + (i + 1);
+            $('#' + key).on('click', function() {
+                $('section').removeClass('active');
+                $(secId).addClass('active');
+                ['Overview', 'curriculum', 'instructor'].forEach(k => {
+                    const active = k === key;
+                    $('#' + k).css({
+                        'color': active ? '#007bff' : '',
+                        'border-bottom': active ? '3px solid #007bff' : '',
+                        'font-weight': active ? 'bold' : 'normal',
+                    });
+                });
+            });
         });
-        /* ════════════════════════════ Schedule Modal ════════════════════════════ */
+        /* ════════════════════════════
+           Schedule Modal
+           ════════════════════════════ */
         let _selectedCourseId = null;
 
         function openScheduleModal(currentCourseId, courseTitle) {
@@ -696,25 +782,26 @@
                                     ${s.time}
                                 </span>
                                 ${s.instructor ? `<span>
-                                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                                            <circle cx="12" cy="7" r="4"/>
-                                                        </svg>
-                                                        ${s.instructor}
-                                                    </span>` : ''}
+                                                                                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                                                                                    <circle cx="12" cy="7" r="4"/>
+                                                                                                </svg>
+                                                                                                ${s.instructor}
+                                                                                            </span>` : ''}
                                 ${s.start_date ? `<span>
-                                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                                            <path d="M16 2v4M8 2v4M3 10h18"/>
-                                                        </svg>
-                                                        Starts ${s.start_date}
-                                                    </span>` : ''}
+                                                                                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                                                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                                                                                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                                                                                                </svg>
+                                                                                                Starts ${s.start_date}
+                                                                                            </span>` : ''}
                             </div>
                             ${s.shift ? `<span class="sched-shift ${shiftClass}">${s.shift}</span>` : ''}
                         </div>
                         <span class="sched-badge ${badgeClass}">${badgeLabel}</span>
                     </label>`;
                     }).join('');
+                    // If only one section, or current section found → pre-select it
                     const preselect = sections.find(s => s.id === currentCourseId);
                     if (preselect || sections.length === 1) {
                         _selectedCourseId = preselect ? currentCourseId : sections[0].id;
@@ -742,6 +829,7 @@
             btn.disabled = true;
             btn.textContent = 'Enrolling…';
             const form = document.getElementById('enroll-form');
+            // student.course.enroll = POST /student/course/{course}/enroll
             form.action = '/student/course/' + _selectedCourseId + '/enroll';
             form.submit();
         }

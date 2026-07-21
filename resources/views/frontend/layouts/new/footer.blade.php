@@ -4,7 +4,7 @@
         <!-- Brand -->
         <div class="footer-brand">
             <div class="brand-row">
-                <img class="footerimg" src="frontend/asset/images/ICTLogo9.jpg" alt="">
+                <img class="footerimg" src="/frontend/asset/images/ICTLogo9.jpg" alt="">
                 <span class="brand-name">ICT Center</span>
             </div>
             <p class="brand-tagline">Empowering professsionals through world-class ICT education since 2020.</p>
@@ -71,10 +71,10 @@
             <h4>Download App</h4>
             <p class="app-desc">Download our app from the App Store and Google Play Store.</p>
             <div class="mb-2">
-                <img src="frontend/asset/images/footer/appstore.svg" alt="">
+                <img src="/frontend/asset/images/footer/appstore.svg" alt="">
             </div>
             <div>
-                <img src="frontend/asset/images/footer/playstore.svg" alt="">
+                <img src="/frontend/asset/images/footer/playstore.svg" alt="">
             </div>
         </div>
     </div>

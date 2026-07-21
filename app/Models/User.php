@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'bio',
         'headline',
+        'designation',
+        'expertise',
 
         // Personal Information
         'gender',
@@ -104,6 +106,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'expertise' => 'array',
         ];
     }
 }

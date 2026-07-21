@@ -1,6 +1,6 @@
 <?php
 use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController};
 use App\Http\Controllers\Frontend\Student\CourseEnrollmentController;
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use Illuminate\Support\Facades\Route;
@@ -131,6 +131,19 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
     ->name('staff.')
     ->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        /*******************************************************
+         * COURSE CURRICULUM (CHAPTERS & LESSONS)
+         *******************************************************/
+        Route::get('/curriculum', [IctCourseCurriculumController::class, 'index'])->name('curriculum.index');
+        Route::get('/courses/{course}/curriculum', [IctCourseCurriculumController::class, 'show'])->name('courses.curriculum.show');
+        Route::post('/courses/{course}/chapters', [IctCourseCurriculumController::class, 'storeChapter'])->name('courses.chapters.store');
+        Route::put('/chapters/{chapter}', [IctCourseCurriculumController::class, 'updateChapter'])->name('courses.chapters.update');
+        Route::delete('/chapters/{chapter}', [IctCourseCurriculumController::class, 'destroyChapter'])->name('courses.chapters.destroy');
+        Route::post('/courses/{course}/chapters/reorder', [IctCourseCurriculumController::class, 'reorderChapters'])->name('courses.chapters.reorder');
+        Route::post('/chapters/{chapter}/lessons', [IctCourseCurriculumController::class, 'storeLesson'])->name('courses.lessons.store');
+        Route::put('/lessons/{lesson}', [IctCourseCurriculumController::class, 'updateLesson'])->name('courses.lessons.update');
+        Route::delete('/lessons/{lesson}', [IctCourseCurriculumController::class, 'destroyLesson'])->name('courses.lessons.destroy');
+        Route::post('/chapters/{chapter}/lessons/reorder', [IctCourseCurriculumController::class, 'reorderLessons'])->name('courses.lessons.reorder');
         /*******************************************************
          * TEACHER & STUDENT RESOURCE ROUTES
          *******************************************************/

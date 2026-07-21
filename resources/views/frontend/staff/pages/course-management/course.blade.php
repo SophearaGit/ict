@@ -394,8 +394,11 @@
             </div>
         </div>
     </div>
+    @include('frontend.staff.pages.course-management.partials.curriculum-modal')
 @endsection
 @push('scripts')
+    {{-- ... your existing delete/view-toggle script stays here ... --}}
+    @include('frontend.staff.pages.course-management.partials.curriculum-scripts')
     <script>
         // ─── Delete ─────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-delete-course').forEach(function(btn) {
