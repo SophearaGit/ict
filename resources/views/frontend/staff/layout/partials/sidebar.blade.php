@@ -32,6 +32,26 @@
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
+                {{-- Invoice --}}
+                <li class="sidebar-item {{ request()->routeIs('staff.invoices') ? 'selected' : '' }}">
+                    <a class="sidebar-link {{ request()->routeIs('staff.invoices') ? 'active' : '' }}"
+                        href="{{ route('staff.invoices') }}" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-file-invoice"></i>
+                        </span>
+                        <span class="hide-menu">Invoice</span>
+                    </a>
+                </li>
+                {{-- Reports --}}
+                <li class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
+                        href="{{ route('staff.reports.index') }}" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-chart-bar"></i>
+                        </span>
+                        <span class="hide-menu">Reports</span>
+                    </a>
+                </li>
                 {{-- Users Dropdown (Teachers, Students, Interns & Staff) --}}
                 <li
                     class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') || request()->routeIs('staff.intern.*') || request()->routeIs('staff.staff.*') ? 'selected' : '' }}">
@@ -86,26 +106,6 @@
                         </li>
                     </ul>
                 </li>
-                {{-- Invoice --}}
-                <li class="sidebar-item {{ request()->routeIs('staff.invoices') ? 'selected' : '' }}">
-                    <a class="sidebar-link {{ request()->routeIs('staff.invoices') ? 'active' : '' }}"
-                        href="{{ route('staff.invoices') }}" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-file-invoice"></i>
-                        </span>
-                        <span class="hide-menu">Invoice</span>
-                    </a>
-                </li>
-                {{-- Reports --}}
-                <li class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
-                        href="{{ route('staff.reports.index') }}" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-chart-bar"></i>
-                        </span>
-                        <span class="hide-menu">Reports</span>
-                    </a>
-                </li>
                 <li class="sidebar-item {{ request()->is('staff/student-registration') ? 'selected' : '' }}">
                     <a class="sidebar-link has-arrow {{ request()->is('staff/student-registration') ? 'active' : '' }} "
                         href="javascript:;" aria-expanded="false">
@@ -137,8 +137,8 @@
                 </li>
                 {{-- Course Management Dropdown --}}
                 <li
-                    class="sidebar-item {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*') ? 'active' : '' }}"
+                    class="sidebar-item {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*', 'staff.curriculum.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*', 'staff.curriculum.*') ? 'active' : '' }}"
                         href="javascript:;" aria-expanded="false">
                         <span class="d-flex">
                             <i class="ti ti-book"></i>
@@ -146,7 +146,7 @@
                         <span class="hide-menu">Course Management</span>
                     </a>
                     <ul aria-expanded="false"
-                        class="collapse first-level {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*') ? 'in' : '' }}">
+                        class="collapse first-level {{ request()->routeIs('staff.courses.*', 'staff.schedules.*', 'staff.course-categories.*', 'staff.curriculum.*') ? 'in' : '' }}">
                         {{-- Courses --}}
                         <li class="sidebar-item {{ request()->routeIs('staff.courses.*') ? 'active' : '' }}">
                             <a href="{{ route('staff.courses.index') }}"
@@ -155,6 +155,16 @@
                                     <i class="ti ti-bookmark fs-3"></i>
                                 </div>
                                 <span class="hide-menu">Courses</span>
+                            </a>
+                        </li>
+                        {{-- Curriculum --}}
+                        <li class="sidebar-item {{ request()->routeIs('staff.curriculum.*') ? 'active' : '' }}">
+                            <a href="{{ route('staff.curriculum.index') }}"
+                                class="sidebar-link {{ request()->routeIs('staff.curriculum.*') ? 'active' : '' }}">
+                                <div class="round-16 d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-list-details fs-3"></i>
+                                </div>
+                                <span class="hide-menu">Curriculum</span>
                             </a>
                         </li>
                         {{-- Categories --}}

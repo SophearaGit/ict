@@ -1,5 +1,52 @@
 @extends('frontend.staff.layout.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@push('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <style>
+        .edit-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .edit-tabs .nav-link.active {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        #edit-expertise-list .list-group-item {
+            padding: .5rem .75rem;
+        }
+
+        #edit-image-preview-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+
+        #edit-image-preview-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #crop-target-wrap {
+            max-height: 420px;
+            overflow: hidden;
+        }
+
+        #crop-target-wrap img {
+            max-width: 100%;
+            display: block;
+        }
+    </style>
+@endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
     {{-- Toolbar --}}
@@ -83,8 +130,21 @@
                                         data-id="{{ $instructor->id }}" data-name="{{ $instructor->name }}"
                                         data-khmer-name="{{ $instructor->khmer_name }}"
                                         data-email="{{ $instructor->email }}" data-phone="{{ $instructor->phone }}"
+                                        data-alternate-phone="{{ $instructor->alternate_phone }}"
                                         data-dob="{{ $instructor->dob }}" data-gender="{{ $instructor->gender }}"
-                                        data-location="{{ $instructor->location }}">
+                                        data-nationality="{{ $instructor->nationality }}"
+                                        data-location="{{ $instructor->location }}"
+                                        data-headline="{{ $instructor->headline }}"
+                                        data-designation="{{ $instructor->designation }}"
+                                        data-bio="{{ $instructor->bio }}"
+                                        data-expertise="{{ $instructor->expertise ? json_encode($instructor->expertise) : '[]' }}"
+                                        data-facebook="{{ $instructor->facebook }}" data-x="{{ $instructor->x }}"
+                                        data-linkedin="{{ $instructor->linkedin }}"
+                                        data-website="{{ $instructor->website }}" data-github="{{ $instructor->github }}"
+                                        data-instagram="{{ $instructor->instagram }}"
+                                        data-telegram="{{ $instructor->telegram }}"
+                                        data-tiktok="{{ $instructor->tiktok }}" data-youtube="{{ $instructor->youtube }}"
+                                        data-image="{{ $instructor->image && $instructor->image !== 'no-img.jpg' ? asset($instructor->image) : '' }}">
                                         <i class="ti ti-edit fs-5"></i>
                                     </a>
                                     <a href="javascript:void(0)" class="text-danger ms-2 btn-delete-teacher" title="Delete"
@@ -135,7 +195,8 @@
                             <hr class="w-100 my-3">
                             <div class="w-100 text-start small text-muted">
                                 <div class="mb-1"><i class="ti ti-mail me-1"></i> {{ $instructor->email }}</div>
-                                <div class="mb-1"><i class="ti ti-phone me-1"></i> {{ $instructor->phone ?? '-' }}</div>
+                                <div class="mb-1"><i class="ti ti-phone me-1"></i> {{ $instructor->phone ?? '-' }}
+                                </div>
                                 <div><i class="ti ti-map-pin me-1"></i> {{ $instructor->location ?? '-' }}</div>
                             </div>
                         </div>
@@ -143,8 +204,19 @@
                             <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-edit-teacher"
                                 data-id="{{ $instructor->id }}" data-name="{{ $instructor->name }}"
                                 data-khmer-name="{{ $instructor->khmer_name }}" data-email="{{ $instructor->email }}"
-                                data-phone="{{ $instructor->phone }}" data-dob="{{ $instructor->dob }}"
-                                data-gender="{{ $instructor->gender }}" data-location="{{ $instructor->location }}">
+                                data-phone="{{ $instructor->phone }}"
+                                data-alternate-phone="{{ $instructor->alternate_phone }}"
+                                data-dob="{{ $instructor->dob }}" data-gender="{{ $instructor->gender }}"
+                                data-nationality="{{ $instructor->nationality }}"
+                                data-location="{{ $instructor->location }}" data-headline="{{ $instructor->headline }}"
+                                data-designation="{{ $instructor->designation }}" data-bio="{{ $instructor->bio }}"
+                                data-expertise="{{ $instructor->expertise ? json_encode($instructor->expertise) : '[]' }}"
+                                data-facebook="{{ $instructor->facebook }}" data-x="{{ $instructor->x }}"
+                                data-linkedin="{{ $instructor->linkedin }}" data-website="{{ $instructor->website }}"
+                                data-github="{{ $instructor->github }}" data-instagram="{{ $instructor->instagram }}"
+                                data-telegram="{{ $instructor->telegram }}" data-tiktok="{{ $instructor->tiktok }}"
+                                data-youtube="{{ $instructor->youtube }}"
+                                data-image="{{ $instructor->image && $instructor->image !== 'no-img.jpg' ? asset($instructor->image) : '' }}">
                                 <i class="ti ti-edit me-1"></i> Edit
                             </a>
                             <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger btn-delete-teacher"
@@ -167,7 +239,7 @@
             </div>
         @endif
     </div>
-    {{-- CREATE MODAL --}}
+    {{-- CREATE MODAL (unchanged) --}}
     <div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalTitle"
         style="display: none;" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -335,116 +407,296 @@
             </div>
         </div>
     </div>
-    {{-- EDIT MODAL --}}
+    {{-- EDIT MODAL (upgraded) --}}
     <div class="modal fade" id="editContactModal" tabindex="-1" aria-hidden="true" style="display:none;">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header d-flex align-items-center">
                     <h5 class="modal-title">Edit Teacher</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <ul class="nav nav-tabs edit-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-basic"
+                                type="button" role="tab">Basic Info</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-profile" type="button"
+                                role="tab">Profile &amp; Bio</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-social" type="button"
+                                role="tab">Social Links</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-media" type="button"
+                                role="tab">Media &amp; Security</button>
+                        </li>
+                    </ul>
+
                     <form method="POST" id="editTeacherForm" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Full Name (English) <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" name="name" id="edit-name" class="form-control"
-                                        placeholder="e.g. John Doe">
+                        <div class="tab-content">
+                            {{-- Basic Info --}}
+                            <div class="tab-pane fade show active" id="tab-basic" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Full Name (English) <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" name="name" id="edit-name" class="form-control"
+                                                placeholder="e.g. John Doe">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Full Name (Khmer)</label>
+                                            <input type="text" name="khmer_name" id="edit-khmer-name"
+                                                class="form-control" placeholder="e.g. គ្រូបង្រៀន">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Full Name (Khmer)</label>
-                                    <input type="text" name="khmer_name" id="edit-khmer-name" class="form-control"
-                                        placeholder="e.g. គ្រូបង្រៀន">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Email <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="email" name="email" id="edit-email" class="form-control"
+                                                placeholder="e.g. teacher@gmail.com">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Phone <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" name="phone" id="edit-phone" class="form-control"
+                                                placeholder="e.g. 012000000">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" id="edit-email" class="form-control"
-                                        placeholder="e.g. teacher@gmail.com">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Alternate Phone</label>
+                                            <input type="text" name="alternate_phone" id="edit-alternate-phone"
+                                                class="form-control" placeholder="e.g. 097000000">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Date of Birth</label>
+                                            <input type="date" name="dob" id="edit-dob" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
-                                    <input type="text" name="phone" id="edit-phone" class="form-control"
-                                        placeholder="e.g. 012000000">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Date of Birth</label>
-                                    <input type="date" name="dob" id="edit-dob" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Gender <span
-                                            class="text-danger">*</span></label>
-                                    <select name="gender" id="edit-gender" class="form-select">
-                                        <option value="" disabled>Select Gender</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">New Password</label>
-                                    <div class="input-group">
-                                        <input type="password" name="password" id="edit-password" class="form-control"
-                                            placeholder="Leave blank to keep current">
-                                        <button type="button" class="btn btn-outline-secondary toggle-password"
-                                            data-target="#edit-password"><i class="ti ti-eye"></i></button>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Gender <span
+                                                    class="text-danger">*</span></label>
+                                            <select name="gender" id="edit-gender" class="form-select">
+                                                <option value="" disabled>Select Gender</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Nationality</label>
+                                            <input type="text" name="nationality" id="edit-nationality"
+                                                class="form-control" placeholder="e.g. Khmer">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Location</label>
+                                            <input type="text" name="location" id="edit-location"
+                                                class="form-control" placeholder="e.g. Phnom Penh">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+
+                            {{-- Profile & Bio --}}
+                            <div class="tab-pane fade" id="tab-profile" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Headline</label>
+                                            <input type="text" name="headline" id="edit-headline"
+                                                class="form-control" placeholder="e.g. Senior Frontend Developer">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Designation</label>
+                                            <input type="text" name="designation" id="edit-designation"
+                                                class="form-control" placeholder="e.g. UI/UX Specialist">
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Confirm New Password</label>
-                                    <div class="input-group">
-                                        <input type="password" id="edit-password-confirm" name="password_confirmation"
-                                            class="form-control" placeholder="Re-enter new password">
-                                        <button type="button" class="btn btn-outline-secondary toggle-password"
-                                            data-target="#edit-password-confirm"><i class="ti ti-eye"></i></button>
+                                    <label class="form-label fw-semibold">Bio</label>
+                                    <textarea name="bio" id="edit-bio" rows="4" class="form-control"
+                                        placeholder="A short professional background..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Expertise</label>
+                                    <div class="input-group mb-2">
+                                        <input type="text" id="edit-expertise-input" class="form-control"
+                                            placeholder="e.g. React.js — press Enter or click Add">
+                                        <button type="button" class="btn btn-outline-primary" id="btn-add-expertise">
+                                            <i class="ti ti-plus"></i> Add
+                                        </button>
+                                    </div>
+                                    <ul class="list-group" id="edit-expertise-list"></ul>
+                                    <div id="edit-expertise-hidden-inputs"></div>
+                                    <small class="text-muted">Type a skill and press Enter or click Add. Click the
+                                        <i class="ti ti-x"></i> on an item to remove it.</small>
+                                </div>
+                            </div>
+
+                            {{-- Social Links --}}
+                            <div class="tab-pane fade" id="tab-social" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i
+                                                    class="ti ti-brand-facebook me-1"></i> Facebook</label>
+                                            <input type="url" name="facebook" id="edit-facebook"
+                                                class="form-control" placeholder="https://facebook.com/username">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i class="ti ti-brand-x me-1"></i> X
+                                                (Twitter)</label>
+                                            <input type="url" name="x" id="edit-x" class="form-control"
+                                                placeholder="https://x.com/username">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i
+                                                    class="ti ti-brand-linkedin me-1"></i> LinkedIn</label>
+                                            <input type="url" name="linkedin" id="edit-linkedin"
+                                                class="form-control" placeholder="https://linkedin.com/in/username">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i class="ti ti-world me-1"></i>
+                                                Website</label>
+                                            <input type="url" name="website" id="edit-website" class="form-control"
+                                                placeholder="https://example.com">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i class="ti ti-brand-github me-1"></i>
+                                                GitHub</label>
+                                            <input type="url" name="github" id="edit-github" class="form-control"
+                                                placeholder="https://github.com/username">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i
+                                                    class="ti ti-brand-instagram me-1"></i> Instagram</label>
+                                            <input type="url" name="instagram" id="edit-instagram"
+                                                class="form-control" placeholder="https://instagram.com/username">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i
+                                                    class="ti ti-brand-telegram me-1"></i> Telegram</label>
+                                            <input type="text" name="telegram" id="edit-telegram"
+                                                class="form-control" placeholder="@username">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i class="ti ti-brand-tiktok me-1"></i>
+                                                TikTok</label>
+                                            <input type="text" name="tiktok" id="edit-tiktok" class="form-control"
+                                                placeholder="@username">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold"><i class="ti ti-brand-youtube me-1"></i>
+                                                YouTube</label>
+                                            <input type="text" name="youtube" id="edit-youtube" class="form-control"
+                                                placeholder="Channel URL">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Location</label>
-                                    <input type="text" name="location" id="edit-location" class="form-control"
-                                        placeholder="e.g. Phnom Penh">
+
+                            {{-- Media & Security --}}
+                            <div class="tab-pane fade" id="tab-media" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Profile Image</label>
+                                            <div class="d-flex align-items-center gap-3 mb-2">
+                                                <div id="edit-image-preview-wrap">
+                                                    <img id="edit-image-preview" src="" alt="Preview"
+                                                        style="display:none;">
+                                                    <i class="ti ti-user fs-3 text-muted" id="edit-image-placeholder"></i>
+                                                </div>
+                                                <input type="file" id="edit-image-input" name="image"
+                                                    class="form-control" accept="image/*">
+                                            </div>
+                                            <small class="text-muted">Leave blank to keep current image. Selecting a
+                                                new one opens the cropper.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Document</label>
+                                            <input type="file" name="document" class="form-control"
+                                                accept="image/*,.pdf">
+                                            <small class="text-muted">Leave blank to keep current document</small>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Profile Image</label>
-                                    <input type="file" name="image" class="form-control" accept="image/*">
-                                    <small class="text-muted">Leave blank to keep current image</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Document</label>
-                                    <input type="file" name="document" class="form-control" accept="image/*,.pdf">
-                                    <small class="text-muted">Leave blank to keep current document</small>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" name="password" id="edit-password"
+                                                    class="form-control" placeholder="Leave blank to keep current">
+                                                <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                    data-target="#edit-password"><i class="ti ti-eye"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Confirm New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" id="edit-password-confirm"
+                                                    name="password_confirmation" class="form-control"
+                                                    placeholder="Re-enter new password">
+                                                <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                    data-target="#edit-password-confirm"><i
+                                                        class="ti ti-eye"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -458,6 +710,28 @@
                     <button class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">
                         <i class="ti ti-x me-1"></i> Discard
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- CROP MODAL --}}
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crop Profile Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="crop-target-wrap">
+                        <img id="crop-target" src="" alt="Crop target">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-apply-crop">
+                        <i class="ti ti-crop me-1"></i> Apply Crop
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -504,6 +778,7 @@
     @endif
 @endsection
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
         // ─── View Toggle (persisted in localStorage) ───────────────────────────────
         const VIEW_KEY = 'teacher_view_preference';
@@ -547,19 +822,186 @@
                 new bootstrap.Modal(document.getElementById('deleteTeacherModal')).show();
             });
         });
-        // ─── Edit ───────────────────────────────────────────────────────────────────
+
+        // ─── Expertise "add task" list ──────────────────────────────────────────────
+        const expertiseList = document.getElementById('edit-expertise-list');
+        const expertiseHidden = document.getElementById('edit-expertise-hidden-inputs');
+        const expertiseInput = document.getElementById('edit-expertise-input');
+
+        function renderExpertiseHidden() {
+            expertiseHidden.innerHTML = '';
+            expertiseList.querySelectorAll('li').forEach(li => {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'expertise[]';
+                hidden.value = li.dataset.value;
+                expertiseHidden.appendChild(hidden);
+            });
+        }
+
+        function addExpertiseItem(text) {
+            text = text.trim();
+            if (!text) return;
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.dataset.value = text;
+
+            const span = document.createElement('span');
+            span.textContent = text;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-danger btn-remove-expertise';
+            btn.innerHTML = '<i class="ti ti-x"></i>';
+            btn.addEventListener('click', function() {
+                li.remove();
+                renderExpertiseHidden();
+            });
+
+            li.appendChild(span);
+            li.appendChild(btn);
+            expertiseList.appendChild(li);
+            renderExpertiseHidden();
+        }
+
+        document.getElementById('btn-add-expertise').addEventListener('click', function() {
+            addExpertiseItem(expertiseInput.value);
+            expertiseInput.value = '';
+            expertiseInput.focus();
+        });
+        expertiseInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addExpertiseItem(expertiseInput.value);
+                expertiseInput.value = '';
+            }
+        });
+
+        // ─── Cropper.js — square (1:1) profile image crop ──────────────────────────
+        let cropper = null;
+        let cropModalInstance = null;
+        const editImageInput = document.getElementById('edit-image-input');
+        const cropTarget = document.getElementById('crop-target');
+        const editImagePreview = document.getElementById('edit-image-preview');
+        const editImagePlaceholder = document.getElementById('edit-image-placeholder');
+        const cropModalEl = document.getElementById('cropModal');
+
+        editImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                cropTarget.src = evt.target.result;
+                cropModalInstance = new bootstrap.Modal(cropModalEl);
+                cropModalInstance.show();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        cropModalEl.addEventListener('shown.bs.modal', function() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropper = new Cropper(cropTarget, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+            });
+        });
+
+        cropModalEl.addEventListener('hidden.bs.modal', function() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+
+        document.getElementById('btn-apply-crop').addEventListener('click', function() {
+            if (!cropper) return;
+            cropper.getCroppedCanvas({
+                width: 400,
+                height: 400
+            }).toBlob(function(blob) {
+                const croppedFile = new File([blob], 'profile.jpg', {
+                    type: 'image/jpeg'
+                });
+                const dt = new DataTransfer();
+                dt.items.add(croppedFile);
+                editImageInput.files = dt.files;
+
+                editImagePreview.src = URL.createObjectURL(blob);
+                editImagePreview.style.display = 'block';
+                editImagePlaceholder.style.display = 'none';
+
+                cropModalInstance.hide();
+            }, 'image/jpeg', 0.9);
+        });
+
+        // ─── Edit — populate every field from data-* attributes ────────────────────
         document.querySelectorAll('.btn-edit-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 const id = this.dataset.id;
                 const form = document.getElementById('editTeacherForm');
                 form.action = `/staff/teacher/${id}`;
+
+                // Basic Info
                 document.getElementById('edit-name').value = this.dataset.name ?? '';
                 document.getElementById('edit-khmer-name').value = this.dataset.khmerName ?? '';
                 document.getElementById('edit-email').value = this.dataset.email ?? '';
                 document.getElementById('edit-phone').value = this.dataset.phone ?? '';
+                document.getElementById('edit-alternate-phone').value = this.dataset.alternatePhone ?? '';
                 document.getElementById('edit-dob').value = this.dataset.dob ?? '';
-                document.getElementById('edit-location').value = this.dataset.location ?? '';
                 document.getElementById('edit-gender').value = this.dataset.gender ?? '';
+                document.getElementById('edit-nationality').value = this.dataset.nationality ?? '';
+                document.getElementById('edit-location').value = this.dataset.location ?? '';
+
+                // Profile & Bio
+                document.getElementById('edit-headline').value = this.dataset.headline ?? '';
+                document.getElementById('edit-designation').value = this.dataset.designation ?? '';
+                document.getElementById('edit-bio').value = this.dataset.bio ?? '';
+
+                expertiseList.innerHTML = '';
+                let expertiseArr = [];
+                try {
+                    expertiseArr = JSON.parse(this.dataset.expertise || '[]');
+                } catch (e) {
+                    expertiseArr = [];
+                }
+                expertiseArr.forEach(skill => addExpertiseItem(skill));
+
+                // Social Links
+                document.getElementById('edit-facebook').value = this.dataset.facebook ?? '';
+                document.getElementById('edit-x').value = this.dataset.x ?? '';
+                document.getElementById('edit-linkedin').value = this.dataset.linkedin ?? '';
+                document.getElementById('edit-website').value = this.dataset.website ?? '';
+                document.getElementById('edit-github').value = this.dataset.github ?? '';
+                document.getElementById('edit-instagram').value = this.dataset.instagram ?? '';
+                document.getElementById('edit-telegram').value = this.dataset.telegram ?? '';
+                document.getElementById('edit-tiktok').value = this.dataset.tiktok ?? '';
+                document.getElementById('edit-youtube').value = this.dataset.youtube ?? '';
+
+                // Media — reset file input, show current image (if any) as preview
+                editImageInput.value = '';
+                if (this.dataset.image) {
+                    editImagePreview.src = this.dataset.image;
+                    editImagePreview.style.display = 'block';
+                    editImagePlaceholder.style.display = 'none';
+                } else {
+                    editImagePreview.src = '';
+                    editImagePreview.style.display = 'none';
+                    editImagePlaceholder.style.display = 'block';
+                }
+
+                // Password fields always start blank
+                document.getElementById('edit-password').value = '';
+                document.getElementById('edit-password-confirm').value = '';
+
+                // Always land back on the first tab
+                const firstTabBtn = document.querySelector('.edit-tabs .nav-link');
+                if (firstTabBtn) new bootstrap.Tab(firstTabBtn).show();
+
                 new bootstrap.Modal(document.getElementById('editContactModal')).show();
             });
         });

@@ -17,6 +17,21 @@ class ICTCourse extends Model
         'duration' => 'float',
     ];
     protected $fillable = ['instructor_id', 'schedule_id', 'thumbnail', 'title', 'khmer_title', 'slug', 'description', 'price', 'price_per_session', 'status', 'start_date', 'end_date', 'duration', 'category_id', 'capacity', 'telegram_group_link',];
+    public function chapters(): HasMany
+    {
+        return $this->hasMany(ICTCourseChapter::class, 'course_id')->orderBy('order');
+    }
+    public function lessons()
+    {
+        return $this->hasManyThrough(
+            ICTCourseChapterLesson::class,
+            ICTCourseChapter::class,
+            'course_id',   // Foreign key on chapters table
+            'chapter_id',  // Foreign key on lessons table
+            'id',          // Local key on courses table
+            'id'           // Local key on chapters table
+        );
+    }
     public function studentReports()
     {
         return $this->hasMany(StudentReports::class, 'course_id');

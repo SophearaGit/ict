@@ -118,14 +118,37 @@ class TeacherController extends Controller
         $instructor = User::findOrFail($id);
 
         $request->validate([
+            // Basic Info
             'name' => 'required|string|max:255',
             'khmer_name' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'required|string|max:20',
+            'alternate_phone' => 'nullable|string|max:20',
             'dob' => 'nullable|date',
             'gender' => 'required|in:male,female',
-            'password' => 'nullable|min:8|confirmed',
+            'nationality' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:255',
+
+            // Profile & Bio
+            'headline' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:255',
+            'bio' => 'nullable|string',
+            'expertise' => 'nullable|array',
+            'expertise.*' => 'string|max:100',
+
+            // Social Links
+            'facebook' => 'nullable|url|max:255',
+            'x' => 'nullable|url|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'website' => 'nullable|url|max:255',
+            'github' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'telegram' => 'nullable|string|max:255',
+            'tiktok' => 'nullable|string|max:255',
+            'youtube' => 'nullable|string|max:255',
+
+            // Media & Security
+            'password' => 'nullable|min:8|confirmed',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
@@ -147,13 +170,34 @@ class TeacherController extends Controller
             $instructor->password = bcrypt($request->password);
         }
 
+        // Basic Info
         $instructor->name = $request->name;
         $instructor->khmer_name = $request->khmer_name;
         $instructor->email = $request->email;
         $instructor->phone = $request->phone;
+        $instructor->alternate_phone = $request->alternate_phone;
         $instructor->dob = $request->dob;
         $instructor->gender = $request->gender;
+        $instructor->nationality = $request->nationality;
         $instructor->location = $request->location;
+
+        // Profile & Bio
+        $instructor->headline = $request->headline;
+        $instructor->designation = $request->designation;
+        $instructor->bio = $request->bio;
+        $instructor->expertise = $request->input('expertise', []);
+
+        // Social Links
+        $instructor->facebook = $request->facebook;
+        $instructor->x = $request->x;
+        $instructor->linkedin = $request->linkedin;
+        $instructor->website = $request->website;
+        $instructor->github = $request->github;
+        $instructor->instagram = $request->instagram;
+        $instructor->telegram = $request->telegram;
+        $instructor->tiktok = $request->tiktok;
+        $instructor->youtube = $request->youtube;
+
         $instructor->save();
 
         return redirect()->back()->with('success', 'Teacher updated successfully.');

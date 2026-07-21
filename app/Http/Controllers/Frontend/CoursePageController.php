@@ -51,7 +51,8 @@ class CoursePageController extends Controller
         $course = ICTCourse::with([
             'instructor',
             'schedule',
-            'category'
+            'category',
+            'chapters.lessons',
         ])
             ->where('slug', $slug)
             ->where('status', 'active')
