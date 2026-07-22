@@ -17,7 +17,6 @@ use App\Http\Controllers\Admin\InstructorControlller;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternController;
-// use App\Http\Controllers\Admin\InternReportController;
 use App\Http\Controllers\Admin\InternReportController;
 use App\Http\Controllers\Admin\ProfileUpdateController;
 use App\Http\Controllers\Admin\RealTimeCoursesController;
@@ -25,7 +24,6 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StaffReportController;
 use App\Http\Controllers\Admin\StudentInvoicePaymentDetailController;
 use App\Http\Controllers\Admin\StudentReportController;
-use App\Http\Controllers\Frontend\Staff\IctInvoicePaymentController;
 
 
 use Illuminate\Support\Facades\Route;

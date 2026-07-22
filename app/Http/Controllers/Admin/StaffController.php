@@ -19,9 +19,15 @@ class StaffController extends Controller
                 ->where('approval_status', 'approved')
                 ->whereNotNull('document')
                 ->when($request->filled('search'), function ($query) use ($request): void {
-                    $query->where('name', 'like', "%{$request->search}%");
+                    $query->where(function ($q) use ($request) {
+                        $q->where('name', 'like', "%{$request->search}%")
+                            ->orWhere('email', 'like', "%{$request->search}%");
+                    });
                 })
-                ->latest()->paginate(10),
+                ->withCount('reports')
+                ->latest()
+                ->paginate(10)
+                ->withQueryString(),
         ];
         return view('admin.pages.user.staff.staff', $data);
     }

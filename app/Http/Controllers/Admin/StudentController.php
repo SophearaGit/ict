@@ -8,19 +8,30 @@ class StudentController extends Controller
 {
     public function index(Request $request): View
     {
+        $students = User::where('role', 'student')
+            ->where('approval_status', 'approved')
+            ->where(function ($q) {
+                $q->whereNull('document')->orWhere('document', '');
+            })
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->search}%")
+                        ->orWhere('email', 'like', "%{$request->search}%");
+                });
+            })
+            ->withCount('enrollments')
+            ->withSum('payments', 'amount')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
         $data = [
             'page_title' => 'ICT | ADMIN | STUDENTS',
-            'students' => User::where('role', 'student')
+            'students' => $students,
+            'total_students' => User::where('role', 'student')
                 ->where('approval_status', 'approved')
                 ->where(function ($q) {
-                    $q->whereNull('document')
-                        ->orWhere('document', '');
-                })
-                ->when($request->filled('search'), function ($query) use ($request) {
-                    $query->where('name', 'like', "%{$request->search}%");
-                })
-                ->latest()
-                ->paginate(10),
+                    $q->whereNull('document')->orWhere('document', '');
+                })->count(),
         ];
         return view('admin.pages.user.student', $data);
     }

@@ -2,20 +2,16 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
     <div class="row">
-        <!-- Page Header -->
         <div class="col-lg-12 col-md-12 col-12">
             <div class="border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
                 <div class="mb-2 mb-lg-0">
                     <h1 class="mb-1 h2 fw-bold">
                         Student
-                        <span class="fs-5">( {{ $students->count() }} )</span>
+                        <span class="fs-5">( {{ $total_students }} )</span>
                     </h1>
-                    <!-- Breadcrumb  -->
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-                            </li>
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                             <li class="breadcrumb-item active" aria-current="page">User</li>
                             <li class="breadcrumb-item active" aria-current="page">Student</li>
                         </ol>
@@ -26,7 +22,6 @@
                         data-bs-target="#tabPaneGrid">
                         <span class="fe fe-grid"></span>
                     </button>
-
                     <button class="btn btn-outline-secondary" data-tab="list" data-bs-toggle="tab"
                         data-bs-target="#tabPaneList">
                         <span class="fe fe-list"></span>
@@ -35,15 +30,16 @@
             </div>
         </div>
     </div>
+
     <div class="row">
         <div class="col-lg-12 col-md-12 col-12">
-            <!-- Tab -->
             <div class="tab-content">
-                <!-- Tab Pane -->
+
+                {{-- ── GRID VIEW ─────────────────────────────────────────────── --}}
                 <div class="tab-pane fade" id="tabPaneGrid" role="tabpanel" aria-labelledby="tabPaneGrid">
                     <div class="mb-4">
                         <form action="{{ route('admin.student.index') }}" method="GET">
-                            <input type="search" class="form-control" placeholder="Search Student" name="search"
+                            <input type="search" class="form-control" placeholder="Search by name or email" name="search"
                                 value="{{ request()->search ?? '' }}">
                         </form>
                     </div>
@@ -52,42 +48,56 @@
                             @php
                                 $isImgChecked =
                                     $student->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $student->image;
+                                $statusColor = match ($student->status) {
+                                    'active' => 'bg-success',
+                                    'on_leave' => 'bg-warning',
+                                    default => 'bg-secondary',
+                                };
+                                $statusLabel = match ($student->status) {
+                                    'active' => 'Active',
+                                    'on_leave' => 'On Leave',
+                                    default => ucfirst($student->status ?? 'Unknown'),
+                                };
                             @endphp
                             <div class="col-xl-3 col-lg-6 col-md-6 col-12">
-                                <!-- Card -->
                                 <div class="card mb-4">
-                                    <!-- Card body -->
                                     <div class="card-body">
                                         <div class="text-center">
-                                            <div class="position-relative">
+                                            <div class="position-relative d-inline-block">
                                                 <img src="{{ $isImgChecked }}" class="rounded-circle avatar-xl mb-3"
                                                     alt="">
-                                                <a href="#" class="position-absolute mt-8 ms-n5">
-                                                    <span class="status bg-success"></span>
-                                                </a>
+                                                <span class="status {{ $statusColor }} position-absolute"
+                                                    style="bottom: 14px; right: 4px;" title="{{ $statusLabel }}"></span>
                                             </div>
-                                            <h4 class="mb-0">
-                                                {{ $student->name }}
-                                            </h4>
+                                            <h4 class="mb-0">{{ $student->name }}</h4>
+                                            <p class="mb-0 small text-truncate">{{ $student->email }}</p>
                                             <p class="mb-0">
                                                 <i class="fe fe-map-pin me-1 fs-6"></i>
                                                 {{ $student->location ?? 'N/A' }}
                                             </p>
+                                            <span
+                                                class="badge {{ $statusColor == 'bg-success' ? 'bg-success-soft text-success' : ($statusColor == 'bg-warning' ? 'bg-warning-soft text-warning' : 'bg-secondary-soft text-secondary') }} mt-2">
+                                                {{ $statusLabel }}
+                                            </span>
                                         </div>
-                                        <div class="d-flex justify-content-between border-bottom py-2 mt-6">
-                                            <span>Payments</span>
-                                            <span class="text-dark">${{ rand(100, 900) }}</span>
+                                        <div class="d-flex justify-content-between border-bottom py-2 mt-4">
+                                            <span>Total Paid</span>
+                                            <span class="text-dark fw-semibold">
+                                                ${{ number_format($student->payments_sum_amount ?? 0, 2) }}
+                                            </span>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
                                             <span>Joined at</span>
-                                            <span>
-                                                {{ $student->created_at->format('d M, Y') }}
-                                            </span>
+                                            <span>{{ $student->created_at->format('d M, Y') }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom py-2">
+                                            <span>Phone</span>
+                                            <span>{{ $student->phone ?? 'N/A' }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between pt-2">
                                             <span>Courses</span>
-                                            <span class="text-dark">
-                                                {{ $student->enrollments->count() }}
+                                            <span class="text-dark fw-semibold">
+                                                {{ $student->enrollments_count }}
                                             </span>
                                         </div>
                                         <div class="mt-3 d-grid">
@@ -109,32 +119,31 @@
                                 </div>
                             </div>
                         @endforelse
-                        {{-- Pagination Below --}}
-
                     </div>
+                    <div class="mt-3">{{ $students->links() }}</div>
                 </div>
-                <!-- Tab Pane -->
+
+                {{-- ── LIST VIEW ─────────────────────────────────────────────── --}}
                 <div class="tab-pane fade" id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
-                    <!-- Card -->
                     <div class="card">
-                        <!-- Card Header -->
                         <div class="card-header">
                             <form action="{{ route('admin.student.index') }}" method="GET">
-                                <input type="search" class="form-control" placeholder="Search Student" name="search"
-                                    value="{{ request()->search ?? '' }}">
+                                <input type="search" class="form-control" placeholder="Search by name or email"
+                                    name="search" value="{{ request()->search ?? '' }}">
                             </form>
                         </div>
-                        <!-- Table -->
                         <div class="table-responsive">
                             <table class="table mb-0 text-nowrap table-hover table-centered">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Name</th>
                                         <th>Email</th>
+                                        <th>Phone</th>
                                         <th>Enrolled</th>
                                         <th>Joined At</th>
-                                        <th>TotaL Payment</th>
-                                        <th>Locations</th>
+                                        <th>Total Payment</th>
+                                        <th>Status</th>
+                                        <th>Location</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -145,6 +154,16 @@
                                                 $student->image == 'no-img.jpg'
                                                     ? '/default-images/user/both.jpg'
                                                     : $student->image;
+                                            $statusColor = match ($student->status) {
+                                                'active' => 'bg-success',
+                                                'on_leave' => 'bg-warning',
+                                                default => 'bg-secondary',
+                                            };
+                                            $statusLabel = match ($student->status) {
+                                                'active' => 'Active',
+                                                'on_leave' => 'On Leave',
+                                                default => ucfirst($student->status ?? 'Unknown'),
+                                            };
                                         @endphp
                                         <tr>
                                             <td>
@@ -152,30 +171,26 @@
                                                     <div class="position-relative">
                                                         <img src="{{ $isImgChecked }}" alt=""
                                                             class="rounded-circle avatar-md me-2">
-                                                        <a href="#" class="position-absolute mt-5 ms-n4">
-                                                            <span class="status bg-success"></span>
-                                                        </a>
+                                                        <span class="status {{ $statusColor }} position-absolute"
+                                                            style="bottom: 2px; right: 6px;"
+                                                            title="{{ $statusLabel }}"></span>
                                                     </div>
-                                                    <h5 class="mb-0">
-                                                        {{ $student->name }}
-                                                    </h5>
+                                                    <h5 class="mb-0">{{ $student->name }}</h5>
                                                 </div>
                                             </td>
-                                            <td>
-                                                {{ $student->email }}
+                                            <td>{{ $student->email }}</td>
+                                            <td>{{ $student->phone ?? 'N/A' }}</td>
+                                            <td>{{ $student->enrollments_count }}</td>
+                                            <td>{{ $student->created_at->format('d M, Y') }}</td>
+                                            <td class="fw-semibold">
+                                                ${{ number_format($student->payments_sum_amount ?? 0, 2) }}
                                             </td>
                                             <td>
-                                                {{ rand(5, 10) }}
+                                                <span
+                                                    class="badge-dot {{ $statusColor }} me-1 d-inline-block align-middle"></span>
+                                                {{ $statusLabel }}
                                             </td>
-                                            <td>
-                                                {{ $student->created_at->format('d M, Y') }}
-                                            </td>
-                                            <td>
-                                                ${{ rand(100, 900) }}
-                                            </td>
-                                            <td>
-                                                {{ $student->location ?? 'N/A' }}
-                                            </td>
+                                            <td>{{ $student->location ?? 'N/A' }}</td>
                                             <td>
                                                 <div class="hstack gap-4">
                                                     <span class="dropdown dropstart">
@@ -188,16 +203,13 @@
                                                             <span class="dropdown-header">Settings</span>
                                                             <a class="dropdown-item"
                                                                 href="{{ route('admin.student.show', $student) }}">
-                                                                <i class="fe fe-eye dropdown-item-icon"></i>
-                                                                View
+                                                                <i class="fe fe-eye dropdown-item-icon"></i> View
                                                             </a>
                                                             <a class="dropdown-item" href="#">
-                                                                <i class="fe fe-edit dropdown-item-icon"></i>
-                                                                Edit
+                                                                <i class="fe fe-edit dropdown-item-icon"></i> Edit
                                                             </a>
-                                                            <a class="dropdown-item" href="#">
-                                                                <i class="fe fe-trash dropdown-item-icon"></i>
-                                                                Remove
+                                                            <a class="dropdown-item text-danger" href="#">
+                                                                <i class="fe fe-trash dropdown-item-icon"></i> Remove
                                                             </a>
                                                         </span>
                                                     </span>
@@ -206,7 +218,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center">
+                                            <td colspan="9" class="text-center">
                                                 <h5 class="mb-0">No students found.</h5>
                                                 <p class="mb-0">There are currently no students yet.</p>
                                             </td>
@@ -214,25 +226,20 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            {{-- Pagination Below --}}
-
+                            <div class="p-3">{{ $students->links() }}</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 @endsection
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const activeTab = localStorage.getItem('student_active_tab') || 'grid';
-
             const trigger = document.querySelector(`[data-tab="${activeTab}"]`);
-            if (trigger) {
-                new bootstrap.Tab(trigger).show();
-            }
+            if (trigger) new bootstrap.Tab(trigger).show();
         });
         document.querySelectorAll('[data-tab]').forEach(btn => {
             btn.addEventListener('click', function() {

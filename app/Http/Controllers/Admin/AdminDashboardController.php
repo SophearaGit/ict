@@ -74,6 +74,7 @@ class AdminDashboardController extends Controller
         $newStudentsList = User::where('role', 'student')
             ->whereNull('document')
             ->whereBetween('created_at', [$from, $to])
+            ->with(['enrollments.course.instructor']) // <-- eager-load the chain
             ->latest()
             ->get()
             ->map(
@@ -86,6 +87,20 @@ class AdminDashboardController extends Controller
                         ? asset($student->image)
                         : asset('/default-images/user/both.jpg'),
                     'registered' => $student->created_at->format('M d, Y'),
+                    'courses' => $student->enrollments
+                        ->filter(fn($e) => $e->course)
+                        ->map(fn($e) => [
+                            'title' => $e->course->title,
+                            'thumbnail' => $e->course->thumbnail
+                                ? asset($e->course->thumbnail)
+                                : asset('/default-images/staff/no-course-img.png'),
+                            'teacher' => $e->course->instructor?->name ?? 'N/A',
+                            'teacher_image' => $e->course->instructor?->image === 'no-img.jpg'
+                                ? asset('/default-images/user/both.jpg')
+                                : asset($e->course->instructor?->image ?? '/default-images/user/both.jpg'),
+                            'status' => $e->course->status, // 'active' | 'inactive'
+                        ])
+                        ->values(),
                 ],
             );
         // Recent courses active in this month
