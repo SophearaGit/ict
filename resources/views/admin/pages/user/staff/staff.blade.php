@@ -61,70 +61,58 @@
                                     $staff->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $staff->image;
                             @endphp
                             <div class="col-xl-3 col-lg-6 col-md-6 col-12">
-
-                                <!-- Card -->
                                 <div class="card mb-4">
-
-                                    <!-- Card body -->
                                     <div class="card-body">
                                         <div class="text-center">
                                             <img src="{{ $isImgChecked }}" class="rounded-circle avatar-xl mb-3"
                                                 alt="">
-                                            <h4 class="mb-0">
-                                                {{ $staff->name }}
-                                            </h4>
-                                            <p class="mb-0">
-                                                {{ $staff->email }}
-                                            </p>
+                                            <h4 class="mb-0">{{ $staff->name }}</h4>
+                                            <p class="mb-0 small text-truncate">{{ $staff->email }}</p>
+                                            <p class="mb-0 text-muted small">{{ $staff->designation ?? 'N/A' }}</p>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2 mt-4">
-                                            <span>
-                                                Reports
-                                            </span>
-                                            <span class="text-dark">
-                                                {{ $staff->reports->count() }}
-                                            </span>
+                                            <span>Phone</span>
+                                            <span class="text-dark">{{ $staff->phone ?? 'N/A' }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
-                                            <span>
-                                                Approval Status
-                                            </span>
+                                            <span>Reports</span>
+                                            <span class="text-dark">{{ $staff->reports_count }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom py-2">
+                                            <span>Account Status</span>
                                             <span class="text-dark">
                                                 @if ($staff->role == 'unknown')
-                                                    <span class="badge bg-danger">
-                                                        Disabled
-                                                    </span>
+                                                    <span class="badge bg-danger">Disabled</span>
                                                 @else
-                                                    <span class="badge bg-success">
-                                                        Enabled
-                                                    </span>
+                                                    <span class="badge bg-success">Enabled</span>
                                                 @endif
                                             </span>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
-                                            <span>
-                                                Manage Staff Access
-                                            </span>
+                                            <span>Manage Staff Access</span>
                                             <span class="text-dark">
                                                 @if ($staff->admin_approval_edit_staff)
-                                                    <span class="badge bg-success">
-                                                        Granted
-                                                    </span>
+                                                    <span class="badge bg-success">Granted</span>
                                                 @else
-                                                    <span class="badge bg-secondary">
-                                                        Not Granted
-                                                    </span>
+                                                    <span class="badge bg-secondary">Not Granted</span>
                                                 @endif
                                             </span>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
-                                            <span>
-                                                Joined
-                                            </span>
-                                            <span class="text-dark">
-                                                {{ $staff->created_at->format('d M, Y') }}
-                                            </span>
+                                            <span>Joined</span>
+                                            <span class="text-dark">{{ $staff->created_at->format('d M, Y') }}</span>
                                         </div>
+                                        @if ($staff->document)
+                                            <div class="mt-3 d-grid">
+                                                <button type="button"
+                                                    class="btn btn-outline-secondary btn-sm view_document_btn"
+                                                    data-url="{{ asset($staff->document) }}"
+                                                    data-ext="{{ strtolower(pathinfo($staff->document, PATHINFO_EXTENSION)) }}"
+                                                    data-name="{{ $staff->name }}">
+                                                    <i class="fe fe-file-text me-1"></i> View Document
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -168,10 +156,13 @@
                                     <tr>
                                         <th>Name</th>
                                         <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Designation</th>
                                         <th>Reports</th>
-                                        <th>Approval Status</th>
+                                        <th>Account Status</th>
                                         <th>Manage Access</th>
                                         <th>Joined</th>
+                                        <th>Document</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -188,41 +179,40 @@
                                                 <div class="d-flex align-items-center">
                                                     <img src="{{ $isImgChecked }}" alt=""
                                                         class="rounded-circle avatar-md me-2">
-                                                    <h5 class="mb-0">
-                                                        {{ $staff->name }}
-                                                    </h5>
+                                                    <h5 class="mb-0">{{ $staff->name }}</h5>
                                                 </div>
                                             </td>
-                                            <td>
-                                                {{ $staff->email }}
-                                            </td>
-                                            <td>
-                                                {{ $staff->reports->count() }}
-                                            </td>
+                                            <td>{{ $staff->email }}</td>
+                                            <td>{{ $staff->phone ?? 'N/A' }}</td>
+                                            <td>{{ $staff->designation ?? 'N/A' }}</td>
+                                            <td>{{ $staff->reports_count }}</td>
                                             <td>
                                                 @if ($staff->role == 'unknown')
-                                                    <span class="badge bg-danger">
-                                                        Disabled
-                                                    </span>
+                                                    <span class="badge bg-danger">Disabled</span>
                                                 @else
-                                                    <span class="badge bg-success">
-                                                        Enabled
-                                                    </span>
+                                                    <span class="badge bg-success">Enabled</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($staff->admin_approval_edit_staff)
-                                                    <span class="badge bg-success">
-                                                        Granted
-                                                    </span>
+                                                    <span class="badge bg-success">Granted</span>
                                                 @else
-                                                    <span class="badge bg-secondary">
-                                                        Not Granted
-                                                    </span>
+                                                    <span class="badge bg-secondary">Not Granted</span>
                                                 @endif
                                             </td>
+                                            <td>{{ $staff->created_at->format('d M, Y') }}</td>
                                             <td>
-                                                {{ $staff->created_at->format('d M, Y') }}
+                                                @if ($staff->document)
+                                                    <button type="button"
+                                                        class="btn btn-outline-secondary btn-sm view_document_btn"
+                                                        data-url="{{ asset($staff->document) }}"
+                                                        data-ext="{{ strtolower(pathinfo($staff->document, PATHINFO_EXTENSION)) }}"
+                                                        data-name="{{ $staff->name }}">
+                                                        <i class="fe fe-file-text"></i>
+                                                    </button>
+                                                @else
+                                                    <span class="text-muted small">None</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div class="hstack gap-4">
@@ -300,10 +290,10 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center">
+                                            <td colspan="10" class="text-center">
                                                 <h5 class="mb-0">No staffs found.</h5>
-                                                <p class="mb-0">There are currently no approved staffs with
-                                                    uploaded documents.</p>
+                                                <p class="mb-0">There are currently no approved staffs with uploaded
+                                                    documents.</p>
                                             </td>
                                         </tr>
                                     @endforelse
@@ -325,9 +315,60 @@
         <div class="modal-dialog dynamic_staff_modal_content">
         </div>
     </div>
+    <div class="modal fade" id="documentViewModal" tabindex="-1" aria-labelledby="documentViewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentViewModalLabel">Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" id="documentViewBody" style="min-height: 400px;">
+                    {{-- filled by JS --}}
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="documentViewDownload" target="_blank"
+                        class="btn btn-outline-secondary btn-sm">
+                        <i class="fe fe-download me-1"></i> Open in new tab
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @push('scripts')
     <script>
+        $('.view_document_btn').on('click', function() {
+            const url = $(this).data('url');
+            const ext = $(this).data('ext');
+            const name = $(this).data('name');
+            $('#documentViewModalLabel').text(name + '\'s Document');
+            $('#documentViewDownload').attr('href', url);
+
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            let body;
+
+            if (ext === 'pdf') {
+                body = `<iframe src="${url}" style="width:100%; height:70vh; border:0;"></iframe>`;
+            } else if (imageExts.includes(ext)) {
+                body =
+                    `<div class="text-center p-3"><img src="${url}" alt="${name}" class="img-fluid rounded"></div>`;
+            } else {
+                // doc/docx and anything else can't be embedded reliably in-browser
+                body = `
+            <div class="text-center p-5">
+                <i class="fe fe-file fs-1 text-muted d-block mb-3"></i>
+                <p class="mb-1">This file type (.${ext}) can't be previewed inline.</p>
+                <a href="${url}" target="_blank" class="btn btn-primary btn-sm mt-2">
+                    <i class="fe fe-download me-1"></i> Download / Open
+                </a>
+            </div>`;
+            }
+
+            $('#documentViewBody').html(body);
+            $('#documentViewModal').modal('show');
+        });
         $('.add_staff_btn').on('click', function(e) {
             e.preventDefault();
             $('#dynamic_staff_modal').modal('show');

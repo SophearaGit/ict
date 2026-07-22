@@ -3,6 +3,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
@@ -63,6 +64,17 @@ class User extends Authenticatable
     protected $casts = [
         'admin_approval_edit_staff' => 'boolean',
     ];
+    public function payments(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ICTPayments::class,
+            ICTInvoice::class,
+            'student_id',   // FK on invoices table referencing users.id
+            'invoice_id',   // FK on ict_payments table referencing invoices.id
+            'id',           // local key on users
+            'id',           // local key on invoices
+        );
+    }
     public function student_attendances()
     {
         return $this->hasMany(StudentAttendances::class, 'student_id');

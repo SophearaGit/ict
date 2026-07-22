@@ -689,7 +689,7 @@
     {{-- ─── Students Quick View Modal ─────────────────────────────────────── --}}
     <div class="modal fade" id="studentsQuickViewModal" tabindex="-1" aria-labelledby="studentsQuickViewLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl"> {{-- was modal-lg --}}
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="d-flex align-items-center gap-2">
@@ -734,6 +734,7 @@
                                             <th class="ps-4">Student</th>
                                             <th>Email</th>
                                             <th>Phone</th>
+                                            <th style="min-width: 260px;">Courses</th>
                                             <th class="pe-4">Registered</th>
                                         </tr>
                                     </thead>
@@ -750,6 +751,42 @@
                                                 </td>
                                                 <td class="small">{{ $student['email'] }}</td>
                                                 <td class="small">{{ $student['phone'] }}</td>
+                                                <td class="py-2">
+                                                    @forelse ($student['courses'] as $c)
+                                                        <a href="#"
+                                                            class="text-inherit text-decoration-none d-block">
+                                                            <div
+                                                                class="d-flex align-items-center gap-2 py-1 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                                                <img src="{{ $c['thumbnail'] }}"
+                                                                    alt="{{ $c['title'] }}"
+                                                                    class="rounded flex-shrink-0"
+                                                                    style="width: 44px; height: 32px; object-fit: cover;">
+                                                                <div class="min-w-0 flex-grow-1">
+                                                                    <p class="mb-0 small fw-semibold text-truncate text-primary-hover"
+                                                                        style="max-width: 180px;">
+                                                                        {{ $c['title'] }}
+                                                                    </p>
+                                                                    <div class="d-flex align-items-center gap-1">
+                                                                        <img src="{{ $c['teacher_image'] }}"
+                                                                            alt="{{ $c['teacher'] }}"
+                                                                            class="rounded-circle"
+                                                                            style="width: 16px; height: 16px; object-fit: cover;">
+                                                                        <span class="text-muted"
+                                                                            style="font-size: 11px;">{{ $c['teacher'] }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <span class="d-flex align-items-center flex-shrink-0"
+                                                                    style="font-size: 11px;">
+                                                                    <span
+                                                                        class="badge-dot {{ $c['status'] == 'active' ? 'bg-success' : 'bg-danger' }} me-1 d-inline-block align-middle"></span>
+                                                                    {{ $c['status'] == 'active' ? 'Open' : 'Closed' }}
+                                                                </span>
+                                                            </div>
+                                                        </a>
+                                                    @empty
+                                                        <span class="text-muted small">No courses</span>
+                                                    @endforelse
+                                                </td>
                                                 <td class="pe-4 small text-muted">{{ $student['registered'] }}</td>
                                             </tr>
                                         @endforeach
@@ -767,11 +804,31 @@
                                             <img src="{{ $student['image'] }}" alt="{{ $student['name'] }}"
                                                 class="rounded-circle flex-shrink-0"
                                                 style="width: 48px; height: 48px; object-fit: cover;">
-                                            <div class="min-w-0">
+                                            <div class="min-w-0 flex-grow-1">
                                                 <p class="mb-0 fw-semibold text-truncate">{{ $student['name'] }}</p>
                                                 <p class="mb-0 small text-muted text-truncate">{{ $student['email'] }}</p>
                                                 <p class="mb-0 small text-muted">{{ $student['phone'] }}</p>
-                                                <p class="mb-0 small text-muted mt-1">
+
+                                                @forelse ($student['courses'] as $c)
+                                                    <div
+                                                        class="d-flex align-items-center gap-2 mt-2 {{ !$loop->last ? 'pb-2 border-bottom' : '' }}">
+                                                        <img src="{{ $c['thumbnail'] }}" alt="{{ $c['title'] }}"
+                                                            class="rounded flex-shrink-0"
+                                                            style="width: 40px; height: 30px; object-fit: cover;">
+                                                        <div class="min-w-0 flex-grow-1">
+                                                            <p class="mb-0 small fw-semibold text-truncate"
+                                                                style="max-width: 140px;">{{ $c['title'] }}</p>
+                                                            <span class="text-muted"
+                                                                style="font-size: 11px;">{{ $c['teacher'] }}</span>
+                                                        </div>
+                                                        <span
+                                                            class="badge-dot {{ $c['status'] == 'active' ? 'bg-success' : 'bg-danger' }} d-inline-block align-middle flex-shrink-0"></span>
+                                                    </div>
+                                                @empty
+                                                    <p class="mb-0 small text-muted mt-2">No courses</p>
+                                                @endforelse
+
+                                                <p class="mb-0 small text-muted mt-2">
                                                     <i class="fe fe-calendar me-1"></i>{{ $student['registered'] }}
                                                 </p>
                                             </div>
