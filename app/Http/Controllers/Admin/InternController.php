@@ -25,7 +25,7 @@ class InternController extends Controller
                             ->orWhere('email', 'like', "%{$request->search}%");
                     });
                 })
-                ->latest()->paginate(10)
+                ->latest()->paginate(12)
                 ->withQueryString(),
         ];
         return view('admin.pages.user.intern.intern', $data);

@@ -26,7 +26,7 @@ class StaffController extends Controller
                 })
                 ->withCount('reports')
                 ->latest()
-                ->paginate(10)
+                ->paginate(12)
                 ->withQueryString(),
         ];
         return view('admin.pages.user.staff.staff', $data);
