@@ -19,7 +19,7 @@ class InternReportController extends Controller
             ->orderByDesc('y')
             ->pluck('y');
 
-        $reports = InternReport::with(['reporter', 'reviewer'])
+        $reports = InternReport::with(['reporter', 'reviewedByAdmin', 'reviewedByStaff'])
             ->when($request->filled('status'), function ($query) use ($request): void {
                 $query->where('status', $request->status);
             })
@@ -55,10 +55,17 @@ class InternReportController extends Controller
             ->paginate(10)
             ->appends($request->query());
 
+        $counts = [
+            'all' => InternReport::count(),
+            'pending' => InternReport::where('status', 'pending')->count(),
+            'reviewed' => InternReport::where('status', 'reviewed')->count(),
+        ];
+
         $data = [
             'page_title' => 'Intern Reports',
             'years' => $years,
             'reports' => $reports,
+            'counts' => $counts,
         ];
 
         return view('admin.pages.Report.Intern.index', $data);
@@ -68,11 +75,22 @@ class InternReportController extends Controller
     {
         $report = InternReport::findOrFail($id);
 
-        $report->update([
+        $data = [
             'status' => 'reviewed',
-            'reviewed_by' => Auth::guard('admin')->id(),
             'reviewed_at' => now(),
-        ]);
+        ];
+
+        if ($adminId = Auth::guard('admin')->id()) {
+            $data['reviewed_by_admin_id'] = $adminId;
+            $data['reviewed_by_staff_id'] = null;
+        } elseif ($staffId = Auth::guard('web')->id()) { // adjust guard name if staff use a different one
+            $data['reviewed_by_staff_id'] = $staffId;
+            $data['reviewed_by_admin_id'] = null;
+        } else {
+            return response(['message' => 'Unauthorized reviewer.'], 403);
+        }
+
+        $report->update($data);
 
         return response(['message' => 'Report marked as reviewed.'], 200);
     }
