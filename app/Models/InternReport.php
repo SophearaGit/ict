@@ -21,7 +21,7 @@ class InternReport extends Model
     ];
     public function reviewer()
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->belongsTo(Admin::class, 'reviewed_by');
     }
     public function reporter()
     {

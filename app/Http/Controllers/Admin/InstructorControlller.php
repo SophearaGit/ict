@@ -9,48 +9,84 @@ use App\Traites\FileUpload;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class InstructorControlller extends Controller
 {
-
     use FileUpload;
 
     public function index(Request $request): View
     {
-        $instructors = User::with(['courses'])
+        $instructors = User::query()
             ->where('role', 'instructor')
             ->where('approval_status', 'approved')
             ->whereNotNull('document')
-
-            // 🔍 Search
+            ->with([
+                'courses.students',
+            ])
+            ->withCount([
+                'courses',
+                'reports',
+            ])
+            // Sum of actual teaching hours logged (present sessions only)
+            ->withSum(['attendances as total_actual_hours' => function ($q) {
+                $q->where('status', 'present');
+            }], 'actual_hours')
+            // Search
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->search}%");
-            })
-
-            // 📘 Subject Filter
-            ->when($request->filled('subject') && $request->subject !== 'All Subject', function ($query) use ($request) {
-                $query->whereHas('courses', function ($q) use ($request) {
-                    $q->where('title', $request->subject);
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->search}%")
+                        ->orWhere('email', 'like', "%{$request->search}%");
                 });
             })
-
-            // 🟢 Status Filter
-            ->when($request->filled('status') && $request->status !== 'All Status', function ($query) use ($request) {
-                $query->where('status', $request->status);
-            })
-
-            // 👤 Gender Filter
-            ->when($request->filled('gender') && $request->gender !== 'All Gender', function ($query) use ($request) {
-                $query->where('gender', $request->gender);
-            })
-
+            // Subject
+            ->when(
+                $request->filled('subject') &&
+                $request->subject !== 'All Subject',
+                function ($query) use ($request) {
+                    $query->whereHas('courses', function ($q) use ($request) {
+                        $q->where('title', $request->subject);
+                    });
+                }
+            )
+            // Status
+            ->when(
+                $request->filled('status') &&
+                $request->status !== 'All Status',
+                function ($query) use ($request) {
+                    $query->where('status', $request->status);
+                }
+            )
+            // Gender
+            ->when(
+                $request->filled('gender') &&
+                $request->gender !== 'All Gender',
+                function ($query) use ($request) {
+                    $query->where('gender', $request->gender);
+                }
+            )
             ->latest()
-            ->paginate(8)
-            ->withQueryString(); // 🔥 VERY IMPORTANT
+            ->paginate(12)
+            ->withQueryString();
 
-        $subjects = ICTCourse::pluck('title')->unique();
+        // Calculate unique students for each instructor
+        $instructors->getCollection()->transform(function ($teacher) {
+            $teacher->student_count = $teacher->courses
+                ->flatMap(function ($course) {
+                    return $course->students;
+                })
+                ->unique('id')
+                ->count();
+            return $teacher;
+        });
+
+        $subjects = ICTCourse::query()
+            ->orderBy('title')
+            ->pluck('title')
+            ->unique()
+            ->values();
 
         return view('admin.pages.user.instructor', [
             'page_title' => 'ICT | ADMIN | INSTRUCTORS',
@@ -78,6 +114,7 @@ class InstructorControlller extends Controller
             'password' => Hash::make($request->password),
             'role' => 'instructor',
             'approval_status' => 'approved',
+            'status' => 'active',
             'document' => $filePath,
         ]);
 
@@ -85,10 +122,22 @@ class InstructorControlller extends Controller
             ->with('success', 'Instructor created successfully.');
     }
 
-
     public function instructorShowDetail($id): View
     {
-        $instructor = User::with('courses')->findOrFail($id);
+        $instructor = User::query()
+            ->with('courses.students')
+            ->withCount(['courses', 'reports'])
+            ->withSum(['attendances as total_actual_hours' => function ($q) {
+                $q->where('status', 'present');
+            }], 'actual_hours')
+            ->findOrFail($id);
+
+        $instructor->student_count = $instructor->courses
+            ->flatMap(function ($course) {
+                return $course->students;
+            })
+            ->unique('id')
+            ->count();
 
         // ✅ Get latest ATH per course (NOT SUM)
         $athByCourse = DB::table('teacher_attendances as t1')
@@ -110,9 +159,43 @@ class InstructorControlller extends Controller
         ]);
     }
 
+    /**
+     * Flip an instructor between Active / On_Leave.
+     * Mirrors the intern "enable / disable" toggle, but uses the
+     * `status` column instead of `role` since `role` is relied on
+     * elsewhere (course ownership, policies, etc.).
+     */
+    public function toggle(User $instructor): RedirectResponse|JsonResponse
+    {
+        $instructor->status = $instructor->status === 'active' ? 'on_leave' : 'active';
+        $instructor->save();
 
+        if (request()->wantsJson()) {
+            return response()->json([
+                'message' => 'Instructor status updated.',
+                'status' => $instructor->status,
+            ]);
+        }
 
+        return back()->with('success', 'Instructor status updated.');
+    }
 
+    /**
+     * Remove an instructor. Blocks deletion if they still have
+     * active courses, so admin doesn't accidentally orphan course data.
+     */
+    public function destroy(User $instructor): JsonResponse
+    {
+        if ($instructor->courses()->exists()) {
+            return response()->json([
+                'message' => 'Cannot remove an instructor who still has assigned courses. Reassign their courses first.',
+            ], 422);
+        }
 
+        $instructor->delete();
 
+        return response()->json([
+            'message' => 'Instructor removed successfully.',
+        ]);
+    }
 }
