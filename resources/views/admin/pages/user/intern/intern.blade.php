@@ -8,7 +8,7 @@
                 <div class="mb-2 mb-lg-0">
                     <h1 class="mb-1 h2 fw-bold">
                         Intern
-                        <span class="fs-5">( {{ $interns->count() }} )</span>
+                        <span class="fs-5">( {{ $interns->total() }} )</span>
                     </h1>
                     <!-- Breadcrumb  -->
                     <nav aria-label="breadcrumb">
@@ -55,13 +55,59 @@
                         @forelse ($interns as $intern)
                             @php
                                 $isImgChecked =
-                                    $intern->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $intern->image;
+                                    empty($intern->image) || $intern->image === 'no-img.jpg'
+                                        ? '/default-images/user/both.jpg'
+                                        : $intern->image;
                             @endphp
                             <div class="col-xl-3 col-lg-6 col-md-6 col-12">
                                 <!-- Card -->
                                 <div class="card mb-4">
                                     <!-- Card body -->
                                     <div class="card-body">
+                                        <div class="d-flex justify-content-end">
+                                            <span class="dropdown dropstart">
+                                                <a class="btn-icon btn btn-ghost btn-sm rounded-circle" href="#"
+                                                    role="button" data-bs-toggle="dropdown" data-bs-offset="-20,20"
+                                                    aria-expanded="false">
+                                                    <i class="fe fe-more-vertical"></i>
+                                                </a>
+                                                <span class="dropdown-menu">
+                                                    <span class="dropdown-header">Settings</span>
+                                                    {{-- disable / enable --}}
+                                                    @if ($intern->role == 'unknown')
+                                                        <form action="{{ route('admin.intern.toggle', $intern->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i class="fe fe-check dropdown-item-icon"></i>
+                                                                Enable
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <form action="{{ route('admin.intern.toggle', $intern->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit" class="dropdown-item">
+                                                                <i class="fe fe-x dropdown-item-icon"></i>
+                                                                Disable
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    <a class="dropdown-item edit_intern_btn" href="javascript:void(0)"
+                                                        data-id="{{ $intern->id }}">
+                                                        <i class="fe fe-edit dropdown-item-icon"></i>
+                                                        Edit
+                                                    </a>
+                                                    <a class="dropdown-item del_intern_btn" href="javascript:void(0)"
+                                                        data-url="{{ route('admin.intern.destroy', $intern->id) }}">
+                                                        <i class="fe fe-trash dropdown-item-icon"></i>
+                                                        Remove
+                                                    </a>
+                                                </span>
+                                            </span>
+                                        </div>
                                         <div class="text-center">
                                             <img src="{{ $isImgChecked }}" class="rounded-circle avatar-xl mb-3"
                                                 alt="">
@@ -77,7 +123,7 @@
                                                 Reports
                                             </span>
                                             <span class="text-dark">
-                                                {{ $intern->reports->count() }}
+                                                {{ $intern->reports_count }}
                                             </span>
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
@@ -118,8 +164,13 @@
                                 </div>
                             </div>
                         @endforelse
-                        <!-- Pagination Below -->
                     </div>
+                    {{-- Pagination --}}
+                    @if ($interns->hasPages())
+                        <div class="d-flex justify-content-center">
+                            {{ $interns->onEachSide(1)->links() }}
+                        </div>
+                    @endif
                 </div>
                 <!-- tab pane -->
                 <div class="tab-pane fade" id="tabPaneList" role="tabpanel" aria-labelledby="tabPaneList">
@@ -149,7 +200,7 @@
                                     @forelse ($interns as $intern)
                                         @php
                                             $isImgChecked =
-                                                $intern->image == 'no-img.jpg'
+                                                empty($intern->image) || $intern->image === 'no-img.jpg'
                                                     ? '/default-images/user/both.jpg'
                                                     : $intern->image;
                                         @endphp
@@ -167,7 +218,7 @@
                                                 {{ $intern->email }}
                                             </td>
                                             <td>
-                                                {{ $intern->reports->count() }}
+                                                {{ $intern->reports_count }}
                                             </td>
                                             <td>
                                                 @if ($intern->role == 'unknown')
@@ -245,7 +296,12 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <!-- Pagination Below -->
+                            {{-- Pagination --}}
+                            @if ($interns->hasPages())
+                                <div class="card-footer">
+                                    {{ $interns->onEachSide(1)->links() }}
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

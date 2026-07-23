@@ -18,10 +18,15 @@ class InternController extends Controller
             'interns' => User::whereIn('role', ['intern', 'unknown'])
                 ->where('approval_status', 'approved')
                 ->whereNotNull('document')
+                ->withCount('reports')
                 ->when($request->filled('search'), function ($query) use ($request): void {
-                    $query->where('name', 'like', "%{$request->search}%");
+                    $query->where(function ($q) use ($request): void {
+                        $q->where('name', 'like', "%{$request->search}%")
+                            ->orWhere('email', 'like', "%{$request->search}%");
+                    });
                 })
-                ->latest()->paginate(10),
+                ->latest()->paginate(10)
+                ->withQueryString(),
         ];
         return view('admin.pages.user.intern.intern', $data);
     }
@@ -45,6 +50,7 @@ class InternController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'document' => 'required|file|mimes:pdf,doc,docx,jpg,png|max:12000',
         ]);
+        $filePath = null;
         if ($request->hasFile('document')) {
             $filePath = $this->uploadFile($request->file('document'));
         }
@@ -55,6 +61,9 @@ class InternController extends Controller
             'role' => 'intern',
             'approval_status' => 'approved',
             'document' => $filePath,
+            // Explicit default so the view's fallback check (`== 'no-img.jpg'`)
+            // actually matches instead of comparing against null.
+            'image' => 'no-img.jpg',
         ]);
         return redirect()->route('admin.intern.index')
             ->with('success', 'Intern added successfully.');
@@ -86,6 +95,10 @@ class InternController extends Controller
     }
     public function toggle(User $user): RedirectResponse
     {
+        // NOTE: this still repurposes `role` (intern <-> unknown) to represent
+        // enabled/disabled. Left as-is to avoid touching behavior elsewhere in
+        // the app that may depend on this convention, but `status` or
+        // `approval_status` would be a more correct long-term home for this.
         if ($user->role === 'unknown') {
             $user->role = 'intern';
         } else {

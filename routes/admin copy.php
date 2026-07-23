@@ -61,8 +61,6 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/instructor', [InstructorControlller::class, 'index'])->name('instructor.index');
     Route::post('/instructor', [InstructorControlller::class, 'store'])->name('instructor.store');
     Route::get('/instructor/{id}', [InstructorControlller::class, 'instructorShowDetail'])->name('instructor.show.detail');
-    Route::patch('/instructor/{instructor}/toggle', [InstructorControlller::class, 'toggle'])->name('instructor.toggle');
-    Route::delete('/instructor/{instructor}', [InstructorControlller::class, 'destroy'])->name('instructor.destroy');
 
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
     Route::get('/student/{student}', [StudentController::class, 'show'])->name('student.show');
