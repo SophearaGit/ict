@@ -168,7 +168,7 @@
                     {{-- Pagination --}}
                     @if ($interns->hasPages())
                         <div class="d-flex justify-content-center">
-                            {{ $interns->onEachSide(1)->links() }}
+                            @include('admin.partials.pagination', ['paginator' => $interns])
                         </div>
                     @endif
                 </div>
@@ -299,7 +299,7 @@
                             {{-- Pagination --}}
                             @if ($interns->hasPages())
                                 <div class="card-footer">
-                                    {{ $interns->onEachSide(1)->links() }}
+                                    @include('admin.partials.pagination', ['paginator' => $interns])
                                 </div>
                             @endif
                         </div>

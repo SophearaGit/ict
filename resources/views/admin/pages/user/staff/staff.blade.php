@@ -127,11 +127,13 @@
                                 </div>
                             </div>
                         @endforelse
-
-                        <!-- Pagination Below -->
-                        <div class="mt-4">
-                            {{ $staffs->appends(request()->query())->links('components.paginate-geek') }}
-                        </div>
+                        @if ($staffs->hasPages())
+                            <div class="mt-4">
+                                @include('admin.partials.pagination', [
+                                    'paginator' => $staffs->appends(request()->query()),
+                                ])
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -299,11 +301,13 @@
                                     @endforelse
                                 </tbody>
                             </table>
-
-                            <!-- Pagination Below -->
-                            <div class="mb-3">
-                                {{ $staffs->appends(request()->query())->links('components.paginate-geek') }}
-                            </div>
+                            @if ($staffs->hasPages())
+                                <div class="mb-3">
+                                    @include('admin.partials.pagination', [
+                                        'paginator' => $staffs->appends(request()->query()),
+                                    ])
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -345,10 +349,8 @@
             const name = $(this).data('name');
             $('#documentViewModalLabel').text(name + '\'s Document');
             $('#documentViewDownload').attr('href', url);
-
             const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             let body;
-
             if (ext === 'pdf') {
                 body = `<iframe src="${url}" style="width:100%; height:70vh; border:0;"></iframe>`;
             } else if (imageExts.includes(ext)) {
@@ -365,7 +367,6 @@
                 </a>
             </div>`;
             }
-
             $('#documentViewBody').html(body);
             $('#documentViewModal').modal('show');
         });

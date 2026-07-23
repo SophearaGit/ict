@@ -22,7 +22,7 @@ class StudentController extends Controller
             ->withCount('enrollments')
             ->withSum('payments', 'amount')
             ->latest()
-            ->paginate(10)
+            ->paginate(12)
             ->withQueryString();
         $data = [
             'page_title' => 'ICT | ADMIN | STUDENTS',

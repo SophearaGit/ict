@@ -120,7 +120,11 @@
                             </div>
                         @endforelse
                     </div>
-                    <div class="mt-3">{{ $students->links() }}</div>
+                    @if ($students->hasPages())
+                        <div class="mt-3">
+                            @include('admin.partials.pagination', ['paginator' => $students])
+                        </div>
+                    @endif
                 </div>
 
                 {{-- ── LIST VIEW ─────────────────────────────────────────────── --}}
@@ -226,7 +230,11 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <div class="p-3">{{ $students->links() }}</div>
+                            @if ($students->hasPages())
+                                <div class="p-3">
+                                    @include('admin.partials.pagination', ['paginator' => $students])
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

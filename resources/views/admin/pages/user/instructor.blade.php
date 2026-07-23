@@ -48,12 +48,13 @@
                     <form method="GET" id="filterForm" class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label class="form-label">Search</label>
-                            <input type="search" class="form-control" placeholder="Search name or email"
-                                name="search" value="{{ request('search') }}">
+                            <input type="search" class="form-control" placeholder="Search name or email" name="search"
+                                value="{{ request('search') }}">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Subject</label>
-                            <select name="subject" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                            <select name="subject" class="form-select"
+                                onchange="document.getElementById('filterForm').submit()">
                                 <option value="">All Subject</option>
                                 @foreach ($subjects as $subject)
                                     <option value="{{ $subject }}" @selected(request('subject') == $subject)>
@@ -64,7 +65,8 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                            <select name="status" class="form-select"
+                                onchange="document.getElementById('filterForm').submit()">
                                 <option value="">All Status</option>
                                 <option value="Active" @selected(request('status') == 'active')>Active</option>
                                 <option value="On_Leave" @selected(request('status') == 'On_Leave')>On Leave</option>
@@ -72,7 +74,8 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Gender</label>
-                            <select name="gender" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                            <select name="gender" class="form-select"
+                                onchange="document.getElementById('filterForm').submit()">
                                 <option value="">All Gender</option>
                                 <option value="Male" @selected(request('gender') == 'Male')>Male</option>
                                 <option value="Female" @selected(request('gender') == 'Female')>Female</option>
@@ -108,7 +111,9 @@
                                         ? '/default-images/user/both.jpg'
                                         : $teacher->image;
                                 $status = $teacher->status ?? 'active';
-                                $subjectList = $teacher->courses->pluck('title')->unique()->take(3)->implode(', ') ?: 'No subject assigned';
+                                $subjectList =
+                                    $teacher->courses->pluck('title')->unique()->take(3)->implode(', ') ?:
+                                    'No subject assigned';
                                 $attendanceHours = $teacher->total_actual_hours ?? 0;
                             @endphp
                             <div class="col-xl-3 col-lg-6 col-md-6 col-12">
@@ -189,7 +194,8 @@
                                         </div>
                                         <div class="d-flex justify-content-between border-bottom py-2">
                                             <span>Actual Teaching Hrs</span>
-                                            <span class="text-dark fw-semibold">{{ number_format($attendanceHours, 1) }}</span>
+                                            <span
+                                                class="text-dark fw-semibold">{{ number_format($attendanceHours, 1) }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between py-2">
                                             <span>Joined</span>
@@ -212,8 +218,10 @@
                     </div>
                     {{-- Pagination --}}
                     @if ($instructors->hasPages())
-                        <div class="d-flex justify-content-center">
-                            {{ $instructors->onEachSide(1)->links() }}
+                        <div class="col-lg-12 col-md-12 col-12">
+                            <div class="pt-4">
+                                @include('admin.partials.pagination', ['paginator' => $instructors])
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -245,7 +253,9 @@
                                                     ? '/default-images/user/both.jpg'
                                                     : $teacher->image;
                                             $status = $teacher->status ?? 'active';
-                                            $subjectList = $teacher->courses->pluck('title')->unique()->take(3)->implode(', ') ?: 'No subject assigned';
+                                            $subjectList =
+                                                $teacher->courses->pluck('title')->unique()->take(3)->implode(', ') ?:
+                                                'No subject assigned';
                                             $attendanceHours = $teacher->total_actual_hours ?? 0;
                                         @endphp
                                         <tr>
@@ -268,7 +278,8 @@
                                             <td>{{ $teacher->reports_count }}</td>
                                             <td>{{ number_format($attendanceHours, 1) }}</td>
                                             <td>
-                                                <span class="badge {{ $status === 'active' ? 'bg-success' : 'bg-danger' }}">
+                                                <span
+                                                    class="badge {{ $status === 'active' ? 'bg-success' : 'bg-danger' }}">
                                                     {{ $status === 'active' ? 'active' : 'on_leave' }}
                                                 </span>
                                             </td>
@@ -329,8 +340,8 @@
                             </table>
                             {{-- Pagination --}}
                             @if ($instructors->hasPages())
-                                <div class="card-footer">
-                                    {{ $instructors->onEachSide(1)->links() }}
+                                <div class="card-footer border-top-0 px-0">
+                                    @include('admin.partials.pagination', ['paginator' => $instructors])
                                 </div>
                             @endif
                         </div>
@@ -355,8 +366,8 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="name" placeholder="Enter teacher name"
-                                    required>
+                                <input type="text" class="form-control" name="name"
+                                    placeholder="Enter teacher name" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email <span class="text-danger">*</span></label>
@@ -365,8 +376,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="password"
-                                    placeholder="Enter password" required>
+                                <input type="password" class="form-control" name="password" placeholder="Enter password"
+                                    required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
@@ -375,8 +386,8 @@
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">Document <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" name="document" accept=".pdf,.doc,.docx,.jpg,.png"
-                                    required>
+                                <input type="file" class="form-control" name="document"
+                                    accept=".pdf,.doc,.docx,.jpg,.png" required>
                                 <div class="form-text">PDF, DOC, DOCX, JPG or PNG, up to 12MB.</div>
                             </div>
                         </div>
@@ -422,7 +433,8 @@
                         },
                         error: function(xhr, status, data) {
                             iziToast.error({
-                                message: xhr.responseJSON?.message || 'Something went wrong.',
+                                message: xhr.responseJSON?.message ||
+                                    'Something went wrong.',
                                 position: 'bottomRight'
                             });
                         },
