@@ -641,6 +641,7 @@
     <script src="/admin/assets/dist/js/dashboard.js"></script>
 
     <script src="/admin/assets/dist/libs/sweetalert2/dist/sweetalert2.min.js"></script>
+
     @stack('scripts')
 
     @if ($errors->any())

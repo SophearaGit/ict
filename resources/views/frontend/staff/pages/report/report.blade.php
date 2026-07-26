@@ -1,5 +1,9 @@
 @extends('frontend.staff.layout.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@push('styles')
+    {{-- Remove this <link> if flatpickr's CSS is already loaded globally by your layout. --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+@endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
     <ul class="nav nav-pills p-3 mb-3 rounded align-items-center card flex-row">
@@ -55,8 +59,15 @@
                             </span>
                         </div>
                         <p class="note-date fs-2">
-                            {{ $report->created_at->format('d M Y') }}
-                            <strong>( {{ $report->created_at->diffForHumans() }} )</strong>
+                            <a href="javascript:void(0)" class="change-period-btn text-body-color text-decoration-underline"
+                                data-id="{{ $report->id }}"
+                                data-start="{{ $report->period_start ?? $report->created_at->format('Y-m-d') }}"
+                                data-end="{{ $report->period_end ?? ($report->period_start ?? $report->created_at->format('Y-m-d')) }}"
+                                data-url="{{ route('staff.reports.updatePeriod', $report->id) }}"
+                                title="Click to change the period this report covers">
+                                <i class="ti ti-calendar-event fs-3 me-1"></i>{{ $report->period_label }}
+                            </a>
+                            <strong>( submitted {{ $report->created_at->diffForHumans() }} )</strong>
                         </p>
                         <div class="note-content">
                             <p>{!! $report->report_content !!}</p>
@@ -78,6 +89,13 @@
                                         <a class="dropdown-item edit-note edit_report_btn" href="javascript:void(0)"
                                             data-id="{{ $report->id }}">
                                             <i class="ti ti-edit fs-5 me-2"></i> Edit
+                                        </a>
+                                        <a class="dropdown-item change-period-btn" href="javascript:void(0)"
+                                            data-id="{{ $report->id }}"
+                                            data-start="{{ $report->period_start ?? $report->created_at->format('Y-m-d') }}"
+                                            data-end="{{ $report->period_end ?? ($report->period_start ?? $report->created_at->format('Y-m-d')) }}"
+                                            data-url="{{ route('staff.reports.updatePeriod', $report->id) }}">
+                                            <i class="ti ti-calendar-event fs-5 me-2"></i> Change Period
                                         </a>
                                         <a class="dropdown-item delete-note del_report_btn" href="javascript:void(0)"
                                             data-url="{{ route('staff.reports.destroy', $report->id) }}">
@@ -107,6 +125,9 @@
     </div>
 @endsection
 @push('scripts')
+    {{-- Remove this <script> if flatpickr is already loaded globally by your layout. --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+
     <script>
         $('.status-tab').on('click', function(e) {
             e.preventDefault();
@@ -184,6 +205,97 @@
                     });
                 }
             });
+        });
+
+        // --- Change Period: click opens a flatpickr RANGE picker anchored near
+        // the clicked link. onClose (not onChange) fires exactly once, with the
+        // final selection, once the user finishes picking both ends — using
+        // onChange instead would catch intermediate/incomplete selection
+        // states while the range is still being picked. ---
+        let changePeriodUrl = null;
+        let changePeriodOriginal = null;
+
+        const changePeriodInput = document.createElement('input');
+        changePeriodInput.type = 'text';
+        changePeriodInput.style.position = 'absolute';
+        changePeriodInput.style.opacity = '0';
+        changePeriodInput.style.pointerEvents = 'none';
+        document.body.appendChild(changePeriodInput);
+
+        // Build Y-m-d from *local* date parts — Date#toISOString() converts to
+        // UTC first, which silently shifts the date back a day in any
+        // timezone ahead of UTC.
+        function toLocalDateStr(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        const changePeriodPicker = flatpickr(changePeriodInput, {
+            mode: 'range',
+            dateFormat: 'Y-m-d',
+            maxDate: 'today',
+            onClose: function(selectedDates) {
+                if (selectedDates.length < 2 || !changePeriodUrl) return;
+
+                const startStr = toLocalDateStr(selectedDates[0]);
+                const endStr = toLocalDateStr(selectedDates[1]);
+
+                // Closed without actually changing anything — don't bother
+                // confirming a no-op update.
+                if (changePeriodOriginal && startStr === changePeriodOriginal[0] && endStr ===
+                    changePeriodOriginal[1]) {
+                    return;
+                }
+
+                const label = startStr === endStr ? startStr : `${startStr} → ${endStr}`;
+
+                Swal.fire({
+                    title: 'Update report period?',
+                    text: `Set this report's period to ${label}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, save it',
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        method: 'PATCH',
+                        url: changePeriodUrl,
+                        data: {
+                            _token: csrf_token,
+                            period_start: startStr,
+                            period_end: endStr,
+                        },
+                        success: function(data) {
+                            iziToast.success({
+                                message: data.message,
+                                position: 'bottomRight',
+                            });
+                            window.location.reload();
+                        },
+                        error: function(xhr) {
+                            iziToast.error({
+                                message: xhr.responseJSON?.message ||
+                                    'Failed to update period.',
+                                position: 'bottomRight',
+                            });
+                        },
+                    });
+                });
+            },
+        });
+
+        $(document).on('click', '.change-period-btn', function(e) {
+            e.preventDefault();
+            changePeriodUrl = $(this).data('url');
+            changePeriodOriginal = [$(this).data('start').toString(), $(this).data('end').toString()];
+            changePeriodPicker.set('positionElement', this);
+            changePeriodPicker.setDate([$(this).data('start'), $(this).data('end')], false);
+            changePeriodPicker.open();
         });
     </script>
 @endpush

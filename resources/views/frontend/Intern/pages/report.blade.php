@@ -1,6 +1,11 @@
 @extends('frontend.Intern.layout.master')
 @section('page_title', isset($page_title) ? $page_title : 'Reports')
 @push('styles')
+    {{-- Remove this <link> if flatpickr's CSS is already loaded globally by your layout. --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.10.8/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
     <style>
         /* Only what the theme doesn't already provide: swapping views + clamping preview text */
         #listView,
@@ -102,12 +107,23 @@
                                     <tr>
                                         <th width="60">#</th>
                                         <th>Report</th>
-                                        <th width="180">Submitted At</th>
-                                        <th width="120" class="text-end">Actions</th>
+                                        <th width="180">Period</th>
+                                        <th width="150" class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($reports as $report)
+                                        @php
+                                            $periodStart =
+                                                $report->period_start ?? $report->created_at->format('Y-m-d');
+                                            $periodEnd = $report->period_end ?? $periodStart;
+                                            $periodLabel =
+                                                $periodStart === $periodEnd
+                                                    ? \Carbon\Carbon::parse($periodStart)->format('d M Y')
+                                                    : \Carbon\Carbon::parse($periodStart)->format('d M') .
+                                                        ' – ' .
+                                                        \Carbon\Carbon::parse($periodEnd)->format('d M Y');
+                                        @endphp
                                         <tr>
                                             <td>
                                                 {{ $loop->iteration + ($reports->currentPage() - 1) * $reports->perPage() }}
@@ -116,7 +132,14 @@
                                                 {!! Str::limit(strip_tags($report->report_content), 120) !!}
                                             </td>
                                             <td>
-                                                {{ $report->created_at->format('d M Y h:i A') }}
+                                                <a href="javascript:void(0)"
+                                                    class="change-period-btn text-body-color text-decoration-underline"
+                                                    data-id="{{ $report->id }}" data-start="{{ $periodStart }}"
+                                                    data-end="{{ $periodEnd }}"
+                                                    data-url="{{ route('intern.report.updatePeriod', $report->id) }}"
+                                                    title="Click to change the period this report covers">
+                                                    <i class="ti ti-calendar-event fs-13 me-1"></i>{{ $periodLabel }}
+                                                </a>
                                             </td>
                                             <td class="text-end">
                                                 <button type="button"
@@ -157,8 +180,18 @@
         <!-- GRID VIEW -->
         <div class="row g-3" id="gridView">
             @forelse ($reports as $report)
+                @php
+                    $periodStart = $report->period_start ?? $report->created_at->format('Y-m-d');
+                    $periodEnd = $report->period_end ?? $periodStart;
+                    $periodLabel =
+                        $periodStart === $periodEnd
+                            ? \Carbon\Carbon::parse($periodStart)->format('d M Y')
+                            : \Carbon\Carbon::parse($periodStart)->format('d M') .
+                                ' – ' .
+                                \Carbon\Carbon::parse($periodEnd)->format('d M Y');
+                @endphp
                 <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                    <div class="card mb-0 h-100 d-flex flex-column">
+                    <div class="card mb-0 h-100 d-flex flex-column report-card">
                         <div class="card-body d-flex flex-column">
                             <span class="badge badge-soft-primary mb-2 align-self-start">
                                 #{{ $loop->iteration + ($reports->currentPage() - 1) * $reports->perPage() }}
@@ -168,8 +201,13 @@
                             </div>
                             <div
                                 class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top fs-12 text-muted">
-                                <span><i
-                                        class="ti ti-clock me-1"></i>{{ $report->created_at->format('d M Y h:i A') }}</span>
+                                <a href="javascript:void(0)" class="change-period-btn text-muted text-decoration-underline"
+                                    data-id="{{ $report->id }}" data-start="{{ $periodStart }}"
+                                    data-end="{{ $periodEnd }}"
+                                    data-url="{{ route('intern.report.updatePeriod', $report->id) }}"
+                                    title="Click to change the period this report covers">
+                                    <i class="ti ti-calendar-event me-1"></i>{{ $periodLabel }}
+                                </a>
                                 <div>
                                     <button type="button" class="btn btn-sm btn-soft-primary btn-icon rounded-circle"
                                         data-bs-toggle="modal" data-bs-target="#reportModal"
@@ -216,6 +254,18 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-3">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label">Period Start</label>
+                                <input type="date" id="period_start" name="period_start" class="form-control"
+                                    max="{{ now()->format('Y-m-d') }}" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Period End</label>
+                                <input type="date" id="period_end" name="period_end" class="form-control"
+                                    max="{{ now()->format('Y-m-d') }}" required>
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <textarea id="report_content" name="report_content"></textarea>
                         </div>
@@ -260,10 +310,14 @@
     </div> <!-- /.modal -->
 @endsection
 @push('scripts')
+    {{-- Remove this <script> if flatpickr is already loaded globally by your layout. --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="/admin/assets/dist/libs/tinymce/tinymce.min.js"></script>
     <script>
         const internName = @json(auth()->user()->name);
         const today = @json(now()->format('d M Y'));
+        const todayIso = @json(now()->format('Y-m-d'));
+        const csrf_token = @json(csrf_token());
     </script>
     <script>
         tinymce.init({
@@ -353,6 +407,8 @@
             document.getElementById('formMethod').value = 'POST';
             document.getElementById('reportModalTitle').innerText = 'Add Report';
             document.getElementById('reportForm').reset();
+            document.getElementById('period_start').value = todayIso;
+            document.getElementById('period_end').value = todayIso;
             tinymce.get('report_content').setContent(reportTemplate);
         }
         document.getElementById('reportForm').addEventListener('submit', function() {
@@ -365,6 +421,13 @@
             document.getElementById('formMethod').value = 'PUT';
             document.getElementById('reportModalTitle').innerText =
                 'Edit Report';
+            // period_start/period_end come back as "Y-m-d" strings from the
+            // model's date cast — sliced defensively in case that ever changes
+            // to a full ISO datetime.
+            const start = (report.period_start ?? report.created_at ?? todayIso).toString().slice(0, 10);
+            const end = (report.period_end ?? start).toString().slice(0, 10);
+            document.getElementById('period_start').value = start;
+            document.getElementById('period_end').value = end;
             tinymce.get('report_content').setContent(
                 report.report_content ?? ''
             );
@@ -427,6 +490,91 @@
                 }
                 window.location.href = url.toString();
             });
+        });
+
+        // --- Change Period: same pattern as the staff reports page — a
+        // flatpickr RANGE picker anchored near the clicked link, onClose
+        // (fires once, with the final selection) triggers a SweetAlert
+        // confirm, then an AJAX PATCH to updatePeriod(). ---
+        let changePeriodUrl = null;
+        let changePeriodOriginal = null;
+
+        const changePeriodInput = document.createElement('input');
+        changePeriodInput.type = 'text';
+        changePeriodInput.style.position = 'absolute';
+        changePeriodInput.style.opacity = '0';
+        changePeriodInput.style.pointerEvents = 'none';
+        document.body.appendChild(changePeriodInput);
+
+        function toLocalDateStr(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        const changePeriodPicker = flatpickr(changePeriodInput, {
+            mode: 'range',
+            dateFormat: 'Y-m-d',
+            maxDate: 'today',
+            onClose: function(selectedDates) {
+                if (selectedDates.length < 2 || !changePeriodUrl) return;
+
+                const startStr = toLocalDateStr(selectedDates[0]);
+                const endStr = toLocalDateStr(selectedDates[1]);
+
+                if (changePeriodOriginal && startStr === changePeriodOriginal[0] && endStr ===
+                    changePeriodOriginal[1]) {
+                    return;
+                }
+
+                const label = startStr === endStr ? startStr : `${startStr} → ${endStr}`;
+
+                Swal.fire({
+                    title: 'Update report period?',
+                    text: `Set this report's period to ${label}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, save it',
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        method: 'PATCH',
+                        url: changePeriodUrl,
+                        data: {
+                            _token: csrf_token,
+                            period_start: startStr,
+                            period_end: endStr,
+                        },
+                        success: function(data) {
+                            iziToast.success({
+                                message: data.message,
+                                position: 'bottomRight',
+                            });
+                            window.location.reload();
+                        },
+                        error: function(xhr) {
+                            iziToast.error({
+                                message: xhr.responseJSON?.message ||
+                                    'Failed to update period.',
+                                position: 'bottomRight',
+                            });
+                        },
+                    });
+                });
+            },
+        });
+
+        $(document).on('click', '.change-period-btn', function(e) {
+            e.preventDefault();
+            changePeriodUrl = $(this).data('url');
+            changePeriodOriginal = [$(this).data('start').toString(), $(this).data('end').toString()];
+            changePeriodPicker.set('positionElement', this);
+            changePeriodPicker.setDate([$(this).data('start'), $(this).data('end')], false);
+            changePeriodPicker.open();
         });
     </script>
 @endpush

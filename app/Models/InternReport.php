@@ -15,6 +15,8 @@ class InternReport extends Model
         'reported_by',
         'report_date',
         'report_content',
+        'period_start',
+        'period_end',
         'status',
         'reviewed_by_admin_id',
         'reviewed_by_staff_id',
@@ -22,6 +24,8 @@ class InternReport extends Model
     ];
 
     protected $casts = [
+        'period_start' => 'date:Y-m-d',
+        'period_end' => 'date:Y-m-d',
         'report_date' => 'date',
         'reviewed_at' => 'datetime',
     ];

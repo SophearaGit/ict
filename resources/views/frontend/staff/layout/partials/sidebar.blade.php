@@ -14,6 +14,15 @@
             </div>
         </div>
 
+        {{-- Resolve once, reused for the reports visibility check below and the profile widget --}}
+        @php
+            $authUser = auth()->user();
+            // Staff flagged with admin_approval_edit_staff = 1 are granted review access — they
+            // don't submit their own report, they review/approve reports from students, staff,
+            // and interns instead. Regular staff without this grant just submit their own report.
+            $hasReportGrant = $authUser && $authUser->admin_approval_edit_staff == 1;
+        @endphp
+
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav scroll-sidebar" data-simplebar>
             <ul id="sidebarnav">
@@ -42,16 +51,63 @@
                         <span class="hide-menu">Invoice</span>
                     </a>
                 </li>
-                {{-- Reports --}}
-                <li class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
-                        href="{{ route('staff.reports.index') }}" aria-expanded="false">
-                        <span>
-                            <i class="ti ti-chart-bar"></i>
-                        </span>
-                        <span class="hide-menu">Reports</span>
-                    </a>
-                </li>
+                {{-- Reports: granted staff get a review dropdown, regular staff get their own report link --}}
+                @if ($hasReportGrant)
+                    <li
+                        class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
+                        <a class="sidebar-link has-arrow {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
+                            href="javascript:;" aria-expanded="false">
+                            <span>
+                                <i class="ti ti-flag"></i>
+                            </span>
+                            <span class="hide-menu">Report</span>
+                        </a>
+                        <ul aria-expanded="false"
+                            class="collapse first-level {{ request()->routeIs('staff.reports.*') ? 'in' : '' }}">
+                            {{-- Student report --}}
+                            <li class="sidebar-item {{ request()->routeIs('staff.reports.student') ? 'active' : '' }}">
+                                <a href="{{ route('staff.reports.student') }}"
+                                    class="sidebar-link {{ request()->routeIs('staff.reports.student') ? 'active' : '' }}">
+                                    <div class="round-16 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-file-text fs-3"></i>
+                                    </div>
+                                    <span class="hide-menu">Student</span>
+                                </a>
+                            </li>
+                            {{-- Staff report --}}
+                            <li class="sidebar-item {{ request()->routeIs('staff.reports.staff') ? 'active' : '' }}">
+                                <a href="{{ route('staff.reports.staff') }}"
+                                    class="sidebar-link {{ request()->routeIs('staff.reports.staff') ? 'active' : '' }}">
+                                    <div class="round-16 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-clipboard-text fs-3"></i>
+                                    </div>
+                                    <span class="hide-menu">Staff</span>
+                                </a>
+                            </li>
+                            {{-- Intern report --}}
+                            <li class="sidebar-item {{ request()->routeIs('staff.reports.intern') ? 'active' : '' }}">
+                                <a href="{{ route('staff.reports.intern') }}"
+                                    class="sidebar-link {{ request()->routeIs('staff.reports.intern') ? 'active' : '' }}">
+                                    <div class="round-16 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-briefcase fs-3"></i>
+                                    </div>
+                                    <span class="hide-menu">Intern</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @else
+                    {{-- Regular staff without the grant: submit their own report --}}
+                    <li class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
+                        <a class="sidebar-link {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
+                            href="{{ route('staff.reports.index') }}" aria-expanded="false">
+                            <span>
+                                <i class="ti ti-flag"></i>
+                            </span>
+                            <span class="hide-menu">Report</span>
+                        </a>
+                    </li>
+                @endif
                 {{-- Users Dropdown (Teachers, Students, Interns & Staff) --}}
                 <li
                     class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') || request()->routeIs('staff.intern.*') || request()->routeIs('staff.staff.*') ? 'selected' : '' }}">
@@ -192,20 +248,38 @@
                 </li>
             </ul>
         </nav>
+
+        {{-- Quick profile / logout widget ($authUser already resolved above) --}}
+        @php
+            $sidebarAvatar = $authUser && $authUser->image && $authUser->image !== 'no-img.jpg'
+                ? asset($authUser->image)
+                : asset('/admin/assets/dist/images/profile/user-1.jpg');
+        @endphp
         <div class="fixed-profile p-3 bg-light-secondary rounded sidebar-ad mt-3">
             <div class="hstack gap-3">
-                <div class="john-img">
-                    <img src="{{ asset('/admin/assets/dist/images/profile/user-1.jpg') }}" class="rounded-circle"
-                        width="40" height="40" alt="">
+                <a href="{{ route('staff.profile.edit') }}" class="john-img" data-bs-toggle="tooltip"
+                    data-bs-placement="top" data-bs-title="View profile">
+                    <img src="{{ $sidebarAvatar }}" class="rounded-circle" width="40" height="40"
+                        alt="{{ $authUser->name ?? 'Profile' }}">
+                </a>
+                <a href="{{ route('staff.profile.edit') }}" class="john-title text-decoration-none text-reset">
+                    <h6 class="mb-0 fs-4 fw-semibold">{{ $authUser->name ?? 'Staff' }}</h6>
+                    <span class="fs-2 text-dark">{{ $authUser->designation ?? ($authUser->role ?? 'Staff') }}</span>
+                </a>
+                <div class="ms-auto d-flex align-items-center gap-1">
+                    <a href="{{ route('staff.profile.edit') }}" class="border-0 bg-transparent text-primary"
+                        tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Profile">
+                        <i class="ti ti-user-circle fs-6"></i>
+                    </a>
+                    <button class="border-0 bg-transparent text-danger" tabindex="0" type="button"
+                        aria-label="logout" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Logout"
+                        onclick="document.getElementById('sidebar-logout-form').submit();">
+                        <i class="ti ti-power fs-6"></i>
+                    </button>
+                    <form id="sidebar-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
                 </div>
-                <div class="john-title">
-                    <h6 class="mb-0 fs-4 fw-semibold">Mathew</h6>
-                    <span class="fs-2 text-dark">Designer</span>
-                </div>
-                <button class="border-0 bg-transparent text-primary ms-auto" tabindex="0" type="button"
-                    aria-label="logout" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="logout">
-                    <i class="ti ti-power fs-6"></i>
-                </button>
             </div>
         </div>
 

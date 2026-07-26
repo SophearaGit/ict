@@ -199,16 +199,24 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         /*******************************************************
          * PRINT CERTIFICATE
          *******************************************************/
-        Route::post('/staff/certificates/print', [CertificateController::class, 'print'])->name('certificates.print');
+        Route::post('/certificates/print', [CertificateController::class, 'print'])->name('certificates.print');
         /*******************************************************
          * TEACHER ATTENDANCES
          *******************************************************/
         Route::post('/teacher-attendance/update', [TecherAttendancesController::class, 'update'])->name('teacher.attendance.update');
         Route::resource('/schedules', IctScheduleController::class);
         /*******************************************************
-         * REPORTS RESOURCE ROUTES
+         * REPORTS
          *******************************************************/
+        // Review routes: only staff with admin_approval_edit_staff = 1 may access these.
+        Route::middleware('report.grant')->group(function (): void {
+            Route::get('/reports/student', [IctStaffReportController::class, 'studentReports'])->name('reports.student');
+            Route::get('/reports/staff', [IctStaffReportController::class, 'staffReports'])->name('reports.staff');
+            Route::get('/reports/intern', [IctStaffReportController::class, 'internReports'])->name('reports.intern');
+        });
+        // Regular staff's own report CRUD (no grant required).
         Route::resource('/reports', IctStaffReportController::class);
+        Route::patch('reports/{id}/date', [IctStaffReportController::class, 'updatePeriod'])->name('reports.updatePeriod');
         /*******************************************************
          * STUDENT REPORT
          *******************************************************/
