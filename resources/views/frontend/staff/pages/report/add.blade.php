@@ -93,8 +93,19 @@
             },
             error: function(xhr) {
                 if (xhr.status === 422) {
-                    $('.report_content_error').text(xhr.responseJSON.errors.report_content?.[0] ||
-                        '');
+                    const errors = xhr.responseJSON.errors || {};
+                    $('.report_content_error').text(errors.report_content?.[0] || '');
+                    // period_start/period_end have no field of their own in this
+                    // modal (period is only ever set via the "Change Period"
+                    // picker after creation), so a period-overlap error — e.g.
+                    // "you already submitted a report for today" — surfaces as
+                    // a toast instead of a field-level message.
+                    if (errors.period_start) {
+                        iziToast.error({
+                            message: errors.period_start[0],
+                            position: 'bottomRight'
+                        });
+                    }
                 } else {
                     iziToast.error({
                         message: 'Something went wrong, try again.',

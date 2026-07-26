@@ -63,8 +63,16 @@
             },
             error: function(xhr) {
                 if (xhr.status === 422) {
-                    $('.report_content_error').text(xhr.responseJSON.errors.report_content?.[0] ||
-                        '');
+                    const errors = xhr.responseJSON.errors || {};
+                    $('.report_content_error').text(errors.report_content?.[0] || '');
+                    // Same as the add-report modal: no dedicated period field
+                    // here, so an overlap error surfaces as a toast.
+                    if (errors.period_start) {
+                        iziToast.error({
+                            message: errors.period_start[0],
+                            position: 'bottomRight'
+                        });
+                    }
                 } else {
                     iziToast.error({
                         message: 'Something went wrong, try again.',

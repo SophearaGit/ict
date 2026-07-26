@@ -12,9 +12,9 @@ Route::middleware(['auth:web', 'verified', 'check_role:intern'])
         Route::get('/dashboard', [InternDashboardController::class, 'index'])
             ->name('dashboard');
 
-        // Reports — matches: intern.report.store / update / destroy used in your Blade
         Route::resource('report', InternReportController::class)
             ->except(['show', 'create', 'edit']);
+        Route::patch('report/{report}/period', [InternReportController::class, 'updatePeriod'])->name('report.updatePeriod');
 
         // Profile settings
         Route::prefix('profile')
