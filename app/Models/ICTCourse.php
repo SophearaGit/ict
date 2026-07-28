@@ -35,6 +35,11 @@ class ICTCourse extends Model
         'telegram_group_link',
         'featured',
     ];
+    // In ICTCourse model
+    public function scopeFrontendVisible($query)
+    {
+        return $query->where('featured', true)->where('status', '!=', 'draft');
+    }
     public function chapters(): HasMany
     {
         return $this->hasMany(ICTCourseChapter::class, 'course_id')->orderBy('order');

@@ -197,7 +197,7 @@
         </div>
     </div>
     <div class="mainbox">
-        @foreach ($courses->take(16) as $title => $group)
+        @foreach ($courses->take(15) as $title => $group)
             @php
                 $course = $group->first();
             @endphp
