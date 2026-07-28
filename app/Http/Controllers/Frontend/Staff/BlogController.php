@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Frontend\Staff;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreBlogRequest;
-use App\Http\Requests\Admin\UpdateBlogRequest;
+use App\Http\Requests\Staff\StoreBlogRequest;
+use App\Http\Requests\Staff\UpdateBlogRequest;
 use App\Models\Blog;
 use App\Traites\FileUpload;
 use App\Traites\HandlesBlogThumbnails;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class BlogController extends Controller
@@ -32,19 +33,19 @@ class BlogController extends Controller
                 ->withQueryString(),
         ];
 
-        return view('admin.pages.blogs.index', $data);
+        return view('frontend.staff.pages.blogs.index', $data);
     }
 
     public function create(): View
     {
-        return view('admin.pages.blogs.create');
+        return view('frontend.staff.pages.blogs.create');
     }
 
     public function store(StoreBlogRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['admin_id'] = auth('admin')->id();
-        $data['staff_id'] = null;
+        $data['staff_id'] = Auth::id();
+        $data['admin_id'] = null;
         $data['is_featured'] = $request->boolean('is_featured');
         $data['slug'] = Blog::generateUniqueSlug($request->title);
 
@@ -63,18 +64,18 @@ class BlogController extends Controller
         Blog::create($data);
 
         return redirect()
-            ->route('admin.blogs.index')
+            ->route('staff.blogs.index')
             ->with('success', 'Blog created successfully.');
     }
 
     public function show(Blog $blog): View
     {
-        return view('admin.pages.blogs.show', compact('blog'));
+        return view('frontend.staff.pages.blogs.show', compact('blog'));
     }
 
     public function edit(Blog $blog): View
     {
-        return view('admin.pages.blogs.edit', compact('blog'));
+        return view('frontend.staff.pages.blogs.edit', compact('blog'));
     }
 
     public function update(UpdateBlogRequest $request, Blog $blog): RedirectResponse
@@ -103,7 +104,7 @@ class BlogController extends Controller
         $blog->update($data);
 
         return redirect()
-            ->route('admin.blogs.index')
+            ->route('staff.blogs.index')
             ->with('success', 'Blog updated successfully.');
     }
 
@@ -113,7 +114,7 @@ class BlogController extends Controller
         $blog->delete();
 
         return redirect()
-            ->route('admin.blogs.index')
+            ->route('staff.blogs.index')
             ->with('success', 'Blog moved to trash.');
     }
 

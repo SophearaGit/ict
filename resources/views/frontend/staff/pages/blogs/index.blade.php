@@ -1,0 +1,178 @@
+@extends('frontend.staff.layout.master')
+@section('page_title', isset($page_title) ? $page_title : 'Blogs')
+@push('styles')
+@endpush
+@section('content')
+    @include('frontend.staff.pages.partials.breadcrumb')
+
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('staff.blogs.create') }}" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i> New Blog
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                        placeholder="Search title...">
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All statuses</option>
+                        <option value="draft" @selected(request('status') === 'draft')>Draft</option>
+                        <option value="scheduled" @selected(request('status') === 'scheduled')>Scheduled</option>
+                        <option value="published" @selected(request('status') === 'published')>Published</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">All types</option>
+                        @foreach (['article', 'facebook', 'tiktok', 'youtube'] as $type)
+                            <option value="{{ $type }}" @selected(request('type') === $type)>
+                                {{ ucfirst($type) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Thumbnail</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Featured</th>
+                        <th>Views</th>
+                        <th>Published</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($blogs as $blog)
+                        <tr>
+                            <td>
+                                @if ($blog->thumbnail_url)
+                                    <img src="{{ $blog->thumbnail_url }}" alt="" class="rounded" width="56"
+                                        height="40" style="object-fit: cover;">
+                                @else
+                                    <div class="avatar avatar-sm avatar-light-primary rounded">
+                                        <span class="avatar-initials rounded">{{ Str::substr($blog->title, 0, 1) }}</span>
+                                    </div>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-gray-800">{{ $blog->title }}</div>
+                                <div class="text-body small">{{ Str::limit($blog->excerpt, 60) }}</div>
+                            </td>
+                            <td>
+                                <span class="text-body">{{ $blog->author()?->name ?? '—' }}</span>
+                            </td>
+                            <td>
+                                @switch($blog->type)
+                                    @case('article')
+                                        <span class="badge bg-white text-dark border">
+                                            <i class="ti ti-file-text me-1"></i> Article
+                                        </span>
+                                    @break
+
+                                    @case('facebook')
+                                        <span class="badge bg-light-primary text-primary">
+                                            <i class="ti ti-brand-facebook me-1"></i> Facebook
+                                        </span>
+                                    @break
+
+                                    @case('tiktok')
+                                        <span class="badge bg-light-dark text-dark">
+                                            <i class="ti ti-brand-tiktok me-1"></i> TikTok
+                                        </span>
+                                    @break
+
+                                    @case('youtube')
+                                        <span class="badge bg-light-danger text-danger">
+                                            <i class="ti ti-brand-youtube me-1"></i> YouTube
+                                        </span>
+                                    @break
+
+                                    @default
+                                        <span class="badge bg-light-secondary text-secondary">
+                                            <i class="ti ti-world me-1"></i> {{ ucfirst($blog->type) }}
+                                        </span>
+                                @endswitch
+                            </td>
+                            <td>
+                                @if ($blog->status === 'published')
+                                    <span class="badge bg-light-success text-dark-success">Published</span>
+                                @elseif ($blog->status === 'scheduled')
+                                    <span class="badge bg-light-info text-dark-info"
+                                        title="{{ $blog->published_at?->timezone('Asia/Phnom_Penh')->format('F j, Y \a\t g:i A') }}">
+                                        Scheduled
+                                    </span>
+                                @else
+                                    <span class="badge bg-light-warning text-dark-warning">Draft</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($blog->is_featured)
+                                    <i class="ti ti-star-filled text-warning"></i>
+                                @else
+                                    <i class="ti ti-star text-gray-400"></i>
+                                @endif
+                            </td>
+                            <td>{{ number_format($blog->views) }}</td>
+                            <td>
+                                {{ $blog->published_at?->timezone('Asia/Phnom_Penh')->format('F j, Y \a\t g:i A') ?? '—' }}
+                            </td>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-icon btn-sm btn-ghost" type="button" data-bs-toggle="dropdown">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{{ route('staff.blogs.show', $blog) }}"><i
+                                                    class="ti ti-eye dropdown-item-icon"></i> View</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('staff.blogs.edit', $blog) }}"><i
+                                                    class="ti ti-pencil dropdown-item-icon"></i> Edit</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('staff.blogs.destroy', $blog) }}" method="POST"
+                                                onsubmit="return confirm('Delete this blog post?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="ti ti-trash dropdown-item-icon"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center py-5 text-body">No blogs found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if ($blogs->hasPages())
+                <div class="card-footer">
+                    {{ $blogs->appends(request()->query())->links('components.paginate-geek') }}
+                </div>
+            @endif
+        </div>
+    @endsection
+    @push('scripts')
+    @endpush

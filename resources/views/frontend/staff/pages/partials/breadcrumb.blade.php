@@ -29,6 +29,8 @@
                         Staff
                     @elseif (Route::is('staff.course-categories.index'))
                         Categories
+                    @elseif (Route::is('staff.blogs.index') || Route::is('staff.blogs.create') || Route::is('staff.blogs.edit') || Route::is('staff.blogs.show'))
+                        Blogs
                     @endif
                 </h4>
 
@@ -49,6 +51,14 @@
                             <li class="breadcrumb-item">
                                 <a class="text-muted text-decoration-none" href="{{ route('staff.courses.index') }}">
                                     Courses
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (Route::is('staff.blogs.create') || Route::is('staff.blogs.edit') || Route::is('staff.blogs.show'))
+                            <li class="breadcrumb-item">
+                                <a class="text-muted text-decoration-none" href="{{ route('staff.blogs.index') }}">
+                                    Blogs
                                 </a>
                             </li>
                         @endif
@@ -80,6 +90,14 @@
                                 Staff
                             @elseif (Route::is('staff.course-categories.index'))
                                 Categories
+                            @elseif (Route::is('staff.blogs.index'))
+                                Blogs
+                            @elseif (Route::is('staff.blogs.create'))
+                                Add
+                            @elseif (Route::is('staff.blogs.edit'))
+                                Edit
+                            @elseif (Route::is('staff.blogs.show'))
+                                {{ $blog->title ?? 'View' }}
                             @endif
                         </li>
                     </ol>
