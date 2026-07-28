@@ -56,8 +56,7 @@ class ICTCourseCategory extends Model
 
     public function courses()
     {
-        return $this->hasMany(ICTCourse::class, 'category_id')
-            ->where('status', 1);
+        return $this->hasMany(ICTCourse::class, 'category_id');
     }
 
 }
