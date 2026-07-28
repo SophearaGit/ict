@@ -51,10 +51,19 @@
                         <span class="hide-menu">Invoice</span>
                     </a>
                 </li>
+                {{-- Blog --}}
+                <li class="sidebar-item {{ request()->routeIs('staff.blogs.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link {{ request()->routeIs('staff.blogs.*') ? 'active' : '' }}"
+                        href="{{ route('staff.blogs.index') }}" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-news"></i>
+                        </span>
+                        <span class="hide-menu">Blog</span>
+                    </a>
+                </li>
                 {{-- Reports: granted staff get a review dropdown, regular staff get their own report link --}}
                 @if ($hasReportGrant)
-                    <li
-                        class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
+                    <li class="sidebar-item {{ request()->routeIs('staff.reports.*') ? 'selected' : '' }}">
                         <a class="sidebar-link has-arrow {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}"
                             href="javascript:;" aria-expanded="false">
                             <span>
@@ -108,6 +117,7 @@
                         </a>
                     </li>
                 @endif
+
                 {{-- Users Dropdown (Teachers, Students, Interns & Staff) --}}
                 <li
                     class="sidebar-item {{ request()->routeIs('staff.teacher.*') || request()->routeIs('staff.student.index') || request()->routeIs('staff.intern.*') || request()->routeIs('staff.staff.*') ? 'selected' : '' }}">
@@ -246,14 +256,16 @@
                         </li>
                     </ul>
                 </li>
+
             </ul>
         </nav>
 
         {{-- Quick profile / logout widget ($authUser already resolved above) --}}
         @php
-            $sidebarAvatar = $authUser && $authUser->image && $authUser->image !== 'no-img.jpg'
-                ? asset($authUser->image)
-                : asset('/admin/assets/dist/images/profile/user-1.jpg');
+            $sidebarAvatar =
+                $authUser && $authUser->image && $authUser->image !== 'no-img.jpg'
+                    ? asset($authUser->image)
+                    : asset('/admin/assets/dist/images/profile/user-1.jpg');
         @endphp
         <div class="fixed-profile p-3 bg-light-secondary rounded sidebar-ad mt-3">
             <div class="hstack gap-3">

@@ -9,6 +9,7 @@ class Blog extends Model
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'admin_id',
+        'staff_id',
         'title',
         'slug',
         'excerpt',
@@ -31,9 +32,16 @@ class Blog extends Model
     protected static function boot()
     {
         parent::boot();
+
         static::creating(function (Blog $blog) {
             if (empty($blog->slug)) {
                 $blog->slug = static::generateUniqueSlug($blog->title);
+            }
+        });
+
+        static::saving(function (Blog $blog) {
+            if (($blog->admin_id && $blog->staff_id) || (!$blog->admin_id && !$blog->staff_id)) {
+                throw new \RuntimeException('A blog must have exactly one author: admin_id or staff_id, not both/neither.');
             }
         });
     }
@@ -65,6 +73,14 @@ class Blog extends Model
     public function admin()
     {
         return $this->belongsTo(Admin::class);
+    }
+    public function staff()
+    {
+        return $this->belongsTo(User::class, 'staff_id');
+    }
+    public function author()
+    {
+        return $this->admin_id ? $this->admin : $this->staff;
     }
     public function scopePublished($query)
     {

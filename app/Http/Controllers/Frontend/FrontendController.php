@@ -19,6 +19,7 @@ class FrontendController extends Controller
                 'category'
             ])
                 ->where('status', 'active')
+                ->where('featured', true)
                 ->latest()
                 ->get()
                 ->groupBy('title'),
