@@ -6,20 +6,18 @@ use App\Models\ICTCourse;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-
 class FrontendController extends Controller
 {
     public function index(): View
     {
         $data = [
             'page_title' => 'WELCOME 😁🙏',
-            'courses' => ICTCourse::with([
-                'instructor',
-                'schedule',
-                'category'
-            ])
-                ->where('status', 'active')
-                ->where('featured', true)
+            'courses' => ICTCourse::frontendVisible()
+                ->with([
+                    'instructor',
+                    'schedule',
+                    'category'
+                ])
                 ->latest()
                 ->get()
                 ->groupBy('title'),
@@ -50,7 +48,6 @@ class FrontendController extends Controller
         ];
         return view('frontend.pages.home-new.index', $data);
     }
-
     public function contact(): View
     {
         $data = [
@@ -58,7 +55,6 @@ class FrontendController extends Controller
         ];
         return view('frontend.pages.home-new.contact', $data);
     }
-
     public function about(): View
     {
         $data = [
@@ -66,15 +62,12 @@ class FrontendController extends Controller
         ];
         return view('frontend.pages.home-new.about', $data);
     }
-
-
     public function blog(Request $request)
     {
         $featured = Blog::published()
             ->where('is_featured', true)
             ->latest('published_at')
             ->first();
-
         $blogs = Blog::published()
             ->when(
                 $request->filled('search'),
@@ -90,28 +83,23 @@ class FrontendController extends Controller
             ->latest('published_at')
             ->paginate(9)
             ->withQueryString();
-
         return view('frontend.pages.home-new.blog', compact(
             'featured',
             'blogs'
         ));
     }
-
     public function blogDetails(string $slug)
     {
         $blog = Blog::published()
             ->where('slug', $slug)
             ->firstOrFail();
-
         $blog->increment('views');
-
         $related = Blog::published()
             ->where('id', '!=', $blog->id)
             ->where('type', $blog->type)
             ->latest('published_at')
             ->take(3)
             ->get();
-
         return view('frontend.pages.home-new.blog-details', compact('blog', 'related'));
     }
 }

@@ -4,6 +4,63 @@
     {{-- Flatpickr --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
+        /* ── Featured toggle card ────────────────────────── */
+        .featured-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .9rem 1.1rem;
+            border-radius: var(--form-radius);
+            border: 1px solid var(--border-subtle);
+            background: var(--bs-light);
+            margin-top: 1rem;
+            transition: border-color .2s, background .2s;
+        }
+
+        .featured-toggle.is-checked {
+            border-color: rgba(var(--bs-warning-rgb), .5);
+            background: rgba(var(--bs-warning-rgb), .08);
+        }
+
+        .featured-toggle .ft-copy {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .featured-toggle .ft-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(var(--bs-warning-rgb), .15);
+            color: var(--bs-warning);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .featured-toggle .ft-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--bs-body-color);
+            margin: 0;
+        }
+
+        .featured-toggle .ft-sub {
+            font-size: 11px;
+            color: var(--label-color);
+            margin: 0;
+        }
+
+        .featured-toggle .form-check-input {
+            width: 2.6em;
+            height: 1.4em;
+            cursor: pointer;
+        }
+
         /* ── CSS tokens ─────────────────────────────────── */
 
         :root {
@@ -477,133 +534,154 @@
                                     </select>
                                     <x-input-error :messages="$errors->get('status')" class="text-danger mt-1" />
                                 </div>
+
                             </div>
-                        </div>
-                        {{-- ══════════════════════════════════════ --}}
-                        {{-- 4 · DATES & PRICING                   --}}
-                        {{-- ══════════════════════════════════════ --}}
-                        <div class="section-label">
-                            <span class="icon-wrap"><i class="ti ti-calendar-dollar"></i></span>
-                            Dates &amp; Pricing
-                        </div>
-                        <div class="form-section">
-                            {{-- Row 1: Start date · End date · Price · Price/session --}}
-                            <div class="row g-3 mb-3">
-                                {{-- Start date --}}
-                                <div class="col-md-6">
-                                    <label class="field-label">
-                                        <i class="ti ti-calendar-event text-info"></i>
-                                        Start date
-                                    </label>
-                                    <input type="text" class="form-control" id="start_date" name="start_date"
-                                        placeholder="Pick a date…" value="{{ old('start_date') }}" autocomplete="off">
-                                    <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-1" />
-                                </div>
-                                {{-- End date --}}
-                                <div class="col-md-6">
-                                    <label class="field-label">
-                                        <i class="ti ti-calendar-due text-info"></i>
-                                        End date
-                                    </label>
-                                    <input type="text" class="form-control" id="end_date" name="end_date"
-                                        placeholder="Pick a date…" value="{{ old('end_date') }}" autocomplete="off">
-                                    <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-1" />
-                                </div>
-                                {{-- Price --}}
-                                <div class="col-md-3">
-                                    <div class="form-floating">
-                                        <input type="number" class="form-control" placeholder="0.00" name="price"
-                                            id="price" step="0.01" min="0" value="{{ old('price') }}"
-                                            required>
-                                        <label for="price">
-                                            <i class="ti ti-currency-dollar me-1 text-info"></i>
-                                            Total price ($) <span class="text-danger">*</span>
-                                        </label>
+                            {{-- Featured toggle --}}
+                            <div class="featured-toggle {{ old('featured') ? 'is-checked' : '' }}" id="featuredToggle">
+                                <div class="ft-copy">
+                                    <span class="ft-icon"><i class="ti ti-star-filled"></i></span>
+                                    <div>
+                                        <p class="ft-title">Featured on homepage</p>
+                                        <p class="ft-sub mb-0">Highlight this course in the homepage spotlight</p>
                                     </div>
-                                    <x-input-error :messages="$errors->get('price')" class="text-danger mt-1" />
                                 </div>
-                                {{-- Price / session --}}
-                                <div class="col-md-3">
-                                    <div class="form-floating">
-                                        <select class="form-select" name="price_per_session" id="price_per_session">
-                                            <option value="" disabled selected>Select…</option>
-                                            <option value="0.00"
-                                                {{ old('price_per_session') == '0.00' ? 'selected' : '' }}>
-                                                Free (0.00 $)
-                                            </option>
-                                            @for ($i = 5; $i <= 10; $i += 0.5)
-                                                <option value="{{ number_format($i, 2) }}"
-                                                    {{ old('price_per_session') == number_format($i, 2) ? 'selected' : '' }}>
-                                                    {{ number_format($i, 2) }} $
-                                                </option>
-                                            @endfor
-                                        </select>
-                                        <label for="price_per_session">
-                                            <i class="ti ti-receipt me-1 text-info"></i>
-                                            Price / session
-                                        </label>
-                                    </div>
-                                    <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-1" />
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-floating">
-                                        <input type="number" class="form-control" placeholder="0" name="duration"
-                                            id="duration" step="0.5" min="0" value="{{ old('duration') }}">
-                                        <label for="duration">
-                                            <i class="ti ti-clock me-1 text-info"></i>
-                                            Duration (hrs)
-                                        </label>
-                                    </div>
-                                    <x-input-error :messages="$errors->get('duration')" class="text-danger mt-1" />
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-floating">
-                                        <input type="number" class="form-control" placeholder="0" name="capacity"
-                                            id="capacity" min="1" step="1" value="{{ old('capacity') }}">
-                                        <label for="capacity">
-                                            <i class="ti ti-users me-1 text-info"></i>
-                                            Capacity (seats)
-                                        </label>
-                                    </div>
-                                    <p class="cap-hint"><i class="ti ti-info-circle me-1"></i>Max students allowed to
-                                        enrol</p>
-                                    <x-input-error :messages="$errors->get('capacity')" class="text-danger mt-1" />
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="featured"
+                                        name="featured" value="1" {{ old('featured') ? 'checked' : '' }}>
                                 </div>
                             </div>
                         </div>
-                        {{-- ══════════════════════════════════════ --}}
-                        {{-- 5 · DESCRIPTION                       --}}
-                        {{-- ══════════════════════════════════════ --}}
-                        <div class="section-label">
-                            <span class="icon-wrap"><i class="ti ti-align-left"></i></span>
-                            Description
-                        </div>
-                        <div class="form-section">
-                            <textarea class="form-control" name="description" id="description"
-                                placeholder="Write a clear, concise course description…"
-                                style="min-height:160px;border-radius:var(--form-radius);resize:vertical;"></textarea>
-                            <div class="char-count"><span id="charCount">0</span> characters</div>
-                            <x-input-error :messages="$errors->get('description')" class="text-danger mt-1" />
-                        </div>
-                        {{-- ── Submit bar ── --}}
-                        <div class="d-flex justify-content-end align-items-center gap-3 pt-2">
-                            <a href="{{ route('staff.courses.index') }}" class="btn btn-link text-muted px-3">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-info btn-submit">
-                                <i class="ti ti-send me-2"></i> Publish course
-                            </button>
-                        </div>
-                    </form>
+                </div>
+
+            </div>
+        </div>
+        {{-- ══════════════════════════════════════ --}}
+        {{-- 4 · DATES & PRICING                   --}}
+        {{-- ══════════════════════════════════════ --}}
+        <div class="section-label">
+            <span class="icon-wrap"><i class="ti ti-calendar-dollar"></i></span>
+            Dates &amp; Pricing
+        </div>
+        <div class="form-section">
+            {{-- Row 1: Start date · End date · Price · Price/session --}}
+            <div class="row g-3 mb-3">
+                {{-- Start date --}}
+                <div class="col-md-6">
+                    <label class="field-label">
+                        <i class="ti ti-calendar-event text-info"></i>
+                        Start date
+                    </label>
+                    <input type="text" class="form-control" id="start_date" name="start_date"
+                        placeholder="Pick a date…" value="{{ old('start_date') }}" autocomplete="off">
+                    <x-input-error :messages="$errors->get('start_date')" class="text-danger mt-1" />
+                </div>
+                {{-- End date --}}
+                <div class="col-md-6">
+                    <label class="field-label">
+                        <i class="ti ti-calendar-due text-info"></i>
+                        End date
+                    </label>
+                    <input type="text" class="form-control" id="end_date" name="end_date"
+                        placeholder="Pick a date…" value="{{ old('end_date') }}" autocomplete="off">
+                    <x-input-error :messages="$errors->get('end_date')" class="text-danger mt-1" />
+                </div>
+                {{-- Price --}}
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" placeholder="0.00" name="price" id="price"
+                            step="0.01" min="0" value="{{ old('price') }}" required>
+                        <label for="price">
+                            <i class="ti ti-currency-dollar me-1 text-info"></i>
+                            Total price ($) <span class="text-danger">*</span>
+                        </label>
+                    </div>
+                    <x-input-error :messages="$errors->get('price')" class="text-danger mt-1" />
+                </div>
+                {{-- Price / session --}}
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select class="form-select" name="price_per_session" id="price_per_session">
+                            <option value="" disabled selected>Select…</option>
+                            <option value="0.00" {{ old('price_per_session') == '0.00' ? 'selected' : '' }}>
+                                Free (0.00 $)
+                            </option>
+                            @for ($i = 5; $i <= 10; $i += 0.5)
+                                <option value="{{ number_format($i, 2) }}"
+                                    {{ old('price_per_session') == number_format($i, 2) ? 'selected' : '' }}>
+                                    {{ number_format($i, 2) }} $
+                                </option>
+                            @endfor
+                        </select>
+                        <label for="price_per_session">
+                            <i class="ti ti-receipt me-1 text-info"></i>
+                            Price / session
+                        </label>
+                    </div>
+                    <x-input-error :messages="$errors->get('price_per_session')" class="text-danger mt-1" />
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" placeholder="0" name="duration" id="duration"
+                            step="0.5" min="0" value="{{ old('duration') }}">
+                        <label for="duration">
+                            <i class="ti ti-clock me-1 text-info"></i>
+                            Duration (hrs)
+                        </label>
+                    </div>
+                    <x-input-error :messages="$errors->get('duration')" class="text-danger mt-1" />
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" placeholder="0" name="capacity" id="capacity"
+                            min="1" step="1" value="{{ old('capacity') }}">
+                        <label for="capacity">
+                            <i class="ti ti-users me-1 text-info"></i>
+                            Capacity (seats)
+                        </label>
+                    </div>
+                    <p class="cap-hint"><i class="ti ti-info-circle me-1"></i>Max students allowed to
+                        enrol</p>
+                    <x-input-error :messages="$errors->get('capacity')" class="text-danger mt-1" />
                 </div>
             </div>
         </div>
+        {{-- ══════════════════════════════════════ --}}
+        {{-- 5 · DESCRIPTION                       --}}
+        {{-- ══════════════════════════════════════ --}}
+        <div class="section-label">
+            <span class="icon-wrap"><i class="ti ti-align-left"></i></span>
+            Description
+        </div>
+        <div class="form-section">
+            <textarea class="form-control" name="description" id="description"
+                placeholder="Write a clear, concise course description…"
+                style="min-height:160px;border-radius:var(--form-radius);resize:vertical;"></textarea>
+            <div class="char-count"><span id="charCount">0</span> characters</div>
+            <x-input-error :messages="$errors->get('description')" class="text-danger mt-1" />
+        </div>
+        {{-- ── Submit bar ── --}}
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-2">
+            <a href="{{ route('staff.courses.index') }}" class="btn btn-link text-muted px-3">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-info btn-submit">
+                <i class="ti ti-send me-2"></i> Publish course
+            </button>
+        </div>
+        </form>
+    </div>
+    </div>
+    </div>
     </div>
 @endsection
 @push('scripts')
     {{-- Flatpickr --}}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+        /* ── Featured toggle highlight ─────────────────────── */
+        $('#featured').on('change', function() {
+            $('#featuredToggle').toggleClass('is-checked', this.checked);
+        });
         $(document).ready(function() {
             /* ── Flatpickr: linked date range ──────────────────── */
             const startPicker = flatpickr('#start_date', {

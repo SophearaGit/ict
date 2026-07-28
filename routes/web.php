@@ -187,6 +187,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::get('/courses/{course}', [IctCourseController::class, 'show'])->name('courses.show');
         Route::delete('courses/{course}', [IctCourseController::class, 'destroy'])
             ->name('courses.destroy');
+        Route::patch('/courses/{course}/toggle-featured', [IctCourseController::class, 'toggleFeatured'])
+            ->name('courses.toggle-featured');
+        Route::post('/courses/bulk-featured', [IctCourseController::class, 'bulkFeatured'])
+            ->name('courses.bulk-featured');
         /*******************************************************
          * CATEGORY
          *******************************************************/

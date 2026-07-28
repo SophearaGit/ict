@@ -12,19 +12,19 @@ class CoursePageController extends Controller
     public function course(): View
     {
         $search = request('search');
-        $groupedCourses = ICTCourse::with([
-            'instructor',
-            'schedule',
-            'category'
-        ])
-            ->where('status', 'active')
+        $groupedCourses = ICTCourse::frontendVisible()
+            ->with([
+                'instructor',
+                'schedule',
+                'category'
+            ])
             ->when($search, function ($query) use ($search) {
                 $query->where('title', 'like', "%{$search}%");
             })
             ->latest()
             ->get()
             ->groupBy('title');
-        $perPage = 12;
+        $perPage = 100;
         $currentPage = request()->get('page', 1);
         $pagedCourses = new LengthAwarePaginator(
             $groupedCourses->forPage($currentPage, $perPage),
@@ -48,25 +48,25 @@ class CoursePageController extends Controller
     // course details page
     public function courseDetails($slug): View
     {
-        $course = ICTCourse::with([
-            'instructor',
-            'schedule',
-            'category',
-            'chapters.lessons',
-        ])
+        $course = ICTCourse::frontendVisible()
+            ->with([
+                'instructor',
+                'schedule',
+                'category',
+                'chapters.lessons',
+            ])
             ->where('slug', $slug)
-            ->where('status', 'active')
             ->firstOrFail();
-        $batches = ICTCourse::with('schedule')
+        $batches = ICTCourse::frontendVisible()
+            ->with('schedule')
             ->where('title', $course->title)
-            ->where('status', 'active')
             ->get();
-        $moreCourses = ICTCourse::with([
-            'instructor',
-            'schedule',
-            'category'
-        ])
-            ->where('status', 'active')
+        $moreCourses = ICTCourse::frontendVisible()
+            ->with([
+                'instructor',
+                'schedule',
+                'category'
+            ])
             ->where('title', '!=', $course->title)
             ->when(
                 $course->category_id,
@@ -76,9 +76,9 @@ class CoursePageController extends Controller
             ->get()
             ->groupBy('title')
             ->take(4);
-        // How many active sections share this title (including this one)
-        $siblingCount = ICTCourse::where('title', $course->title)
-            ->where('status', 'active')
+        // How many featured sections share this title (including this one)
+        $siblingCount = ICTCourse::frontendVisible()
+            ->where('title', $course->title)
             ->count();
         $alreadyEnrolled = false;
         if (Auth::check()) {

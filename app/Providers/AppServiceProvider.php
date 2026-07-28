@@ -17,18 +17,17 @@ class AppServiceProvider extends ServiceProvider
         View::composer('frontend.*', function ($view) {
             $categories = ICTCourseCategory::with([
                 'courses' => function ($q) {
-                    $q->where('status', 'active')
-                        ->orderBy('title');
+                    $q->frontendVisible()->orderBy('title');
                 }
             ])
                 ->where('is_active', 1)
                 ->whereHas('courses', function ($q) {
-                    $q->where('status', 'active');
+                    $q->frontendVisible();
                 })
                 ->orderBy('sort_order')
                 ->get();
-            $popularCourses = ICTCourse::withCount('students')
-                ->where('status', 'active')
+            $popularCourses = ICTCourse::frontendVisible()
+                ->withCount('students')
                 ->get()
                 ->groupBy('title')
                 ->map(fn($group) => $group->first())

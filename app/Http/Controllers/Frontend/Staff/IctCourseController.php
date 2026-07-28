@@ -17,6 +17,29 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class IctCourseController extends Controller
 {
     use FileUpload;
+    public function bulkFeatured(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'course_ids' => 'required|array|min:1',
+            'course_ids.*' => 'exists:i_c_t_courses,id',
+            'featured' => 'required|in:0,1',
+        ]);
+
+        $count = ICTCourse::whereIn('id', $request->course_ids)
+            ->update(['featured' => $request->featured === '1']);
+
+        $action = $request->featured === '1' ? 'marked as featured' : 'removed from featured';
+
+        return redirect()->back()->with('success', "{$count} course(s) {$action}.");
+    }
+    public function toggleFeatured(ICTCourse $course): RedirectResponse
+    {
+        $course->update(['featured' => !$course->featured]);
+        return redirect()->back()->with(
+            'success',
+            $course->title . ($course->featured ? ' marked as featured.' : ' removed from featured.')
+        );
+    }
     public function index(Request $request): View
     {
         $perPage = $request->input('per_page', 9);
@@ -34,6 +57,9 @@ class IctCourseController extends Controller
             })
             ->when($request->filled('status') && in_array($request->status, ['active', 'inactive']), function ($q) use ($request) {
                 $q->where('status', $request->status);
+            })
+            ->when($request->filled('featured'), function ($q) {
+                $q->where('featured', true);
             })
             ->orderBy($sortField, $sortDirection);
         $showingAll = $perPage === 'all';
@@ -75,6 +101,7 @@ class IctCourseController extends Controller
             'price' => 'required|numeric|min:0',
             'price_per_session' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
+            'featured' => 'nullable|boolean',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
             'category_id' => 'nullable|exists:i_c_t_course_categories,id',
@@ -94,6 +121,7 @@ class IctCourseController extends Controller
         $course->slug = Str::slug($request->title);
         $course->thumbnail = $request->hasFile('thumbnail') ? $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails') : '';
         $course->status = $request->status;
+        $course->featured = $request->boolean('featured');
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
         $course->category_id = $request->category_id;
@@ -127,6 +155,7 @@ class IctCourseController extends Controller
             'price' => 'required|numeric|min:0',
             'price_per_session' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
+            'featured' => 'nullable|boolean',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
             'category_id' => 'nullable|exists:i_c_t_course_categories,id',
@@ -150,6 +179,7 @@ class IctCourseController extends Controller
         $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
         $course->status = $request->status;
+        $course->featured = $request->boolean('featured');
         $course->instructor_id = $request->instructor_id;
         $course->schedule_id = $request->schedule_id;
         $course->category_id = $request->category_id;
