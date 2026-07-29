@@ -1,95 +1,185 @@
 @extends('frontend.staff.layout.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@push('styles')
+<style>
+  .course-group-card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .course-group-header {
+    background: var(--bs-light);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .course-group-thumb {
+    width: 44px;
+    height: 34px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .course-group-meta {
+    font-size: 12px;
+    color: var(--bs-secondary-color);
+    margin: 0;
+  }
+  .course-batch-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px 10px 60px;
+    border-top: 1px solid var(--bs-border-color);
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .course-batch-row:hover {
+    background: var(--bs-light);
+  }
+  .course-batch-status {
+    min-width: 56px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 5px;
+    padding: 3px 6px;
+  }
+  .course-group-chevron {
+    transition: transform .2s;
+  }
+  .course-group-header.collapsed .course-group-chevron {
+    transform: rotate(-90deg);
+  }
+  .filter-toolbar .dropdown-toggle::after {
+    margin-left: 6px;
+  }
+  .filter-toolbar .btn {
+    font-size: 13px;
+  }
+  .active-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bs-light-info);
+    color: var(--bs-info);
+    border-radius: 20px;
+    padding: 3px 10px 3px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .active-filter-chip a {
+    color: var(--bs-info);
+    line-height: 1;
+  }
+</style>
+@endpush
 @section('content')
 @include('frontend.staff.pages.partials.breadcrumb')
+{{-- ============ FILTER TOOLBAR ============ --}}
 <div class="card card-body">
-  <div class="row g-3 align-items-center">
-    {{-- Search --}}
-    <div class="col-md-4 col-xl-3">
-      <form class="position-relative" action="{{ route('staff.courses.index') }}" method="GET">
-        @if ($showingAll ?? false)
-        <input type="hidden" name="per_page" value="all">
-        @endif
-        @if (request('status'))
-        <input type="hidden" name="status" value="{{ request('status') }}">
-        @endif
-        @if (request('sort'))
-        <input type="hidden" name="sort" value="{{ request('sort') }}">
-        @endif
-        @if (request('direction'))
-        <input type="hidden" name="direction" value="{{ request('direction') }}">
-        @endif
-        <input type="search" class="form-control product-search ps-5" id="input-search" placeholder="Search Course" name="search" value="{{ request()->search ?? '' }}">
-        <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
-      </form>
-    </div>
-    {{-- Status filter + Sort + View toggle --}}
-    <div class="col-md-6 col-xl-7 d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
-      {{-- Status filter --}}
-      <div class="btn-group" role="group" aria-label="Status filter">
-        @php $currentStatus = request('status', 'all'); @endphp
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'all', 'page' => null]) }}" class="btn btn-outline-secondary btn-sm {{ $currentStatus === 'all' ? 'active' : '' }}">All</a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'active', 'page' => null]) }}" class="btn btn-outline-success btn-sm {{ $currentStatus === 'active' ? 'active' : '' }}">Active</a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'inactive', 'page' => null]) }}" class="btn btn-outline-danger btn-sm {{ $currentStatus === 'inactive' ? 'active' : '' }}">Inactive</a>
-      </div>
-      <div class="btn-group ms-1" role="group" aria-label="Featured filter">
-        <a href="{{ request()->fullUrlWithQuery(['featured' => request('featured') == 1 ? null : 1, 'page' => null]) }}" class="btn btn-outline-warning btn-sm {{ request('featured') == 1 ? 'active' : '' }}">
-          <i class="ti ti-star fs-5"></i> Featured
+  <form action="{{ route('staff.courses.index') }}" method="GET" id="filterForm">
+    @if ($showingAll ?? false)
+    <input type="hidden" name="per_page" value="all">
+    @endif
+    <input type="hidden" name="sort" value="{{ $sortField }}">
+    <input type="hidden" name="direction" value="{{ $sortDirection }}">
+    @if (request('status'))
+    <input type="hidden" name="status" value="{{ request('status') }}">
+    @endif
+    @if (request('category'))
+    <input type="hidden" name="category" value="{{ request('category') }}">
+    @endif
+    @if (request('featured'))
+    <input type="hidden" name="featured" value="{{ request('featured') }}">
+    @endif
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      {{-- Left: search + filters, wraps as one unit --}}
+      <div class="d-flex flex-wrap align-items-center gap-2 filter-toolbar">
+        <div class="position-relative" style="min-width:310px;">
+          <input type="search" class="form-control ps-5" placeholder="Search course" name="search" value="{{ request('search') }}">
+          <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+            <i class="ti ti-filter fs-6"></i> Status: {{ ucfirst(request('status', 'all')) }}
+          </button>
+          <ul class="dropdown-menu">
+            @foreach (['all' => 'All', 'active' => 'Active', 'inactive' => 'Inactive'] as $value => $label)
+            <li><a class="dropdown-item {{ request('status', 'all') === $value ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['status' => $value === 'all' ? null : $value, 'page' => null]) }}">{{ $label }}</a></li>
+            @endforeach
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+            <i class="ti ti-category fs-6"></i>
+            Category: {{ ($categories ?? collect())->firstWhere('id', (int) request('category'))->name ?? 'All' }}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item {{ !request('category') ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['category' => null, 'page' => null]) }}">All</a></li>
+            @foreach (($categories ?? []) as $category)
+            <li><a class="dropdown-item {{ (int) request('category') === $category->id ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['category' => $category->id, 'page' => null]) }}">{{ $category->name }}</a></li>
+            @endforeach
+          </ul>
+        </div>
+        <a href="{{ request()->fullUrlWithQuery(['featured' => request('featured') == 1 ? null : 1, 'page' => null]) }}" class="btn btn-outline-warning d-flex align-items-center gap-1 {{ request('featured') == 1 ? 'active' : '' }}">
+          <i class="ti ti-star fs-6"></i> Featured
         </a>
+        <div class="dropdown">
+          <button class="btn btn-outline-dark dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+            <i class="ti ti-arrows-sort fs-6"></i> Sort
+          </button>
+          <ul class="dropdown-menu">
+            @php
+            $sortOptions = [
+            'title' => 'Course Title',
+            'price' => 'Price',
+            'start_date' => 'Start Date',
+            'duration' => 'Duration',
+            'created_at' => 'Date Added',
+            ];
+            @endphp
+            @foreach ($sortOptions as $field => $label)
+            <li>
+              <a class="dropdown-item d-flex justify-content-between align-items-center {{ $sortField === $field ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $field, 'direction' => $sortField === $field && $sortDirection === 'asc' ? 'desc' : 'asc', 'page' => null]) }}">
+                {{ $label }}
+                @if ($sortField === $field)
+                <i class="ti ti-arrow-{{ $sortDirection === 'asc' ? 'up' : 'down' }} fs-5 ms-2"></i>
+                @endif
+              </a>
+            </li>
+            @endforeach
+          </ul>
+        </div>
+        @if (request()->anyFilled(['search', 'status', 'featured', 'category']))
+        <a href="{{ route('staff.courses.index') }}" class="btn btn-link text-muted d-flex align-items-center gap-1 px-2">
+          <i class="ti ti-refresh fs-6"></i> Reset
+        </a>
+        @endif
       </div>
-      {{-- Sort dropdown --}}
-      <div class="dropdown">
-        <button class="btn btn-outline-dark btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
-          <i class="ti ti-arrows-sort fs-5"></i> Sort
-        </button>
-        <ul class="dropdown-menu">
-          @php
-          $sortOptions = [
-          'title' => 'Course Title',
-          'price' => 'Price',
-          'start_date' => 'Start Date',
-          'duration' => 'Duration',
-          'created_at' => 'Date Added',
-          ];
-          @endphp
-          @foreach ($sortOptions as $field => $label)
-          <li>
-            <a class="dropdown-item d-flex justify-content-between align-items-center {{ $sortField === $field ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $field, 'direction' => $sortField === $field && $sortDirection === 'asc' ? 'desc' : 'asc', 'page' => null]) }}">
-              {{ $label }}
-              @if ($sortField === $field)
-              <i class="ti ti-arrow-{{ $sortDirection === 'asc' ? 'up' : 'down' }} fs-5 ms-2"></i>
-              @endif
-            </a>
-          </li>
-          @endforeach
-        </ul>
-      </div>
-      {{-- View toggle --}}
-      <div class="btn-group" role="group" aria-label="View toggle">
-        <button type="button" class="btn btn-outline-primary btn-sm" id="btnListView" title="List view">
-          <i class="ti ti-list"></i>
-        </button>
-        <button type="button" class="btn btn-outline-primary btn-sm active" id="btnGridView" title="Grid view">
-          <i class="ti ti-layout-grid"></i>
-        </button>
-      </div>
-      <div class="form-check d-flex align-items-center gap-2 ms-1">
-        <input class="form-check-input" type="checkbox" id="selectAllCourses" style="width:1.1em;height:1.1em;cursor:pointer;">
-        <label class="form-check-label fs-3 text-muted mb-0" for="selectAllCourses" style="cursor:pointer;">Select All</label>
-      </div>
-      {{-- Reset --}}
-      @if (request()->anyFilled(['search', 'status', 'sort', 'direction', 'per_page']))
-      <a href="{{ route('staff.courses.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
-        <i class="ti ti-refresh fs-5"></i> Reset
-      </a>
-      @endif
-    </div>
-    <div class="col-md-2 col-xl-2 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-      <a href="{{ route('staff.courses.create') }}" id="btn-add-contact" class="btn btn-info d-flex align-items-center">
+      {{-- Right: primary action, stays pinned to this row --}}
+      <a href="{{ route('staff.courses.create') }}" id="btn-add-contact" class="btn btn-info d-flex align-items-center flex-shrink-0">
         <i class="ti ti-circle-plus text-white me-1 fs-5"></i> Add Course
       </a>
     </div>
-  </div>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2 border-top">
+      <div class="form-check d-flex align-items-center gap-2 mb-0">
+        <input class="form-check-input" type="checkbox" id="selectAllCourses" style="width:1.1em;height:1.1em;cursor:pointer;">
+        <label class="form-check-label fs-3 text-muted mb-0" for="selectAllCourses" style="cursor:pointer;">Select all</label>
+      </div>
+      <div class="btn-group" role="group" aria-label="View toggle">
+        <button type="button" class="btn btn-outline-primary btn-sm" id="btnListView" title="List view">
+          <i class="ti ti-list me-1"></i> List
+        </button>
+        <button type="button" class="btn btn-outline-primary btn-sm active" id="btnGridView" title="Grid view">
+          <i class="ti ti-layout-grid me-1"></i> Grid
+        </button>
+      </div>
+    </div>
+  </form>
 </div>
 <div class="card card-body">
   {{-- ============ LIST (TABLE) VIEW ============ --}}
@@ -98,7 +188,7 @@
       <thead>
         <tr class="text-muted fw-semibold">
           <th class="ps-0" style="width:36px;"></th>
-          <th class="ps-0">Course</th>
+          <th class="ps-0">Course / batch</th>
           <th class="ps-0">Price</th>
           <th class="ps-0">Schedule</th>
           <th class="ps-0">Duration</th>
@@ -109,53 +199,46 @@
         </tr>
       </thead>
       <tbody>
-        @forelse ($courses as $course)
+        @forelse ($groupedCourses as $group)
+        <tr class="table-light">
+          <td class="ps-0"></td>
+          <td colspan="6" class="ps-0">
+            <div class="d-flex align-items-center gap-2 py-1">
+              <span class="fw-semibold">{{ $group['title'] }}</span>
+              <span class="badge bg-light-info text-info">{{ $group['batch_count'] }} {{ Str::plural('batch', $group['batch_count']) }}</span>
+            </div>
+          </td>
+          <td class="ps-0"></td>
+          <td class="text-end ps-0">
+            <a href="{{ route('staff.courses.duplicate', $group['batches']->first()->id) }}" class="btn btn-sm btn-outline-info">
+              <i class="ti ti-copy me-1"></i> Add batch
+            </a>
+          </td>
+        </tr>
+        @foreach ($group['batches'] as $course)
         <tr class="course-row" data-status="{{ $course->status }}">
           <td class="ps-0">
             <input type="checkbox" class="form-check-input course-select" value="{{ $course->id }}">
           </td>
-          {{-- Course --}}
           <td class="ps-0">
-            <div class="d-flex align-items-center gap-3">
-              <div class="flex-shrink-0">
-                <a href="{{ route('staff.courses.show', $course->id) }}">
-                  <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}" class="rounded" width="80" height="60" style="object-fit: cover;" loading="lazy" decoding="async">
-                </a>
-              </div>
-              <div>
-                <a href="{{ route('staff.courses.show', $course->id) }}" class="text-decoration-none text-dark">
-                  <h6 class="mb-0 fw-semibold">{{ $course->title }}</h6>
-                </a>
-                @if ($course->khmer_title)
-                <div class="fs-2 text-muted mb-1">{{ $course->khmer_title }}</div>
-                @endif
-                <div class="d-flex align-items-center gap-2">
-                  <img src="{{ $course->instructor->image == 'no-img.jpg'
-                                                ? asset('/default-images/user/both.jpg')
-                                                : asset($course->instructor->image) }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
-                  <span class="fs-2">{{ $course->instructor->name }}</span>
-                  @if ($course->telegram_group_link)
-                  <a href="{{ $course->telegram_group_link }}" target="_blank" rel="noopener" class="text-info ms-1" title="Open Telegram group">
-                    <i class="ti ti-brand-telegram fs-4"></i>
-                  </a>
-                  @endif
-                </div>
-              </div>
+            <div class="d-flex align-items-center gap-2 ms-3">
+              <span class="text-muted">&#8627;</span>
+              <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor->image) }}" class="rounded-circle" width="22" height="22" style="object-fit:cover;">
+              <a href="{{ route('staff.courses.show', $course->id) }}" class="text-decoration-none text-dark">{{ $course->instructor->name }}</a>
+              @if ($course->telegram_group_link)
+              <a href="{{ $course->telegram_group_link }}" target="_blank" rel="noopener" class="text-info" title="Open Telegram group">
+                <i class="ti ti-brand-telegram fs-4"></i>
+              </a>
+              @endif
             </div>
           </td>
-          {{-- Price --}}
           <td class="ps-0">
-            <span class="badge bg-light-success text-dark">
-                                    <strong>${{ number_format($course->price, 2) }}</strong>
-                                </span>
+            <span class="badge bg-light-success text-dark"><strong>${{ number_format($course->price, 2) }}</strong></span>
           </td>
-          {{-- Schedule --}}
           <td class="ps-0">
             @if ($course->schedule)
             @php
-            $days = collect(explode('-', $course->schedule->study_day))
-            ->map(fn($day) => ucfirst($day))
-            ->implode(' • ');
+            $days = collect(explode('-', $course->schedule->study_day))->map(fn($day) => ucfirst($day))->implode(' • ');
             $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i A');
             $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
             @endphp
@@ -165,37 +248,32 @@
             <span class="text-muted">No schedule</span>
             @endif
           </td>
-          {{-- Duration --}}
           <td class="ps-0">{{ $course->duration ?? '-' }}hr</td>
-          {{-- Capacity --}}
           <td class="ps-0">
             @if ($course->capacity)
-            <span
-                                        class="fw-semibold">{{ $course->students_count ?? 0 }}/{{ $course->capacity }}</span>
+            <span class="fw-semibold">{{ $course->students_count ?? 0 }}/{{ $course->capacity }}</span>
             @else
             <span class="text-muted">Unlimited</span>
             @endif
           </td>
-          {{-- Status --}}
           <td class="ps-0">
-            @if ($course->status == 'active')
-            <span class="badge bg-success">OPEN</span>
-            @elseif($course->status == 'inactive')
-            <span class="badge bg-danger">CLOSE</span>
-            @endif
-            @if ($course->featured)
-            <span class="badge bg-warning text-dark"><i class="ti ti-star-filled"></i></span>
-            @endif
+            <div class="d-flex align-items-center gap-2">
+              @if ($course->status == 'active')
+              <span class="badge bg-success">OPEN</span>
+              @elseif($course->status == 'inactive')
+              <span class="badge bg-danger">CLOSE</span>
+              @endif
+              @if ($course->featured)
+              <i class="ti ti-star-filled text-warning fs-5" title="Featured"></i>
+              @endif
+            </div>
           </td>
-          {{-- Dates --}}
           <td class="ps-0">
             <div>{{ \Carbon\Carbon::parse($course->start_date)->format('d M Y') }}</div>
             @if ($course->end_date)
-            <small class="text-muted">to
-              {{ \Carbon\Carbon::parse($course->end_date)->format('d M Y') }}</small>
+            <small class="text-muted">to {{ \Carbon\Carbon::parse($course->end_date)->format('d M Y') }}</small>
             @endif
           </td>
-          {{-- Action --}}
           <td class="text-end ps-0">
             <div class="dropdown dropstart">
               <a href="#" class="text-muted" data-bs-toggle="dropdown">
@@ -210,6 +288,11 @@
                 <li>
                   <a class="dropdown-item d-flex align-items-center gap-3" href="{{ route('staff.courses.edit', [$course, 'redirect' => url()->full()]) }}">
                     <i class="ti ti-edit fs-4"></i> Edit
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center gap-3" href="{{ route('staff.courses.duplicate', $course->id) }}">
+                    <i class="ti ti-copy fs-4"></i> Duplicate as new batch
                   </a>
                 </li>
                 <li>
@@ -231,6 +314,7 @@
             </div>
           </td>
         </tr>
+        @endforeach
         @empty
         <tr>
           <td colspan="9" class="text-center text-muted py-5">No courses available.</td>
@@ -239,30 +323,72 @@
       </tbody>
     </table>
   </div>
-  {{-- ============ GRID (CARD) VIEW ============ --}}
-  <div class="row g-4" id="courseGridView">
-    @forelse ($courses as $course)
-    <div class="col-md-4 col-xxl-4 course-grid-item" data-status="{{ $course->status }}">
-      <div class="card overflow-hidden shadow-none border card-hover mb-4 mb-md-0 h-100">
-        {{-- Thumbnail with status badge + action dropdown overlay --}}
-        <div class="position-relative">
-          <a href="{{ route('staff.courses.show', $course->id) }}">
-            <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}" alt="{{ $course->title }}" class="w-100" style="height:160px;object-fit:cover;" loading="lazy" decoding="async">
-          </a>
-          <input type="checkbox" class="form-check-input course-select position-absolute top-0 start-0 m-2" value="{{ $course->id }}" style="width:1.2em;height:1.2em;box-shadow:0 1px 4px rgba(0,0,0,.3);">
-          <span
-                                class="position-absolute top-0 start-0 m-2 badge {{ $course->status == 'active' ? 'bg-success' : 'bg-danger' }}"
-                                style="margin-top: 2.2rem !important;">
+  {{-- ============ GRID VIEW — grouped by title ============ --}}
+  <div id="courseGridView">
+    @forelse ($groupedCourses as $gi => $group)
+    <div class="course-group-card">
+      <div class="course-group-header js-group-toggle" data-target="#batches-{{ $gi }}">
+        <img src="{{ asset($group['thumbnail'] == '' ? '/default-images/staff/no-course-img.png' : $group['thumbnail']) }}" class="course-group-thumb" loading="lazy">
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center gap-2">
+            <h6 class="mb-0 fw-semibold">{{ $group['title'] }}</h6>
+          </div>
+          @if ($group['khmer_title'])
+          <p class="course-group-meta mb-0">{{ $group['khmer_title'] }}</p>
+          @endif
+          <p class="course-group-meta">
+            {{ $group['batch_count'] }} {{ Str::plural('batch', $group['batch_count']) }} &middot;
+            ${{ number_format($group['min_price'], 2) }}{{ $group['max_price'] > $group['min_price'] ? ' – $' . number_format($group['max_price'], 2) : '' }}
+            &middot; {{ $group['open_count'] }} open, {{ $group['closed_count'] }} closed
+          </p>
+        </div>
+        <a href="{{ route('staff.courses.duplicate', $group['batches']->first()->id) }}" class="btn btn-sm btn-outline-info js-add-batch">
+          <i class="ti ti-copy me-1"></i> Add batch
+        </a>
+        <i class="ti ti-chevron-down course-group-chevron fs-5 text-muted"></i>
+      </div>
+      <div id="batches-{{ $gi }}" class="collapse {{ $gi === 0 ? 'show' : '' }}">
+        @foreach ($group['batches'] as $course)
+        <div class="course-batch-row" data-status="{{ $course->status }}">
+          <input type="checkbox" class="form-check-input course-select" value="{{ $course->id }}">
+          <span class="course-batch-status {{ $course->status == 'active' ? 'bg-light-success text-success' : 'bg-light-danger text-danger' }}">
           {{ $course->status == 'active' ? 'OPEN' : 'CLOSE' }}
           </span>
           @if ($course->featured)
-          <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark"
-                                    style="margin-top: 2.5rem !important;">
-                                    <i class="ti ti-star-filled"></i> Featured
-                                </span>
+          <i class="ti ti-star-filled text-warning fs-5" title="Featured"></i>
           @endif
-          <div class="dropdown dropstart position-absolute top-0 end-0 m-2">
-            <a href="#" class="btn btn-sm btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">
+          <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor->image) }}" class="rounded-circle" width="24" height="24" style="object-fit:cover;">
+          <span style="min-width:120px;">{{ $course->instructor->name }}</span>
+          <span style="min-width:200px;">
+            @if ($course->schedule)
+            @php
+            $days = collect(explode('-', $course->schedule->study_day))->map(fn($day) => ucfirst($day))->implode(' • ');
+            $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i A');
+            $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
+            @endphp
+            {{ $days }}, {{ $start }} - {{ $end }}
+            @else
+            <span class="text-muted">No schedule</span>
+          @endif
+          </span>
+          <span class="text-success fw-semibold" style="min-width:70px;">${{ number_format($course->price, 2) }}</span>
+          <span class="text-muted" style="min-width:60px;">{{ $course->duration ?? '-' }}hr</span>
+          <span class="text-muted" style="min-width:70px;">
+          {{ $course->capacity ? ($course->students_count ?? 0) . '/' . $course->capacity : 'Unlimited' }}
+          </span>
+          <span class="text-muted flex-grow-1">
+          {{ \Carbon\Carbon::parse($course->start_date)->format('d M Y') }}
+          @if ($course->end_date)
+          – {{ \Carbon\Carbon::parse($course->end_date)->format('d M Y') }}
+          @endif
+          </span>
+          @if ($course->telegram_group_link)
+          <a href="{{ $course->telegram_group_link }}" target="_blank" rel="noopener" class="text-info" title="Open Telegram group">
+            <i class="ti ti-brand-telegram fs-4"></i>
+          </a>
+          @endif
+          <div class="dropdown dropstart">
+            <a href="#" class="text-muted" data-bs-toggle="dropdown">
               <i class="ti ti-dots-vertical fs-6"></i>
             </a>
             <ul class="dropdown-menu">
@@ -274,6 +400,11 @@
               <li>
                 <a class="dropdown-item d-flex align-items-center gap-3" href="{{ route('staff.courses.edit', [$course, 'redirect' => url()->full()]) }}">
                   <i class="ti ti-edit fs-4"></i> Edit
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-3" href="{{ route('staff.courses.duplicate', $course->id) }}">
+                  <i class="ti ti-copy fs-4"></i> Duplicate as new batch
                 </a>
               </li>
               <li>
@@ -294,85 +425,32 @@
             </ul>
           </div>
         </div>
-        <div class="card-body p-4">
-          {{-- Title + instructor avatar --}}
-          <div class="d-flex align-items-center justify-content-between">
-            <div class="pe-2">
-              <a href="{{ route('staff.courses.show', $course->id) }}" class="text-decoration-none text-dark">
-                <h6 class="mb-0 fs-5 fw-semibold text-truncate" style="max-width:170px;">
-                  {{ $course->title }}
-                </h6>
-              </a>
-              <div class="d-flex align-items-center gap-2">
-                @if ($course->khmer_title)
-                <span class="fs-2 text-muted">{{ $course->khmer_title }}</span>
-                @endif
-                @if ($course->telegram_group_link)
-                <a href="{{ $course->telegram_group_link }}" target="_blank" rel="noopener" class="text-info" title="Open Telegram group">
-                  <i class="ti ti-brand-telegram fs-4"></i>
-                </a>
-                @endif
-              </div>
-            </div>
-            <img src="{{ $course->instructor->image == 'no-img.jpg'
-                                    ? asset('/default-images/user/both.jpg')
-                                    : asset($course->instructor->image) }}" alt="instructor" width="35" height="35" class="rounded-circle" style="object-fit:cover;">
-          </div>
-          {{-- Price --}}
-          <div class="d-flex align-items-start justify-content-between mt-3">
-            <span>Price</span>
-            <div class="text-end">
-              <h5 class="mb-0 fs-5 fw-semibold text-success">
-                ${{ number_format($course->price, 2) }}
-              </h5>
-              <span class="fs-3 text-muted">{{ $course->duration ?? '-' }}hr</span>
-            </div>
-          </div>
-          {{-- Capacity --}}
-          @if ($course->capacity)
-          <div class="d-flex align-items-center justify-content-between mt-2">
-            <span class="fs-3 text-muted">Enrollment</span>
-            <span
-                                        class="fs-3 fw-semibold">{{ $course->students_count ?? 0 }}/{{ $course->capacity }}</span>
-          </div>
-          @endif
-          {{-- Dates row --}}
-          <div class="d-flex align-items-start justify-content-between mt-3">
-            <span>
-                                    <i class="ti ti-calendar-event me-1 fs-4"></i>
-                                    {{ \Carbon\Carbon::parse($course->start_date)->format('d M Y') }}
-                                </span>
-            @if ($course->end_date)
-            <span>
-                                        <i class="ti ti-calendar-x me-1 fs-4"></i>
-                                        {{ \Carbon\Carbon::parse($course->end_date)->format('d M Y') }}
-                                    </span>
-            @endif
-          </div>
-        </div>
+        @endforeach
       </div>
     </div>
     @empty
-    <div class="col-12 text-center text-muted py-5">No courses available.</div>
+    <div class="text-center text-muted py-5">No courses available.</div>
     @endforelse
   </div>
-  {{-- ============ SHARED FOOTER: results count + Show All/Paginate + pagination links ============ --}}
+  {{-- ============ SHARED FOOTER ============ --}}
+  @php
+  $hasMultiplePages = !($showingAll ?? false) && method_exists($courses, 'hasPages') && $courses->hasPages();
+  @endphp
+  @if ($hasMultiplePages || ($showingAll ?? false))
   <div class="d-flex flex-wrap justify-content-end align-items-center mt-4 pt-3 border-top gap-3">
-    @if (!($showingAll ?? false) && method_exists($courses, 'hasPages'))
+    @if ($hasMultiplePages)
     {{ $courses->appends(request()->except('page'))->links('frontend.staff.pages.pagination.custom') }}
-    @elseif($showingAll ?? false)
-    <span class="text-muted small">Showing all {{ $courses->count() }} results</span>
-    @endif
-    @if (!($showingAll ?? false))
     <a href="{{ request()->fullUrlWithQuery(['per_page' => 'all', 'page' => null]) }}" class="btn btn-outline-info btn-sm">
       <i class="ti ti-list-details me-1"></i> Show All
     </a>
     @else
+    <span class="text-muted small">Showing all {{ $courses->count() }} results</span>
     <a href="{{ request()->fullUrlWithQuery(['per_page' => 10, 'page' => null]) }}" class="btn btn-outline-secondary btn-sm">
       <i class="ti ti-layout-list me-1"></i> Paginate
     </a>
     @endif
   </div>
+  @endif
   {{-- DELETE MODAL --}}
   <div class="modal fade" id="deleteTeacherModal" tabindex="-1" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -385,8 +463,7 @@
           <i class="ti ti-alert-triangle text-warning" style="font-size: 3rem;"></i>
           <h5 class="mt-3">Are you sure?</h5>
           <p class="text-muted mb-0">
-            Do you really want to delete the course "<span id="delete-course-title"
-                                class="fw-semibold"></span>"? <br>
+            Do you really want to delete the course "<span id="delete-course-title" class="fw-semibold"></span>"? <br>
             This action cannot be undone.
           </p>
         </div>
@@ -427,7 +504,6 @@
 @include('frontend.staff.pages.course-management.partials.curriculum-modal')
 @endsection
 @push('scripts')
-{{-- ... your existing delete/view-toggle script stays here ... --}}
 @include('frontend.staff.pages.course-management.partials.curriculum-scripts')
 <script>
   // ─── Delete ─────────────────────────────────────────────────────────────────
@@ -453,7 +529,7 @@
       btnGridView.classList.remove('active');
     } else {
       listView.style.display = 'none';
-      gridView.style.display = 'flex';
+      gridView.style.display = 'block';
       btnGridView.classList.add('active');
       btnListView.classList.remove('active');
     }
@@ -462,6 +538,23 @@
   btnListView.addEventListener('click', () => applyView('list'));
   btnGridView.addEventListener('click', () => applyView('grid'));
   applyView(localStorage.getItem('staffCourseView') || 'grid');
+  // ─── Group header: toggle batches, but let "Add batch" navigate normally ──
+  document.querySelectorAll('.js-group-toggle').forEach(function(header) {
+    const target = document.querySelector(header.dataset.target);
+    if (!target) return;
+    if (!target.classList.contains('show')) header.classList.add('collapsed');
+    target.addEventListener('show.bs.collapse', () => header.classList.remove('collapsed'));
+    target.addEventListener('hide.bs.collapse', () => header.classList.add('collapsed'));
+    header.addEventListener('click', function(e) {
+      if (e.target.closest('.js-add-batch')) {
+        return; // let the link navigate, don't toggle the accordion
+      }
+      const instance = bootstrap.Collapse.getOrCreateInstance(target, {
+        toggle: false
+      });
+      instance.toggle();
+    });
+  });
   // ─── Bulk select & featured action ─────────────────────────────
   (function() {
     const selectAll = document.getElementById('selectAllCourses');

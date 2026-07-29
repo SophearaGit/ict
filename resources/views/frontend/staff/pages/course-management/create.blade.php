@@ -357,9 +357,15 @@
                     {{-- ── Header ── --}}
                     <div class="d-flex align-items-start justify-content-between mb-4 pb-3 border-bottom">
                         <div>
-                            <h4 class="fw-bold mb-1">Create a new course</h4>
+                            <h4 class="fw-bold mb-1">
+                                {{ old('duplicate_source_title') ? 'Add a new batch' : 'Create a new course' }}
+                            </h4>
                             <p class="text-muted mb-0" style="font-size:13px">
-                                Fill in the details below. Fields marked <span class="text-danger">*</span> are required.
+                                @if (old('duplicate_source_title'))
+                                    Duplicated from <strong>{{ old('duplicate_source_title') }}</strong>. Set a new schedule and dates below, then adjust anything else as needed.
+                                @else
+                                    Fill in the details below. Fields marked <span class="text-danger">*</span> are required.
+                                @endif
                             </p>
                         </div>
                         <a href="{{ route('staff.courses.index') }}"
@@ -367,9 +373,17 @@
                             <i class="ti ti-arrow-back-up me-1"></i> Back
                         </a>
                     </div>
+                    @if (old('duplicate_source_title'))
+                        <div class="alert alert-info d-flex align-items-center gap-2 mb-4" style="border-radius:var(--form-radius);">
+                            <i class="ti ti-copy fs-5"></i>
+                            <span>Title, price, description, and other details were copied. Pick a new <strong>schedule</strong> and <strong>dates</strong> for this batch below.</span>
+                        </div>
+                    @endif
                     <form action="{{ route('staff.courses.store') }}" method="POST" enctype="multipart/form-data"
                         id="courseForm">
                         @csrf
+                        <input type="hidden" name="duplicate_thumbnail" value="{{ old('duplicate_thumbnail') }}">
+                        <input type="hidden" name="duplicate_source_title" value="{{ old('duplicate_source_title') }}">
                         {{-- ══════════════════════════════════════ --}}
                         {{-- 1 · THUMBNAIL                         --}}
                         {{-- ══════════════════════════════════════ --}}
@@ -381,12 +395,18 @@
                             <div class="row g-3 align-items-start">
                                 <div class="col-md-8">
                                     <div class="thumbnail-zone" id="thumbnailZone">
-                                        <img id="thumbnail-preview" alt="Preview">
-                                        <i class="ti ti-cloud-upload tz-icon" id="tzIcon"></i>
-                                        <p class="tz-title" id="tzTitle">Drop image here or click to browse</p>
-                                        <p class="tz-sub" id="tzSub">PNG, JPG, WEBP · max 3 MB</p>
+                                        <img id="thumbnail-preview" alt="Preview"
+                                            @if (old('duplicate_thumbnail'))
+                                                src="{{ asset(old('duplicate_thumbnail')) }}" style="display:block;"
+                                            @endif>
+                                        <i class="ti ti-cloud-upload tz-icon" id="tzIcon" @if (old('duplicate_thumbnail')) style="display:none;" @endif></i>
+                                        <p class="tz-title" id="tzTitle" @if (old('duplicate_thumbnail')) style="display:none;" @endif>Drop image here or click to browse</p>
+                                        <p class="tz-sub" id="tzSub" @if (old('duplicate_thumbnail')) style="display:none;" @endif>PNG, JPG, WEBP · max 3 MB</p>
                                         <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*">
                                     </div>
+                                    @if (old('duplicate_thumbnail'))
+                                        <p class="cap-hint mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Reusing the original thumbnail. Choose a new file above to replace it.</p>
+                                    @endif
                                     <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
                                 </div>
                                 <div class="col-md-4">

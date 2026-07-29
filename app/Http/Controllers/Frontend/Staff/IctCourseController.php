@@ -13,6 +13,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 class IctCourseController extends Controller
 {
@@ -24,12 +25,9 @@ class IctCourseController extends Controller
             'course_ids.*' => 'exists:i_c_t_courses,id',
             'featured' => 'required|in:0,1',
         ]);
-
         $count = ICTCourse::whereIn('id', $request->course_ids)
             ->update(['featured' => $request->featured === '1']);
-
         $action = $request->featured === '1' ? 'marked as featured' : 'removed from featured';
-
         return redirect()->back()->with('success', "{$count} course(s) {$action}.");
     }
     public function toggleFeatured(ICTCourse $course): RedirectResponse
@@ -42,7 +40,7 @@ class IctCourseController extends Controller
     }
     public function index(Request $request): View
     {
-        $perPage = $request->input('per_page', 9);
+        $perPage = $request->input('per_page', 100);
         $sortField = $request->input('sort', 'title');
         $sortDirection = $request->input('direction', 'asc');
         $allowedSorts = ['title', 'price', 'start_date', 'duration', 'created_at'];
@@ -61,18 +59,84 @@ class IctCourseController extends Controller
             ->when($request->filled('featured'), function ($q) {
                 $q->where('featured', true);
             })
-            ->orderBy($sortField, $sortDirection);
+            ->when($request->filled('category'), function ($q) use ($request) {
+                $q->where('category_id', $request->category);
+            })
+            ->when($request->filled('instructor'), function ($q) use ($request) {
+                $q->where('instructor_id', $request->instructor);
+            })
+            /*----------------------------------------------------------------
+             | Sorting by title first keeps same-titled courses (batches)
+             | adjacent, which the view then groups into a single card.
+             | If the staff picked a different sort, respect it but still
+             | order by title as a tiebreaker so batches stay together.
+             *----------------------------------------------------------------*/
+            ->orderBy($sortField, $sortDirection)
+            ->when($sortField !== 'title', fn($q) => $q->orderBy('title', 'asc'));
         $showingAll = $perPage === 'all';
         $courses = $showingAll
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
+        $itemsForGrouping = $showingAll ? $courses : collect($courses->items());
+        /*----------------------------------------------------------------
+         | Group courses that share the same title into a single "course
+         | group" made up of one or more batches (different schedule,
+         | instructor, or dates). The UI renders one card per group with
+         | its batches listed underneath, instead of one card per row.
+         *----------------------------------------------------------------*/
+        $groupedCourses = $itemsForGrouping
+            ->groupBy(fn($course) => Str::lower(trim($course->title)))
+            ->map(function ($batches) {
+                return [
+                    'title' => $batches->first()->title,
+                    'khmer_title' => $batches->first()->khmer_title,
+                    'thumbnail' => $batches->first()->thumbnail,
+                    'batches' => $batches->values(),
+                    'batch_count' => $batches->count(),
+                    'min_price' => $batches->min('price'),
+                    'max_price' => $batches->max('price'),
+                    'open_count' => $batches->where('status', 'active')->count(),
+                    'closed_count' => $batches->where('status', 'inactive')->count(),
+                    'featured' => $batches->contains('featured', true),
+                ];
+            })
+            ->values();
         return view('frontend.staff.pages.course-management.course', [
             'page_title' => 'ICT | STAFF | COURSES',
             'courses' => $courses,
+            'groupedCourses' => $groupedCourses,
             'showingAll' => $showingAll,
             'sortField' => $sortField,
             'sortDirection' => $sortDirection,
+            'categories' => ICTCourseCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
         ]);
+    }
+    public function duplicate(ICTCourse $course): RedirectResponse
+    {
+        /*----------------------------------------------------------------
+         | "Duplicate as new batch": sends staff to the create form with
+         | everything except schedule/dates pre-filled, so they only pick
+         | a new schedule, instructor, or dates for the same course.
+         *----------------------------------------------------------------*/
+        return redirect()
+            ->route('staff.courses.create')
+            ->withInput([
+                'title' => $course->title,
+                'khmer_name' => $course->khmer_title,
+                'description' => $course->description,
+                'price' => $course->price,
+                'price_per_session' => $course->price_per_session,
+                'category_id' => $course->category_id,
+                'instructor_id' => $course->instructor_id,
+                'duration' => $course->duration,
+                'capacity' => $course->capacity,
+                'telegram_group_link' => $course->telegram_group_link,
+                'featured' => $course->featured ? '1' : null,
+                'status' => $course->status,
+                'duplicate_thumbnail' => $course->thumbnail,
+                'duplicate_source_title' => $course->title,
+            ])
+            ->with('info', 'Creating another batch of "' . $course->title . '". Pick a schedule and dates below.');
     }
     public function show(
         Request $request,
@@ -112,6 +176,7 @@ class IctCourseController extends Controller
             'duration' => 'nullable|numeric|min:0',
             'capacity' => 'nullable|integer|min:1',
             'telegram_group_link' => 'nullable|url',
+            'duplicate_thumbnail' => 'nullable|string',
         ]);
         $course = new ICTCourse();
         $course->title = $request->title;
@@ -119,7 +184,7 @@ class IctCourseController extends Controller
         $course->price = $request->price;
         $course->price_per_session = $request->price_per_session;
         $course->slug = Str::slug($request->title);
-        $course->thumbnail = $request->hasFile('thumbnail') ? $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails') : '';
+        $course->thumbnail = $this->resolveNewThumbnail($request);
         $course->status = $request->status;
         $course->featured = $request->boolean('featured');
         $course->instructor_id = $request->instructor_id;
@@ -311,6 +376,19 @@ class IctCourseController extends Controller
         return redirect()
             ->back()
             ->with('success', $studentCount . ' student(s) moved successfully.');
+    }
+    private function resolveNewThumbnail(Request $request): string
+    {
+        if ($request->hasFile('thumbnail')) {
+            return $this->uploadFile($request->file('thumbnail'), 'uploads/courses/thumbnails');
+        }
+        $source = $request->input('duplicate_thumbnail');
+        if ($source && File::exists(public_path($source))) {
+            $newPath = 'uploads/courses/thumbnails/' . Str::random(20) . '.' . pathinfo($source, PATHINFO_EXTENSION);
+            File::copy(public_path($source), public_path($newPath));
+            return $newPath;
+        }
+        return '';
     }
     public function removeStudent(Request $request, $course_id): RedirectResponse
     {
