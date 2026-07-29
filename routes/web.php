@@ -16,7 +16,6 @@ Route::get('/course/{slug}', [CoursePageController::class, 'courseDetails'])->na
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/blogs', [FrontendController::class, 'blog'])->name('blog');
 Route::get('/blogs/{slug}', [FrontendController::class, 'blogDetails'])->name('blog.details');
-
 /*******************************************************
  * STUDENT
  *******************************************************/
@@ -185,6 +184,8 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
         Route::put('/courses/{course}', [IctCourseController::class, 'update'])
             ->name('courses.update');
         Route::get('/courses/{course}', [IctCourseController::class, 'show'])->name('courses.show');
+        Route::get('/courses/{course}/duplicate', [IctCourseController::class, 'duplicate'])
+            ->name('courses.duplicate');
         Route::delete('courses/{course}', [IctCourseController::class, 'destroy'])
             ->name('courses.destroy');
         Route::patch('/courses/{course}/toggle-featured', [IctCourseController::class, 'toggleFeatured'])
