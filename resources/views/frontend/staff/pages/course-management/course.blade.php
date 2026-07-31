@@ -108,7 +108,7 @@
             <i class="ti ti-filter fs-6"></i> Status: {{ ucfirst(request('status', 'all')) }}
           </button>
           <ul class="dropdown-menu">
-            @foreach (['all' => 'All', 'active' => 'Active', 'inactive' => 'Inactive'] as $value => $label)
+            @foreach (['all' => 'All', 'active' => 'Active', 'inactive' => 'Inactive', 'draft' => 'Draft'] as $value => $label)
             <li><a class="dropdown-item {{ request('status', 'all') === $value ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['status' => $value === 'all' ? null : $value, 'page' => null]) }}">{{ $label }}</a></li>
             @endforeach
           </ul>
@@ -262,6 +262,8 @@
               <span class="badge bg-success">OPEN</span>
               @elseif($course->status == 'inactive')
               <span class="badge bg-danger">CLOSE</span>
+              @elseif($course->status == 'draft')
+              <span class="badge bg-secondary">DRAFT</span>
               @endif
               @if ($course->featured)
               <i class="ti ti-star-filled text-warning fs-5" title="Featured"></i>
@@ -339,7 +341,7 @@
           <p class="course-group-meta">
             {{ $group['batch_count'] }} {{ Str::plural('batch', $group['batch_count']) }} &middot;
             ${{ number_format($group['min_price'], 2) }}{{ $group['max_price'] > $group['min_price'] ? ' – $' . number_format($group['max_price'], 2) : '' }}
-            &middot; {{ $group['open_count'] }} open, {{ $group['closed_count'] }} closed
+            &middot; {{ $group['open_count'] }} open, {{ $group['closed_count'] }} closed{{ $group['draft_count'] ? ', ' . $group['draft_count'] . ' draft' : '' }}
           </p>
         </div>
         <a href="{{ route('staff.courses.duplicate', $group['batches']->first()->id) }}" class="btn btn-sm btn-outline-info js-add-batch">
@@ -351,8 +353,8 @@
         @foreach ($group['batches'] as $course)
         <div class="course-batch-row" data-status="{{ $course->status }}">
           <input type="checkbox" class="form-check-input course-select" value="{{ $course->id }}">
-          <span class="course-batch-status {{ $course->status == 'active' ? 'bg-light-success text-success' : 'bg-light-danger text-danger' }}">
-          {{ $course->status == 'active' ? 'OPEN' : 'CLOSE' }}
+          <span class="course-batch-status {{ $course->status == 'active' ? 'bg-light-success text-success' : ($course->status == 'draft' ? 'bg-light-secondary text-secondary' : 'bg-light-danger text-danger') }}">
+          {{ $course->status == 'active' ? 'OPEN' : ($course->status == 'draft' ? 'DRAFT' : 'CLOSE') }}
           </span>
           @if ($course->featured)
           <i class="ti ti-star-filled text-warning fs-5" title="Featured"></i>
@@ -360,15 +362,15 @@
           <img src="{{ $course->instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($course->instructor->image) }}" class="rounded-circle" width="24" height="24" style="object-fit:cover;">
           <span style="min-width:120px;">{{ $course->instructor->name }}</span>
           <span style="min-width:200px;">
-            @if ($course->schedule)
-            @php
-            $days = collect(explode('-', $course->schedule->study_day))->map(fn($day) => ucfirst($day))->implode(' • ');
-            $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i A');
-            $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
-            @endphp
-            {{ $days }}, {{ $start }} - {{ $end }}
-            @else
-            <span class="text-muted">No schedule</span>
+                @if ($course->schedule)
+                @php
+                $days = collect(explode('-', $course->schedule->study_day))->map(fn($day) => ucfirst($day))->implode(' • ');
+                $start = \Carbon\Carbon::parse($course->schedule->start_time)->format('g:i A');
+                $end = \Carbon\Carbon::parse($course->schedule->end_time)->format('g:i A');
+                @endphp
+                {{ $days }}, {{ $start }} - {{ $end }}
+                @else
+                <span class="text-muted">No schedule</span>
           @endif
           </span>
           <span class="text-success fw-semibold" style="min-width:70px;">${{ number_format($course->price, 2) }}</span>

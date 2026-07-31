@@ -491,6 +491,7 @@
                   <option value="" disabled>Select…</option>
                   <option value="active" @selected(old('status', $course->status) == 'active')>Active</option>
                   <option value="inactive" @selected(old('status', $course->status) == 'inactive')>Inactive</option>
+                  <option value="draft" @selected(old('status', $course->status) == 'draft')>Draft</option>
                 </select>
                 <x-input-error :messages="$errors->get('status')" class="text-danger mt-1" />
               </div>

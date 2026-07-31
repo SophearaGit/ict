@@ -362,9 +362,11 @@
                             </h4>
                             <p class="text-muted mb-0" style="font-size:13px">
                                 @if (old('duplicate_source_title'))
-                                    Duplicated from <strong>{{ old('duplicate_source_title') }}</strong>. Set a new schedule and dates below, then adjust anything else as needed.
+                                    Duplicated from <strong>{{ old('duplicate_source_title') }}</strong>. Set a new schedule
+                                    and dates below, then adjust anything else as needed.
                                 @else
-                                    Fill in the details below. Fields marked <span class="text-danger">*</span> are required.
+                                    Fill in the details below. Fields marked <span class="text-danger">*</span> are
+                                    required.
                                 @endif
                             </p>
                         </div>
@@ -374,9 +376,11 @@
                         </a>
                     </div>
                     @if (old('duplicate_source_title'))
-                        <div class="alert alert-info d-flex align-items-center gap-2 mb-4" style="border-radius:var(--form-radius);">
+                        <div class="alert alert-info d-flex align-items-center gap-2 mb-4"
+                            style="border-radius:var(--form-radius);">
                             <i class="ti ti-copy fs-5"></i>
-                            <span>Title, price, description, and other details were copied. Pick a new <strong>schedule</strong> and <strong>dates</strong> for this batch below.</span>
+                            <span>Title, price, description, and other details were copied. Pick a new
+                                <strong>schedule</strong> and <strong>dates</strong> for this batch below.</span>
                         </div>
                     @endif
                     <form action="{{ route('staff.courses.store') }}" method="POST" enctype="multipart/form-data"
@@ -396,16 +400,20 @@
                                 <div class="col-md-8">
                                     <div class="thumbnail-zone" id="thumbnailZone">
                                         <img id="thumbnail-preview" alt="Preview"
-                                            @if (old('duplicate_thumbnail'))
-                                                src="{{ asset(old('duplicate_thumbnail')) }}" style="display:block;"
-                                            @endif>
-                                        <i class="ti ti-cloud-upload tz-icon" id="tzIcon" @if (old('duplicate_thumbnail')) style="display:none;" @endif></i>
-                                        <p class="tz-title" id="tzTitle" @if (old('duplicate_thumbnail')) style="display:none;" @endif>Drop image here or click to browse</p>
-                                        <p class="tz-sub" id="tzSub" @if (old('duplicate_thumbnail')) style="display:none;" @endif>PNG, JPG, WEBP · max 3 MB</p>
+                                            @if (old('duplicate_thumbnail')) src="{{ asset(old('duplicate_thumbnail')) }}" style="display:block;" @endif>
+                                        <i class="ti ti-cloud-upload tz-icon" id="tzIcon"
+                                            @if (old('duplicate_thumbnail')) style="display:none;" @endif></i>
+                                        <p class="tz-title" id="tzTitle"
+                                            @if (old('duplicate_thumbnail')) style="display:none;" @endif>Drop image here
+                                            or click to browse</p>
+                                        <p class="tz-sub" id="tzSub"
+                                            @if (old('duplicate_thumbnail')) style="display:none;" @endif>PNG, JPG, WEBP ·
+                                            max 3 MB</p>
                                         <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*">
                                     </div>
                                     @if (old('duplicate_thumbnail'))
-                                        <p class="cap-hint mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Reusing the original thumbnail. Choose a new file above to replace it.</p>
+                                        <p class="cap-hint mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Reusing the
+                                            original thumbnail. Choose a new file above to replace it.</p>
                                     @endif
                                     <x-input-error :messages="$errors->get('thumbnail')" class="text-danger mt-2" />
                                 </div>
@@ -485,7 +493,8 @@
                                         <i class="ti ti-user-circle text-info"></i>
                                         Instructor <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select select2-instructor" name="instructor_id" id="instructor_id">
+                                    <select class="form-select select2-instructor" name="instructor_id"
+                                        id="instructor_id">
                                         <option value="" disabled selected>Search instructor…</option>
                                         @foreach ($instructors as $instructor)
                                             <option value="{{ $instructor->id }}"
@@ -551,6 +560,8 @@
                                         </option>
                                         <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>
                                             Inactive</option>
+                                        <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Draft
+                                        </option>
                                     </select>
                                     <x-input-error :messages="$errors->get('status')" class="text-danger mt-1" />
                                 </div>

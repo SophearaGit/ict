@@ -38,7 +38,14 @@ class ICTCourse extends Model
     // In ICTCourse model
     public function scopeFrontendVisible($query)
     {
-        return $query->where('featured', true)->where('status', '!=', 'draft');
+        /*----------------------------------------------------------------
+         | Public-facing courses: everything except drafts. Drafts are
+         | either auto-set by the nightly expiry job or manually staged
+         | by staff, and should never be reachable by students. Inactive
+         | (manually closed) courses stay visible — e.g. so students can
+         | still view details on a closed batch or a completed course.
+         *----------------------------------------------------------------*/
+        return $query->where('status', '!=', 'draft');
     }
     public function chapters(): HasMany
     {

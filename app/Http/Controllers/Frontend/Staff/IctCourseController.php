@@ -53,7 +53,7 @@ class IctCourseController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%');
             })
-            ->when($request->filled('status') && in_array($request->status, ['active', 'inactive']), function ($q) use ($request) {
+            ->when($request->filled('status') && in_array($request->status, ['active', 'inactive', 'draft']), function ($q) use ($request) {
                 $q->where('status', $request->status);
             })
             ->when($request->filled('featured'), function ($q) {
@@ -97,6 +97,7 @@ class IctCourseController extends Controller
                     'max_price' => $batches->max('price'),
                     'open_count' => $batches->where('status', 'active')->count(),
                     'closed_count' => $batches->where('status', 'inactive')->count(),
+                    'draft_count' => $batches->where('status', 'draft')->count(),
                     'featured' => $batches->contains('featured', true),
                 ];
             })
@@ -132,7 +133,12 @@ class IctCourseController extends Controller
                 'capacity' => $course->capacity,
                 'telegram_group_link' => $course->telegram_group_link,
                 'featured' => $course->featured ? '1' : null,
-                'status' => $course->status,
+                /*----------------------------------------------------------------
+                 | Never carry status forward: a duplicate is a brand-new batch,
+                 | so it shouldn't inherit "draft" from an auto-expired source
+                 | (or "inactive" from a manually closed one). Staff pick a
+                 | fresh status themselves on the create form.
+                 *----------------------------------------------------------------*/
                 'duplicate_thumbnail' => $course->thumbnail,
                 'duplicate_source_title' => $course->title,
             ])
@@ -164,7 +170,7 @@ class IctCourseController extends Controller
             'khmer_name' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'price_per_session' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,draft',
             'featured' => 'nullable|boolean',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
@@ -219,7 +225,7 @@ class IctCourseController extends Controller
             'khmer_title' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
             'price_per_session' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,draft',
             'featured' => 'nullable|boolean',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
