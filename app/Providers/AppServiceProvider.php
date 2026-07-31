@@ -5,6 +5,7 @@ use App\Models\ICTCourseCategory;
 use App\Models\TeacherAttendances;
 use App\Observers\TeacherAttendancesObserver;
 use Illuminate\Support\Facades\View;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
                 'categories_for_frontend' => $categories,
                 'popularCourses' => $popularCourses,
             ]);
+        });
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+
+            $schedule->command('courses:update-expired-status')
+                ->hourlyAt(5) // runs at :05 past every hour
+                ->onOneServer()
+                ->withoutOverlapping();
         });
     }
 }

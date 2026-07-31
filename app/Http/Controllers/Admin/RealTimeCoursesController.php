@@ -201,7 +201,7 @@ class RealTimeCoursesController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,draft',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
             'description' => 'nullable|string',
@@ -226,7 +226,7 @@ class RealTimeCoursesController extends Controller
         $course->start_date = $request->start_date;
         $course->end_date = $request->end_date;
         $course->save();
-        return redirect()->route('admin.courses.realtime.index')->with('success', 'Staff member added successfully.');
+        return redirect()->route('admin.courses.realtime.index')->with('success', 'Course added successfully.');
     }
     public function edit($id)
     {
@@ -244,7 +244,7 @@ class RealTimeCoursesController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,draft',
             'instructor_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:i_c_t_schedules,id',
             'description' => 'nullable|string',

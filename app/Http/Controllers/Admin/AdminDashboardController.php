@@ -37,7 +37,7 @@ class AdminDashboardController extends Controller
         // Courses active in this month
         $courseQuery = ICTCourse::where('start_date', '<=', $to)->where('end_date', '>=', $from);
         $totalCourses = $courseQuery->count();
-        $pendingCourses = (clone $courseQuery)->where('status', 'inactive')->count();
+        $pendingCourses = (clone $courseQuery)->where('status', 'draft')->count();
         // Revenue — payments made during this month
         $totalRevenue = ICTPayments::whereBetween('created_at', [$from, $to])->sum('amount');
         // Compare vs previous month
@@ -98,7 +98,7 @@ class AdminDashboardController extends Controller
                             'teacher_image' => $e->course->instructor?->image === 'no-img.jpg'
                                 ? asset('/default-images/user/both.jpg')
                                 : asset($e->course->instructor?->image ?? '/default-images/user/both.jpg'),
-                            'status' => $e->course->status, // 'active' | 'inactive'
+                            'status' => $e->course->status, // 'active' | 'inactive' | 'draft'
                         ])
                         ->values(),
                 ],

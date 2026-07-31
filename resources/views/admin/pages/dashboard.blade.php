@@ -246,8 +246,8 @@
                         <span class="fe fe-book-open fs-3 text-primary"></span>
                     </div>
                     <h2 class="fw-bold mb-1">{{ $total_courses }}</h2>
-                    <span class="text-danger fw-semibold">{{ $pending_courses }}</span>
-                    <span class="ms-1 text-muted fw-medium small">pending approval</span>
+                    <span class="text-info fw-semibold">{{ $pending_courses }}</span>
+                    <span class="ms-1 text-muted fw-medium small">draft course</span>
                 </div>
             </div>
         </div>
@@ -777,9 +777,19 @@
                                                                 </div>
                                                                 <span class="d-flex align-items-center flex-shrink-0"
                                                                     style="font-size: 11px;">
-                                                                    <span
-                                                                        class="badge-dot {{ $c['status'] == 'active' ? 'bg-success' : 'bg-danger' }} me-1 d-inline-block align-middle"></span>
-                                                                    {{ $c['status'] == 'active' ? 'Open' : 'Closed' }}
+                                                                    @if ($c['status'] == 'active')
+                                                                        <span
+                                                                            class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
+                                                                        Open
+                                                                    @elseif ($c['status'] == 'draft')
+                                                                        <span
+                                                                            class="badge-dot bg-info me-1 d-inline-block align-middle"></span>
+                                                                        Draft
+                                                                    @else
+                                                                        <span
+                                                                            class="badge-dot bg-danger me-1 d-inline-block align-middle"></span>
+                                                                        Closed
+                                                                    @endif
                                                                 </span>
                                                             </div>
                                                         </a>
@@ -821,8 +831,16 @@
                                                             <span class="text-muted"
                                                                 style="font-size: 11px;">{{ $c['teacher'] }}</span>
                                                         </div>
-                                                        <span
-                                                            class="badge-dot {{ $c['status'] == 'active' ? 'bg-success' : 'bg-danger' }} d-inline-block align-middle flex-shrink-0"></span>
+                                                        @if ($c['status'] == 'active')
+                                                            <span
+                                                                class="badge-dot bg-success d-inline-block align-middle flex-shrink-0"></span>
+                                                        @elseif ($c['status'] == 'draft')
+                                                            <span
+                                                                class="badge-dot bg-info d-inline-block align-middle flex-shrink-0"></span>
+                                                        @else
+                                                            <span
+                                                                class="badge-dot bg-danger d-inline-block align-middle flex-shrink-0"></span>
+                                                        @endif
                                                     </div>
                                                 @empty
                                                     <p class="mb-0 small text-muted mt-2">No courses</p>
@@ -858,7 +876,10 @@
                 const btnGrid = document.getElementById('btn-students-grid-view');
                 const listView = document.getElementById('students-list-view');
                 const gridView = document.getElementById('students-grid-view');
-                if (!btnList || !btnGrid) return; // no students — elements don't exist
+                // if (!btnList || !btnGrid) return; // no students — elements don't exist
+                if (!btnList || !btnGrid || !listView || !gridView) {
+                    return;
+                }
                 const STORAGE_KEY = 'students_modal_view';
 
                 function setView(mode) {
