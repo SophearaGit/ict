@@ -4,6 +4,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 class StudentController extends Controller
 {
     use FileUpload;
@@ -19,7 +21,7 @@ class StudentController extends Controller
                 });
             })
             ->latest()
-            ->paginate(12)
+            ->paginate(24)
             ->withQueryString();
         return view('frontend.staff.pages.student.index', [
             'page_title' => 'ICT | ADMIN | STUDENTS',
@@ -47,6 +49,9 @@ class StudentController extends Controller
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
             'location' => 'nullable|string|max:255',
+            'nationality' => 'nullable|string|max:255',
+            'alternate_phone' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
         $imagePath = 'no-img.jpg';
@@ -62,11 +67,14 @@ class StudentController extends Controller
             'gender' => $request->gender,
             'password' => bcrypt($request->password),
             'location' => $request->location ?? 'Phnom Penh, Cambodia',
+            'nationality' => $request->nationality,
+            'alternate_phone' => $request->alternate_phone,
+            'bio' => $request->bio,
             'image' => $imagePath,
             'role' => 'student',
             'status' => 'active',
             'approval_status' => 'approved',
-            'registered_by_staff_id' => auth()->id(),
+            'registered_by_staff_id' => Auth::id(),
             'email_verified_at' => now(),
         ]);
         return redirect()->back()->with('success', 'Student added successfully.');
@@ -100,6 +108,9 @@ class StudentController extends Controller
             'gender' => 'required|in:male,female,other',
             'password' => 'nullable|min:8|confirmed',
             'location' => 'nullable|string|max:255',
+            'nationality' => 'nullable|string|max:255',
+            'alternate_phone' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
         if ($request->hasFile('image')) {
@@ -116,6 +127,9 @@ class StudentController extends Controller
         $student->dob = $request->dob;
         $student->gender = $request->gender;
         $student->location = $request->location;
+        $student->nationality = $request->nationality;
+        $student->alternate_phone = $request->alternate_phone;
+        $student->bio = $request->bio;
         $student->save();
         return redirect()->back()->with('success', 'Student updated successfully.');
     }
