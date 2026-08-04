@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\ICTCourseEnrollments;
 use App\Models\ICTCourse;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -45,11 +46,16 @@ class AdminDashboardController extends Controller
         $prevTo = $from->copy()->subMonth()->endOfMonth();
         $prevRevenue = ICTPayments::whereBetween('created_at', [$prevFrom, $prevTo])->sum('amount');
         $revenueChange = $totalRevenue - $prevRevenue;
-        // Students registered this month
-        $totalStudents = User::where('role', 'student')
-            ->whereNull('document')
-            ->whereBetween('created_at', [$from, $to])
-            ->count();
+        // ── Students registered this month ──────────────────────────────────
+        // FIX: previously this counted only students whose ACCOUNT was created
+        // this month (User::created_at). That missed existing students who
+        // were enrolled into a NEW course this month by staff. Now we count
+        // distinct students who have at least one enrollment ENROLLED this
+        // month (via enrolled_at), regardless of when their account was made.
+        $totalStudents = ICTCourseEnrollments::whereBetween('enrolled_at', [$from, $to])
+            ->whereHas('student', fn($q) => $q->where('role', 'student')->whereNull('document'))
+            ->distinct('student_id')
+            ->count('student_id');
         // Instructors registered this month
         $totalInstructors = User::where('role', 'instructor')
             ->where('document', '!=', '')
@@ -70,13 +76,26 @@ class AdminDashboardController extends Controller
                     'student_count' => $instructor->courses->sum('enrollments_count'),
                 ],
             );
-        // Students list (for quick-view modal)
+        // ── Students list (for quick-view modal) ────────────────────────────
+        // FIX: switched from filtering on User::created_at to filtering on
+        // whether the student has an Enrollment created this month. This
+        // surfaces existing students who registered for a new course this
+        // month, not just brand-new accounts. The eager-loaded `enrollments`
+        // relation is also constrained to this month so the modal only shows
+        // the course(s) they registered for in the selected period, not their
+        // entire enrollment history.
         $newStudentsList = User::where('role', 'student')
             ->whereNull('document')
-            ->whereBetween('created_at', [$from, $to])
-            ->with(['enrollments.course.instructor']) // <-- eager-load the chain
-            ->latest()
+            ->whereHas('enrollments', function ($q) use ($from, $to) {
+                $q->whereBetween('enrolled_at', [$from, $to]);
+            })
+            ->with(['enrollments' => function ($q) use ($from, $to) {
+                $q->whereBetween('enrolled_at', [$from, $to])
+                    ->with('course.instructor');
+            }])
             ->get()
+            ->sortByDesc(fn($student) => $student->enrollments->max('enrolled_at'))
+            ->values()
             ->map(
                 fn($student) => [
                     'id' => $student->id,
@@ -86,10 +105,13 @@ class AdminDashboardController extends Controller
                     'image' => $student->image && $student->image !== 'no-img.jpg'
                         ? asset($student->image)
                         : asset('/default-images/user/both.jpg'),
-                    'registered' => $student->created_at->format('M d, Y'),
+                    // Reflects the enrollment date for this month, not the
+                    // (possibly much older) account creation date.
+                    'registered' => optional($student->enrollments->max('enrolled_at'))->format('M d, Y'),
                     'courses' => $student->enrollments
                         ->filter(fn($e) => $e->course)
                         ->map(fn($e) => [
+                            'id' => $e->course->id,
                             'title' => $e->course->title,
                             'thumbnail' => $e->course->thumbnail
                                 ? asset($e->course->thumbnail)

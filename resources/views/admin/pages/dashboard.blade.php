@@ -753,7 +753,7 @@
                                                 <td class="small">{{ $student['phone'] }}</td>
                                                 <td class="py-2">
                                                     @forelse ($student['courses'] as $c)
-                                                        <a href="#"
+                                                        <a href="{{ route('admin.courses.realtime.show', $c['id']) }}"
                                                             class="text-inherit text-decoration-none d-block">
                                                             <div
                                                                 class="d-flex align-items-center gap-2 py-1 {{ !$loop->last ? 'border-bottom' : '' }}">
@@ -818,15 +818,14 @@
                                                 <p class="mb-0 fw-semibold text-truncate">{{ $student['name'] }}</p>
                                                 <p class="mb-0 small text-muted text-truncate">{{ $student['email'] }}</p>
                                                 <p class="mb-0 small text-muted">{{ $student['phone'] }}</p>
-
                                                 @forelse ($student['courses'] as $c)
-                                                    <div
-                                                        class="d-flex align-items-center gap-2 mt-2 {{ !$loop->last ? 'pb-2 border-bottom' : '' }}">
+                                                    <a href="{{ route('admin.courses.realtime.show', $c['id']) }}"
+                                                        class="text-inherit text-decoration-none d-flex align-items-center gap-2 mt-2 {{ !$loop->last ? 'pb-2 border-bottom' : '' }}">
                                                         <img src="{{ $c['thumbnail'] }}" alt="{{ $c['title'] }}"
                                                             class="rounded flex-shrink-0"
                                                             style="width: 40px; height: 30px; object-fit: cover;">
                                                         <div class="min-w-0 flex-grow-1">
-                                                            <p class="mb-0 small fw-semibold text-truncate"
+                                                            <p class="mb-0 small fw-semibold text-truncate text-primary-hover"
                                                                 style="max-width: 140px;">{{ $c['title'] }}</p>
                                                             <span class="text-muted"
                                                                 style="font-size: 11px;">{{ $c['teacher'] }}</span>
@@ -841,11 +840,10 @@
                                                             <span
                                                                 class="badge-dot bg-danger d-inline-block align-middle flex-shrink-0"></span>
                                                         @endif
-                                                    </div>
+                                                    </a>
                                                 @empty
                                                     <p class="mb-0 small text-muted mt-2">No courses</p>
                                                 @endforelse
-
                                                 <p class="mb-0 small text-muted mt-2">
                                                     <i class="fe fe-calendar me-1"></i>{{ $student['registered'] }}
                                                 </p>
