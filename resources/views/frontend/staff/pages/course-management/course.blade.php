@@ -39,6 +39,10 @@
   }
   .course-batch-row:hover {
     background: var(--bs-light);
+    cursor: pointer;
+  }
+  .course-row {
+    cursor: pointer;
   }
   .course-batch-status {
     min-width: 56px;
@@ -140,6 +144,7 @@
             'start_date' => 'Start Date',
             'duration' => 'Duration',
             'created_at' => 'Date Added',
+            'students_count' => 'Most Students',
             ];
             @endphp
             @foreach ($sortOptions as $field => $label)
@@ -206,6 +211,7 @@
             <div class="d-flex align-items-center gap-2 py-1">
               <span class="fw-semibold">{{ $group['title'] }}</span>
               <span class="badge bg-light-info text-info">{{ $group['batch_count'] }} {{ Str::plural('batch', $group['batch_count']) }}</span>
+              <span class="badge bg-light-primary text-primary">{{ $group['total_students'] }} {{ Str::plural('student', $group['total_students']) }}</span>
             </div>
           </td>
           <td class="ps-0"></td>
@@ -216,7 +222,7 @@
           </td>
         </tr>
         @foreach ($group['batches'] as $course)
-        <tr class="course-row" data-status="{{ $course->status }}">
+        <tr class="course-row" data-status="{{ $course->status }}" data-href="{{ route('staff.courses.show', $course->id) }}">
           <td class="ps-0">
             <input type="checkbox" class="form-check-input course-select" value="{{ $course->id }}">
           </td>
@@ -253,7 +259,7 @@
             @if ($course->capacity)
             <span class="fw-semibold">{{ $course->students_count ?? 0 }}/{{ $course->capacity }}</span>
             @else
-            <span class="text-muted">Unlimited</span>
+            <span class="fw-semibold">{{ $course->students_count ?? 0 }}</span> <span class="text-muted">/ Unlimited</span>
             @endif
           </td>
           <td class="ps-0">
@@ -342,6 +348,7 @@
             {{ $group['batch_count'] }} {{ Str::plural('batch', $group['batch_count']) }} &middot;
             ${{ number_format($group['min_price'], 2) }}{{ $group['max_price'] > $group['min_price'] ? ' – $' . number_format($group['max_price'], 2) : '' }}
             &middot; {{ $group['open_count'] }} open, {{ $group['closed_count'] }} closed{{ $group['draft_count'] ? ', ' . $group['draft_count'] . ' draft' : '' }}
+            &middot; {{ $group['total_students'] }} {{ Str::plural('student', $group['total_students']) }} total
           </p>
         </div>
         <a href="{{ route('staff.courses.duplicate', $group['batches']->first()->id) }}" class="btn btn-sm btn-outline-info js-add-batch">
@@ -351,7 +358,7 @@
       </div>
       <div id="batches-{{ $gi }}" class="collapse {{ $gi === 0 ? 'show' : '' }}">
         @foreach ($group['batches'] as $course)
-        <div class="course-batch-row" data-status="{{ $course->status }}">
+        <div class="course-batch-row" data-status="{{ $course->status }}" data-href="{{ route('staff.courses.show', $course->id) }}">
           <input type="checkbox" class="form-check-input course-select" value="{{ $course->id }}">
           <span class="course-batch-status {{ $course->status == 'active' ? 'bg-light-success text-success' : ($course->status == 'draft' ? 'bg-light-secondary text-secondary' : 'bg-light-danger text-danger') }}">
           {{ $course->status == 'active' ? 'OPEN' : ($course->status == 'draft' ? 'DRAFT' : 'CLOSE') }}
@@ -376,7 +383,7 @@
           <span class="text-success fw-semibold" style="min-width:70px;">${{ number_format($course->price, 2) }}</span>
           <span class="text-muted" style="min-width:60px;">{{ $course->duration ?? '-' }}hr</span>
           <span class="text-muted" style="min-width:70px;">
-          {{ $course->capacity ? ($course->students_count ?? 0) . '/' . $course->capacity : 'Unlimited' }}
+          {{ $course->capacity ? ($course->students_count ?? 0) . '/' . $course->capacity : ($course->students_count ?? 0) . ' / Unlimited' }}
           </span>
           <span class="text-muted flex-grow-1">
           {{ \Carbon\Carbon::parse($course->start_date)->format('d M Y') }}
@@ -556,6 +563,14 @@
       });
       instance.toggle();
     });
+  });
+  // ─── Double-click a batch row to open its detail page ─────────
+  document.addEventListener('dblclick', function(e) {
+    const row = e.target.closest('.course-row, .course-batch-row');
+    if (!row || !row.dataset.href) return;
+    // Don't hijack clicks meant for checkboxes, links, buttons, or the actions dropdown
+    if (e.target.closest('a, button, input, .dropdown-menu')) return;
+    window.location = row.dataset.href;
   });
   // ─── Bulk select & featured action ─────────────────────────────
   (function() {
