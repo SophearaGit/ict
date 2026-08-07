@@ -43,7 +43,7 @@ class IctCourseController extends Controller
         $perPage = $request->input('per_page', 100);
         $sortField = $request->input('sort', 'title');
         $sortDirection = $request->input('direction', 'asc');
-        $allowedSorts = ['title', 'price', 'start_date', 'duration', 'created_at'];
+        $allowedSorts = ['title', 'price', 'start_date', 'duration', 'created_at', 'students_count'];
         if (!in_array($sortField, $allowedSorts)) {
             $sortField = 'title';
         }
@@ -70,6 +70,8 @@ class IctCourseController extends Controller
              | adjacent, which the view then groups into a single card.
              | If the staff picked a different sort, respect it but still
              | order by title as a tiebreaker so batches stay together.
+             | Note: students_count comes from withCount() above, so it's
+             | just a normal orderBy on an aggregate column here.
              *----------------------------------------------------------------*/
             ->orderBy($sortField, $sortDirection)
             ->when($sortField !== 'title', fn($q) => $q->orderBy('title', 'asc'));
@@ -98,6 +100,7 @@ class IctCourseController extends Controller
                     'open_count' => $batches->where('status', 'active')->count(),
                     'closed_count' => $batches->where('status', 'inactive')->count(),
                     'draft_count' => $batches->where('status', 'draft')->count(),
+                    'total_students' => $batches->sum('students_count'), // NEW
                     'featured' => $batches->contains('featured', true),
                 ];
             })
