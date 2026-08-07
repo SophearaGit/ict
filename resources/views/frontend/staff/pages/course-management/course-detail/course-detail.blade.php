@@ -541,6 +541,167 @@
       display: none;
     }
   }
+  /* ══════════════════════════════════════════════════════════════
+     Student's Attendance — redesign
+     ══════════════════════════════════════════════════════════════ */
+  #studentAttendanceCard.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    border-radius: 0;
+    margin: 0;
+    overflow-y: auto;
+    background: #fff;
+    box-shadow: none;
+    padding: 20px;
+  }
+  #studentAttendanceCard.is-fullscreen .attendance-scroll {
+    max-height: none;
+    overflow: visible;
+  }
+  /* Legend */
+  .attendance-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78rem;
+    color: #6b7280;
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-dot.status-present {
+    background: #16a34a;
+  }
+  .status-dot.status-absent {
+    background: #dc2626;
+  }
+  .status-dot.status-late {
+    background: #d97706;
+  }
+  /* Status pills inside the table */
+  .student-attendance-table .status-cell {
+    text-align: center;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: .72rem;
+    font-weight: 700;
+  }
+  .status-pill.status-present {
+    background: rgba(22, 163, 74, .12);
+    color: #16a34a;
+  }
+  .status-pill.status-absent {
+    background: rgba(220, 38, 38, .12);
+    color: #dc2626;
+  }
+  .status-pill.status-late {
+    background: rgba(217, 119, 6, .12);
+    color: #d97706;
+  }
+  /* Per-student attendance-rate badge */
+  .rate-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+  }
+  .rate-badge.rate-good {
+    background: rgba(22, 163, 74, .12);
+    color: #16a34a;
+  }
+  .rate-badge.rate-mid {
+    background: rgba(217, 119, 6, .12);
+    color: #d97706;
+  }
+  .rate-badge.rate-low {
+    background: rgba(220, 38, 38, .12);
+    color: #dc2626;
+  }
+  /* Student avatar initial */
+  .student-avatar-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(var(--bs-primary-rgb), .12);
+    color: var(--bs-primary);
+    font-size: .7rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  /* Sticky first two columns so student names stay visible while
+     scrolling through many date columns */
+  .student-attendance-table th.sticky-col,
+  .student-attendance-table td.sticky-col,
+  .student-report-table th.sticky-col,
+  .student-report-table td.sticky-col {
+    position: sticky;
+    z-index: 1;
+    background: #fff;
+  }
+  .student-attendance-table thead th.sticky-col,
+  .student-report-table thead th.sticky-col {
+    z-index: 3;
+    background: #f8f9fb;
+  }
+  .student-attendance-table .sticky-col--no,
+  .student-report-table .sticky-col--no {
+    left: 0;
+    width: 44px;
+    text-align: center;
+  }
+  .student-attendance-table .sticky-col--name,
+  .student-report-table .sticky-col--name {
+    left: 44px;
+    min-width: 170px;
+    box-shadow: 2px 0 4px -2px rgba(0, 0, 0, .08);
+  }
+  .student-attendance-table tbody tr:hover td.sticky-col,
+  .student-report-table tbody tr:hover td.sticky-col {
+    background: #fafbff;
+  }
+  @media (max-width: 900px) {
+    .student-attendance-table .sticky-col,
+    .student-report-table .sticky-col {
+      position: static;
+      box-shadow: none;
+    }
+  }
+  /* Report table: text alignment differs from attendance sheet — center
+     everything except the sticky name/no columns */
+  .student-report-table th:not(.sticky-col),
+  .student-report-table td:not(.sticky-col) {
+    text-align: center;
+  }
+  #studentReportCard.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    border-radius: 0;
+    margin: 0;
+    overflow-y: auto;
+    background: #fff;
+    box-shadow: none;
+    padding: 20px;
+  }
+  #studentReportCard.is-fullscreen .attendance-scroll {
+    max-height: none;
+    overflow: visible;
+  }
 </style>
 @endpush
 @section('content')
@@ -762,6 +923,10 @@
                 </div>
               </div>
             </div>
+            {{-- Legend --}}
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+              <span class="attendance-legend__item"><span class="status-dot status-late"></span> Highlighted row = late arrival</span>
+            </div>
             {{-- Filter --}}
             <form method="GET" class="mb-4">
               <div class="filter-bar p-3 rounded-3 bg-light border">
@@ -949,53 +1114,165 @@
       @php
       $data = $attendanceData;
       $dates = array_slice($data['table_structure']['columns'], 5);
+      $totalStudents = count($data['table_structure']['data_rows']);
+      $totalSessions = count($dates);
+      $totalMarked = 0;
+      $totalPresent = 0;
+      $totalAbsent = 0;
+      $totalLate = 0;
+      foreach ($data['table_structure']['data_rows'] as $row) {
+      foreach ($dates as $date) {
+      $status = $row['attendance'][$date] ?? '';
+      if ($status !== '') {
+      $totalMarked++;
+      if ($status === 'P') $totalPresent++;
+      elseif ($status === 'A') $totalAbsent++;
+      elseif ($status === 'L') $totalLate++;
+      }
+      }
+      }
+      $overallRate = $totalMarked > 0 ? round((($totalPresent + $totalLate) / $totalMarked) * 100) : null;
       @endphp
-      <div class="attendance-wrapper mt-2">
-        <div class="attendance-header-card">
-          <div class="row">
-            <div class="col-md-3"><strong>Start:</strong> {{ $data['form_metadata']['class_start'] }}
+      <div class="card border-0" style="border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+        <div class="card-body">
+          <div class="sheet" id="studentAttendanceCard">
+            {{-- Toolbar --}}
+            <div class="attendance-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="attendance-toolbar__icon">
+                  <i class="ti ti-users"></i>
+                </div>
+                <div>
+                  <div class="title mb-0">{{ $data['form_metadata']['class_title'] }}</div>
+                  <div class="sub-title">Student's Attendance</div>
+                </div>
+                <span class="badge bg-light-primary text-primary fw-semibold rounded-pill px-3 py-2">
+                {{ $totalSessions }} {{ Str::plural('session', $totalSessions) }}
+                </span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="toggleStudentFullscreenBtn" title="Toggle full screen">
+                  <i class="ti ti-maximize"></i>
+                  <span class="d-none d-lg-inline ms-1">Full Screen</span>
+                </button>
+              </div>
             </div>
-            <div class="col-md-3"><strong>Room:</strong> {{ $data['form_metadata']['room'] }}</div>
-            <div class="col-md-3"><strong>Lecturer:</strong>
-              {{ $data['form_metadata']['lecturer_name'] }}
+            {{-- Meta bar --}}
+            <div class="attendance-meta d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+              <div class="info-strip mb-0">
+                <div class="info-strip__item">
+                  <i class="ti ti-calendar-event"></i>
+                  <span>Start: <strong>{{ $data['form_metadata']['class_start'] }}</strong></span>
+                </div>
+                <div class="info-strip__item">
+                  <i class="ti ti-door"></i>
+                  <span>Room: <strong>{{ $data['form_metadata']['room'] }}</strong></span>
+                </div>
+                <div class="info-strip__item">
+                  <i class="ti ti-user"></i>
+                  <span><strong class="text-capitalize">{{ $data['form_metadata']['lecturer_name'] }}</strong></span>
+                </div>
+                @if ($data['form_metadata']['lecturer_phone'])
+                <div class="info-strip__item">
+                  <i class="ti ti-phone"></i>
+                  <span>{{ $data['form_metadata']['lecturer_phone'] }}</span>
+                </div>
+                @endif
+              </div>
+              <div class="attendance-summary d-flex flex-wrap gap-2">
+                <div class="attendance-summary__chip">
+                  <i class="ti ti-users"></i>
+                  <span>Students: <strong>{{ $totalStudents }}</strong></span>
+                </div>
+                <div class="attendance-summary__chip">
+                  <i class="ti ti-chart-bar"></i>
+                  <span>Attendance Rate: <strong>{{ $overallRate !== null ? $overallRate . '%' : '–' }}</strong></span>
+                </div>
+                @if ($totalAbsent > 0)
+                <div class="attendance-summary__chip attendance-summary__chip--warn">
+                  <i class="ti ti-user-x"></i>
+                  <span>Absences: <strong>{{ $totalAbsent }}</strong></span>
+                </div>
+                @endif
+              </div>
             </div>
-            <div class="col-md-3"><strong>Phone:</strong>
-              {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
+            {{-- Legend --}}
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+              <span class="attendance-legend__item"><span class="status-dot status-present"></span> Present</span>
+              <span class="attendance-legend__item"><span class="status-dot status-absent"></span> Absent</span>
+              <span class="attendance-legend__item"><span class="status-dot status-late"></span> Late</span>
             </div>
+            {{-- Table --}}
+            @if ($totalStudents === 0)
+            <div class="text-center text-muted py-5">
+              <i class="ti ti-calendar-off fs-1 d-block mb-2"></i>
+              No students enrolled yet — attendance will appear here once students are added.
+            </div>
+            @else
+            <div class="attendance-scroll">
+              <table id="studentAttendanceTable" class="attendance-sheet-table student-attendance-table">
+                <thead>
+                  <tr>
+                    <th class="sticky-col sticky-col--no">No</th>
+                    <th class="sticky-col sticky-col--name text-start">Student</th>
+                    <th>Sex</th>
+                    <th>Day</th>
+                    <th>Shift</th>
+                    @foreach ($dates as $date)
+                    <th>{{ $date }}</th>
+                    @endforeach
+                    <th>Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ($data['table_structure']['data_rows'] as $row)
+                  @php
+                  $rowMarked = 0;
+                  $rowPresent = 0;
+                  foreach ($dates as $date) {
+                  $status = $row['attendance'][$date] ?? '';
+                  if ($status !== '') {
+                  $rowMarked++;
+                  if ($status === 'P' || $status === 'L') $rowPresent++;
+                  }
+                  }
+                  $rowRate = $rowMarked > 0 ? round(($rowPresent / $rowMarked) * 100) : null;
+                  @endphp
+                  <tr>
+                    <td class="sticky-col sticky-col--no" data-label="No">{{ $row['no'] }}</td>
+                    <td class="sticky-col sticky-col--name text-start fw-semibold" data-label="Student">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="student-avatar-dot">{{ Str::substr($row['student_name'], 0, 1) }}</span>
+                        {{ $row['student_name'] }}
+                      </div>
+                    </td>
+                    <td class="text-capitalize" data-label="Sex">{{ $row['sex'] }}</td>
+                    <td class="text-capitalize" data-label="Day">{{ $row['day'] }}</td>
+                    <td data-label="Shift">{{ $row['shift'] }}</td>
+                    @foreach ($dates as $date)
+                    @php $status = $row['attendance'][$date] ?? ''; @endphp
+                    <td class="status-cell" data-label="{{ $date }}">
+                      @if ($status)
+                      <span class="status-pill {{ $status == 'P' ? 'status-present' : ($status == 'A' ? 'status-absent' : 'status-late') }}" title="{{ $status == 'P' ? 'Present' : ($status == 'A' ? 'Absent' : 'Late') }}">{{ $status }}</span>
+                      @else
+                      <span class="text-muted">–</span>
+                      @endif
+                    </td>
+                    @endforeach
+                    <td data-label="Rate">
+                      @if ($rowRate !== null)
+                      <span class="rate-badge {{ $rowRate >= 80 ? 'rate-good' : ($rowRate >= 50 ? 'rate-mid' : 'rate-low') }}">{{ $rowRate }}%</span>
+                      @else
+                      <span class="text-muted">–</span>
+                      @endif
+                    </td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            @endif
           </div>
-        </div>
-        <div class="attendance-table-container">
-          <table class="attendance-table">
-            <thead>
-              <tr class="title-row">
-                <th colspan="{{ count($data['table_structure']['columns']) }}">
-                  {{ $data['form_metadata']['class_title'] }}
-                </th>
-              </tr>
-              <tr class="header-row">
-                @foreach ($data['table_structure']['columns'] as $col)
-                <th>{{ $col }}</th>
-                @endforeach
-              </tr>
-            </thead>
-            <tbody>
-              @foreach ($data['table_structure']['data_rows'] as $row)
-              <tr>
-                <td>{{ $row['no'] }}</td>
-                <td class="text-start fw-semibold">{{ $row['student_name'] }}</td>
-                <td>{{ $row['sex'] }}</td>
-                <td>{{ $row['day'] }}</td>
-                <td>{{ $row['shift'] }}</td>
-                @foreach ($dates as $date)
-                @php $status = $row['attendance'][$date] ?? ''; @endphp
-                <td class="status-cell {{ $status == 'P' ? 'status-present' : ($status == 'A' ? 'status-absent' : ($status == 'L' ? 'status-late' : '')) }}">
-                  {{ $status }}
-                </td>
-                @endforeach
-              </tr>
-              @endforeach
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
@@ -1006,6 +1283,7 @@
       $passed = $course->studentReports->where('result', 'pass')->count();
       $failed = $course->studentReports->where('result', 'fail')->count();
       $avgScore = $totalStudents > 0 ? round($course->studentReports->avg('total_score')) : 0;
+      $passRate = $totalStudents > 0 ? round(($passed / $totalStudents) * 100) : null;
       $avatarBg = [
       'bg-light-primary',
       'bg-light-warning',
@@ -1015,208 +1293,190 @@
       ];
       $avatarText = ['text-primary', 'text-warning', 'text-info', 'text-danger', 'text-success'];
       @endphp
-      {{-- Summary pills --}}
-      <div class="d-flex flex-wrap gap-3 mb-4">
-        <div class="stat-card flex-row align-items-center gap-3" style="padding:12px 20px;flex:1;min-width:120px;">
-          <div class="stat-card__icon" style="background:#ede9fe;flex-shrink:0;">
-            <i class="ti ti-users" style="color:#7c3aed;"></i>
-          </div>
-          <div>
-            <div class="stat-card__label">Total</div>
-            <div class="stat-card__value">{{ $totalStudents }}</div>
-          </div>
-        </div>
-        <div class="stat-card flex-row align-items-center gap-3" style="padding:12px 20px;flex:1;min-width:120px;">
-          <div class="stat-card__icon" style="background:#dcfce7;flex-shrink:0;">
-            <i class="ti ti-check" style="color:#16a34a;"></i>
-          </div>
-          <div>
-            <div class="stat-card__label">Passed</div>
-            <div class="stat-card__value" style="color:#16a34a;">{{ $passed }}</div>
-          </div>
-        </div>
-        <div class="stat-card flex-row align-items-center gap-3" style="padding:12px 20px;flex:1;min-width:120px;">
-          <div class="stat-card__icon" style="background:#fee2e2;flex-shrink:0;">
-            <i class="ti ti-x" style="color:#dc2626;"></i>
-          </div>
-          <div>
-            <div class="stat-card__label">Failed</div>
-            <div class="stat-card__value" style="color:#dc2626;">{{ $failed }}</div>
-          </div>
-        </div>
-        <div class="stat-card flex-row align-items-center gap-3" style="padding:12px 20px;flex:1;min-width:120px;">
-          <div class="stat-card__icon" style="background:#fef3c7;flex-shrink:0;">
-            <i class="ti ti-chart-bar" style="color:#d97706;"></i>
-          </div>
-          <div>
-            <div class="stat-card__label">Avg Score</div>
-            <div class="stat-card__value" style="color:#d97706;">{{ $avgScore }}</div>
-          </div>
-        </div>
-      </div>
       <div class="card border-0" style="border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);">
-        {{-- Header banner --}}
-        <div class="card-body" style="background:linear-gradient(135deg,#4f46e5,#6366f1);border-radius:14px 14px 0 0;">
-          <div class="d-flex align-items-start justify-content-between mb-2">
-            <div>
-              <span class="badge bg-white fw-semibold fs-2 mb-2" style="color:#4f46e5;">
-                                        <i class="ti ti-file-certificate me-1"></i> Student Report
-                                    </span>
-              <h4 class="text-white fw-semibold mb-1">{{ $course->title }}</h4>
-              <p class="mb-0 fs-3" style="color:rgba(255,255,255,.7);">ICT Professional Training
-                Center</p>
+        <div class="card-body">
+          <div class="sheet" id="studentReportCard">
+            {{-- Toolbar --}}
+            <div class="attendance-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="attendance-toolbar__icon">
+                  <i class="ti ti-file-certificate"></i>
+                </div>
+                <div>
+                  <div class="title mb-0">{{ $course->title }}</div>
+                  <div class="sub-title">Student Report</div>
+                </div>
+                <span class="badge bg-light-primary text-primary fw-semibold rounded-pill px-3 py-2">
+                {{ $totalStudents }} {{ Str::plural('student', $totalStudents) }}
+                </span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="toggleReportFullscreenBtn" title="Toggle full screen">
+                  <i class="ti ti-maximize"></i>
+                  <span class="d-none d-lg-inline ms-1">Full Screen</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()" title="Print report">
+                  <i class="ti ti-printer"></i>
+                  <span class="d-none d-lg-inline ms-1">Print</span>
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="d-flex flex-wrap gap-2 mt-3">
-            <span class="badge fw-normal fs-2 py-2 px-3"
-                                    style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.2);">
-                                    <i class="ti ti-user me-1"></i>{{ $course->instructor->name ?? 'N/A' }}
-                                </span>
-            <span class="badge fw-normal fs-2 py-2 px-3"
-                                    style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.2);">
-                                    <i class="ti ti-door me-1"></i>Room: {{ $course->room ?? 'N/A' }}
-                                </span>
-            @if ($course->schedule)
-            <span class="badge fw-normal fs-2 py-2 px-3"
-                                        style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.2);">
-                                        <i class="ti ti-calendar me-1"></i>{{ $days }}
-                                    </span>
-            <span class="badge fw-normal fs-2 py-2 px-3"
-                                        style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.2);">
-                                        <i class="ti ti-clock me-1"></i>{{ $shift }}
-                                        ({{ $start }}–{{ $end }})
-                                    </span>
-            @endif
-          </div>
-        </div>
-        {{-- Table --}}
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table align-middle text-nowrap mb-0">
-              <thead>
-                <tr class="text-muted fw-semibold" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;">
-                  <th class="ps-4" style="width:48px;">#</th>
-                  <th>Name</th>
-                  <th class="text-center text-success">P</th>
-                  <th class="text-center text-danger">A</th>
-                  <th class="text-center">Assignment (30%)</th>
-                  <th class="text-center">Mini Project (20%)</th>
-                  <th class="text-center">Final Project (40%)</th>
-                  <th class="text-center">Total</th>
-                  <th class="text-center pe-4">Result</th>
-                </tr>
-              </thead>
-              <tbody class="border-top">
-                @forelse ($course->studentReports as $i => $report)
-                @php
-                $idx = $i % count($avatarBg);
-                $initials = collect(explode(' ', trim($report->student->name ?? '')))
-                ->filter()
-                ->take(2)
-                ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-                ->implode('');
-                if ($initials === '') {
-                $initials = '--';
-                }
-                $isFail = $report->result === 'fail';
-                $assignPct = min(100, (int) (($report->assignment_score / 30) * 100));
-                $miniPct = min(100, (int) (($report->mini_project_score / 20) * 100));
-                $finalPct = min(100, (int) (($report->final_project_score / 40) * 100));
-                $totalPct = min(100, (int) $report->total_score);
-                $barClass = $isFail ? 'bg-danger' : '';
-                $trackClass = $isFail ? 'bg-light-danger' : 'bg-light-primary';
-                @endphp
-                <tr>
-                  <td class="ps-4 text-muted fs-2">{{ $i + 1 }}</td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 {{ $avatarBg[$idx] }}" style="width:35px;height:35px;">
-                        <span
-                                                                class="fs-2 fw-semibold {{ $avatarText[$idx] }}">{{ $initials }}</span>
+            {{-- Meta bar --}}
+            <div class="attendance-meta d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+              <div class="info-strip mb-0">
+                <div class="info-strip__item">
+                  <i class="ti ti-user"></i>
+                  <span><strong class="text-capitalize">{{ $course->instructor->name ?? 'N/A' }}</strong></span>
+                </div>
+                <div class="info-strip__item">
+                  <i class="ti ti-door"></i>
+                  <span>Room: <strong>{{ $course->room ?? 'N/A' }}</strong></span>
+                </div>
+                @if ($course->schedule)
+                <div class="info-strip__item">
+                  <i class="ti ti-clock"></i>
+                  <span>{{ $shift }} ({{ $start }}–{{ $end }})</span>
+                </div>
+                @endif
+              </div>
+              <div class="attendance-summary d-flex flex-wrap gap-2">
+                <div class="attendance-summary__chip">
+                  <i class="ti ti-check"></i>
+                  <span>Passed: <strong>{{ $passed }}</strong></span>
+                </div>
+                @if ($failed > 0)
+                <div class="attendance-summary__chip attendance-summary__chip--warn">
+                  <i class="ti ti-x"></i>
+                  <span>Failed: <strong>{{ $failed }}</strong></span>
+                </div>
+                @endif
+                <div class="attendance-summary__chip">
+                  <i class="ti ti-chart-bar"></i>
+                  <span>Avg Score: <strong>{{ $avgScore }}</strong></span>
+                </div>
+                <div class="attendance-summary__chip">
+                  <i class="ti ti-trophy"></i>
+                  <span>Pass Rate: <strong>{{ $passRate !== null ? $passRate . '%' : '–' }}</strong></span>
+                </div>
+              </div>
+            </div>
+            {{-- Legend --}}
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+              <span class="attendance-legend__item"><span class="status-dot status-present"></span> Pass</span>
+              <span class="attendance-legend__item"><span class="status-dot status-absent"></span> Fail</span>
+            </div>
+            {{-- Table --}}
+            @if ($totalStudents === 0)
+            <div class="text-center text-muted py-5">
+              <i class="ti ti-inbox fs-1 d-block mb-2"></i>
+              No student reports found.
+            </div>
+            @else
+            <div class="attendance-scroll" style="max-height:none;">
+              <table id="studentReportTable" class="attendance-sheet-table student-report-table">
+                <thead>
+                  <tr>
+                    <th class="sticky-col sticky-col--no">#</th>
+                    <th class="sticky-col sticky-col--name text-start">Student</th>
+                    <th class="text-success">P</th>
+                    <th class="text-danger">A</th>
+                    <th>Assignment (30%)</th>
+                    <th>Mini Project (20%)</th>
+                    <th>Final Project (40%)</th>
+                    <th>Total</th>
+                    <th>Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ($course->studentReports as $i => $report)
+                  @php
+                  $idx = $i % count($avatarBg);
+                  $initials = collect(explode(' ', trim($report->student->name ?? '')))
+                  ->filter()
+                  ->take(2)
+                  ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                  ->implode('');
+                  if ($initials === '') {
+                  $initials = '--';
+                  }
+                  $isFail = $report->result === 'fail';
+                  $assignPct = min(100, (int) (($report->assignment_score / 30) * 100));
+                  $miniPct = min(100, (int) (($report->mini_project_score / 20) * 100));
+                  $finalPct = min(100, (int) (($report->final_project_score / 40) * 100));
+                  $totalPct = min(100, (int) $report->total_score);
+                  $barClass = $isFail ? 'bg-danger' : '';
+                  $trackClass = $isFail ? 'bg-light-danger' : 'bg-light-primary';
+                  @endphp
+                  <tr>
+                    <td class="sticky-col sticky-col--no" data-label="#">{{ $i + 1 }}</td>
+                    <td class="sticky-col sticky-col--name text-start fw-semibold" data-label="Student">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 {{ $avatarBg[$idx] }}" style="width:26px;height:26px;">
+                          <span class="fw-semibold {{ $avatarText[$idx] }}" style="font-size:.62rem;">{{ $initials }}</span>
+                        </div>
+                        {{ $report->student->name }}
                       </div>
-                      <h6 class="mb-0 fw-semibold fs-3">{{ $report->student->name }}
-                      </h6>
-                    </div>
-                  </td>
-                  <td class="text-center"><span
-                                                        class="fw-semibold text-success fs-3">{{ $report->present }}</span>
-                  </td>
-                  <td class="text-center"><span
-                                                        class="fw-semibold text-danger fs-3">{{ $report->absent }}</span>
-                  </td>
-                  <td class="text-center" style="min-width:90px;">
-                    <p class="mb-1 fs-3 fw-semibold">
-                      {{ number_format($report->assignment_score) }}
-                    </p>
-                    <div class="progress {{ $trackClass }}" style="height:4px;">
-                      <div class="progress-bar {{ $barClass }}" style="width:{{ $assignPct }}%"></div>
-                    </div>
-                  </td>
-                  <td class="text-center" style="min-width:90px;">
-                    <p class="mb-1 fs-3 fw-semibold">
-                      {{ number_format($report->mini_project_score) }}
-                    </p>
-                    <div class="progress {{ $trackClass }}" style="height:4px;">
-                      <div class="progress-bar {{ $barClass }}" style="width:{{ $miniPct }}%"></div>
-                    </div>
-                  </td>
-                  <td class="text-center" style="min-width:90px;">
-                    <p class="mb-1 fs-3 fw-semibold">
-                      {{ number_format($report->final_project_score) }}
-                    </p>
-                    <div class="progress {{ $trackClass }}" style="height:4px;">
-                      <div class="progress-bar {{ $barClass }}" style="width:{{ $finalPct }}%"></div>
-                    </div>
-                  </td>
-                  <td class="text-center" style="min-width:90px;">
-                    <h6 class="mb-1 fw-semibold fs-5 {{ $isFail ? 'text-danger' : 'text-primary' }}">
-                      {{ number_format($report->total_score, 0) }}
-                    </h6>
-                    <div class="progress {{ $trackClass }}" style="height:4px;">
-                      <div class="progress-bar {{ $barClass }}" style="width:{{ $totalPct }}%"></div>
-                    </div>
-                  </td>
-                  <td class="text-center pe-4">
-                    @if (!$isFail)
-                    <span
-                                                            class="badge bg-light-success text-success fw-semibold py-1 px-3">
-                                                            <i class="ti ti-check me-1"></i>Pass
-                                                        </span>
-                    @else
-                    <span
-                                                            class="badge bg-light-danger text-danger fw-semibold py-1 px-3">
-                                                            <i class="ti ti-x me-1"></i>Fail
-                                                        </span>
-                    @endif
-                  </td>
-                </tr>
-                @empty
-                <tr>
-                  <td colspan="10" class="text-center py-5 text-muted">
-                    <i class="ti ti-inbox fs-6 d-block mb-2"></i>
-                    <span class="fs-3">No student reports found.</span>
-                  </td>
-                </tr>
-                @endforelse
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {{-- Signature footer --}}
-        <div class="card-footer bg-light mt-2">
-          <div class="row text-center py-3">
-            <div class="col-6 border-end">
-              <p class="text-muted fs-3 mb-5">Seen and Approved by</p>
-              <div class="border-top mx-auto mb-2" style="width:60%;"></div>
-              <h6 class="fw-semibold fs-3 mb-0">ICT Training Center</h6>
+                    </td>
+                    <td data-label="Present"><span class="rate-badge rate-good">{{ $report->present }}</span></td>
+                    <td data-label="Absent"><span class="rate-badge rate-low">{{ $report->absent }}</span></td>
+                    <td data-label="Assignment (30%)" style="min-width:90px;">
+                      <div class="fw-semibold mb-1">{{ number_format($report->assignment_score) }}</div>
+                      <div class="progress {{ $trackClass }}" style="height:4px;">
+                        <div class="progress-bar {{ $barClass }}" style="width:{{ $assignPct }}%"></div>
+                      </div>
+                    </td>
+                    <td data-label="Mini Project (20%)" style="min-width:90px;">
+                      <div class="fw-semibold mb-1">{{ number_format($report->mini_project_score) }}</div>
+                      <div class="progress {{ $trackClass }}" style="height:4px;">
+                        <div class="progress-bar {{ $barClass }}" style="width:{{ $miniPct }}%"></div>
+                      </div>
+                    </td>
+                    <td data-label="Final Project (40%)" style="min-width:90px;">
+                      <div class="fw-semibold mb-1">{{ number_format($report->final_project_score) }}</div>
+                      <div class="progress {{ $trackClass }}" style="height:4px;">
+                        <div class="progress-bar {{ $barClass }}" style="width:{{ $finalPct }}%"></div>
+                      </div>
+                    </td>
+                    <td data-label="Total" style="min-width:90px;">
+                      <div class="fw-semibold mb-1 {{ $isFail ? 'text-danger' : 'text-primary' }}">
+                        {{ number_format($report->total_score, 0) }}
+                      </div>
+                      <div class="progress {{ $trackClass }}" style="height:4px;">
+                        <div class="progress-bar {{ $barClass }}" style="width:{{ $totalPct }}%"></div>
+                      </div>
+                    </td>
+                    <td data-label="Result">
+                      @if (!$isFail)
+                      <span class="badge bg-light-success text-success fw-semibold py-1 px-3">
+                        <i class="ti ti-check me-1"></i>Pass
+                      </span>
+                      @else
+                      <span class="badge bg-light-danger text-danger fw-semibold py-1 px-3">
+                        <i class="ti ti-x me-1"></i>Fail
+                      </span>
+                      @endif
+                    </td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
             </div>
-            <div class="col-6">
-              <p class="text-muted fs-3 mb-5">Prepared by</p>
-              <div class="border-top mx-auto mb-2" style="width:60%;"></div>
-              <h6 class="fw-semibold fs-3 mb-0 text-capitalize">
-                Teacher: {{ $course->instructor->name ?? 'N/A' }}
-              </h6>
+            {{-- Signature footer --}}
+            <div class="row text-center py-4 mt-2 border-top">
+              <div class="col-6 border-end">
+                <p class="text-muted mb-5">Seen and Approved by</p>
+                <div class="border-top mx-auto mb-2" style="width:60%;"></div>
+                <h6 class="fw-semibold mb-0">ICT Training Center</h6>
+              </div>
+              <div class="col-6">
+                <p class="text-muted mb-5">Prepared by</p>
+                <div class="border-top mx-auto mb-2" style="width:60%;"></div>
+                <h6 class="fw-semibold mb-0 text-capitalize">
+                  Teacher: {{ $course->instructor->name ?? 'N/A' }}
+                </h6>
+              </div>
             </div>
+            @endif
           </div>
         </div>
       </div>
@@ -1481,5 +1741,43 @@
       newRow.classList.add('row-flash');
     });
   });
+  /* ── Student's Attendance: full screen toggle ── */
+  (function() {
+    const card = document.getElementById('studentAttendanceCard');
+    const btn = document.getElementById('toggleStudentFullscreenBtn');
+    if (!card || !btn) return;
+    const icon = btn.querySelector('i');
+    const label = btn.querySelector('span');
+    function setFullscreen(isFull) {
+      card.classList.toggle('is-fullscreen', isFull);
+      document.body.classList.toggle('attendance-fullscreen-open', isFull);
+      icon.className = isFull ? 'ti ti-minimize' : 'ti ti-maximize';
+      if (label) label.textContent = isFull ? 'Exit Full Screen' : 'Full Screen';
+      btn.title = isFull ? 'Exit full screen' : 'Toggle full screen';
+    }
+    btn.addEventListener('click', () => setFullscreen(!card.classList.contains('is-fullscreen')));
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && card.classList.contains('is-fullscreen')) setFullscreen(false);
+    });
+  })();
+  /* ── Student Report: full screen toggle ── */
+  (function() {
+    const card = document.getElementById('studentReportCard');
+    const btn = document.getElementById('toggleReportFullscreenBtn');
+    if (!card || !btn) return;
+    const icon = btn.querySelector('i');
+    const label = btn.querySelector('span');
+    function setFullscreen(isFull) {
+      card.classList.toggle('is-fullscreen', isFull);
+      document.body.classList.toggle('attendance-fullscreen-open', isFull);
+      icon.className = isFull ? 'ti ti-minimize' : 'ti ti-maximize';
+      if (label) label.textContent = isFull ? 'Exit Full Screen' : 'Full Screen';
+      btn.title = isFull ? 'Exit full screen' : 'Toggle full screen';
+    }
+    btn.addEventListener('click', () => setFullscreen(!card.classList.contains('is-fullscreen')));
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && card.classList.contains('is-fullscreen')) setFullscreen(false);
+    });
+  })();
 </script>
 @endpush
