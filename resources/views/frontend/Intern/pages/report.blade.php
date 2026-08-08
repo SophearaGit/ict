@@ -23,12 +23,77 @@
 
         .report-card .report-preview {
             display: -webkit-box;
-            -webkit-line-clamp: 5;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        .report-card {
+            transition: box-shadow .15s ease, transform .15s ease;
+        }
+
+        .report-card:hover {
+            box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .08);
+            transform: translateY(-2px);
+        }
     </style>
 @endpush
+@php
+    /**
+     * The report_content field is the raw HTML of the TinyMCE table template
+     * (Date/Name header, Goals box, Task/Progress/Issue table, Comments box).
+     * strip_tags() on that collapses every label and cell into one run-on
+     * line ("Date Name intern Goals for this Week Date Task Progress
+     * Issue..."), which is what the old cards showed. This pulls out just
+     * the parts worth previewing: the goals text, how many task rows were
+     * actually filled in, and whether an issue was logged.
+     */
+    function report_preview($html)
+    {
+        $result = ['goals' => '', 'task_count' => 0, 'has_issue' => false];
+
+        if (empty($html)) {
+            return $result;
+        }
+
+        $clean = static function ($text) {
+            $text = trim(preg_replace('/\s+/u', ' ', $text ?? ''));
+            return $text === "\u{00A0}" ? '' : $text;
+        };
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+        libxml_clear_errors();
+        $xpath = new \DOMXPath($dom);
+
+        // Goals box: the div immediately after the "Goals for this Week" label
+        $goalsLabel = $xpath->query("//div[contains(., 'Goals for this Week')]");
+        if ($goalsLabel->length) {
+            $goalsBox = $xpath->query('following-sibling::div[1]', $goalsLabel->item($goalsLabel->length - 1));
+            if ($goalsBox->length) {
+                $result['goals'] = $clean($goalsBox->item(0)->textContent);
+            }
+        }
+
+        // Task table: rows after the header row, counting only ones with a filled Task cell
+        $rows = $xpath->query('//table[2]//tr[position() > 1]');
+        foreach ($rows as $row) {
+            $cells = $xpath->query('.//td', $row);
+            if ($cells->length < 2) {
+                continue;
+            }
+            if ($clean($cells->item(1)->textContent) !== '') {
+                $result['task_count']++;
+            }
+            if ($cells->length >= 4 && $clean($cells->item(3)->textContent) !== '') {
+                $result['has_issue'] = true;
+            }
+        }
+
+        return $result;
+    }
+@endphp
 @section('content')
     <div class="page-container">
         <div class="row">
@@ -36,6 +101,7 @@
                 <div class="page-title-head d-flex align-items-sm-center flex-sm-row flex-column">
                     <div class="flex-grow-1">
                         <h4 class="fs-18 text-uppercase fw-bold m-0">Reports</h4>
+                        <p class="text-muted fs-13 mb-0">Your submitted daily/weekly activity reports</p>
                     </div>
                     <div class="mt-3 mt-sm-0">
                         <div class="row g-2 mb-0 align-items-center">
@@ -123,13 +189,30 @@
                                                     : \Carbon\Carbon::parse($periodStart)->format('d M') .
                                                         ' – ' .
                                                         \Carbon\Carbon::parse($periodEnd)->format('d M Y');
+                                            $preview = report_preview($report->report_content);
                                         @endphp
                                         <tr>
                                             <td>
                                                 {{ $loop->iteration + ($reports->currentPage() - 1) * $reports->perPage() }}
                                             </td>
                                             <td>
-                                                {!! Str::limit(strip_tags($report->report_content), 120) !!}
+                                                @if ($preview['goals'] === '' && $preview['task_count'] === 0 && !$preview['has_issue'])
+                                                    <div class="text-muted fst-italic">
+                                                        <i class="ti ti-file-off me-1"></i>This report has no content yet.
+                                                    </div>
+                                                @else
+                                                    <div class="fw-semibold text-dark">
+                                                        {{ $preview['goals'] !== '' ? Str::limit($preview['goals'], 100) : 'No goals noted' }}
+                                                    </div>
+                                                    <div class="fs-13 text-muted mt-1">
+                                                        <i class="ti ti-checklist me-1"></i>{{ $preview['task_count'] }} task{{ $preview['task_count'] === 1 ? '' : 's' }} logged
+                                                        @if ($preview['has_issue'])
+                                                            <span class="text-warning ms-2">
+                                                                <i class="ti ti-alert-triangle me-1"></i>Issue reported
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td>
                                                 <a href="javascript:void(0)"
@@ -157,8 +240,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted py-4">
-                                                No reports found. Click "Add Report" to create one.
+                                            <td colspan="4" class="text-center py-5">
+                                                <i class="ti ti-file-text fs-1 text-muted d-block mb-2"></i>
+                                                <span class="text-muted">No reports found. Click "Add Report" to create one.</span>
                                             </td>
                                         </tr>
                                     @endforelse
@@ -189,16 +273,42 @@
                             : \Carbon\Carbon::parse($periodStart)->format('d M') .
                                 ' – ' .
                                 \Carbon\Carbon::parse($periodEnd)->format('d M Y');
+                    $preview = report_preview($report->report_content);
                 @endphp
                 <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                    <div class="card mb-0 h-100 d-flex flex-column report-card">
+                    <div class="card mb-0 h-100 d-flex flex-column report-card border-0 shadow-sm">
                         <div class="card-body d-flex flex-column">
-                            <span class="badge badge-soft-primary mb-2 align-self-start">
-                                #{{ $loop->iteration + ($reports->currentPage() - 1) * $reports->perPage() }}
-                            </span>
-                            <div class="report-preview text-muted fs-13 mb-3">
-                                {!! Str::limit(strip_tags($report->report_content), 140) !!}
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="badge badge-soft-primary">
+                                    #{{ $loop->iteration + ($reports->currentPage() - 1) * $reports->perPage() }}
+                                </span>
+                                @if ($preview['has_issue'])
+                                    <span class="badge badge-soft-warning">
+                                        <i class="ti ti-alert-triangle me-1"></i>Issue
+                                    </span>
+                                @endif
                             </div>
+
+                            @if ($preview['goals'] === '' && $preview['task_count'] === 0 && !$preview['has_issue'])
+                                <div class="fs-13 text-muted fst-italic mb-3">
+                                    <i class="ti ti-file-off me-1"></i>This report has no content yet.
+                                </div>
+                            @else
+                                <div class="mb-1">
+                                    <span class="fs-12 fw-semibold text-muted text-uppercase">
+                                        <i class="ti ti-target me-1"></i>Goals
+                                    </span>
+                                </div>
+                                <div class="report-preview fs-13 text-dark mb-2">
+                                    {{ $preview['goals'] !== '' ? $preview['goals'] : 'No goals noted for this period.' }}
+                                </div>
+
+                                <div class="fs-13 text-muted mb-3">
+                                    <i class="ti ti-checklist me-1"></i>
+                                    {{ $preview['task_count'] }} task{{ $preview['task_count'] === 1 ? '' : 's' }} logged
+                                </div>
+                            @endif
+
                             <div
                                 class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top fs-12 text-muted">
                                 <a href="javascript:void(0)" class="change-period-btn text-muted text-decoration-underline"
@@ -225,9 +335,11 @@
                 </div>
             @empty
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-body text-center text-muted py-4">
-                            No reports found. Click "Add Report" to create one.
+                    <div class="card border-0">
+                        <div class="card-body text-center py-5">
+                            <i class="ti ti-file-text fs-1 text-muted d-block mb-2"></i>
+                            <h5 class="mb-1 text-muted">No reports found</h5>
+                            <p class="text-muted fs-13 mb-0">Click "Add Report" to create one for this period.</p>
                         </div>
                     </div>
                 </div>
@@ -249,24 +361,37 @@
                 <form id="reportForm" method="POST" action="{{ route('intern.report.store') }}">
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="reportModalTitle">Add Report</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-3">
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label class="form-label">Period Start</label>
-                                <input type="date" id="period_start" name="period_start" class="form-control"
-                                    max="{{ now()->format('Y-m-d') }}" required>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Period End</label>
-                                <input type="date" id="period_end" name="period_end" class="form-control"
-                                    max="{{ now()->format('Y-m-d') }}" required>
+                    <div class="modal-header border-0 pb-0">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                style="width:44px; height:44px; background: rgba(var(--bs-primary-rgb), .12);">
+                                <i class="ti ti-file-text fs-4 text-primary"></i>
+                            </span>
+                            <div>
+                                <h5 class="modal-title mb-0" id="reportModalTitle">Add Report</h5>
+                                <p class="text-muted fs-13 mb-0">Log the work you did for a given period</p>
                             </div>
                         </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-3 pt-2">
                         <div class="mb-3">
+                            <label class="form-label fw-semibold" for="reportPeriodRange">
+                                <i class="ti ti-calendar-event me-1 text-primary"></i>Report period
+                            </label>
+                            <div class="input-group" style="max-width: 320px;">
+                                <input id="reportPeriodRange" type="text" class="form-control" readonly>
+                                <span class="input-group-text bg-primary border-primary text-white">
+                                    <i class="ti ti-calendar fs-15"></i>
+                                </span>
+                            </div>
+                            <input type="hidden" id="period_start" name="period_start">
+                            <input type="hidden" id="period_end" name="period_end">
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label fw-semibold">
+                                <i class="ti ti-edit me-1 text-primary"></i>Report content
+                            </label>
                             <textarea id="report_content" name="report_content"></textarea>
                         </div>
                     </div>
@@ -407,12 +532,24 @@
             document.getElementById('formMethod').value = 'POST';
             document.getElementById('reportModalTitle').innerText = 'Add Report';
             document.getElementById('reportForm').reset();
-            document.getElementById('period_start').value = todayIso;
-            document.getElementById('period_end').value = todayIso;
+            reportPeriodPicker.setDate([todayIso, todayIso], true, 'Y-m-d');
             tinymce.get('report_content').setContent(reportTemplate);
         }
         document.getElementById('reportForm').addEventListener('submit', function() {
             tinymce.triggerSave();
+        });
+
+        // ---- Report period range picker (drives hidden period_start/period_end) ----
+        const reportPeriodPicker = flatpickr('#reportPeriodRange', {
+            mode: 'range',
+            dateFormat: 'd M Y',
+            altInput: false,
+            maxDate: 'today',
+            onChange: function(selectedDates) {
+                if (selectedDates.length < 2) return;
+                document.getElementById('period_start').value = toLocalDateStr(selectedDates[0]);
+                document.getElementById('period_end').value = toLocalDateStr(selectedDates[1]);
+            },
         });
 
         function openEditModal(report) {
@@ -426,8 +563,7 @@
             // to a full ISO datetime.
             const start = (report.period_start ?? report.created_at ?? todayIso).toString().slice(0, 10);
             const end = (report.period_end ?? start).toString().slice(0, 10);
-            document.getElementById('period_start').value = start;
-            document.getElementById('period_end').value = end;
+            reportPeriodPicker.setDate([start, end], true, 'Y-m-d');
             tinymce.get('report_content').setContent(
                 report.report_content ?? ''
             );

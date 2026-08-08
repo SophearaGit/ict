@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>
-        @yield('page_title', 'ICT LMS - Intern Dashboard')
+      @yield('page_title', 'ICT LMS - Intern Dashboard')
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
@@ -26,56 +25,52 @@
     <link href="/frontend/intern/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     @stack('styles')
     <style>
-        .sidenav-menu {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidenav-menu [data-simplebar] {
-            flex: 1 1 auto;
-            min-height: 0;
-            /* required for simplebar to shrink properly inside flex */
-        }
-
-        .sidenav-bottom {
-            flex-shrink: 0;
-            border-top: 1px dashed var(--bs-border-color);
-            padding: 8px 0;
-        }
-
-        .sidenav-bottom .side-nav {
-            margin-bottom: 0;
-        }
+      .sidenav-menu {
+        display: flex;
+        flex-direction: column;
+      }
+      .sidenav-menu [data-simplebar] {
+        flex: 1 1 auto;
+        min-height: 0;
+        /* required for simplebar to shrink properly inside flex */
+      }
+      .sidenav-bottom {
+        flex-shrink: 0;
+        border-top: 1px dashed var(--bs-border-color);
+        padding: 8px 0;
+      }
+      .sidenav-bottom .side-nav {
+        margin-bottom: 0;
+      }
     </style>
-</head>
-
-<body>
+  </head>
+  <body>
 
     <!-- Begin page -->
     <div class="wrapper">
-        @include('frontend.Intern.layout.partials.sidenav-menu')
-        @include('frontend.Intern.layout.partials.app-topbar')
-        @include('frontend.Intern.layout.partials.search-modal')
+      @include('frontend.Intern.layout.partials.sidenav-menu')
+      @include('frontend.Intern.layout.partials.app-topbar')
+      @include('frontend.Intern.layout.partials.search-modal')
 
-        <!-- ============================================================== -->
+      <!-- ============================================================== -->
 
-        <!-- Start Page Content here -->
+      <!-- Start Page Content here -->
 
-        <!-- ============================================================== -->
-        <div class="page-content">
-            <div class="page-container">
-                @yield('content')
-            </div>
-
-            <!-- container -->
-            @include('frontend.Intern.layout.partials.footer')
+      <!-- ============================================================== -->
+      <div class="page-content">
+        <div class="page-container">
+          @yield('content')
         </div>
 
-        <!-- ============================================================== -->
+        <!-- container -->
+        @include('frontend.Intern.layout.partials.footer')
+      </div>
 
-        <!-- End Page content -->
+      <!-- ============================================================== -->
 
-        <!-- ============================================================== -->
+      <!-- End Page content -->
+
+      <!-- ============================================================== -->
     </div>
 
     <!-- END wrapper -->
@@ -93,6 +88,5 @@
     <!-- Projects Analytics Dashboard App js -->
     <script src="/frontend/intern/assets/js/pages/dashboard-sales.js"></script>
     @stack('scripts')
-</body>
-
+  </body>
 </html>
