@@ -175,36 +175,59 @@
     <div class="modal fade" id="moveCourseModal" tabindex="-1" aria-labelledby="moveCourseModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="moveCourseModalLabel">
-                        <i class="ti ti-arrow-right me-2 text-warning"></i>Move students to another course
-                    </h5>
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                            style="width:44px; height:44px; background: rgba(var(--bs-warning-rgb), .12);">
+                            <i class="ti ti-arrow-right fs-4 text-warning"></i>
+                        </span>
+                        <div>
+                            <h5 class="modal-title mb-0" id="moveCourseModalLabel">Move students</h5>
+                            <p class="text-muted fs-3 mb-0">Transfer enrollment to a different course</p>
+                        </div>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" action="{{ route('staff.courses.move-student', $course->id) }}" id="moveForm">
                     @csrf
                     <input type="hidden" name="charge_difference" id="chargeDifferenceInput" value="0">
-                    <div class="modal-body">
-                        {{-- Selected student badges --}}
-                        <p class="text-muted fs-3 mb-1">Moving:</p>
-                        <div id="moveStudentNames" class="mb-3 d-flex flex-wrap gap-1"></div>
+                    <div class="modal-body pt-3">
+                        {{-- FROM --}}
+                        <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3 bg-light">
+                            <i class="ti ti-school fs-4 text-muted"></i>
+                            <span class="fs-3 text-muted">Moving from</span>
+                            <span class="fw-semibold fs-3 text-dark">{{ $course->title }}</span>
+                        </div>
+
+                        {{-- Selected student chips --}}
+                        <label class="form-label fw-semibold fs-3 text-muted mb-2">
+                            <span id="moveStudentCount">0</span> student(s) selected
+                        </label>
+                        <div id="moveStudentNames" class="d-flex flex-wrap gap-1 p-2 mb-3 rounded-3 border"
+                            style="max-height:120px; overflow-y:auto;"></div>
                         {{-- Hidden student_ids[] inputs injected by JS --}}
                         <div id="moveStudentInputs"></div>
 
-                        <label class="form-label fw-semibold">Destination course</label>
+                        <hr class="my-3 opacity-25">
+
+                        {{-- DESTINATION --}}
+                        <label class="form-label fw-semibold" for="targetCourseSelect">
+                            <i class="ti ti-map-pin-2 me-1 text-warning"></i> Destination course
+                        </label>
 
                         {{-- No available courses notice (hidden by default) --}}
-                        <div id="noCoursesNotice" class="alert alert-warning fs-3 py-2 d-none">
-                            <i class="ti ti-info-circle me-1"></i>
-                            All available courses are already enrolled by the selected student(s).
+                        <div id="noCoursesNotice"
+                            class="alert alert-warning d-flex align-items-start gap-2 fs-3 py-2 d-none">
+                            <i class="ti ti-info-circle fs-5 mt-1 flex-shrink-0"></i>
+                            <span>All available courses are already enrolled by the selected student(s).</span>
                         </div>
 
                         <select name="target_course_id" id="targetCourseSelect" class="form-select" required>
                             <option value="">— Choose course —</option>
-                            @foreach (\App\Models\ICTCourse::with('schedule')->where('id', '!=', $course->id)->orderBy('title')->get() as $c)
+                            @foreach (\App\Models\ICTCourse::with('schedule')->where('id', '!=', $course->id)->where('status', '!=', 'draft')->orderBy('title')->get() as $c)
                                 <option value="{{ $c->id }}" data-price="{{ $c->price }}">
-                                    {{ $c->title }}
+                                    {{ $c->title }} (${{ number_format($c->price, 2) }})
                                     @if ($c->schedule)
                                         — {{ ucfirst(str_replace('-', ' & ', $c->schedule->study_day)) }}
                                         ({{ \Carbon\Carbon::parse($c->schedule->start_time)->format('g:i') }}–{{ \Carbon\Carbon::parse($c->schedule->end_time)->format('g:i A') }})
@@ -213,11 +236,27 @@
                                 </option>
                             @endforeach
                         </select>
+
+                        {{-- Live price preview --}}
+                        <div id="movePricePreview" class="d-none mt-3 p-3 rounded-3"
+                            style="background: rgba(var(--bs-warning-rgb), .08);">
+                            <div class="d-flex align-items-center justify-content-between fs-3">
+                                <span class="text-muted">New course price</span>
+                                <span class="fw-semibold text-dark" id="movePreviewPrice">$0.00</span>
+                            </div>
+                            <div id="movePreviewDiffRow"
+                                class="d-flex align-items-center justify-content-between fs-3 mt-1 d-none">
+                                <span class="text-warning">
+                                    <i class="ti ti-alert-triangle me-1"></i>Price difference per student
+                                </span>
+                                <span class="fw-semibold text-warning" id="movePreviewDiff">+$0.00</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="moveSubmitBtn" class="btn btn-warning text-white">
-                            <i class="ti ti-arrow-right me-1"></i> Move
+                            <i class="ti ti-arrow-right me-1"></i> Move student(s)
                         </button>
                     </div>
                 </form>
@@ -384,7 +423,35 @@
                     document.getElementById('moveStudentNames'),
                     document.getElementById('moveStudentInputs')
                 );
+                document.getElementById('moveStudentCount').textContent = selected().length;
+                document.getElementById('movePricePreview').classList.add('d-none');
                 filterMoveDropdown();
+            });
+
+            // ── move modal: live price preview on destination change ──
+            $('#targetCourseSelect').on('change', function() {
+                const preview = document.getElementById('movePricePreview');
+                const diffRow = document.getElementById('movePreviewDiffRow');
+
+                if (!this.value) {
+                    preview.classList.add('d-none');
+                    return;
+                }
+
+                const chosen = this.options[this.selectedIndex];
+                const newPrice = parseFloat(chosen?.dataset.price ?? 0);
+                const diff = newPrice - currentCoursePrice;
+
+                document.getElementById('movePreviewPrice').textContent = '$' + newPrice.toFixed(2);
+
+                if (diff > 0) {
+                    document.getElementById('movePreviewDiff').textContent = '+$' + diff.toFixed(2);
+                    diffRow.classList.remove('d-none');
+                } else {
+                    diffRow.classList.add('d-none');
+                }
+
+                preview.classList.remove('d-none');
             });
 
             // ── remove modal: populate ──
