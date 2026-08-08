@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Frontend\Staff;
-
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
 use App\Models\ICTCourseEnrollments;
@@ -14,17 +12,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-
 class StudentRegisterationController extends Controller
 {
     public function studentRegistration()
     {
-        $courses = ICTCourse::with('schedule')->get();
+        $courses = ICTCourse::with('schedule')->where('status', '!=', 'draft')->get();
         $students = User::where('role', 'student')->get();
-
         return view('frontend.staff.pages.student-management.student-registration', compact('courses', 'students'));
     }
-
     public function studentRegistrationSubmit(Request $request): RedirectResponse
     {
         // =========================
@@ -42,13 +37,11 @@ class StudentRegisterationController extends Controller
                 'student_id' => ['required', 'exists:users,id'],
             ]);
         }
-
         $request->validate([
             'course_ids' => ['required', 'array', 'min:1'],
             'course_ids.*' => ['exists:i_c_t_courses,id'],
             'payment_option' => ['required', 'in:normal,full,half,multi,free,other'],
         ]);
-
         // Extra validation for manual (other) option
         if ($request->payment_option === 'other') {
             $request->validate([
@@ -58,25 +51,19 @@ class StudentRegisterationController extends Controller
                 'manual_extra_charge' => ['nullable', 'numeric', 'min:0'],
             ]);
         }
-
         DB::beginTransaction();
-
         try {
             $courses = ICTCourse::whereIn('id', $request->course_ids)->get();
-
             if ($courses->isEmpty()) {
                 throw new \Exception('Please select at least one course.');
             }
-
             $courseCount = $courses->count();
             $totalPrice = round($courses->sum('price'), 2);
-
             // =========================
             // CALCULATE ADJUSTMENTS
             // =========================
             $discount = 0;
             $extraCharge = 0;
-
             if ($request->payment_option === 'other') {
                 // Staff-provided manual values
                 $discount = round((float) $request->input('manual_discount', 0), 2);
@@ -93,29 +80,22 @@ class StudentRegisterationController extends Controller
                 if ($request->payment_option === 'multi' && $courseCount >= 2) {
                     $discount += 25;
                 }
-
                 if ($request->payment_option === 'full') {
                     $discount += 10;
                 }
-
                 if ($request->payment_option === 'half') {
                     $extraCharge += 20;
                 }
-
                 $totalAmount = round($totalPrice - $discount + $extraCharge, 2);
-
                 $paid = match ($request->payment_option) {
                     'half' => round($totalAmount / 2, 2),
                     default => $totalAmount,
                 };
-
                 if ($paid > $totalAmount) {
                     $paid = $totalAmount;
                 }
-
                 $remaining = round($totalAmount - $paid, 2);
             }
-
             // =========================
             // STATUS
             // =========================
@@ -125,7 +105,6 @@ class StudentRegisterationController extends Controller
                 $remaining == 0 => 'paid',
                 default => 'half_paid',
             };
-
             // =========================
             // CREATE / GET STUDENT
             // =========================
@@ -143,7 +122,6 @@ class StudentRegisterationController extends Controller
                     'alternate_phone' => $request->alternate_phone ?? null,
                 ]);
             }
-
             // =========================
             // ENROLLMENTS
             // =========================
@@ -152,11 +130,9 @@ class StudentRegisterationController extends Controller
                     'student_id' => $user->id,
                     'course_id' => $course->id,
                 ])->exists();
-
                 if ($exists) {
                     throw new \Exception("Student already enrolled in {$course->title}");
                 }
-
                 ICTCourseEnrollments::create([
                     'student_id' => $user->id,
                     'course_id' => $course->id,
@@ -165,7 +141,6 @@ class StudentRegisterationController extends Controller
                     'enrolled_at' => now(),
                 ]);
             }
-
             // =========================
             // CREATE INVOICE
             // =========================
@@ -173,32 +148,25 @@ class StudentRegisterationController extends Controller
                 'staff_id' => Auth::id(),
                 'student_id' => $user->id,
                 'course_id' => $courses->first()->id,
-
                 'price' => $totalPrice,
                 'discount' => $discount,
                 'extra_charge' => $extraCharge,
-
                 'total_amount' => $totalAmount,
                 'paid_amount' => $paid,
                 'remaining_amount' => $remaining,
-
                 'payment_option' => $request->payment_option,
                 'payment_status' => $status,
-
                 'invoice_code' => 'INV-' . now()->format('YmdHis') . '-' . mt_rand(100, 999),
                 'paid_at' => $paid > 0 || $request->payment_option === 'free' ? now() : null,
             ]);
-
             // =========================
             // DISTRIBUTE ITEMS
             // =========================
             $distributedDiscount = 0;
             $distributedExtra = 0;
-
             foreach ($courses->values() as $index => $course) {
                 $itemDiscount = 0;
                 $itemExtra = 0;
-
                 if ($request->payment_option === 'free') {
                     $itemDiscount = $course->price;
                 } elseif ($request->payment_option === 'other') {
@@ -211,7 +179,6 @@ class StudentRegisterationController extends Controller
                             $distributedDiscount += $itemDiscount;
                         }
                     }
-
                     if ($extraCharge > 0) {
                         if ($index === $courseCount - 1) {
                             $itemExtra = round($extraCharge - $distributedExtra, 2);
@@ -229,7 +196,6 @@ class StudentRegisterationController extends Controller
                             $distributedDiscount += $itemDiscount;
                         }
                     }
-
                     if ($extraCharge > 0) {
                         if ($index === $courseCount - 1) {
                             $itemExtra = round($extraCharge - $distributedExtra, 2);
@@ -239,9 +205,7 @@ class StudentRegisterationController extends Controller
                         }
                     }
                 }
-
                 $itemTotal = round($course->price - $itemDiscount + $itemExtra, 2);
-
                 $invoice->items()->create([
                     'course_id' => $course->id,
                     'price' => $course->price,
@@ -250,20 +214,17 @@ class StudentRegisterationController extends Controller
                     'total' => $itemTotal,
                 ]);
             }
-
             // =========================
             // FINAL RECALCULATION
             // — skip for 'other' and 'free' since amounts are already correct
             // =========================
             if (!in_array($request->payment_option, ['other', 'free'])) {
                 $itemTotalSum = round($invoice->items()->sum('total'), 2);
-
                 $invoice->update([
                     'total_amount' => $itemTotalSum,
                     'remaining_amount' => round($itemTotalSum - $paid, 2),
                 ]);
             }
-
             // =========================
             // PAYMENT RECORD
             // =========================
@@ -277,13 +238,10 @@ class StudentRegisterationController extends Controller
                     'note' => $request->payment_option === 'other' ? 'Manual entry payment during registration' : 'Initial payment during registration',
                 ]);
             }
-
             DB::commit();
-
             return redirect()->route('staff.invoices')->with('success', 'Student registered successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
