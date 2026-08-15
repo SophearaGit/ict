@@ -128,6 +128,7 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/profile', [ProfileUpdateController::class, 'profile'])->name('profile.index');
     Route::post('/profile', [ProfileUpdateController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [ProfileUpdateController::class, 'updatePassword'])->name('profile.password.update');
+    Route::post('/profile/social', [ProfileUpdateController::class, 'updateSocial'])->name('profile.social.update');
     /*******************************************************
      *  Blog
      *******************************************************/
