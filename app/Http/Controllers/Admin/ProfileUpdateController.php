@@ -13,11 +13,27 @@ class ProfileUpdateController extends Controller
 {
     use FileUpload;
 
+    public function updateSocial(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'facebook' => 'nullable|url|max:255',
+            'twitter' => 'nullable|url|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'youtube' => 'nullable|url|max:255',
+            'website' => 'nullable|url|max:255',
+        ]);
+
+        Auth::guard('admin')->user()->update($validated);
+
+        return redirect()->back()->with('success', 'Social links updated successfully.');
+    }
+
     public function profile(): View
     {
         $data = [
             'pageTitle' => 'CAITD | Profile',
-            'personalDetails' => Auth::user(),
+            'personalDetails' => Auth::guard('admin')->user(),
         ];
         return view('admin.pages.profile.index', $data);
     }

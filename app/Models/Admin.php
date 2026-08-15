@@ -17,6 +17,14 @@ class Admin extends Authenticatable
         'name',
         'email',
         'password',
+        'bio',
+        'image',
+        'facebook',
+        'twitter',
+        'linkedin',
+        'instagram',
+        'youtube',
+        'website',
     ];
     /**
      * The attributes that should be hidden for serialization.

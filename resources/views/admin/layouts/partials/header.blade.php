@@ -170,7 +170,7 @@
                         </div>
                         <div class="dropdown-divider"></div>
                         <ul class="list-unstyled">
-                            <li class="dropdown-submenu dropstart-lg">
+                            {{-- <li class="dropdown-submenu dropstart-lg">
                                 <a class="dropdown-item dropdown-list-group-item dropdown-toggle" href="javascript:;">
                                     <i class="fe fe-circle me-2"></i>
                                     Status
@@ -201,9 +201,9 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
+                            </li> --}}
                             <li>
-                                <a class="dropdown-item" href="javascript:;">
+                                <a class="dropdown-item" href="{{ route('admin.profile.index') }}">
                                     <i class="fe fe-user me-2"></i>
                                     Profile
                                 </a>
