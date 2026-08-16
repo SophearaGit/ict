@@ -12,6 +12,7 @@ class CoursePageController extends Controller
     public function course(): View
     {
         $search = request('search');
+        $categoryId = request('category');
         $groupedCourses = ICTCourse::frontendVisible()
             ->with([
                 'instructor',
@@ -20,6 +21,9 @@ class CoursePageController extends Controller
             ])
             ->when($search, function ($query) use ($search) {
                 $query->where('title', 'like', "%{$search}%");
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('category_id', $categoryId);
             })
             ->latest()
             ->get()

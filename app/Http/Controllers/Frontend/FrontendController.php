@@ -42,6 +42,7 @@ class FrontendController extends Controller
                 ->where('approval_status', 'approved')
                 ->count(),
             'latest_blogs' => Blog::published()
+                ->with(['admin', 'staff'])
                 ->latest('published_at')
                 ->take(7)
                 ->get(),

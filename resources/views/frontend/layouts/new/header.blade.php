@@ -11,7 +11,8 @@
     <!-- Desktop nav -->
     <ul>
         <li class="dropdown">
-            <a href="{{ route('course') }}" class="dropbtn" title="Click Me">Course</a>
+            <a href="{{ route('course') }}" class="dropbtn {{ request()->routeIs('course') ? 'active' : '' }}"
+                title="Click Me">Course</a>
             <div class="dropdown-content">
                 <div class="dropdown-column">
                     @foreach ($categories_for_frontend as $category)
@@ -32,9 +33,13 @@
                 </div>
             </div>
         </li>
-        <li><a href="{{ route('about') }}">About</a></li>
-        <li><a href="{{ route('blog') }}">Blog</a></li>
-        <li><a href="{{ route('contact') }}">Contact</a></li>
+        <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
+        <li><a href="{{ route('blog') }}"
+                class="{{ request()->routeIs('blog') || request()->routeIs('blog.details') ? 'active' : '' }}">Blog</a>
+        </li>
+        <li><a href="#">Project</a></li>
+        <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
+        </li>
     </ul>
     <button class="theme-toggle-btn" id="themeToggle">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
@@ -44,11 +49,9 @@
             <button id="loginbtn" onclick="window.location.href='{{ route('login') }}'">
                 Login
             </button>
-            <div class="">
-                <button id="registerbtn" onclick="#" disabled>
-                    Register
-                </button>
-            </div>
+            <button id="registerbtn" onclick="window.location.href='{{ route('register') }}'">
+                Register
+            </button>
         @else
             <div class="user-dropdown">
                 <button class="user-btn">

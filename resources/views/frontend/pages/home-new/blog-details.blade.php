@@ -12,8 +12,7 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="{{ $blog->meta_title ?: $blog->title }}">
     <meta property="og:description" content="{{ $ogDescription }}">
-    {{-- <meta property="og:image" content="{{ $ogImage }}"> --}}
-    <meta property="og:image" content="http://ict-lms.info/uploads/blog/thumbnails/ict_6a59a899ed900.jpg">
+    <meta property="og:image" content="{{ $ogImage }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -30,16 +29,17 @@
 @endpush
 @section('content')
     <div class="blog-detail-contianer">
-        {{-- ===== Blog Detail Header ===== --}}
-        <div class="blog-detail-hero">
+
+        <!-- ===== Blog Detail Header ===== -->
+        <div class="blog-detail-hero" data-aos="fade-up">
             <img src="{{ $blog->thumbnail_url ?? asset('frontend/asset/images/blod-detail-slide-img.jpg') }}"
                 alt="{{ $blog->title }}">
             <a href="{{ route('blog') }}" class="back-to-blog">
                 <i class="fa-solid fa-arrow-left"></i> Back to Blog
             </a>
         </div>
-        <div class="Blog-detail-card">
-            <span class="blog-detail-category">{{ $blog->type }}</span>
+        <div class="Blog-detail-card" data-aos="fade-up">
+            <span class="blog-detail-category">{{ ucfirst($blog->type) }}</span>
             <h1>{{ $blog->title }}</h1>
             <div class="detail-meta">
                 <div class="meta-author">
@@ -101,14 +101,18 @@
                 <div>{!! $blog->content !!}</div>
             @endif
         </div>
-        {{-- ===== Share Row ===== --}}
+
+        <!-- ===== Tags + Share Row ===== -->
         <div class="tags-share-row">
             <div class="tags-group">
                 <i class="fa-solid fa-tag"></i>
-                <span class="tags-label">Category</span>
-                <button class="pills">
-                    {{ $blog->type }}
-                </button>
+                <span class="tags-label">Tags</span>
+                {{-- Hardcoded placeholder tags: no tags relation on Blog yet --}}
+                <button class="pills">Technology</button>
+                <button class="pills">Design</button>
+                <button class="pills">career</button>
+                <button class="pills">AI</button>
+                <button class="pills">Tutorials</button>
             </div>
             @php
                 $shareUrl = urlencode(url()->current());
@@ -135,7 +139,7 @@
                 <i class="fa-solid fa-share-nodes"></i>
                 <span class="share-label">Share</span>
                 @foreach ($shareLinks as $link)
-                    <a href="{{ $link['url'] }}" class="share-icon" data-share="{{ $link['name'] }}"
+                    <a href="{{ $link['url'] }}" class="share-icon" data-share="{{ $link['name'] }}" target="_blank"
                         aria-label="Share on {{ ucfirst($link['name']) }}" rel="noopener noreferrer">
                         <i class="{{ $link['icon'] }}"></i>
                     </a>
@@ -146,9 +150,10 @@
                 </a>
             </div>
         </div>
-        {{-- ===== Author Bio Card ===== --}}
+
+        <!-- ===== Author Bio Card ===== -->
         @if ($blog->admin)
-            <div class="author-card">
+            <div class="author-card" data-aos="fade-up">
                 @if ($blog->admin->avatar ?? false)
                     <img src="{{ asset($blog->admin->avatar) }}" alt="{{ $blog->admin->name }}">
                 @else
@@ -158,24 +163,8 @@
                     <h3>About <span>{{ $blog->admin->name }}</span></h3>
                     <p>Part of the ICT Professional Training Center team, sharing insights and expertise to help others
                         learn and grow.</p>
-                </div>
-            </div>
-        @endif
-        {{-- ===== Related Posts ===== --}}
-        @if ($related->count())
-            <div class="related-posts">
-                <h4>You might also like</h4>
-                <div class="related-grid">
-                    @foreach ($related as $item)
-                        <a href="{{ route('blog.details', $item->slug) }}" class="related-card">
-                            <img src="{{ $item->thumbnail_url ?? asset('frontend/asset/images/blog-slide.avif') }}"
-                                alt="{{ $item->title }}">
-                            <div class="related-body">
-                                <h6>{{ Str::limit($item->title, 60) }}</h6>
-                                <span>{{ $item->published_at?->format('M d, Y') }}</span>
-                            </div>
-                        </a>
-                    @endforeach
+                    {{-- Placeholder: no author-filter route yet --}}
+                    <a href="#" class="author-link">View all posts by {{ $blog->admin->name }}</a>
                 </div>
             </div>
         @endif

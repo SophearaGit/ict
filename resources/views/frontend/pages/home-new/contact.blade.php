@@ -1,21 +1,24 @@
 @extends('frontend.layouts.new.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
-    <h2 id="contacth2">Get in Touch</h2>
-    <p id="contactp">Have questions? We'd love to hear from you. Send us a message and we'll respond a soon as
-        possible.</p>
+    <div class="contact-top-banner">
+        <h2 id="contacth2" data-aos="fade-up">Get in Touch</h2>
+        <p id="contactp" data-aos="fade-up" data-aos-delay="100">Have questions? We'd love to hear from you. Send us a
+            message and we'll respond a soon as
+            possible.</p>
+    </div>
     <div class="messagenhotline">
-        <div class="message-block">
+        <form class="message-block" data-aos="fade-right">
             <h3>Sent us to a message</h3>
-            <label for="">Your Name:</label>
-            <input type="text" placeholder="Enter your name...">
-            <label for="">Phone Number:</label>
-            <input type="text" placeholder="Enter your phone number...">
-            <label for="">Your Message:</label>
-            <textarea name="" id="" cols="30" rows="10" placeholder="Write your message here..."></textarea>
-            <button>Send Message</button>
-        </div>
-        <div class="contact-information-with-map">
+            <label for="contact-name">Your Name:</label>
+            <input type="text" id="contact-name" name="name" placeholder="Enter your name...">
+            <label for="contact-phone">Phone Number:</label>
+            <input type="text" id="contact-phone" name="phone" placeholder="Enter your phone number...">
+            <label for="contact-message">Your Message:</label>
+            <textarea id="contact-message" name="message" cols="30" rows="10" placeholder="Write your message here..."></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+        <div class="contact-information-with-map" data-aos="fade-left">
             <div class="hotline">
                 <div class="location">
                     <i class="fas fa-map-marker-alt"></i>
@@ -38,7 +41,7 @@
                 referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
     </div>
-    <div class="question-block">
+    <div class="question-block" data-aos="fade-up">
         <h1>Frequently Asked Questions</h1>
         <p>Find quick answers to common questions.</p>
         <div class="accordion-menu">

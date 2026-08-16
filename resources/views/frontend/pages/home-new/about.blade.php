@@ -1,19 +1,18 @@
 @extends('frontend.layouts.new.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @section('content')
-
     <!-- about body section start -->
     <div class="about-container">
-        <div class="text-about-description">
+        <div class="text-about-description" data-aos="fade-up">
             <h1>Our Story</h1>
             <p>We are dedicated to empowering individuals with the skills needed to thrive in the digital economy.
             </p>
         </div>
-        <div class="message-teacher-block">
+        <div class="message-teacher-block" data-aos="fade-up">
             <div class="message-by-kru-nhim">
                 <img id="message-by-kru-nhim-img" src="frontend/asset/images/kru-nhim2.JPG" alt="">
                 <div class="message-text">
-                    <h3>Message from the director & Founder</h3>
+                    <h3>Message from the Director & Founder</h3>
                     <p>
                         Welcome to ICT Professional Training Center. <br><br>
                         It is my great pleasure to welcome you to our training center. Since our establishmen in
@@ -39,38 +38,8 @@
                 </div>
             </div>
         </div>
-
-        <!-- ═══ CATEGORY ICONS ═══ -->
-        <div class="catagoryicon">
-            <div class="mainboxicon">
-                <div class="boxcategory">
-                    <i class="fa-solid fa-user-graduate"></i>
-                    <p id="activest">2,500+</p>
-                    <p class="clp">Active Student</p>
-                    <span>Learners from diverse backgrounds growing together with us.</span>
-                </div>
-                <div class="boxcategory">
-                    <i class="fa-solid fa-person-chalkboard"></i>
-                    <p id="professionaltea">1,200+</p>
-                    <p class="clp">Professional Teacher</p>
-                    <span>Experienced educations dedicated to guiding your success.</span>
-                </div>
-                <div class="boxcategory">
-                    <i class="fa-solid fa-file-code"></i>
-                    <p id="languagesavail">28+</p>
-                    <p class="clp">Languages Available</p>
-                    <span>A wide range of proggramming languages and technologies to learn.</span>
-                </div>
-                <div class="boxcategory">
-                    <i class="fa-regular fa-calendar-days"></i>
-                    <p id="trainingevents">320+</p>
-                    <p class="clp">Training Event</p>
-                    <span>Workshop, webinars and bootcamps to boost your skills.</span>
-                </div>
-            </div>
-        </div>
         <div class="mision-vision">
-            <div class="our-mision-vision-content">
+            <div class="our-mision-vision-content" data-aos="fade-right">
                 <i class="fa-solid fa-earth-europe"></i>
                 <h5>Our Mision</h5>
                 <p>
@@ -86,7 +55,7 @@
                 </ul>
                 </p>
             </div>
-            <div class="our-mision-vision-content">
+            <div class="our-mision-vision-content" data-aos="fade-left">
                 <i class="fa-solid fa-medal"></i>
                 <h5>Our Vision</h5>
                 <p>To become a leading professional ICT training center recognized for excellence in technology
@@ -94,9 +63,10 @@
                     digital economy.</p>
             </div>
         </div>
-        <div class="journey-title">
+        <div class="journey-title" data-aos="fade-up">
             <h2>Our Journey</h2>
-            <p>A decade of excellence in tech education.</p>
+            <p>The journey of ICT Professional Training Center from its establishment to becoming a trusted destination for
+                ICT education.</p>
         </div>
         <div class="timeline">
 
@@ -197,37 +167,37 @@
             </div>
         </div>
         <div class="why-choose-ict">
-            <h2>Why Choose ICT Center</h2>
+            <h2 data-aos="fade-up">Why Choose ICT Center</h2>
             <p id="detail-ict-about">We provide a comprehensive learning ecosystem designed to take you from
                 beginner to industry-ready professional.</p>
             <div class="aboutus-detail-block">
-                <div class="box-category">
+                <div class="box-category" data-aos="fade-up" data-aos-delay="0">
                     <i class="fa-solid fa-desktop"></i>
                     <h5>Pratical Learning</h5>
-                    <p>learn by doing with hand-on labs, interactive coding environments, and real-world scenarios.
+                    <p>Learn by doing with hand-on labs, interactive coding environments, and real-world scenarios.
                     </p>
                 </div>
-                <div class="box-category">
+                <div class="box-category" data-aos="fade-up" data-aos-delay="60">
                     <i class="fa-solid fa-book-open"></i>
                     <h5>Inductry Curriculum</h5>
-                    <p>syllabuses design in collaboration with top tech companies to ensure relevance.</p>
+                    <p>Syllabuses design in collaboration with top tech companies to ensure relevance.</p>
                 </div>
-                <div class="box-category">
+                <div class="box-category" data-aos="fade-up" data-aos-delay="120">
                     <i class="fa-solid fa-user-group"></i>
                     <h5>Experienced Instructors</h5>
                     <p>Learn from senior developers and Inductry veterans who bring real experience.</p>
                 </div>
-                <div class="box-category">
-                    <i class="fa-solid fa-earth-europe"></i>
+                <div class="box-category" data-aos="fade-up" data-aos-delay="0">
+                    <i class="fa-solid fa-award"></i>
                     <h5>Recognized Certifications</h5>
                     <p>Earn verified certificates that are respected bt employers globally.</p>
                 </div>
-                <div class="box-category">
+                <div class="box-category" data-aos="fade-up" data-aos-delay="60">
                     <i class="fa-solid fa-briefcase"></i>
                     <h5>Career Support</h5>
                     <p>Get 1-on-1 cereer coaching, resume reviews, and mock interview.</p>
                 </div>
-                <div class="box-category">
+                <div class="box-category" data-aos="fade-up" data-aos-delay="120">
                     <i class="fa-solid fa-rocket"></i>
                     <h5>Real-world Projects</h5>
                     <p>Build a professional portfolio with projects that solve actual business problems.</p>
@@ -235,12 +205,12 @@
             </div>
         </div>
     </div>
-    <div class="section-title">
+    <div class="section-title" data-aos="fade-up">
         <h2>Organizational Structure</h2>
         <p>Meet the leadership team driving our vision forward.</p>
     </div>
     <div class="top-card">
-        <img src="frontend/asset/images/teacherNhim.jpg" alt="Mr.Nhanh Nhim">
+        <img src="frontend/asset/images/Teacher/teacherNhim.jpg" alt="Mr.Nhanh Nhim">
         <h3>Mr.Nhanh Nhim</h3>
         <p class="role">CEO &amp; Founder</p>
         <div class="social-icons">
@@ -254,7 +224,7 @@
     <!-- ── Level 2: Manager ── -->
     <div class="mid-card">
         <img src="frontend/asset/images/staff/vasotheavy-Deputy-director.jpg" alt="Mrs.So Theavy">
-        <h3>Mrs.So Theavy</h3>
+        <h3>Mrs.Va Sotheavy</h3>
         <p class="role">Deputy Director of ICT</p>
     </div>
     <div class="line-down"></div>
@@ -371,39 +341,6 @@
                         View Team (0) <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
-
-                <!-- <div class="team-dropdown">
-                                    <div class="team-member-card">
-                                        <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                                        <h4>Staff Name 1</h4>
-                                        <p class="role">Campaign Manager</p>
-                                        <div class="social-icons">
-                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="team-member-card">
-                                        <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                                        <h4>Staff Name 2</h4>
-                                        <p class="role">Content Strategist</p>
-                                        <div class="social-icons">
-                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="team-member-card">
-                                        <img src="frontend/asset/images/teachervornsarn.jpg" alt="">
-                                        <h4>Staff Name 3</h4>
-                                        <p class="role">Social Media</p>
-                                        <div class="social-icons">
-                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
-                                        </div>
-                                    </div>
-                                </div> -->
             </div>
 
             <!-- end Column 3 -->
@@ -429,39 +366,6 @@
                         View Team (0) <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
-
-                <!-- <div class="team-dropdown">
-                                    <div class="team-member-card">
-                                        <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                                        <h4>Staff Name 1</h4>
-                                        <p class="role">Career Counselor</p>
-                                        <div class="social-icons">
-                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="team-member-card">
-                                        <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                                        <h4>Staff Name 2</h4>
-                                        <p class="role">Alumni Coordinator</p>
-                                        <div class="social-icons">
-                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="team-member-card">
-                                        <img src="frontend/asset/images/teacherSinMany.jpg" alt="">
-                                        <h4>Staff Name 3</h4>
-                                        <p class="role">Student Support</p>
-                                        <div class="social-icons">
-                                            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                                            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                            <a href="#"><i class="fa-solid fa-envelope"></i></a>
-                                        </div>
-                                    </div>
-                                </div> -->
             </div>
 
             <!-- end Column 4 -->
@@ -621,7 +525,7 @@
                 <div class="img-name-role">
                     <img id="img" src="frontend/asset/images/staff/Ra.jpg" alt="">
                     <div class="name-role">
-                        <h5>Dev.Seth Sopheara</h5>
+                        <h5>Mr. Seth Sopheara</h5>
                         <p>Project Manager <br> <span>Full-Stack</span></p>
                     </div>
                 </div>
@@ -639,7 +543,7 @@
                     <div class="img-name-role">
                         <img src="frontend/asset/images/staff/Theary.jpg" alt="">
                         <div class="name-role">
-                            <h5>Dev.Uy sotheary</h5>
+                            <h5>Ms. Uy sotheary</h5>
                             <p>Frontend Developer</p>
                         </div>
                     </div>
@@ -653,7 +557,7 @@
                     <div class="img-name-role">
                         <img src="frontend/asset/images/staff/Ra.jpg" alt="">
                         <div class="name-role">
-                            <h5>Dev.Seth Sopheara</h5>
+                            <h5>Mr. Seth Sopheara</h5>
                             <p>Backend Developer</p>
                         </div>
                     </div>
@@ -667,7 +571,7 @@
                     <div class="img-name-role">
                         <img src="frontend/asset/images/staff/Tra.jpg" alt="">
                         <div class="name-role">
-                            <h5>Dev.Phat Sopheaktra</h5>
+                            <h5>Mr. Phat Sopheaktra</h5>
                             <p>UX/UI & QAT</p>
                         </div>
                     </div>
@@ -681,7 +585,7 @@
                     <div class="img-name-role">
                         <img src="frontend/asset/images/staff/Lymeng.jpg" alt="">
                         <div class="name-role">
-                            <h5>Dev.Chay Lymeng</h5>
+                            <h5>Mr. Chay Lymeng</h5>
                             <p>QAT</p>
                         </div>
                     </div>
@@ -695,7 +599,7 @@
         </div>
     </div>
     <div class="our-gallery-block">
-        <h2>Our Gallary</h2>
+        <h2>Our Gallery</h2>
         <p>Glimpses of Life at ICT Center.</p>
         <div class="our-gallery-category">
             <div class="tab">
@@ -769,25 +673,8 @@
             </div>
         </div>
     </div>
-@endsection
-@push('scripts')
+
     <script>
-        /* Toggle a dropdown sub-menu open / closed */
-        function toggleMenu(item) {
-            /* Find the <ul class="sub-menu"> right after this item */
-            const subMenu = item.nextElementSibling;
-            /* Toggle the "open" class on both the button and the list */
-            item.classList.toggle('open');
-            subMenu.classList.toggle('open');
-        }
-        /* Toggle a dropdown sub-menu open / closed */
-        function toggleMenu(item) {
-            /* Find the <ul class="sub-menu"> right after this item */
-            const subMenu = item.nextElementSibling;
-            /* Toggle the "open" class on both the button and the list */
-            item.classList.toggle('open');
-            subMenu.classList.toggle('open');
-        }
         // Scroll-triggered animation for message block
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -862,4 +749,5 @@
             updateLineProgress(); // run once on load in case timeline is already in view
         });
     </script>
-@endpush
+@endsection
+

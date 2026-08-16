@@ -324,108 +324,153 @@
     <form id="enroll-form" action="" method="POST" style="display:none">
         @csrf
     </form>
-    <div class="headerdetail">
-        <a href="{{ route('home') }}">Home/ </a>
-        <a href="{{ route('course') }}">Courses/ </a>
-        @if ($course->category)
-            <a href="{{ route('course') }}?category={{ $course->category->id }}">{{ $course->category->name }}/ </a>
-        @endif
-        <a href="#">{{ $course->title }}</a>
-        <br><br>
-        <h2>{{ $course->title }}</h2>
-        <p>
-            @if ($course->short_description)
-                {{ $course->short_description }}
-            @else
-                No description available for this course yet.
-            @endif
-        </p>
+    <div class="headerdetail" data-aos="fade-up">
+        <a href="index.html">Home/ </a><a href="#">Courses/ </a><a href="#">Web Development/ </a><a
+            href="#">Web
+            Development (Frontend)</a> <br><br>
+
+        <!-- <p>Home / Courses / Web Development / Web Development (Frontend)</p> -->
+        <h2>Web Development (Frontend)</h2>
+        <p>Master the essential skills needed to become a professional Frontend Web Developer.
+            Learn how to build modern, responsive, and interactive websites using real-world projects and the latest
+            frontend technologies.</p>
         <div class="typeaboutdetail">
             <div class="header-deatil">
                 <i class="fa-solid fa-star" style="color:gold; font-size: 16px;"></i>
-                <span>No ratings yet</span>
+                <span>4.9 (12, 450 review)</span>
             </div>
             <div class="header-deatil">
                 <i class="fa-solid fa-user-graduate"></i>
-                <span>
-                    {{ $course->students_count ?? $course->students->count() }}
-                    student{{ ($course->students_count ?? $course->students->count()) !== 1 ? 's' : '' }}
-                </span>
+                <span>45,000 students</span>
             </div>
-            @if ($course->level)
-                <div class="header-deatil">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>{{ ucfirst($course->level) }}</span>
-                </div>
-            @endif
-            @if ($course->duration)
-                <div class="header-deatil">
-                    <i class="fa-regular fa-clock"></i>
-                    <span>{{ $course->duration }} hrs total</span>
-                </div>
-            @endif
-            @if ($course->start_date)
-                <div class="header-deatil">
-                    <i class="fa-regular fa-calendar-days"></i>
-                    <span>Starts {{ $course->start_date->format('M d, Y') }}</span>
-                </div>
-            @endif
+            <div class="header-deatil">
+                <i class="fa-solid fa-language"></i>
+                <span>English</span>
+            </div>
+            <div class="header-deatil">
+                <i class="fa-regular fa-clock"></i>
+                <span>Last updated 05/2026</span>
+            </div>
         </div>
     </div>
 
     <!-- =============================body-section-start========================================= -->
     <div class="overview-section">
         <div class="overview-information-instruction">
-            <ul class="course-tabs">
-                <li class="tab-item" data-target="#section1">Overview</li>
+            <ul>
+                <li class="tab-item active" data-target="#section1">Overview</li>
                 <li class="tab-item" data-target="#section2">Curriculum</li>
                 <li class="tab-item" data-target="#section3">Instructor</li>
             </ul>
-            <hr>
         </div>
         <div class="detail-body">
             <div class="section-oci">
-                <section id="section1" class="tab-content">
-                    @if ($course->description)
-                        {!! $course->description !!}
-                    @else
-                        <p>No description has been added for this course yet.</p>
-                    @endif
+                <section id="section1" class="tab-content active">
+                    <div id="what-you-learn">
+                        <h3>What you'll learn</h3>
+                        @php
+                            // Adjust 'what_you_will_learn' to whatever column your ICTCourse model actually
+                            // uses. Supports either a JSON/array-cast column or a newline-separated text column.
+                            $learningPoints = collect(
+                                is_array($course->what_you_will_learn ?? null)
+                                    ? $course->what_you_will_learn
+                                    : preg_split(
+                                        '/\r\n|\r|\n/',
+                                        (string) ($course->what_you_will_learn ?? ''),
+                                        -1,
+                                        PREG_SPLIT_NO_EMPTY,
+                                    ),
+                            )
+                                ->map(fn($point) => trim($point))
+                                ->filter();
+                        @endphp
+                        @forelse ($learningPoints as $point)
+                            <div class="text-detail-block">
+                                <i class="fa-solid fa-check"></i>
+                                <p>{{ $point }}</p><br>
+                            </div>
+                        @empty
+                            <p class="no-content">Learning outcomes coming soon.</p>
+                        @endforelse
+                    </div>
+                    <div id="requiment-detail">
+                        <h3>Requiments</h3>
+                        @php
+                            // Adjust 'requirements' to your actual column name if different.
+                            $requirementPoints = collect(
+                                is_array($course->requirements ?? null)
+                                    ? $course->requirements
+                                    : preg_split(
+                                        '/\r\n|\r|\n/',
+                                        (string) ($course->requirements ?? ''),
+                                        -1,
+                                        PREG_SPLIT_NO_EMPTY,
+                                    ),
+                            )
+                                ->map(fn($req) => trim($req))
+                                ->filter();
+                        @endphp
+                        @forelse ($requirementPoints as $req)
+                            <p>- {{ $req }}</p>
+                        @empty
+                            <p class="no-content">No specific requirements listed.</p>
+                        @endforelse
+                    </div>
+                    <div id="detail-descrip-block">
+                        <h3>Description</h3>
+                        @php
+                            $descriptionParagraphs = collect(
+                                preg_split(
+                                    '/\r\n\r\n|\n\n/',
+                                    (string) ($course->description ?? ''),
+                                    -1,
+                                    PREG_SPLIT_NO_EMPTY,
+                                ),
+                            )
+                                ->map(fn($p) => trim($p))
+                                ->filter();
+                        @endphp
+                        @forelse ($descriptionParagraphs as $paragraph)
+                            <p>{!! $paragraph !!}</p>
+                        @empty
+                            <p class="no-content">No description provided yet.</p>
+                        @endforelse
+                    </div>
                 </section>
                 <section id="section2" class="tab-content">
-                    @php
-                        $chapters = $course->chapters->where('status', true)->values();
-                        $totalLectures = $chapters->sum(
-                            fn($chapter) => $chapter->lessons->where('status', true)->count(),
-                        );
-                    @endphp
-                    <div class="curriculum-setion">
-                        <h3> <b>Course Curriculum</b></h3>
-                        <div class="section-lecture-hour">
-                            <p>{{ $chapters->count() }} Chapter{{ $chapters->count() !== 1 ? 's' : '' }}</p>
-                            <p>{{ $totalLectures }} Lesson{{ $totalLectures !== 1 ? 's' : '' }}</p>
-                            <p>Study: {{ $course->duration }} Hours</p>
+                    <section id="section2" class="tab-content">
+                        <div class="curriculum-setion">
+                            <h3> <b>Course Content</b></h3>
+                            @php
+                                $chapterCount = $course->chapters->count();
+                                $lectureCount = $course->chapters->sum(fn($chapter) => $chapter->lessons->count());
+                            @endphp
+                            <div class="section-lecture-hour">
+                                <p>{{ $chapterCount }} {{ Str::plural('Chapter', $chapterCount) }}</p>
+                                <p>{{ $lectureCount }} {{ Str::plural('Lecture', $lectureCount) }}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="section-content">
-                        @if ($chapters->isNotEmpty())
+                        <div class="section-content">
                             <div class="acc-wrap">
-                                @foreach ($chapters as $i => $chapter)
-                                    @php $chapterLessons = $chapter->lessons->where('status', true)->values(); @endphp
-                                    <input type="checkbox" id="s{{ $i + 1 }}" />
+                                @forelse ($course->chapters as $index => $chapter)
+                                    @php $chapterInputId = 'chapter-' . $chapter->id; @endphp
+                                    <input type="checkbox" id="{{ $chapterInputId }}" />
                                     <div class="acc-item">
-                                        <label for="s{{ $i + 1 }}">
+                                        <label for="{{ $chapterInputId }}">
                                             <div class="acc-left">
-                                                <div class="arrow"></div>
-                                                <span class="acc-title">{{ $chapter->title }}</span>
+                                                <div class="arrow-key"></div>
+                                                <span class="acc-title">Chapter {{ $index + 1 }}:
+                                                    {{ $chapter->title }}</span>
                                             </div>
-                                            <span class="acc-meta">{{ $chapterLessons->count() }}
-                                                Lesson{{ $chapterLessons->count() !== 1 ? 's' : '' }}</span>
+                                            <span class="acc-meta">
+                                                {{ $chapter->lessons->count() }}
+                                                {{ Str::plural('Lecture', $chapter->lessons->count()) }}
+                                            </span>
                                         </label>
                                         <div class="acc-body">
                                             <div class="acc-inner">
                                                 <ul>
-                                                    @forelse ($chapterLessons as $lesson)
+                                                    @forelse ($chapter->lessons as $lesson)
                                                         <li>{{ $lesson->title }}</li>
                                                     @empty
                                                         <li>No lessons added yet.</li>
@@ -434,82 +479,96 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                @empty
+                                    <p class="no-content">Curriculum coming soon.</p>
+                                @endforelse
                             </div>
-                        @else
-                            <p>The instructor hasn't uploaded the course content yet.</p>
+                        </div>
+                    </section>
+                </section>
+                <section id="section3" class="tab-content">
+                    @php
+                        $instructor = $course->instructor;
+                        $expertiseList = collect(
+                            is_array($instructor->expertise ?? null)
+                                ? $instructor->expertise
+                                : preg_split(
+                                    '/\r\n|\n|,/',
+                                    (string) ($instructor->expertise ?? ''),
+                                    -1,
+                                    PREG_SPLIT_NO_EMPTY,
+                                ),
+                        )
+                            ->map(fn($skill) => trim($skill))
+                            ->filter();
+                        $bioParagraphs = collect(
+                            preg_split('/\r\n\r\n|\n\n/', (string) ($instructor->bio ?? ''), -1, PREG_SPLIT_NO_EMPTY),
+                        )
+                            ->map(fn($p) => trim($p))
+                            ->filter();
+                    @endphp
+                    <div class="profile-card">
+                        <div class="top-info">
+                            <div class="profile-image">
+                                <img src="{{ $instructor && $instructor->avatar ? asset('storage/' . $instructor->avatar) : 'frontend/asset/images/Teacher/default.jpg' }}"
+                                    alt="{{ $instructor->name ?? 'Instructor' }}">
+                            </div>
+                            <div class="stats">
+                                {{-- Only real, data-backed stats are shown here. Add ->withCount(['courses',
+                                         'enrollments as students_count']) to the 'instructor' relation in
+                                         CoursePageController@courseDetails to avoid an extra query per stat. --}}
+                                <p><i class="fa-solid fa-users"></i>
+                                    {{ number_format($instructor->students_count ?? ($instructor->enrollments()->count() ?? 0)) }}+
+                                    Students
+                                </p>
+                                <p><i class="fa-regular fa-bookmark"></i>
+                                    {{ $instructor->courses_count ?? ($instructor->courses()->count() ?? 0) }} Courses
+                                </p>
+                            </div>
+                        </div>
+                        <h3>{{ $instructor->name ?? 'Instructor' }}</h3>
+                        <h5>{{ $instructor->headline ?? ($instructor->title ?? 'Instructor') }}</h5>
+                        <div class="descriptionn">
+                            @forelse ($bioParagraphs as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @empty
+                                <p class="no-content">No biography added yet.</p>
+                            @endforelse
+                        </div>
+                        @if ($expertiseList->isNotEmpty())
+                            <div class="expertise">
+                                <h5>Expertise</h5>
+                                <ul>
+                                    @foreach ($expertiseList as $skill)
+                                        <li>{{ $skill }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         @endif
                     </div>
                 </section>
-                <section id="section3" class="tab-content">
-                    @if ($course->instructor)
-                        @php $instructor = $course->instructor; @endphp
-                        <div class="profile-card">
-                            <div class="top-info">
-                                <div class="profile-image">
-                                    <img src="{{ $instructor->image && $instructor->image !== 'no-img.jpg' ? asset($instructor->image) : asset('images/default-profile.png') }}"
-                                        alt="{{ $instructor->name }}">
-                                </div>
-                                <div class="stats">
-                                    <p><i class="fa-solid fa-star"></i> No rating yet</p>
-                                    <p><i class="fa-regular fa-circle-check"></i> No reviews yet</p>
-                                    <p><i class="fa-solid fa-users"></i> — Students</p>
-                                    <p><i class="fa-regular fa-bookmark"></i> {{ $instructor->courses()->count() }}
-                                        Course{{ $instructor->courses()->count() !== 1 ? 's' : '' }}</p>
-                                </div>
-                            </div>
-                            <h3 class="text-capitalize">{{ $instructor->name }}</h3>
-                            <h5 class="text-capitalize">
-                                {{ $instructor->designation ?? ($instructor->headline ?? 'Instructor') }}
-                            </h5>
-                            <div class="descriptionn">
-                                @if ($instructor->bio)
-                                    {!! nl2br(e($instructor->bio)) !!}
-                                @else
-                                    <p>Instructor bio not available yet.</p>
-                                @endif
-                            </div>
-                            @if (!empty($instructor->expertise))
-                                <div class="expertise">
-                                    <h5>Expertise</h5>
-                                    <ul>
-                                        @foreach ($instructor->expertise as $skill)
-                                            <li>{{ $skill }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </div>
-                    @else
-                        <p>This course hasn't been assigned an instructor yet.</p>
-                    @endif
-                </section>
             </div>
             <div class="boxcard">
-                {{-- Course Image --}}
-                @if ($course->thumbnail)
-                    <img src="{{ asset($course->thumbnail) }}" alt="{{ $course->title }}">
+                <img src="./asset/images/Course-Language/ITPROJECTMANAGE.webp" alt="Course">
+                <div class="coursedetail-price-rating">
+                    <h3>$120.00</h3>
+                    <div class="starate">
+                        <p>4.9</p>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                    </div>
+                </div>
+                @if ($alreadyEnrolled)
+                    <button id="enroll-course" type="button" disabled>Already Enrolled</button>
                 @else
-                    <div class="skeleton" style="width:100%; height:180px; border-radius:8px;"></div>
+                    <button id="enroll-course" type="button"
+                        onclick="openScheduleModal({{ $course->id }}, @js($course->title))">
+                        Enroll Now
+                    </button>
                 @endif
-                {{-- Price --}}
-                <h3>${{ number_format($course->price, 2) }}</h3>
-                {{-- Enroll Button --}}
-                @if (auth()->check())
-                    @if ($alreadyEnrolled)
-                        <button class="btn btn-success" disabled>Already Enrolled</button>
-                    @else
-                        <button class="text-white"
-                            onclick="openScheduleModal({{ $course->id }}, '{{ addslashes($course->title) }}')">Enroll
-                            Now</button>
-                    @endif
-                @else
-                    <button class="btn btn-primary text-white"
-                        onclick="window.location.href='{{ route('login') }}'">Login
-                        To
-                        Enroll</button>
-                @endif
-                {{-- Favorite & Share --}}
                 <div class="fav-share">
                     <div class="fav">
                         <i class="fa-regular fa-heart"></i>
@@ -520,230 +579,344 @@
                         <p>Share</p>
                     </div>
                 </div>
-                {{-- Certificate --}}
+                <p id="includes-course">This course includes:</p>
                 <div class="certificate-completed">
                     <i class="fa-solid fa-award"></i>
                     <p>Certificate of Completion</p>
                 </div>
-                {{-- Weekly Schedule --}}
+                <div class="hour-with-icon">
+                    <i class="fa-regular fa-clock"></i>
+                    <p class="hour">48 hours</p>
+                </div>
                 <div class="weekschedule">
                     <i class="fa-regular fa-calendar-days"></i>
                     <p>Weekly Schedule</p>
-                    <p class="hour">{{ $course->duration }} hours</p>
                 </div>
-                {{-- Schedule Details --}}
-                @if ($course->schedule)
-                    <p class="pweekly">
-                        • {{ $course->schedule->short_days }} ({{ $course->schedule->formatted_time }})
-                        @if (isset($siblingCount) && $siblingCount > 1)
-                            <br><small style="color:#667085">
-                                +{{ $siblingCount - 1 }} other schedule{{ $siblingCount > 2 ? 's' : '' }} available
-                            </small>
-                        @endif
-                    </p>
-                @else
-                    <div class="no-data-block" style="margin-top:10px; padding:16px;">
-                        <i class="fa-regular fa-calendar-xmark"></i>
-                        <p>Schedule not set yet.</p>
-                    </div>
-                @endif
-            </div>{{-- /.boxcard --}}
+                <p class="pweekly">
+                    . Mon-Wed-Fri (18:00 - 20:00pm) <br>
+                    . Sat (13:00 - 16:00pm)<br>
+                    . Sun (13:00 - 16:00pm) <br>
+                </p>
+            </div>
         </div>
     </div>
 
     <!-- =============================body-section-end============================================= -->
-    <h2 id="h2-more-course">More Course</h2>
+    <h2 id="h2-more-course" data-aos="fade-up">More Course</h2>
     <div class="more-course-detail">
-        @if ($moreCourses->isNotEmpty())
-            <div class="mainbox">
-                @foreach ($moreCourses as $title => $group)
-                    @php $mc = $group->first(); @endphp
-                    <a href="{{ route('course.details', $mc->slug) }}" class="boxcard">
-                        @if ($mc->thumbnail)
-                            <img src="{{ asset($mc->thumbnail) }}" alt="{{ $mc->title }}">
-                        @endif
-                        <div class="teacher">
-                            @if ($mc->instructor)
-                                <img src="{{ $mc->instructor->image && $mc->instructor->image !== 'no-img.jpg' ? asset($mc->instructor->image) : asset('images/default-profile.png') }}"
-                                    alt="{{ $mc->instructor->name }}">
-                                <p>{{ $mc->instructor->name }}</p>
-                            @else
-                                <p>—</p>
-                            @endif
-                            @if ($mc->category)
-                                <button>{{ $mc->category->name }}</button>
-                            @endif
-                        </div>
-                        <h2>{{ $mc->title }}</h2>
-                        <div class="weekschedule">
-                            <i class="fa-regular fa-calendar-days"></i>
-                            <p>Weekly Schedule</p>
-                            <p class="hour">{{ $mc->duration }} hours</p>
-                        </div>
-                        @if ($mc->schedule)
-                            <p class="pweekly">
-                                . {{ $mc->schedule->short_days }} ({{ $mc->schedule->formatted_time }})
-                                @if ($group->count() > 1)
-                                    <br>+{{ $group->count() - 1 }} more schedules
-                                @endif
-                            </p>
-                        @endif
-                        <div class="prnrate">
-                            <h3>${{ number_format($mc->price, 2) }}</h3>
-                            <div class="starate">
-                                {{-- @if ($mc->rating)
-                                    <p>{{ number_format($mc->rating, 1) }}</p>
-          @for ($i = 0; $i < 5; $i++) <i class="fa-solid fa-star" style="color:gold;"></i>
-            @endfor
-            @else
-            <p>—</p>
-            <i class="fa-regular fa-star" style="color:gold;"></i>
-            @endif --}}
-                                <p>4.9</p>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                                <i class="fa-solid fa-star" style="color:gold;"></i>
-                            </div>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        @else
-            <p style="text-align:center; margin: 0 auto 40px;">There are no other courses in this category right now. <a
-                    href="{{ route('course') }}">Browse all courses →</a></p>
-        @endif
+        <div class="mainbox">
+            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="0">
+                <img src="./asset/images/Course-Language/Cloudcompurting.webp" alt="Course">
+                <div class="detail-boxcard">
+                    <button>Development</button>
+                    <!-- <div class="teacher">
+                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
+                                <p>Phat Sopheaktra</p>
+                                <button>Development</button>
+                            </div> -->
+
+                    <h2>Cloud for Compurting</h2>
+                    <div class="weekschedule">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <p>Weekly Schedule</p>
+                        <p class="hour">48 hours</p>
+                    </div>
+                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
+                        16:00pm)</p>
+                </div>
+                <div class="prnrate">
+                    <h3>$150.00</h3>
+                    <div class="starate">
+                        <p>4.9</p>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="80">
+                <img src="./asset/images/Course-Language/networkAdvance.webp" alt="Course">
+                <div class="detail-boxcard">
+                    <button>Development</button>
+                    <!-- <div class="teacher">
+                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
+                                <p>Phat Sopheaktra</p>
+                                <button>Development</button>
+                            </div> -->
+
+                    <h2>Network CCNA</h2>
+                    <div class="weekschedule">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <p>Weekly Schedule</p>
+                        <p class="hour">48 hours</p>
+                    </div>
+                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
+                        16:00pm)</p>
+                </div>
+                <div class="prnrate">
+                    <h3>$150.00</h3>
+                    <div class="starate">
+                        <p>4.9</p>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="160">
+                <img src="./asset/images/Course-Language/fullstackdev.jpg" alt="Course">
+                <div class="detail-boxcard">
+                    <button>Development</button>
+                    <!-- <div class="teacher">
+                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
+                                <p>Phat Sopheaktra</p>
+                                <button>Development</button>
+                            </div> -->
+
+                    <h2>Full Stack Development</h2>
+                    <div class="weekschedule">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <p>Weekly Schedule</p>
+                        <p class="hour">48 hours</p>
+                    </div>
+                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
+                        16:00pm)</p>
+                </div>
+                <div class="prnrate">
+                    <h3>$150.00</h3>
+                    <div class="starate">
+                        <p>4.9</p>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="240">
+                <img src="./asset/images/Course-Language/Devops.jpg" alt="Course">
+                <div class="detail-boxcard">
+                    <button>Development</button>
+                    <!-- <div class="teacher">
+                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
+                                <p>Phat Sopheaktra</p>
+                                <button>Development</button>
+                            </div> -->
+
+                    <h2>DevOps</h2>
+                    <div class="weekschedule">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <p>Weekly Schedule</p>
+                        <p class="hour">48 hours</p>
+                    </div>
+                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
+                        16:00pm)</p>
+                </div>
+                <div class="prnrate">
+                    <h3>$150.00</h3>
+                    <div class="starate">
+                        <p>4.9</p>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
+    <script>
+        (function() {
+            /* ── Tab navigation — loops whatever .tab-item/.tab-content pairs exist,
+                   auto-activates the first tab on load. ── */
+            function initTabs() {
+                var tabs = document.querySelectorAll('.tab-item');
+                var panels = document.querySelectorAll('.tab-content');
+
+                function activate(tab) {
+                    tabs.forEach(function(t) {
+                        t.classList.remove('active');
+                    });
+                    panels.forEach(function(p) {
+                        p.classList.remove('active');
+                    });
+                    tab.classList.add('active');
+                    var target = document.querySelector(tab.dataset.target);
+                    if (target) target.classList.add('active');
+                }
+
+                tabs.forEach(function(tab) {
+                    tab.addEventListener('click', function() {
+                        activate(tab);
+                    });
+                });
+                if (tabs.length) activate(tabs[0]);
+            }
+
+            /* ════════════════════════════ Schedule Modal ════════════════════════════ */
+            var _selectedCourseId = null;
+
+            function openScheduleModal(currentCourseId, courseTitle) {
+                _selectedCourseId = null;
+                var confirmBtn = document.getElementById('btn-sched-confirm');
+                if (confirmBtn) confirmBtn.disabled = true;
+                var backdrop = document.getElementById('sched-backdrop');
+                if (backdrop) backdrop.classList.add('open');
+                loadSections(currentCourseId, courseTitle);
+            }
+
+            function closeScheduleModal() {
+                var backdrop = document.getElementById('sched-backdrop');
+                if (backdrop) backdrop.classList.remove('open');
+            }
+
+            function loadSections(currentCourseId, courseTitle) {
+                var wrap = document.getElementById('sched-list-wrap');
+                if (!wrap) return;
+
+                wrap.innerHTML = '<div class="sched-loading">' +
+                    '<div class="sched-skel-row"></div>' +
+                    '<div class="sched-skel-row"></div>' +
+                    '<div class="sched-skel-row"></div>' +
+                    '</div>';
+
+                // Uses the existing student.course.schedules route with ?title= param
+                $.ajax({
+                    url: '{{ route('student.course.schedules', ['course' => '__ID__']) }}'.replace('__ID__',
+                        currentCourseId),
+                    method: 'GET',
+                    data: {
+                        title: courseTitle
+                    },
+                    success: function(res) {
+                        var sections = res.sections || [];
+                        if (!sections.length) {
+                            wrap.innerHTML = '<div class="sched-empty">' +
+                                '<i class="fa-regular fa-calendar-xmark"></i>' +
+                                'No schedules are available for this course right now.' +
+                                '</div>';
+                            return;
+                        }
+
+                        wrap.innerHTML = sections.map(function(s) {
+                            var isCurrent = s.id === currentCourseId;
+                            var shiftClass = (s.shift || '').toLowerCase();
+                            var badgeClass = isCurrent ? 'current' : (s.is_full ? 'full' : 'open');
+                            var badgeLabel = isCurrent ? 'Current' : (s.is_full ? 'Full' : 'Open');
+                            return '' +
+                                '<label class="sched-option">' +
+                                '<input type="radio" name="section" value="' + s.id + '"' +
+                                (isCurrent ? ' checked' : '') +
+                                (s.is_full && !isCurrent ? ' disabled' : '') + '>' +
+                                '<div class="sched-option-body">' +
+                                '<div class="sched-option-title">' + s.days + '</div>' +
+                                '<div class="sched-option-meta">' +
+                                '<span>' +
+                                '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+                                '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>' +
+                                '</svg>' +
+                                s.time +
+                                '</span>' +
+                                (s.instructor ? (
+                                    '<span>' +
+                                    '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+                                    '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>' +
+                                    '<circle cx="12" cy="7" r="4"/>' +
+                                    '</svg>' +
+                                    s.instructor +
+                                    '</span>'
+                                ) : '') +
+                                (s.start_date ? (
+                                    '<span>' +
+                                    '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+                                    '<rect x="3" y="4" width="18" height="18" rx="2"/>' +
+                                    '<path d="M16 2v4M8 2v4M3 10h18"/>' +
+                                    '</svg>' +
+                                    'Starts ' + s.start_date +
+                                    '</span>'
+                                ) : '') +
+                                '</div>' +
+                                (s.shift ? ('<span class="sched-shift ' + shiftClass + '">' + s
+                                    .shift + '</span>') : '') +
+                                '</div>' +
+                                '<span class="sched-badge ' + badgeClass + '">' + badgeLabel +
+                                '</span>' +
+                                '</label>';
+                        }).join('');
+
+                        var preselect = sections.find(function(s) {
+                            return s.id === currentCourseId;
+                        });
+                        if (preselect || sections.length === 1) {
+                            _selectedCourseId = preselect ? currentCourseId : sections[0].id;
+                            var confirmBtn = document.getElementById('btn-sched-confirm');
+                            if (confirmBtn) confirmBtn.disabled = false;
+                        }
+
+                        wrap.querySelectorAll('input[type=radio]').forEach(function(radio) {
+                            radio.addEventListener('change', function() {
+                                _selectedCourseId = parseInt(this.value, 10);
+                                var confirmBtn = document.getElementById(
+                                    'btn-sched-confirm');
+                                if (confirmBtn) confirmBtn.disabled = false;
+                            });
+                        });
+                    },
+                    error: function() {
+                        wrap.innerHTML = '<div class="sched-empty">' +
+                            '<i class="fa-solid fa-triangle-exclamation"></i>' +
+                            'Could not load schedules. Please refresh and try again.' +
+                            '</div>';
+                    }
+                });
+            }
+
+            function confirmEnroll() {
+                if (!_selectedCourseId) return;
+                var btn = document.getElementById('btn-sched-confirm');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = 'Enrolling…';
+                }
+                var form = document.getElementById('enroll-form');
+                form.action = '/student/course/' + _selectedCourseId + '/enroll';
+                form.submit();
+            }
+
+            function initScheduleModalBackdrop() {
+                var backdrop = document.getElementById('sched-backdrop');
+                if (backdrop) {
+                    backdrop.addEventListener('click', function(e) {
+                        if (e.target === this) closeScheduleModal();
+                    });
+                }
+            }
+
+            // The HTML uses inline onclick="openScheduleModal(...)" / closeScheduleModal() /
+            // confirmEnroll() attributes, which resolve against the global `window` object —
+            // expose them explicitly so they're reachable regardless of this IIFE's scope.
+            window.openScheduleModal = openScheduleModal;
+            window.closeScheduleModal = closeScheduleModal;
+            window.confirmEnroll = confirmEnroll;
+
+            function init() {
+                initTabs();
+                initScheduleModalBackdrop();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
 @endsection
 @push('scripts')
-    <script>
-        /* ── Tab navigation — fully dynamic: loops whatever .tab-item/.tab-content
-                               pairs exist, no hardcoded count, and auto-activates the first tab
-                               on load instead of relying on hardcoded "active" classes in the HTML. ── */
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabs = document.querySelectorAll('.tab-item');
-            const panels = document.querySelectorAll('.tab-content');
-
-            function activate(tab) {
-                tabs.forEach(t => t.classList.remove('active'));
-                panels.forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                const target = document.querySelector(tab.dataset.target);
-                if (target) target.classList.add('active');
-            }
-            tabs.forEach(tab => tab.addEventListener('click', () => activate(tab)));
-            if (tabs.length) activate(tabs[0]);
-        });
-        /* ════════════════════════════ Schedule Modal ════════════════════════════ */
-        let _selectedCourseId = null;
-
-        function openScheduleModal(currentCourseId, courseTitle) {
-            _selectedCourseId = null;
-            document.getElementById('btn-sched-confirm').disabled = true;
-            document.getElementById('sched-backdrop').classList.add('open');
-            loadSections(currentCourseId, courseTitle);
-        }
-
-        function closeScheduleModal() {
-            document.getElementById('sched-backdrop').classList.remove('open');
-        }
-        document.getElementById('sched-backdrop').addEventListener('click', function(e) {
-            if (e.target === this) closeScheduleModal();
-        });
-
-        function loadSections(currentCourseId, courseTitle) {
-            const wrap = document.getElementById('sched-list-wrap');
-            wrap.innerHTML = `<div class="sched-loading">
-            <div class="sched-skel-row"></div>
-            <div class="sched-skel-row"></div>
-            <div class="sched-skel-row"></div>
-        </div>`;
-            // Uses the existing student.course.schedules route with ?title= param
-            $.ajax({
-                url: '{{ route('student.course.schedules', ['course' => '__ID__']) }}'.replace('__ID__',
-                    currentCourseId),
-                method: 'GET',
-                data: {
-                    title: courseTitle
-                },
-                success(res) {
-                    const sections = res.sections ?? [];
-                    if (!sections.length) {
-                        wrap.innerHTML = `<div class="sched-empty">
-                        <i class="fa-regular fa-calendar-xmark"></i>
-                        No schedules are available for this course right now.
-                    </div>`;
-                        return;
-                    }
-                    wrap.innerHTML = sections.map(s => {
-                        const isCurrent = s.id === currentCourseId;
-                        const shiftClass = (s.shift ?? '').toLowerCase();
-                        const badgeClass = isCurrent ? 'current' : (s.is_full ? 'full' : 'open');
-                        const badgeLabel = isCurrent ? 'Current' : (s.is_full ? 'Full' : 'Open');
-                        return `
-                    <label class="sched-option">
-                        <input type="radio" name="section" value="${s.id}"
-                               ${isCurrent ? 'checked' : ''}
-                               ${s.is_full && !isCurrent ? 'disabled' : ''}>
-                        <div class="sched-option-body">
-                            <div class="sched-option-title">${s.days}</div>
-                            <div class="sched-option-meta">
-                                <span>
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                                    </svg>
-                                    ${s.time}
-                                </span>
-                                ${s.instructor ? `<span>
-                                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                                            <circle cx="12" cy="7" r="4"/>
-                                                        </svg>
-                                                        ${s.instructor}
-                                                    </span>` : ''}
-                                ${s.start_date ? `<span>
-                                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
-                                                            <path d="M16 2v4M8 2v4M3 10h18"/>
-                                                        </svg>
-                                                        Starts ${s.start_date}
-                                                    </span>` : ''}
-                            </div>
-                            ${s.shift ? `<span class="sched-shift ${shiftClass}">${s.shift}</span>` : ''}
-                        </div>
-                        <span class="sched-badge ${badgeClass}">${badgeLabel}</span>
-                    </label>`;
-                    }).join('');
-                    const preselect = sections.find(s => s.id === currentCourseId);
-                    if (preselect || sections.length === 1) {
-                        _selectedCourseId = preselect ? currentCourseId : sections[0].id;
-                        document.getElementById('btn-sched-confirm').disabled = false;
-                    }
-                    wrap.querySelectorAll('input[type=radio]').forEach(radio => {
-                        radio.addEventListener('change', function() {
-                            _selectedCourseId = parseInt(this.value);
-                            document.getElementById('btn-sched-confirm').disabled = false;
-                        });
-                    });
-                },
-                error() {
-                    wrap.innerHTML = `<div class="sched-empty">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    Could not load schedules. Please refresh and try again.
-                </div>`;
-                }
-            });
-        }
-
-        function confirmEnroll() {
-            if (!_selectedCourseId) return;
-            const btn = document.getElementById('btn-sched-confirm');
-            btn.disabled = true;
-            btn.textContent = 'Enrolling…';
-            const form = document.getElementById('enroll-form');
-            form.action = '/student/course/' + _selectedCourseId + '/enroll';
-            form.submit();
-        }
-    </script>
 @endpush
