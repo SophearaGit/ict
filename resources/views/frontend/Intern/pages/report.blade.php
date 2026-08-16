@@ -44,7 +44,7 @@
      * (Date/Name header, Goals box, Task/Progress/Issue table, Comments box).
      * strip_tags() on that collapses every label and cell into one run-on
      * line ("Date Name intern Goals for this Week Date Task Progress
-     * Issue..."), which is what the old cards showed. This pulls out just
+ * Issue..."), which is what the old cards showed. This pulls out just
      * the parts worth previewing: the goals text, how many task rows were
      * actually filled in, and whether an issue was logged.
      */
@@ -63,31 +63,35 @@
 
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
-        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
-        libxml_clear_errors();
-        $xpath = new \DOMXPath($dom);
+        // mb_encode_numericentity avoids loadHTML()'s default ISO-8859-1 assumption
+    // mangling multi-byte UTF-8 characters, without the XML declaration prefix hack
+    // (which some editors/linters misread as a nested PHP open tag).
+    $safeHtml = mb_encode_numericentity($html, [0x80, 0x10ffff, 0, ~0], 'UTF-8');
+    $dom->loadHTML($safeHtml, LIBXML_NOERROR | LIBXML_NOWARNING);
+    libxml_clear_errors();
+    $xpath = new \DOMXPath($dom);
 
-        // Goals box: the div immediately after the "Goals for this Week" label
-        $goalsLabel = $xpath->query("//div[contains(., 'Goals for this Week')]");
-        if ($goalsLabel->length) {
-            $goalsBox = $xpath->query('following-sibling::div[1]', $goalsLabel->item($goalsLabel->length - 1));
-            if ($goalsBox->length) {
-                $result['goals'] = $clean($goalsBox->item(0)->textContent);
-            }
+    // Goals box: the div immediately after the "Goals for this Week" label
+    $goalsLabel = $xpath->query("//div[contains(., 'Goals for this Week')]");
+    if ($goalsLabel->length) {
+        $goalsBox = $xpath->query('following-sibling::div[1]', $goalsLabel->item($goalsLabel->length - 1));
+        if ($goalsBox->length) {
+            $result['goals'] = $clean($goalsBox->item(0)->textContent);
         }
+    }
 
-        // Task table: rows after the header row, counting only ones with a filled Task cell
-        $rows = $xpath->query('//table[2]//tr[position() > 1]');
-        foreach ($rows as $row) {
-            $cells = $xpath->query('.//td', $row);
-            if ($cells->length < 2) {
-                continue;
-            }
-            if ($clean($cells->item(1)->textContent) !== '') {
-                $result['task_count']++;
-            }
-            if ($cells->length >= 4 && $clean($cells->item(3)->textContent) !== '') {
-                $result['has_issue'] = true;
+    // Task table: rows after the header row, counting only ones with a filled Task cell
+    $rows = $xpath->query('//table[2]//tr[position() > 1]');
+    foreach ($rows as $row) {
+        $cells = $xpath->query('.//td', $row);
+        if ($cells->length < 2) {
+            continue;
+        }
+        if ($clean($cells->item(1)->textContent) !== '') {
+            $result['task_count']++;
+        }
+        if ($cells->length >= 4 && $clean($cells->item(3)->textContent) !== '') {
+            $result['has_issue'] = true;
             }
         }
 
@@ -205,7 +209,8 @@
                                                         {{ $preview['goals'] !== '' ? Str::limit($preview['goals'], 100) : 'No goals noted' }}
                                                     </div>
                                                     <div class="fs-13 text-muted mt-1">
-                                                        <i class="ti ti-checklist me-1"></i>{{ $preview['task_count'] }} task{{ $preview['task_count'] === 1 ? '' : 's' }} logged
+                                                        <i class="ti ti-checklist me-1"></i>{{ $preview['task_count'] }}
+                                                        task{{ $preview['task_count'] === 1 ? '' : 's' }} logged
                                                         @if ($preview['has_issue'])
                                                             <span class="text-warning ms-2">
                                                                 <i class="ti ti-alert-triangle me-1"></i>Issue reported
@@ -242,7 +247,8 @@
                                         <tr>
                                             <td colspan="4" class="text-center py-5">
                                                 <i class="ti ti-file-text fs-1 text-muted d-block mb-2"></i>
-                                                <span class="text-muted">No reports found. Click "Add Report" to create one.</span>
+                                                <span class="text-muted">No reports found. Click "Add Report" to create
+                                                    one.</span>
                                             </td>
                                         </tr>
                                     @endforelse
@@ -311,7 +317,8 @@
 
                             <div
                                 class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top fs-12 text-muted">
-                                <a href="javascript:void(0)" class="change-period-btn text-muted text-decoration-underline"
+                                <a href="javascript:void(0)"
+                                    class="change-period-btn text-muted text-decoration-underline"
                                     data-id="{{ $report->id }}" data-start="{{ $periodStart }}"
                                     data-end="{{ $periodEnd }}"
                                     data-url="{{ route('intern.report.updatePeriod', $report->id) }}"

@@ -16,7 +16,8 @@
     @endauth
     <nav>
         <div class="course-mobile-dropdown">
-            <h4><a href="{{ route('course') }}" style="text-decoration: none;">Course</a></h4>
+            <h4><a href="{{ route('course') }}" class="{{ request()->routeIs('course') ? 'active' : '' }}"
+                    style="text-decoration: none;">Course</a></h4>
             <ul>
                 @foreach ($categories_for_frontend as $category)
                     <li>
@@ -38,9 +39,14 @@
             </ul>
         </div>
         <ul>
-            <li><a href="{{ route('about') }}">About</a></li>
-            <li><a href="{{ route('blog') }}">Blog</a></li>
-            <li><a href="{{ route('contact') }}">Contact</a></li>
+            <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
+            <li><a href="#">Project</a></li>
+            <li><a href="{{ route('blog') }}"
+                    class="{{ request()->routeIs('blog') || request()->routeIs('blog.details') ? 'active' : '' }}">Blog</a>
+            </li>
+            <li><a href="{{ route('contact') }}"
+                    class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
+            </li>
             @auth
                 <li>
                     <a href="{{ route(Auth::user()->role . '.dashboard') }}">
@@ -53,7 +59,7 @@
     <div class="drawer-btns">
         @guest
             <button class="drawer-login" onclick="window.location.href='{{ route('login') }}'">Login</button>
-            <button class="drawer-register" disabled>Register</button>
+            <button class="drawer-register" onclick="window.location.href='{{ route('register') }}'">Register</button>
         @else
             <form action="{{ route('logout') }}" method="POST" style="width:100%;">
                 @csrf
