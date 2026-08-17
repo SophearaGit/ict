@@ -325,31 +325,30 @@
         @csrf
     </form>
     <div class="headerdetail" data-aos="fade-up">
-        <a href="index.html">Home/ </a><a href="#">Courses/ </a><a href="#">Web Development/ </a><a
-            href="#">Web
-            Development (Frontend)</a> <br><br>
+        <a href="{{ route('home') }}">Home/ </a><a href="{{ route('course') }}">Courses/ </a>
+        @if ($course->category)
+            <a href="{{ route('course', ['category' => $course->category_id]) }}">{{ $course->category->name }}/ </a>
+        @endif
+        <a href="#">{{ $course->title }}</a> <br><br>
 
-        <!-- <p>Home / Courses / Web Development / Web Development (Frontend)</p> -->
-        <h2>Web Development (Frontend)</h2>
-        <p>Master the essential skills needed to become a professional Frontend Web Developer.
-            Learn how to build modern, responsive, and interactive websites using real-world projects and the latest
-            frontend technologies.</p>
+        <h2>{{ $course->title }}</h2>
+        <p>{{ $course->short_description ?? strip_tags($course->description ?? '') }}</p>
         <div class="typeaboutdetail">
             <div class="header-deatil">
                 <i class="fa-solid fa-star" style="color:gold; font-size: 16px;"></i>
-                <span>4.9 (12, 450 review)</span>
+                <span>{{ $course->rating ?? '4.9' }} ({{ number_format($course->reviews_count ?? 0) }} review)</span>
             </div>
             <div class="header-deatil">
                 <i class="fa-solid fa-user-graduate"></i>
-                <span>45,000 students</span>
+                <span>{{ number_format($course->students_count ?? $course->students()->count()) }} students</span>
             </div>
             <div class="header-deatil">
                 <i class="fa-solid fa-language"></i>
-                <span>English</span>
+                <span>{{ $course->language ?? 'English' }}</span>
             </div>
             <div class="header-deatil">
                 <i class="fa-regular fa-clock"></i>
-                <span>Last updated 05/2026</span>
+                <span>Last updated {{ $course->updated_at?->format('m/Y') }}</span>
             </div>
         </div>
     </div>
@@ -510,7 +509,7 @@
                     <div class="profile-card">
                         <div class="top-info">
                             <div class="profile-image">
-                                <img src="{{ $instructor && $instructor->avatar ? asset('storage/' . $instructor->avatar) : 'frontend/asset/images/Teacher/default.jpg' }}"
+                                <img src="{{ $instructor && $instructor->avatar ? asset($instructor->avatar) : 'frontend/asset/images/Teacher/default.jpg' }}"
                                     alt="{{ $instructor->name ?? 'Instructor' }}">
                             </div>
                             <div class="stats">
@@ -549,16 +548,15 @@
                 </section>
             </div>
             <div class="boxcard">
-                <img src="./asset/images/Course-Language/ITPROJECTMANAGE.webp" alt="Course">
+                <img src="{{ $course->thumbnail ? asset($course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                    alt="{{ $course->title }}">
                 <div class="coursedetail-price-rating">
-                    <h3>$120.00</h3>
+                    <h3>${{ number_format($course->price ?? 0, 2) }}</h3>
                     <div class="starate">
-                        <p>4.9</p>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                        <p>{{ $course->rating ?? '4.9' }}</p>
+                        @for ($i = 0; $i < 5; $i++)
+                            <i class="fa-solid fa-star" style="color:gold;"></i>
+                        @endfor
                     </div>
                 </div>
                 @if ($alreadyEnrolled)
@@ -593,9 +591,16 @@
                     <p>Weekly Schedule</p>
                 </div>
                 <p class="pweekly">
-                    . Mon-Wed-Fri (18:00 - 20:00pm) <br>
-                    . Sat (13:00 - 16:00pm)<br>
-                    . Sun (13:00 - 16:00pm) <br>
+                    @forelse ($batches->unique('schedule_id') as $batch)
+                        @if ($batch->schedule)
+                            . {{ ucfirst($batch->schedule->study_day) }}
+                            ({{ \Carbon\Carbon::parse($batch->schedule->start_time)->format('g:iA') }} -
+                            {{ \Carbon\Carbon::parse($batch->schedule->end_time)->format('g:iA') }})
+                            <br>
+                        @endif
+                    @empty
+                        Schedule to be announced
+                    @endforelse
                 </p>
             </div>
         </div>
@@ -605,130 +610,45 @@
     <h2 id="h2-more-course" data-aos="fade-up">More Course</h2>
     <div class="more-course-detail">
         <div class="mainbox">
-            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="0">
-                <img src="./asset/images/Course-Language/Cloudcompurting.webp" alt="Course">
-                <div class="detail-boxcard">
-                    <button>Development</button>
-                    <!-- <div class="teacher">
-                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
-                                <p>Phat Sopheaktra</p>
-                                <button>Development</button>
-                            </div> -->
-
-                    <h2>Cloud for Compurting</h2>
-                    <div class="weekschedule">
-                        <i class="fa-regular fa-calendar-days"></i>
-                        <p>Weekly Schedule</p>
-                        <p class="hour">48 hours</p>
+            @forelse ($moreCourses as $moreTitle => $moreGroup)
+                @php $moreCourse = $moreGroup->first(); @endphp
+                <a href="{{ route('course.details', $moreCourse->slug) }}" class="boxcard" data-aos="fade-up">
+                    <img src="{{ $moreCourse->thumbnail ? asset($moreCourse->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                        alt="{{ $moreCourse->title }}">
+                    <div class="detail-boxcard">
+                        <button>{{ $moreCourse->category->name ?? 'Development' }}</button>
+                        <h2>{{ $moreCourse->title }}</h2>
+                        <div class="weekschedule">
+                            <i class="fa-regular fa-calendar-days"></i>
+                            <p>Weekly Schedule</p>
+                            <p class="hour">{{ $moreCourse->duration_hours ?? '48' }} hours</p>
+                        </div>
+                        <p class="pweekly">
+                            @forelse ($moreGroup->unique('schedule_id') as $moreBatch)
+                                @if ($moreBatch->schedule)
+                                    . {{ ucfirst($moreBatch->schedule->study_day) }}
+                                    ({{ \Carbon\Carbon::parse($moreBatch->schedule->start_time)->format('g:iA') }} -
+                                    {{ \Carbon\Carbon::parse($moreBatch->schedule->end_time)->format('g:iA') }})
+                                    <br>
+                                @endif
+                            @empty
+                                Schedule to be announced
+                            @endforelse
+                        </p>
                     </div>
-                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
-                        16:00pm)</p>
-                </div>
-                <div class="prnrate">
-                    <h3>$150.00</h3>
-                    <div class="starate">
-                        <p>4.9</p>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
+                    <div class="prnrate">
+                        <h3>${{ number_format($moreCourse->price ?? 0, 2) }}</h3>
+                        <div class="starate">
+                            <p>{{ $moreCourse->rating ?? '4.9' }}</p>
+                            @for ($i = 0; $i < 5; $i++)
+                                <i class="fa-solid fa-star" style="color:gold;"></i>
+                            @endfor
+                        </div>
                     </div>
-                </div>
-            </a>
-            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="80">
-                <img src="./asset/images/Course-Language/networkAdvance.webp" alt="Course">
-                <div class="detail-boxcard">
-                    <button>Development</button>
-                    <!-- <div class="teacher">
-                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
-                                <p>Phat Sopheaktra</p>
-                                <button>Development</button>
-                            </div> -->
-
-                    <h2>Network CCNA</h2>
-                    <div class="weekschedule">
-                        <i class="fa-regular fa-calendar-days"></i>
-                        <p>Weekly Schedule</p>
-                        <p class="hour">48 hours</p>
-                    </div>
-                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
-                        16:00pm)</p>
-                </div>
-                <div class="prnrate">
-                    <h3>$150.00</h3>
-                    <div class="starate">
-                        <p>4.9</p>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                    </div>
-                </div>
-            </a>
-            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="160">
-                <img src="./asset/images/Course-Language/fullstackdev.jpg" alt="Course">
-                <div class="detail-boxcard">
-                    <button>Development</button>
-                    <!-- <div class="teacher">
-                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
-                                <p>Phat Sopheaktra</p>
-                                <button>Development</button>
-                            </div> -->
-
-                    <h2>Full Stack Development</h2>
-                    <div class="weekschedule">
-                        <i class="fa-regular fa-calendar-days"></i>
-                        <p>Weekly Schedule</p>
-                        <p class="hour">48 hours</p>
-                    </div>
-                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
-                        16:00pm)</p>
-                </div>
-                <div class="prnrate">
-                    <h3>$150.00</h3>
-                    <div class="starate">
-                        <p>4.9</p>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                    </div>
-                </div>
-            </a>
-            <a href="#" class="boxcard" data-aos="fade-up" data-aos-delay="240">
-                <img src="./asset/images/Course-Language/Devops.jpg" alt="Course">
-                <div class="detail-boxcard">
-                    <button>Development</button>
-                    <!-- <div class="teacher">
-                                <img src="./asset/images/staff/Tra.jpg" alt="Teacher">
-                                <p>Phat Sopheaktra</p>
-                                <button>Development</button>
-                            </div> -->
-
-                    <h2>DevOps</h2>
-                    <div class="weekschedule">
-                        <i class="fa-regular fa-calendar-days"></i>
-                        <p>Weekly Schedule</p>
-                        <p class="hour">48 hours</p>
-                    </div>
-                    <p class="pweekly">. Mon-Wed-Fri (18:00 - 20:00pm) <br>. Sat (13:00 - 16:00pm)<br>. Sun (13:00 -
-                        16:00pm)</p>
-                </div>
-                <div class="prnrate">
-                    <h3>$150.00</h3>
-                    <div class="starate">
-                        <p>4.9</p>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                        <i class="fa-solid fa-star" style="color:gold;"></i>
-                    </div>
-                </div>
-            </a>
+                </a>
+            @empty
+                <p class="no-courses">No related courses right now.</p>
+            @endforelse
         </div>
     </div>
     <script>

@@ -13,11 +13,7 @@ class FrontendController extends Controller
         $data = [
             'page_title' => 'WELCOME 😁🙏',
             'courses' => ICTCourse::frontendVisible()
-                ->with([
-                    'instructor',
-                    'schedule',
-                    'category'
-                ])
+                ->with(['instructor', 'schedule', 'category'])
                 ->latest()
                 ->get()
                 ->groupBy('title'),

@@ -59,7 +59,7 @@
                         @endphp
                         <a href="{{ route('course.details', $course->slug) }}" class="boxcard">
                             <img id="course-imgg"
-                                src="{{ $course->thumbnail ? asset('storage/' . $course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                                src="{{ $course->thumbnail ? asset($course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
                                 alt="{{ $course->title }}">
                             <div class="detail-boxcard">
                                 <button>{{ $course->category->name ?? 'Development' }}</button>
@@ -70,10 +70,14 @@
                                     <p class="hour">{{ $course->duration_hours ?? '48' }} hours</p>
                                 </div>
                                 <p class="pweekly">
-                                    @forelse ($course->schedule as $sched)
-                                        . {{ $sched->day ?? ($sched->days ?? '') }}
-                                        ({{ $sched->start_time ?? '' }} - {{ $sched->end_time ?? '' }})
-                                        <br>
+                                    @forelse ($courseGroup->unique('schedule_id') as $groupedCourse)
+                                        @if ($groupedCourse->schedule)
+                                            . {{ ucfirst($groupedCourse->schedule->study_day) }}
+                                            ({{ \Carbon\Carbon::parse($groupedCourse->schedule->start_time)->format('g:iA') }}
+                                            -
+                                            {{ \Carbon\Carbon::parse($groupedCourse->schedule->end_time)->format('g:iA') }})
+                                            <br>
+                                        @endif
                                     @empty
                                         Schedule to be announced
                                     @endforelse
