@@ -28,7 +28,7 @@ class CoursePageController extends Controller
             ->latest()
             ->get()
             ->groupBy('title');
-        $perPage = 100;
+        $perPage = 6;
         $currentPage = request()->get('page', 1);
         $pagedCourses = new LengthAwarePaginator(
             $groupedCourses->forPage($currentPage, $perPage),

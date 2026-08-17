@@ -1,6 +1,11 @@
 @extends('frontend.layouts.new.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @push('styles')
+    <style>
+        .page-btn {
+            text-decoration: none;
+        }
+    </style>
 @endpush
 @section('content')
     <!-- body all course detail -->
