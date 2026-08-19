@@ -279,7 +279,7 @@ $categoryIcons = [
             @forelse ($featured_instructors as $index => $instructor)
                 <div class="teacher-card" data-aos="fade-up" data-aos-delay="{{ ($index % 4) * 80 }}">
                     <div class="teacher-avatar-wrap">
-                        <img src="{{ $instructor->avatar ? asset('storage/' . $instructor->avatar) : 'frontend/asset/images/Teacher/default.jpg' }}"
+                        <img src="{{ $instructor->image ? asset($instructor->image) : 'frontend/asset/images/Teacher/default.jpg' }}"
                             alt="{{ $instructor->name }}">
                     </div>
                     <h3>{{ $instructor->name }}</h3>
