@@ -330,7 +330,6 @@
             <a href="{{ route('course', ['category' => $course->category_id]) }}">{{ $course->category->name }}/ </a>
         @endif
         <a href="#">{{ $course->title }}</a> <br><br>
-
         <h2>{{ $course->title }}</h2>
         <p>{{ $course->short_description ?? strip_tags($course->description ?? '') }}</p>
         <div class="typeaboutdetail">
@@ -359,7 +358,7 @@
             <ul>
                 <li class="tab-item active" data-target="#section1">Overview</li>
                 <li class="tab-item" data-target="#section2">Curriculum</li>
-                <li class="tab-item" data-target="#section3">Instructor</li>
+                {{-- <li class="tab-item" data-target="#section3">Instructor</li> --}}
             </ul>
         </div>
         <div class="detail-body">
@@ -367,50 +366,19 @@
                 <section id="section1" class="tab-content active">
                     <div id="what-you-learn">
                         <h3>What you'll learn</h3>
-                        @php
-                            // Adjust 'what_you_will_learn' to whatever column your ICTCourse model actually
-                            // uses. Supports either a JSON/array-cast column or a newline-separated text column.
-                            $learningPoints = collect(
-                                is_array($course->what_you_will_learn ?? null)
-                                    ? $course->what_you_will_learn
-                                    : preg_split(
-                                        '/\r\n|\r|\n/',
-                                        (string) ($course->what_you_will_learn ?? ''),
-                                        -1,
-                                        PREG_SPLIT_NO_EMPTY,
-                                    ),
-                            )
-                                ->map(fn($point) => trim($point))
-                                ->filter();
-                        @endphp
-                        @forelse ($learningPoints as $point)
+                        @forelse ($course->learningPoints as $point)
                             <div class="text-detail-block">
                                 <i class="fa-solid fa-check"></i>
-                                <p>{{ $point }}</p><br>
+                                <p>{{ $point->content }}</p><br>
                             </div>
                         @empty
                             <p class="no-content">Learning outcomes coming soon.</p>
                         @endforelse
                     </div>
                     <div id="requiment-detail">
-                        <h3>Requiments</h3>
-                        @php
-                            // Adjust 'requirements' to your actual column name if different.
-                            $requirementPoints = collect(
-                                is_array($course->requirements ?? null)
-                                    ? $course->requirements
-                                    : preg_split(
-                                        '/\r\n|\r|\n/',
-                                        (string) ($course->requirements ?? ''),
-                                        -1,
-                                        PREG_SPLIT_NO_EMPTY,
-                                    ),
-                            )
-                                ->map(fn($req) => trim($req))
-                                ->filter();
-                        @endphp
-                        @forelse ($requirementPoints as $req)
-                            <p>- {{ $req }}</p>
+                        <h3>Requirements</h3>
+                        @forelse ($course->requirements as $req)
+                            <p>- {{ $req->content }}</p>
                         @empty
                             <p class="no-content">No specific requirements listed.</p>
                         @endforelse
@@ -437,53 +405,51 @@
                     </div>
                 </section>
                 <section id="section2" class="tab-content">
-                    <section id="section2" class="tab-content">
-                        <div class="curriculum-setion">
-                            <h3> <b>Course Content</b></h3>
-                            @php
-                                $chapterCount = $course->chapters->count();
-                                $lectureCount = $course->chapters->sum(fn($chapter) => $chapter->lessons->count());
-                            @endphp
-                            <div class="section-lecture-hour">
-                                <p>{{ $chapterCount }} {{ Str::plural('Chapter', $chapterCount) }}</p>
-                                <p>{{ $lectureCount }} {{ Str::plural('Lecture', $lectureCount) }}</p>
-                            </div>
+                    <div class="curriculum-setion">
+                        <h3> <b>Course Content</b></h3>
+                        @php
+                            $chapterCount = $course->chapters->count();
+                            $lectureCount = $course->chapters->sum(fn($chapter) => $chapter->lessons->count());
+                        @endphp
+                        <div class="section-lecture-hour">
+                            <p>{{ $chapterCount }} {{ Str::plural('Chapter', $chapterCount) }}</p>
+                            <p>{{ $lectureCount }} {{ Str::plural('Lecture', $lectureCount) }}</p>
                         </div>
-                        <div class="section-content">
-                            <div class="acc-wrap">
-                                @forelse ($course->chapters as $index => $chapter)
-                                    @php $chapterInputId = 'chapter-' . $chapter->id; @endphp
-                                    <input type="checkbox" id="{{ $chapterInputId }}" />
-                                    <div class="acc-item">
-                                        <label for="{{ $chapterInputId }}">
-                                            <div class="acc-left">
-                                                <div class="arrow-key"></div>
-                                                <span class="acc-title">Chapter {{ $index + 1 }}:
-                                                    {{ $chapter->title }}</span>
-                                            </div>
-                                            <span class="acc-meta">
-                                                {{ $chapter->lessons->count() }}
-                                                {{ Str::plural('Lecture', $chapter->lessons->count()) }}
-                                            </span>
-                                        </label>
-                                        <div class="acc-body">
-                                            <div class="acc-inner">
-                                                <ul>
-                                                    @forelse ($chapter->lessons as $lesson)
-                                                        <li>{{ $lesson->title }}</li>
-                                                    @empty
-                                                        <li>No lessons added yet.</li>
-                                                    @endforelse
-                                                </ul>
-                                            </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="acc-wrap">
+                            @forelse ($course->chapters as $index => $chapter)
+                                @php $chapterInputId = 'chapter-' . $chapter->id; @endphp
+                                <input type="checkbox" id="{{ $chapterInputId }}" />
+                                <div class="acc-item">
+                                    <label for="{{ $chapterInputId }}">
+                                        <div class="acc-left">
+                                            <div class="arrow-key"></div>
+                                            <span class="acc-title">Chapter {{ $index + 1 }}:
+                                                {{ $chapter->title }}</span>
+                                        </div>
+                                        <span class="acc-meta">
+                                            {{ $chapter->lessons->count() }}
+                                            {{ Str::plural('Lecture', $chapter->lessons->count()) }}
+                                        </span>
+                                    </label>
+                                    <div class="acc-body">
+                                        <div class="acc-inner">
+                                            <ul>
+                                                @forelse ($chapter->lessons as $lesson)
+                                                    <li>{{ $lesson->title }}</li>
+                                                @empty
+                                                    <li>No lessons added yet.</li>
+                                                @endforelse
+                                            </ul>
                                         </div>
                                     </div>
-                                @empty
-                                    <p class="no-content">Curriculum coming soon.</p>
-                                @endforelse
-                            </div>
+                                </div>
+                            @empty
+                                <p class="no-content">Curriculum coming soon.</p>
+                            @endforelse
                         </div>
-                    </section>
+                    </div>
                 </section>
                 <section id="section3" class="tab-content">
                     @php
@@ -670,7 +636,6 @@
                     var target = document.querySelector(tab.dataset.target);
                     if (target) target.classList.add('active');
                 }
-
                 tabs.forEach(function(tab) {
                     tab.addEventListener('click', function() {
                         activate(tab);
@@ -678,7 +643,6 @@
                 });
                 if (tabs.length) activate(tabs[0]);
             }
-
             /* ════════════════════════════ Schedule Modal ════════════════════════════ */
             var _selectedCourseId = null;
 
@@ -699,17 +663,15 @@
             function loadSections(currentCourseId, courseTitle) {
                 var wrap = document.getElementById('sched-list-wrap');
                 if (!wrap) return;
-
                 wrap.innerHTML = '<div class="sched-loading">' +
                     '<div class="sched-skel-row"></div>' +
                     '<div class="sched-skel-row"></div>' +
                     '<div class="sched-skel-row"></div>' +
                     '</div>';
-
                 // Uses the existing student.course.schedules route with ?title= param
                 $.ajax({
-                    url: '{{ route('student.course.schedules', ['course' => '__ID__']) }}'.replace('__ID__',
-                        currentCourseId),
+                    url: '{{ route('student.course.schedules', ['course' => '__ID__']) }}'
+                        .replace('__ID__', currentCourseId),
                     method: 'GET',
                     data: {
                         title: courseTitle
@@ -723,7 +685,6 @@
                                 '</div>';
                             return;
                         }
-
                         wrap.innerHTML = sections.map(function(s) {
                             var isCurrent = s.id === currentCourseId;
                             var shiftClass = (s.shift || '').toLowerCase();
@@ -769,7 +730,6 @@
                                 '</span>' +
                                 '</label>';
                         }).join('');
-
                         var preselect = sections.find(function(s) {
                             return s.id === currentCourseId;
                         });
@@ -778,7 +738,6 @@
                             var confirmBtn = document.getElementById('btn-sched-confirm');
                             if (confirmBtn) confirmBtn.disabled = false;
                         }
-
                         wrap.querySelectorAll('input[type=radio]').forEach(function(radio) {
                             radio.addEventListener('change', function() {
                                 _selectedCourseId = parseInt(this.value, 10);
@@ -817,7 +776,6 @@
                     });
                 }
             }
-
             // The HTML uses inline onclick="openScheduleModal(...)" / closeScheduleModal() /
             // confirmEnroll() attributes, which resolve against the global `window` object —
             // expose them explicitly so they're reachable regardless of this IIFE's scope.
@@ -829,7 +787,6 @@
                 initTabs();
                 initScheduleModalBackdrop();
             }
-
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
