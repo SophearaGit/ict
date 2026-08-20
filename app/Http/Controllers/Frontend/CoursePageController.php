@@ -58,6 +58,8 @@ class CoursePageController extends Controller
                 'schedule',
                 'category',
                 'chapters.lessons',
+                'learningPoints',
+                'requirements',
             ])
             ->where('slug', $slug)
             ->firstOrFail();

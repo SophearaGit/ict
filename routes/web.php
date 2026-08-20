@@ -1,6 +1,6 @@
 <?php
 use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctCourseOverviewController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController};
 use App\Http\Controllers\Frontend\Student\CourseEnrollmentController;
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use App\Http\Controllers\Frontend\Staff\BlogController;
@@ -131,6 +131,10 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
     ->name('staff.')
     ->group(function (): void {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        /*******************************************************
+         * COURSE OVERVIEW (LEARNING POINTS & REQUIREMENTS)
+         *******************************************************/
+        Route::put('/course-overview/{course}', [IctCourseOverviewController::class, 'update'])->name('course-overview.update');
         /*******************************************************
          * BLOG
          *******************************************************/

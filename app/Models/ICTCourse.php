@@ -1,5 +1,6 @@
 <?php
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,6 +62,28 @@ class ICTCourse extends Model
             'id',          // Local key on courses table
             'id'           // Local key on chapters table
         );
+    }
+    // Add these two relations inside App\Models\ICTCourse (near chapters()/lessons())
+
+    public function learningPoints(): HasMany
+    {
+        return $this->hasMany(ICTCourseLearningPoint::class, 'course_id')->orderBy('order');
+    }
+    public function requirements(): HasMany
+    {
+        return $this->hasMany(ICTCourseRequirement::class, 'course_id')->orderBy('order');
+    }
+
+    // If you only want the active/visible ones on the frontend (mirrors status like chapters):
+
+    public function activeLearningPoints(): HasMany
+    {
+        return $this->learningPoints()->where('status', true);
+    }
+
+    public function activeRequirements(): HasMany
+    {
+        return $this->requirements()->where('status', true);
     }
     public function studentReports()
     {
