@@ -40,7 +40,8 @@
         </div>
         <ul>
             <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
-            <li><a href="#">Project</a></li>
+            <li><a href="{{ route('projects') }}" class="{{ request()->routeIs('projects') ? 'active' : '' }}">Project</a></li>
+            <li><a href="{{ route('projects') }}" class="{{ request()->routeIs('projects') ? 'active' : '' }}">Project</a></li>
             <li><a href="{{ route('blog') }}"
                     class="{{ request()->routeIs('blog') || request()->routeIs('blog.details') ? 'active' : '' }}">Blog</a>
             </li>

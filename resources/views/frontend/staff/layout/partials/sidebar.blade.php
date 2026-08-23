@@ -256,6 +256,41 @@
                         </li>
                     </ul>
                 </li>
+                {{-- Project Management Dropdown --}}
+                <li
+                    class="sidebar-item {{ request()->routeIs('staff.projects.*', 'staff.project-categories.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link has-arrow {{ request()->routeIs('staff.projects.*', 'staff.project-categories.*') ? 'active' : '' }}"
+                        href="javascript:;" aria-expanded="false">
+                        <span class="d-flex">
+                            <i class="ti ti-briefcase"></i>
+                        </span>
+                        <span class="hide-menu">Project Management</span>
+                    </a>
+                    <ul aria-expanded="false"
+                        class="collapse first-level {{ request()->routeIs('staff.projects.*', 'staff.project-categories.*') ? 'in' : '' }}">
+                        {{-- Projects --}}
+                        <li class="sidebar-item {{ request()->routeIs('staff.projects.*') ? 'active' : '' }}">
+                            <a href="{{ route('staff.projects.index') }}"
+                                class="sidebar-link {{ request()->routeIs('staff.projects.*') ? 'active' : '' }}">
+                                <div class="round-16 d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-apps fs-3"></i>
+                                </div>
+                                <span class="hide-menu">Projects</span>
+                            </a>
+                        </li>
+                        {{-- Categories --}}
+                        <li
+                            class="sidebar-item {{ request()->routeIs('staff.project-categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('staff.project-categories.index') }}"
+                                class="sidebar-link {{ request()->routeIs('staff.project-categories.*') ? 'active' : '' }}">
+                                <div class="round-16 d-flex align-items-center justify-content-center">
+                                    <i class="ti ti-category-2 fs-3"></i>
+                                </div>
+                                <span class="hide-menu">Categories</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
             </ul>
         </nav>

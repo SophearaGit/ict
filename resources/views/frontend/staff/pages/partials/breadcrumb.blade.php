@@ -31,6 +31,10 @@
                         Categories
                     @elseif (Route::is('staff.blogs.index') || Route::is('staff.blogs.create') || Route::is('staff.blogs.edit') || Route::is('staff.blogs.show'))
                         Blogs
+                    @elseif (Route::is('staff.projects.index') || Route::is('staff.projects.create') || Route::is('staff.projects.edit') || Route::is('staff.projects.show'))
+                        Projects
+                    @elseif (Route::is('staff.project-categories.index'))
+                        Categories
                     @endif
                 </h4>
 
@@ -59,6 +63,17 @@
                             <li class="breadcrumb-item">
                                 <a class="text-muted text-decoration-none" href="{{ route('staff.blogs.index') }}">
                                     Blogs
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (Route::is('staff.projects.create') ||
+                                Route::is('staff.projects.edit') ||
+                                Route::is('staff.projects.show') ||
+                                Route::is('staff.project-categories.index'))
+                            <li class="breadcrumb-item">
+                                <a class="text-muted text-decoration-none" href="{{ route('staff.projects.index') }}">
+                                    Projects
                                 </a>
                             </li>
                         @endif
@@ -98,6 +113,16 @@
                                 Edit
                             @elseif (Route::is('staff.blogs.show'))
                                 {{ $blog->title ?? 'View' }}
+                            @elseif (Route::is('staff.projects.index'))
+                                Projects
+                            @elseif (Route::is('staff.projects.create'))
+                                Add
+                            @elseif (Route::is('staff.projects.edit'))
+                                Edit
+                            @elseif (Route::is('staff.projects.show'))
+                                {{ $project->title ?? 'View' }}
+                            @elseif (Route::is('staff.project-categories.index'))
+                                Categories
                             @endif
                         </li>
                     </ol>

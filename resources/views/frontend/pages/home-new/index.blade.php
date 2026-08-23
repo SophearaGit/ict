@@ -6,7 +6,8 @@
 
     <!-- ═══ CAROUSEL ═══ -->
     <div class="video-carousel">
-        <video class="vc-video" src="frontend/asset/images/VIdeo for website.mp4" autoplay muted playsinline loop></video>
+        <video class="vc-video" src="{{ asset('frontend/asset/images/vid4web.mp4') }}" autoplay muted playsinline
+            loop></video>
         <div class="vc-overlay"></div>
         <div class="vc-caption" data-aos="fade-up">
             <h2>Learn from the <em> Best Teachers</em></h2>

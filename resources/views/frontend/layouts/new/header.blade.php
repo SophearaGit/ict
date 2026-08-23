@@ -37,7 +37,7 @@
         <li><a href="{{ route('blog') }}"
                 class="{{ request()->routeIs('blog') || request()->routeIs('blog.details') ? 'active' : '' }}">Blog</a>
         </li>
-        <li><a href="#">Project</a></li>
+        <li><a href="{{ route('projects') }}" class="{{ request()->routeIs('projects') ? 'active' : '' }}">Project</a></li>
         <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
         </li>
     </ul>
