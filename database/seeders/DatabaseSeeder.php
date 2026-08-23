@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             ICTScheduleSeeder::class,
             // ICTCourseCategorySeeder::class,
             // ICTCourseSeeder::class,
+            // ProjectCategorySeeder::class,
+            // ProjectSeeder::class,
         ]);
     }
 }

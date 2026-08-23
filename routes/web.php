@@ -1,6 +1,6 @@
 <?php
-use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, RealTimeCoursesController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctCourseOverviewController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController};
+use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, ProjectShowcaseController, RealTimeCoursesController, StudentDashboardController};
+use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctCourseOverviewController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController, ProjectController, ProjectCategoryController};
 use App\Http\Controllers\Frontend\Student\CourseEnrollmentController;
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use App\Http\Controllers\Frontend\Staff\BlogController;
@@ -16,6 +16,8 @@ Route::get('/course/{slug}', [CoursePageController::class, 'courseDetails'])->na
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/blogs', [FrontendController::class, 'blog'])->name('blog');
 Route::get('/blogs/{slug}', [FrontendController::class, 'blogDetails'])->name('blog.details');
+Route::get('ict/projects', [ProjectShowcaseController::class, 'index'])->name('projects');
+Route::get('ict/projects/{slug}', [ProjectShowcaseController::class, 'show'])->name('projects.details');
 /*******************************************************
  * STUDENT
  *******************************************************/
@@ -200,6 +202,13 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          * CATEGORY
          *******************************************************/
         Route::resource('/course-categories', IctCourseCategoryController::class);
+        /*******************************************************
+         * PROJECT MANAGEMENT
+         *******************************************************/
+        Route::resource('/projects', ProjectController::class);
+        Route::patch('/projects/{project}/toggle-featured', [ProjectController::class, 'toggleFeatured'])
+            ->name('projects.toggle-featured');
+        Route::resource('/project-categories', ProjectCategoryController::class)->except(['create', 'edit']);
         /*******************************************************
          * STUDENT INVOICE DETAIL IN COURSE
          *******************************************************/
