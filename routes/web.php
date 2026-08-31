@@ -1,7 +1,8 @@
 <?php
 use App\Http\Controllers\Frontend\{CourseContentController, CourseController, CoursePageController, FrontendController, InstructorDashboardController, ProfileController, ProjectShowcaseController, RealTimeCoursesController, StudentDashboardController};
-use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, BakongPaymentController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctCourseOverviewController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController, ProjectController, ProjectCategoryController};
+use App\Http\Controllers\Frontend\Staff\{IctCourseCurriculumController, IctInvoicePaymentController, CertificateController, IctCourseCategoryController, StudentReportController, IctCourseController, IctCourseOverviewController, IctScheduleController, StaffDashboardController, IctInvoiceController, StudentRegisterationController, IctStaffReportController, InternController, StaffController, StudentController, TeacherController, TecherAttendancesController, ProjectController, ProjectCategoryController};
 use App\Http\Controllers\Frontend\Student\CourseEnrollmentController;
+use App\Http\Controllers\Frontend\Student\PayWayPaymentController;
 use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 use App\Http\Controllers\Frontend\Staff\BlogController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,14 @@ Route::get('/blogs/{slug}', [FrontendController::class, 'blogDetails'])->name('b
 Route::get('ict/projects', [ProjectShowcaseController::class, 'index'])->name('projects');
 Route::get('ict/projects/{slug}', [ProjectShowcaseController::class, 'show'])->name('projects.details');
 /*******************************************************
+ * PAYWAY WEBHOOK (public — called server-to-server by ABA, not the browser)
+ * NOTE: this must be added to the $except array in
+ * App\Http\Middleware\VerifyCsrfToken (see notes) since PayWay's server
+ * won't send a CSRF token.
+ *******************************************************/
+Route::post('/payment/payway/callback', [PayWayPaymentController::class, 'callback'])
+    ->name('payway.callback');
+/*******************************************************
  * STUDENT
  *******************************************************/
 Route::middleware(['auth:web', 'verified', 'check_role:student'])
@@ -32,6 +41,9 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
         */
         Route::post('/course/{course}/enroll', [CourseEnrollmentController::class, 'startEnrollment'])->name('course.enroll');
         Route::get('/payment/{invoice}', [CourseEnrollmentController::class, 'paymentPage'])->name('payment.page');
+        Route::post('/payment/{invoice}/switch-schedule', [CourseEnrollmentController::class, 'switchSchedule'])->name('payment.switch-schedule');
+        Route::get('/payment/{invoice}/status', [PayWayPaymentController::class, 'status'])->name('payment.status');
+        Route::get('/payment/{invoice}/receipt', [PayWayPaymentController::class, 'downloadReceipt'])->name('payment.receipt');
         /*******************************************************
          * DASHBOARD
          *******************************************************/
@@ -255,13 +267,6 @@ Route::fallback(function (): Response {
     ];
     return response()->view('errors.404', $data, Response::HTTP_NOT_FOUND);
 })->name('404');
-Route::middleware(['auth:web', 'verified'])
-    ->prefix('bakong')
-    ->name('bakong.')
-    ->group(function () {
-        Route::post('/generate-qr', [BakongPaymentController::class, 'generateQr'])->name('generate-qr');
-        Route::post('/verify-hash', [BakongPaymentController::class, 'verifyByHash'])->name('verify-hash');
-    });
 // Additional Routes
 require __DIR__ . '/admin.php';
 require __DIR__ . '/auth.php';

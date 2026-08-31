@@ -41,6 +41,16 @@
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
+                {{-- Registration --}}
+                <li class="sidebar-item {{ request()->is('staff/student-registration') ? 'selected' : '' }}">
+                    <a class="sidebar-link {{ request()->is('staff/student-registration') ? 'active' : '' }}"
+                        href="{{ route('staff.student.registration') }}" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-user-plus"></i>
+                        </span>
+                        <span class="hide-menu">Registration</span>
+                    </a>
+                </li>
                 {{-- Invoice --}}
                 <li class="sidebar-item {{ request()->routeIs('staff.invoices') ? 'selected' : '' }}">
                     <a class="sidebar-link {{ request()->routeIs('staff.invoices') ? 'active' : '' }}"
@@ -168,35 +178,6 @@
                                     <i class="ti ti-id-badge-2 fs-3"></i>
                                 </div>
                                 <span class="hide-menu">Interns</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="sidebar-item {{ request()->is('staff/student-registration') ? 'selected' : '' }}">
-                    <a class="sidebar-link has-arrow {{ request()->is('staff/student-registration') ? 'active' : '' }} "
-                        href="javascript:;" aria-expanded="false">
-                        <span class="d-flex">
-                            <i class="ti ti-chart-donut-3"></i>
-                        </span>
-                        <span class="hide-menu">
-                            Student Management
-                        </span>
-                    </a>
-                    <ul aria-expanded="false"
-                        class="collapse first-level
-                    {{ request()->is('staff/student-registration') ? 'in' : '' }}
-                    ">
-                        <li class="sidebar-item {{ request()->is('staff/student-registration') ? 'active' : '' }}">
-                            <a href="{{ route('staff.student.registration') }}"
-                                class="sidebar-link
-                            {{ request()->is('staff/student-registration') ? 'active' : '' }}
-                            ">
-                                <div class="round-16 d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-user-plus fs-3"></i>
-                                </div>
-                                <span class="hide-menu">
-                                    Registration
-                                </span>
                             </a>
                         </li>
                     </ul>

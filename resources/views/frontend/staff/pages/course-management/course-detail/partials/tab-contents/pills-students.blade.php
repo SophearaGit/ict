@@ -28,7 +28,13 @@
             <div class="vr mx-1"></div>
             {{-- Print --}}
             <button type="button" id="printCertificatesBtn" class="btn btn-sm btn-outline-primary">
-                <i class="ti ti-certificate me-1"></i> Print Certificate
+                <span class="btn-default-state">
+                    <i class="ti ti-certificate me-1"></i> Print Certificate
+                </span>
+                <span class="btn-loading-state d-none">
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Generating...
+                </span>
             </button>
             {{-- Move --}}
             <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
@@ -51,7 +57,17 @@
     <div class="row">
         @forelse ($course->students as $student)
             <div class="col-sm-6 col-lg-4">
-                <div class="card hover-img position-relative student-card" data-student-id="{{ $student->id }}">
+                <div class="card hover-img position-relative student-card" data-student-id="{{ $student->id }}"
+                    data-name="{{ $student->name }}" data-khmer-name="{{ $student->khmer_name }}"
+                    data-email="{{ $student->email }}" data-phone="{{ $student->phone }}"
+                    data-alternate-phone="{{ $student->alternate_phone }}" data-gender="{{ $student->gender }}"
+                    data-dob="{{ $student->dob ? \Carbon\Carbon::parse($student->dob)->format('Y-m-d') : '' }}">
+                    {{-- Quick edit --}}
+                    <button type="button"
+                        class="btn btn-sm btn-light-primary rounded-circle p-0 d-flex align-items-center justify-content-center quick-edit-student-btn position-absolute top-0 start-0 m-2"
+                        style="width:28px;height:28px;z-index:2;" title="Quick edit">
+                        <i class="ti ti-pencil fs-4"></i>
+                    </button>
                     {{-- Checkbox --}}
                     <div class="form-check position-absolute top-0 end-0 m-2" style="z-index:2;">
                         <input class="form-check-input student-checkbox" type="checkbox" value="{{ $student->id }}"
@@ -120,6 +136,73 @@
                 </div>
             </div>
         @endforelse
+    </div>
+
+    {{-- ══════════════════════════════════════════
+         QUICK EDIT STUDENT MODAL
+    ══════════════════════════════════════════ --}}
+    <div class="modal fade" id="qeStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form id="qeStudentForm">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="ti ti-user-edit me-1"></i> Quick Edit Student
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="name" id="qeStudentName" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name (Khmer)</label>
+                                <input type="text" name="khmer_name" id="qeStudentKhmerName" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" id="qeStudentEmail" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="text" name="dob" id="qeStudentDob" class="form-control" autocomplete="off">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" id="qeStudentGender" class="form-select" required>
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" id="qeStudentPhone" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Alternate Phone</label>
+                                <input type="text" name="alternate_phone" id="qeStudentAlternatePhone" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="qeStudentSubmitBtn">
+                            <span class="btn-default-state">Save Changes</span>
+                            <span class="btn-loading-state d-none">
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                Saving...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     {{-- ══════════════════════════════════════════
@@ -308,7 +391,11 @@
 {{-- ══════════════════════════════════════════
      BULK ACTION SCRIPTS
 ══════════════════════════════════════════ --}}
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         // Enrollment map: { studentId: [courseId, courseId, ...], ... }
         const enrollmentMap = @json($enrollmentMap);
@@ -508,6 +595,15 @@
                     alert('Please select at least one student.');
                     return;
                 }
+
+                const btn = this;
+                const defaultState = btn.querySelector('.btn-default-state');
+                const loadingState = btn.querySelector('.btn-loading-state');
+
+                btn.disabled = true;
+                defaultState.classList.add('d-none');
+                loadingState.classList.remove('d-none');
+
                 fetch("{{ route('staff.certificates.print') }}", {
                         method: 'POST',
                         headers: {
@@ -519,9 +615,103 @@
                             course_id: '{{ $course->id }}'
                         })
                     })
-                    .then(res => res.blob())
+                    .then(res => {
+                        if (!res.ok) throw new Error('Certificate generation failed (' + res.status + ')');
+                        return res.blob();
+                    })
                     .then(blob => window.open(window.URL.createObjectURL(blob), '_blank'))
-                    .catch(err => console.error(err));
+                    .catch(err => {
+                        console.error(err);
+                        alert('Something went wrong generating the certificate. Please try again.');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        loadingState.classList.add('d-none');
+                        defaultState.classList.remove('d-none');
+                    });
+            });
+
+            // ── quick edit student ──
+            const qeStudentModalEl = document.getElementById('qeStudentModal');
+            const qeStudentModalInstance = new bootstrap.Modal(qeStudentModalEl);
+            const qeStudentFormEl = document.getElementById('qeStudentForm');
+            const qeStudentSubmitBtn = document.getElementById('qeStudentSubmitBtn');
+            const updateUrlTemplate = "{{ route('staff.student.update', ':id') }}";
+            let currentEditStudentId = null;
+
+            const dobPicker = flatpickr('#qeStudentDob', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'M d, Y',
+                maxDate: 'today',
+                allowInput: true,
+                disableMobile: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    instance.altInput.setAttribute('placeholder', 'Select date');
+                }
+            });
+
+            document.querySelectorAll('.quick-edit-student-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const card = this.closest('.student-card');
+                    currentEditStudentId = card.dataset.studentId;
+
+                    document.getElementById('qeStudentName').value = card.dataset.name || '';
+                    document.getElementById('qeStudentKhmerName').value = card.dataset.khmerName || '';
+                    document.getElementById('qeStudentEmail').value = card.dataset.email || '';
+                    document.getElementById('qeStudentPhone').value = card.dataset.phone || '';
+                    document.getElementById('qeStudentAlternatePhone').value = card.dataset.alternatePhone || '';
+                    document.getElementById('qeStudentGender').value = card.dataset.gender || '';
+                    dobPicker.setDate(card.dataset.dob || null, false);
+
+                    qeStudentModalInstance.show();
+                });
+            });
+
+            qeStudentFormEl.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!currentEditStudentId) return;
+
+                const defaultState = qeStudentSubmitBtn.querySelector('.btn-default-state');
+                const loadingState = qeStudentSubmitBtn.querySelector('.btn-loading-state');
+                qeStudentSubmitBtn.disabled = true;
+                defaultState.classList.add('d-none');
+                loadingState.classList.remove('d-none');
+
+                fetch(updateUrlTemplate.replace(':id', currentEditStudentId), {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            name: document.getElementById('qeStudentName').value,
+                            khmer_name: document.getElementById('qeStudentKhmerName').value,
+                            email: document.getElementById('qeStudentEmail').value,
+                            phone: document.getElementById('qeStudentPhone').value,
+                            alternate_phone: document.getElementById('qeStudentAlternatePhone').value,
+                            gender: document.getElementById('qeStudentGender').value,
+                            dob: document.getElementById('qeStudentDob').value,
+                        })
+                    })
+                    .then(res => {
+                        if (!res.ok) return res.json().then(data => { throw new Error(data.message || 'Update failed'); });
+                        return res.json().catch(() => ({}));
+                    })
+                    .then(() => {
+                        qeStudentModalInstance.hide();
+                        location.reload();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert(err.message || 'Something went wrong saving changes. Please try again.');
+                    })
+                    .finally(() => {
+                        qeStudentSubmitBtn.disabled = false;
+                        loadingState.classList.add('d-none');
+                        defaultState.classList.remove('d-none');
+                    });
             });
 
         })();
