@@ -1,0 +1,641 @@
+/* ============================================================
+   Checkout page
+   Built on top of the existing design tokens defined in style.css:
+   --card-bg, --card-border, --card-shadow, --text-main, --text-mid,
+   --text-light, --nav-hover (brand blue), plus [data-theme="dark"].
+   ============================================================ */
+
+:root {
+    --co-primary: #3777ff;
+    --co-primary-dark: #2f63e0;
+    --co-primary-soft: rgba(55, 119, 255, 0.1);
+    --co-success: #16a34a;
+    --co-success-soft: #e9f9ee;
+    --co-page-bg: #f6f8fc;
+    --co-radius-lg: 18px;
+    --co-radius-md: 12px;
+}
+
+[data-theme="dark"] {
+    --co-page-bg: #0b1220;
+    --co-primary-soft: rgba(96, 165, 250, 0.14);
+}
+
+.checkout-wrap {
+    background: var(--co-page-bg);
+    padding: 40px 6% 90px;
+    min-height: 70vh;
+}
+
+/* Prevents a white seam between this section and the footer: the wrap's
+   background only covers its own box, so match the page behind it too. */
+body:has(.checkout-wrap) {
+    background: var(--co-page-bg);
+}
+
+/* ---------- Breadcrumb ---------- */
+.checkout-crumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.checkout-crumb a {
+    color: var(--text-mid);
+    text-decoration: none;
+}
+
+.checkout-crumb a:hover {
+    color: var(--co-primary);
+}
+
+.checkout-crumb i {
+    font-size: 10px;
+    color: var(--text-light);
+}
+
+.checkout-crumb span[aria-current="page"] {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* ---------- Stepper ---------- */
+.checkout-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    max-width: 560px;
+    margin: 0 auto 44px;
+    padding: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.step-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e2e8f0;
+    color: var(--text-light);
+    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    transition: background .2s ease, color .2s ease;
+}
+
+.step-label {
+    font-size: 13px;
+    color: var(--text-light);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.step.is-done .step-dot {
+    background: var(--co-success);
+    color: #fff;
+}
+
+.step.is-done .step-label {
+    color: var(--co-success);
+}
+
+.step.is-active .step-dot {
+    background: var(--co-primary);
+    color: #fff;
+    box-shadow: 0 0 0 5px var(--co-primary-soft);
+}
+
+.step.is-active .step-label {
+    color: var(--co-primary);
+    font-weight: 700;
+}
+
+.step-line {
+    flex: 1 1 60px;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 8px;
+    margin-bottom: 24px;
+}
+
+.step-line.is-done {
+    background: var(--co-success);
+}
+
+/* ---------- Grid layout ---------- */
+.checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.co-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--co-radius-lg);
+    box-shadow: var(--card-shadow);
+    padding: 24px;
+}
+
+.co-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    font-family: var(--font-heading);
+}
+
+/* ---------- Course summary card ---------- */
+.course-summary-top {
+    display: flex;
+    gap: 18px;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.course-thumb {
+    width: 120px;
+    height: 90px;
+    flex: 0 0 120px;
+    border-radius: var(--co-radius-md);
+    overflow: hidden;
+    background: linear-gradient(135deg, #4f6bf0, #7a5cf0);
+}
+
+.course-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.course-summary-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.course-badge {
+    display: inline-block;
+    width: fit-content;
+    background: var(--co-primary-soft);
+    color: var(--co-primary);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.course-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.3;
+    margin: 0;
+}
+
+.course-teacher {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.course-teacher i {
+    font-size: 12px;
+}
+
+.course-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 24px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.detail-icon {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 10px;
+    background: var(--toggle-bg);
+    color: var(--text-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.detail-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.detail-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.detail-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    display: block;
+    width: 100%;
+    border: 1.5px solid var(--card-border);
+    background-color: var(--card-bg);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-main);
+    padding: 9px 30px 9px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.detail-select:hover {
+    border-color: var(--co-primary);
+}
+
+.detail-select:focus-visible,
+.detail-select:focus {
+    outline: none;
+    border-color: var(--co-primary);
+    box-shadow: 0 0 0 3px var(--co-primary-soft);
+}
+
+.detail-select:invalid,
+.detail-select option[value=""] {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.detail-item:has(.detail-select) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.detail-item:has(.detail-select) .detail-icon {
+    display: none;
+}
+
+.detail-item:has(.detail-select) .detail-label {
+    padding-left: 2px;
+}
+
+/* ---------- Select2 theme (schedule dropdown) ---------- */
+.select2-container--default .select2-selection--single {
+    height: auto;
+    border: 1.5px solid var(--card-border);
+    background-color: var(--card-bg);
+    border-radius: 9px;
+    padding: 9px 30px 9px 12px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.select2-container--default .select2-selection--single:hover {
+    border-color: var(--co-primary);
+}
+
+.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: var(--co-primary) !important;
+    box-shadow: 0 0 0 3px var(--co-primary-soft);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding: 0;
+    line-height: 1.3;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+    top: 0;
+    right: 10px;
+    width: 16px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border: none;
+    width: 10px;
+    height: 6px;
+    margin: 0;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform .15s ease;
+}
+
+.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.select2-dropdown {
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    background-color: var(--card-bg);
+    overflow: hidden;
+    padding: 4px;
+}
+
+.select2-results__option {
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--co-primary-soft);
+    color: var(--co-primary);
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: var(--co-primary-soft);
+    color: var(--co-primary);
+    font-weight: 700;
+}
+
+/* ---------- Order summary card ---------- */
+.checkout-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--text-mid);
+    padding: 8px 0;
+}
+
+.order-row--discount span:last-child {
+    color: var(--co-success);
+    font-weight: 600;
+}
+
+.order-row--total {
+    border-top: 1px solid var(--card-border);
+    margin-top: 6px;
+    padding-top: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* ---------- Payment card ---------- */
+/* Hidden until a real schedule is chosen (native <select>, no JS:
+   :checked tracks the live selection and :has() reacts to it). */
+.payment-card {
+    opacity: 1;
+    max-height: 340px;
+    overflow: hidden;
+    transform: translateY(0);
+    transition: opacity .3s ease, max-height .3s ease, transform .3s ease,
+        margin-top .3s ease, padding .3s ease, border-width .3s ease;
+}
+
+.checkout-grid:has(#scheduleSelect option[value=""]:checked) .payment-card {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: -20px;
+    border-width: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+}
+
+.payment-card-title {
+    margin-bottom: 12px;
+}
+
+.payment-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--co-radius-md);
+    padding: 12px 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    font-family: var(--font-body);
+}
+
+.payment-option:hover {
+    border-color: var(--co-primary);
+}
+
+.payment-option.is-selected {
+    border-color: var(--co-primary);
+    box-shadow: 0 0 0 3px var(--co-primary-soft);
+}
+
+.payment-option-logo {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .04);
+}
+
+.payment-option-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.payment-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.payment-option-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.payment-option-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.payment-option-chevron {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.payment-option.is-selected .payment-option-chevron {
+    color: var(--co-primary);
+}
+
+/* Added: loading/disabled state while checkout is opening or a payment is
+   being confirmed — the base design didn't include this state. */
+.payment-option:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ---------- CTA ---------- */
+.btn-checkout-primary {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--co-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--co-radius-md);
+    padding: 15px 18px;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease, transform .1s ease;
+}
+
+.btn-checkout-primary:hover {
+    background: var(--co-primary-dark);
+}
+
+.btn-checkout-primary:active {
+    transform: translateY(1px);
+}
+
+.secure-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: -6px;
+}
+
+.secure-note i {
+    margin-right: 4px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+    .checkout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .checkout-wrap {
+        padding: 28px 5% 70px;
+    }
+
+    .checkout-stepper {
+        max-width: 100%;
+    }
+
+    .step-label {
+        font-size: 11px;
+    }
+
+    .step-dot {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .course-summary-top {
+        flex-direction: column;
+    }
+
+    .course-thumb {
+        width: 100%;
+        flex-basis: auto;
+        height: 140px;
+    }
+
+    .course-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .co-card {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 380px) {
+    .checkout-crumb {
+        font-size: 12.5px;
+    }
+
+    .step-label {
+        display: none;
+    }
+}

@@ -40,4 +40,10 @@ return [
         'merchant_id' => env('BAKONG_MERCHANT_ID', 'yourname@wing'),   // e.g. ictschool@acleda
         'merchant_name' => env('BAKONG_MERCHANT_NAME', 'ICT Solutions'),
     ],
+    'payway' => [
+        'merchant_id' => env('PAYWAY_MERCHANT_ID'),
+        'api_key' => env('PAYWAY_API_KEY'),
+        'api_url' => env('PAYWAY_API_URL', 'https://checkout-sandbox.payway.com.kh'),
+        'checkout_js_url' => env('PAYWAY_CHECKOUT_JS_URL', 'https://checkout.payway.com.kh/plugins/checkout2-0.js'),
+    ],
 ];

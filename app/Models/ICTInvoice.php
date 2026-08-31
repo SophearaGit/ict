@@ -11,7 +11,7 @@ class ICTInvoice extends Model
     /** @use HasFactory<\Database\Factories\ICTInvoiceFactory> */
     use HasFactory;
 
-    protected $fillable = ['staff_id', 'student_id', 'course_id', 'price', 'discount', 'extra_charge', 'total_amount', 'paid_amount', 'remaining_amount', 'payment_option', 'payment_status', 'invoice_code', 'paid_at', 'bakong_txn_ref', 'bakong_hash'];
+    protected $fillable = ['staff_id', 'student_id', 'course_id', 'price', 'discount', 'extra_charge', 'total_amount', 'paid_amount', 'remaining_amount', 'payment_option', 'payment_status', 'invoice_code', 'paid_at', 'bakong_txn_ref', 'bakong_hash', 'payway_tran_id', 'payment_gateway'];
 
     public function staff()
     {

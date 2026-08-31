@@ -15,7 +15,8 @@ class ICTPayments extends Model
 
     protected $table = 'i_c_t_payments';
 
-    protected $fillable = ['invoice_id', 'amount', 'payment_method', 'note', 'paid_by', 'paid_at'];
+    protected $fillable = ['invoice_id', 'amount', 'payment_method', 'note', 'paid_by', 'paid_at', 'gateway_reference', 'gateway_approval_code', 'gateway_response'];
+    protected $casts = ['gateway_response' => 'array'];
 
     public function paidBy()
     {

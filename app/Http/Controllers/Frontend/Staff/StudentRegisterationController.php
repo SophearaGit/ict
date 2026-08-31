@@ -28,9 +28,11 @@ class StudentRegisterationController extends Controller
         if ($request->student_type === 'new') {
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
+                'khmer_name' => ['nullable', 'string', 'max:255'],
                 'email' => ['required', 'email', 'unique:users,email'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
                 'phone' => ['required', 'string', 'max:20'],
+                'dob' => ['nullable', 'date', 'before:today'],
             ]);
         } else {
             $request->validate([
@@ -113,6 +115,7 @@ class StudentRegisterationController extends Controller
             } else {
                 $user = User::create([
                     'name' => $request->name,
+                    'khmer_name' => $request->khmer_name ?? null,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
                     'role' => 'student',
@@ -120,6 +123,7 @@ class StudentRegisterationController extends Controller
                     'registered_by_staff_id' => Auth::id(),
                     'phone' => $request->phone,
                     'alternate_phone' => $request->alternate_phone ?? null,
+                    'dob' => $request->dob ?? null,
                 ]);
             }
             // =========================

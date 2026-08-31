@@ -1,917 +1,679 @@
 @extends('frontend.layouts.new.master')
-@section('page_title', 'Complete Payment')
+@section('page_title', 'Checkout — ' . $invoice->course->title)
+@push('styles')
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- jQuery -->
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="/frontend/asset/css/checkout.css">
+@endpush
 @section('content')
+
+    <main class="checkout-wrap">
+
+        <!-- Breadcrumb -->
+        <nav class="checkout-crumb" aria-label="Breadcrumb" data-aos="fade-up">
+            <a href="{{ route('course') }}">Courses</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{{ route('course.details', $invoice->course->slug) }}">{{ $invoice->course->title }}</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span aria-current="page">Checkout</span>
+        </nav>
+
+        <!-- Stepper -->
+        <ol class="checkout-stepper" data-aos="fade-up">
+            <li class="step is-done">
+                <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+                <span class="step-label">Course</span>
+            </li>
+            <li class="step-line is-done"></li>
+            <li class="step is-done" id="step-checkout">
+                <span class="step-dot"><i class="fa-solid fa-check"></i></span>
+                <span class="step-label">Checkout</span>
+            </li>
+            <li class="step-line is-done" id="step-line-payment"></li>
+            <li class="step is-active" id="step-payment">
+                <span class="step-dot">3</span>
+                <span class="step-label">Payment</span>
+            </li>
+            <li class="step-line" id="step-line-success"></li>
+            <li class="step" id="step-success">
+                <span class="step-dot">4</span>
+                <span class="step-label">Success</span>
+            </li>
+        </ol>
+
+        <!-- Main grid -->
+        <div class="checkout-grid">
+
+            <!-- LEFT: course summary -->
+            <section class="co-card course-summary-card" data-aos="fade-up">
+                <div class="course-summary-top">
+                    <div class="course-thumb">
+                        <img src="{{ $invoice->course->thumbnail ? asset($invoice->course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                            alt="{{ $invoice->course->title }} thumbnail">
+                    </div>
+                    <div class="course-summary-info">
+                        <span class="course-badge">{{ $invoice->course->category->name ?? 'Course' }}</span>
+                        <h2 class="course-title">{{ $invoice->course->title }}</h2>
+                        <div class="course-teacher">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            <span>{{ $invoice->course->instructor->name ?? 'Instructor TBA' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-icon"><i class="fa-regular fa-clock"></i></span>
+                        <div class="detail-text">
+                            <span class="detail-label">Duration</span>
+                            <span class="detail-value">{{ $invoice->course->duration ?? 48 }} hours</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-icon"><i class="fa-regular fa-calendar"></i></span>
+                        <div class="detail-text">
+                            <span class="detail-label">Schedule</span>
+                            {{-- Placeholder is the default selection pre-payment
+                                 — even when this invoice already has a schedule
+                                 attached — so checkout.css's
+                                 :has(#scheduleSelect option[value=""]:checked)
+                                 rule keeps the payment card collapsed until
+                                 the student actively picks a schedule
+                                 (reselecting their current one counts).
+                                 Once paid, there's nothing left to pick —
+                                 switching schedules is already blocked
+                                 post-payment — so just show the real one. --}}
+                            <select id="scheduleSelect" class="detail-select"
+                                @if ($invoice->payment_status === 'paid') disabled @endif>
+                                <option value="" @if ($invoice->payment_status !== 'paid') selected @endif>
+                                    Select your schedule
+                                </option>
+                                <option value="{{ $invoice->course_id }}"
+                                    data-start="{{ $invoice->course->start_date?->format('F j, Y') ?? 'Depends on schedule' }}"
+                                    @if ($invoice->payment_status === 'paid') selected @endif>
+                                    @if ($invoice->course->schedule)
+                                        {{ $invoice->course->schedule->short_days }} ·
+                                        {{ $invoice->course->schedule->formatted_time }}
+                                    @else
+                                        Current schedule
+                                    @endif
+                                </option>
+                            </select>
+                            @if ($invoice->payment_status !== 'paid')
+                                <p class="schedule-hint" id="scheduleHint">
+                                    <i class="fa-solid fa-circle-info"></i> Pick a schedule to continue to payment
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-icon"><i class="fa-regular fa-note-sticky"></i></span>
+                        <div class="detail-text">
+                            <span class="detail-label">Certificate</span>
+                            <span class="detail-value">Included on completion</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-icon"><i class="fa-regular fa-calendar-check"></i></span>
+                        <div class="detail-text">
+                            <span class="detail-label">Start Date</span>
+                            <span class="detail-value" id="startDateValue">
+                                {{ $invoice->course->start_date?->format('F j, Y') ?? 'Depends on schedule' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT: order summary + payment -->
+            <aside class="checkout-aside" data-aos="fade-up">
+
+                <div class="co-card order-summary-card">
+                    <h3 class="co-card-title">Order Summary</h3>
+                    <div class="order-row">
+                        <span>Subtotal</span>
+                        <span>${{ number_format($invoice->price, 2) }}</span>
+                    </div>
+                    @if ($invoice->discount > 0)
+                        <div class="order-row order-row--discount">
+                            <span>Discount</span>
+                            <span>-${{ number_format($invoice->discount, 2) }}</span>
+                        </div>
+                    @endif
+                    @if ($invoice->extra_charge > 0)
+                        <div class="order-row">
+                            <span>Extra charge</span>
+                            <span>${{ number_format($invoice->extra_charge, 2) }}</span>
+                        </div>
+                    @endif
+                    <div class="order-row order-row--total">
+                        @if ($invoice->payment_status === 'paid')
+                            <span>Total Paid</span>
+                            <span id="orderTotal">${{ number_format($invoice->paid_amount, 2) }}</span>
+                        @else
+                            <span>Total</span>
+                            <span id="orderTotal">${{ number_format($invoice->remaining_amount, 2) }}</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="co-card payment-card" id="paymentMethodCard" style="display:none">
+                    <h3 class="co-card-title payment-card-title">Payment Method</h3>
+
+                    <button type="button" class="payment-option is-selected mmb-3" id="abaOption">
+                        <span class="payment-option-logo">
+                            <img src="{{ asset('/frontend/asset/images/aba-khqr.jpg') }}" alt="ABA KHQR">
+                        </span>
+                        <span class="payment-option-text">
+                            <span class="payment-option-name" id="abaOptionName">ABA KHQR</span>
+                            <span class="payment-option-sub" id="abaOptionSub">Scan to pay with any banking app — tap to
+                                continue</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-right payment-option-chevron"></i>
+                    </button>
+
+                    <p class="secure-note" id="pw-status" style="display:none">
+                        <span class="pw-waiting-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                        Waiting for payment confirmation…
+                    </p>
+                </div>
+
+                {{-- Step 4 success panel — hidden until payment is confirmed. --}}
+                <div class="co-card pw-success-card" id="successCard" style="display:none">
+                    <div class="pw-success-badge" aria-hidden="true">
+                        <svg viewBox="0 0 52 52">
+                            <circle class="pw-success-badge__circle" cx="26" cy="26" r="24" fill="none" />
+                            <path class="pw-success-badge__check" fill="none" d="M14 27l7 7 17-17" />
+                        </svg>
+                    </div>
+
+                    <h3 class="pw-success-title">Payment Successful</h3>
+                    <p class="pw-success-sub">Your enrollment is confirmed — see you in class!</p>
+
+                    <div class="pw-success-details">
+                        <div class="order-row"><span>Course</span><span id="rc-course"></span></div>
+                        <div class="order-row"><span>Schedule</span><span id="rc-schedule"></span></div>
+                        <div class="order-row"><span>Invoice</span><span id="rc-invoice"></span></div>
+                        <div class="order-row"><span>Payment Option</span><span id="rc-option"></span></div>
+                        <div class="order-row"><span>Transaction ID</span><span id="rc-tranid"></span></div>
+                        <div class="order-row"><span>Paid At</span><span id="rc-paidat"></span></div>
+                        <div class="order-row order-row--total"><span>Amount Paid</span><span id="rc-amount"></span></div>
+                    </div>
+
+                    <div class="pw-success-actions">
+                        <button type="button" class="btn-checkout-primary" id="downloadReceiptBtn">
+                            <i class="fa-solid fa-file-arrow-down"></i> Download Receipt
+                        </button>
+                        <a href="{{ route('student.dashboard') }}" class="btn-checkout-primary btn-checkout-secondary"
+                            id="goToDashboardLink">
+                            <i class="fa-solid fa-gauge"></i> Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Loading state shown while we check whether this invoice is
+                     already paid (e.g. right after PayWay's redirect back).
+                     Prevents a flash of "pay now" UI before we know which
+                     panel (payment vs success) actually belongs on screen. --}}
+                <div class="co-card" id="statusLoadingCard">
+                    <div class="pw-loading-inner">
+                        <span class="pw-spinner" aria-hidden="true"></span>
+                        <p>Checking your payment status…</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
-
-        :root {
-            --bg: #F7F8FA;
-            --surface: #FFFFFF;
-            --border: #E4E7EC;
-            --text: #101828;
-            --muted: #667085;
-            --accent: #0057FF;
-            --accent-lt: #EEF3FF;
-            --success: #027A48;
-            --success-bg: #ECFDF3;
-            --danger: #B42318;
-            --danger-bg: #FEF3F2;
-            --warning: #B54708;
-            --warning-bg: #FFFAEB;
-            --radius: 14px;
-            --mono: 'JetBrains Mono', monospace;
-            --sans: 'Inter', sans-serif;
+        .pw-success-card {
+            text-align: center;
+            padding: 36px 28px 28px;
         }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        .pw-success-badge {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 18px;
         }
 
-        body {
-            font-family: var(--sans);
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+        .pw-success-badge svg {
+            width: 100%;
+            height: 100%;
         }
 
-        .pay-wrap {
-            max-width: 860px;
-            margin: 48px auto;
-            padding: 0 16px 64px;
+        .pw-success-badge__circle {
+            stroke: #16a34a;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 151;
+            stroke-dashoffset: 151;
+            animation: pwCircleDraw .5s ease-out forwards;
         }
 
-        /* Header */
-        .pay-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 32px;
+        .pw-success-badge__check {
+            stroke: #16a34a;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 36;
+            stroke-dashoffset: 36;
+            animation: pwCheckDraw .35s ease-out .45s forwards;
         }
 
-        .pay-header-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--accent-lt);
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
+        @keyframes pwCircleDraw {
+            to {
+                stroke-dashoffset: 0;
+            }
         }
 
-        .pay-header-icon svg {
-            color: var(--accent);
+        @keyframes pwCheckDraw {
+            to {
+                stroke-dashoffset: 0;
+            }
         }
 
-        .pay-header h1 {
-            font-size: 20px;
+        .pw-success-title {
+            font-size: 22px;
             font-weight: 700;
-            line-height: 1.2;
+            margin: 0 0 6px;
         }
 
-        .pay-header p {
-            font-size: 13px;
-            color: var(--muted);
-            margin-top: 2px;
-        }
-
-        /* Card */
-        .pay-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        /* Two-col layout */
-        .pay-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: 420px;
-        }
-
-        @media (max-width: 640px) {
-            .pay-body {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Left: invoice details */
-        .pay-details {
-            padding: 32px;
-            border-right: 1px solid var(--border);
-        }
-
-        @media (max-width: 640px) {
-            .pay-details {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
-        }
-
-        .pay-details h2 {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: var(--muted);
-            margin-bottom: 20px;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
+        .pw-success-sub {
+            color: var(--co-muted, #6b7280);
             font-size: 14px;
+            margin: 0 0 22px;
         }
 
-        .detail-row:last-child {
+        .pw-success-details {
+            text-align: left;
+            background: var(--co-surface-muted, #f9fafb);
+            border-radius: 12px;
+            padding: 4px 16px;
+            margin-bottom: 22px;
+        }
+
+        .pw-success-details .order-row {
+            padding: 11px 0;
+            border-bottom: 1px solid var(--co-border, #e5e7eb);
+        }
+
+        .pw-success-details .order-row:last-child {
             border-bottom: none;
         }
 
-        .detail-label {
-            color: var(--muted);
-            white-space: nowrap;
+        .pw-success-details .order-row span:first-child {
+            color: var(--co-muted, #6b7280);
+            font-size: 13px;
         }
 
-        .detail-value {
-            font-weight: 500;
+        .pw-success-details .order-row span:last-child {
+            font-weight: 600;
             text-align: right;
         }
 
-        .amount-value {
-            font-family: var(--mono);
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--accent);
+        .pw-success-details .order-row--total {
+            border-top: 1px dashed var(--co-border, #e5e7eb);
+            border-bottom: none;
+            margin-top: 2px;
         }
 
-        /* Status badge */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+        .pw-success-details .order-row--total span:last-child {
+            color: #16a34a;
+            font-size: 16px;
         }
 
-        .status-badge .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .status-badge.waiting {
-            background: var(--warning-bg);
-            color: var(--warning);
-        }
-
-        .status-badge.waiting .dot {
-            background: var(--warning);
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-badge.success {
-            background: var(--success-bg);
-            color: var(--success);
-        }
-
-        .status-badge.success .dot {
-            background: var(--success);
-        }
-
-        .status-badge.failed {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
-
-        .status-badge.failed .dot {
-            background: var(--danger);
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: .3;
-            }
-        }
-
-        /* Countdown */
-        .countdown-wrap {
-            margin-top: 24px;
-            padding: 14px 16px;
-            background: var(--bg);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .countdown-label {
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .countdown-time {
-            font-family: var(--mono);
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .countdown-time.urgent {
-            color: var(--danger);
-        }
-
-        /* Right: QR panel */
-        .pay-qr {
-            padding: 32px;
+        .pw-success-actions {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-        }
-
-        /* Skeleton */
-        .qr-skeleton {
-            width: 220px;
-            height: 220px;
-            border-radius: 12px;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite;
-        }
-
-        .qr-skeleton-text {
-            width: 140px;
-            height: 14px;
-            border-radius: 6px;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite .2s;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* QR frame */
-        .qr-frame {
-            position: relative;
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 14px;
-            background: #fff;
-        }
-
-        .qr-frame img {
-            display: block;
-            width: 196px;
-            height: 196px;
-            border-radius: 6px;
-        }
-
-        /* Overlays */
-        .pay-overlay {
-            display: none;
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .pay-overlay.show {
-            display: flex;
-        }
-
-        .pay-overlay.success-ov {
-            background: rgba(236, 253, 243, .93);
-            color: var(--success);
-        }
-
-        .pay-overlay.failed-ov {
-            background: rgba(254, 243, 242, .93);
-            color: var(--danger);
-        }
-
-        .pay-overlay svg {
-            width: 36px;
-            height: 36px;
-        }
-
-        .qr-hint {
-            font-size: 12px;
-            color: var(--muted);
-            text-align: center;
-            line-height: 1.6;
-            max-width: 210px;
-        }
-
-        /* Hash input area */
-        .hash-form {
-            width: 100%;
-            max-width: 260px;
-        }
-
-        .hash-form-label {
-            font-size: 12px;
-            color: var(--muted);
-            text-align: center;
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        .hash-form-label strong {
-            color: var(--text);
-        }
-
-        .hash-input-row {
-            display: flex;
-            gap: 6px;
-        }
-
-        .hash-input {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-family: var(--mono);
-            font-size: 14px;
-            outline: none;
-            transition: border-color .15s;
-            color: var(--text);
-            text-transform: lowercase;
-            letter-spacing: .05em;
-        }
-
-        .hash-input:focus {
-            border-color: var(--accent);
-        }
-
-        .btn-verify {
-            padding: 10px 14px;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: opacity .15s;
-        }
-
-        .btn-verify:hover {
-            opacity: .88;
-        }
-
-        .btn-verify:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-
-        /* Footer */
-        .pay-footer {
-            padding: 16px 32px;
-            border-top: 1px solid var(--border);
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .pay-footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .btn-refresh {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text);
-            cursor: pointer;
-            transition: background .15s, border-color .15s;
-        }
-
-        .btn-refresh:hover {
-            background: var(--bg);
-            border-color: #c5cad3;
-        }
-
-        /* Alerts */
-        .pay-alert {
-            display: none;
-            margin: 16px 32px 0;
-            padding: 14px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            align-items: flex-start;
             gap: 10px;
         }
 
-        .pay-alert.show {
-            display: flex;
-        }
-
-        .pay-alert.success {
-            background: var(--success-bg);
-            color: var(--success);
-        }
-
-        .pay-alert.danger {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
-
-        .pay-alert svg {
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        /* Receipt sample */
-        .receipt-sample {
-            width: 100%;
-            max-width: 260px;
-            margin-bottom: 4px;
-        }
-
-        .receipt-sample-toggle {
+        .schedule-hint {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--co-primary, #3777ff);
+            margin: 8px 0 0;
+        }
+
+        .schedule-hint i {
             font-size: 12px;
-            color: var(--accent);
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-            margin: 0 auto 8px;
-            font-family: var(--sans);
         }
 
-        .receipt-sample-toggle:hover {
-            opacity: .8;
-        }
-
-        .receipt-sample-body {
+        /* Same :has() pattern checkout.css uses to collapse .payment-card —
+           the hint only makes sense while nothing real is selected yet, so
+           it disappears the instant a schedule is actually picked. */
+        .checkout-grid:not(:has(#scheduleSelect option[value=""]:checked)) .schedule-hint {
             display: none;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 10px;
-            font-size: 12px;
         }
 
-        .receipt-sample-body.open {
-            display: block;
+        .pw-waiting-dots {
+            display: inline-flex;
+            gap: 4px;
+            vertical-align: middle;
+            margin-right: 6px;
         }
 
-        .receipt-sample-top {
-            padding: 10px 12px 8px;
-            border-bottom: 1px dashed var(--border);
+        .pw-waiting-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: .25;
+            animation: pwDotPulse 1.2s infinite ease-in-out;
+        }
+
+        .pw-waiting-dots span:nth-child(2) {
+            animation-delay: .2s;
+        }
+
+        .pw-waiting-dots span:nth-child(3) {
+            animation-delay: .4s;
+        }
+
+        @keyframes pwDotPulse {
+
+            0%,
+            80%,
+            100% {
+                opacity: .25;
+                transform: scale(0.85);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .pw-loading-inner {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 14px;
+            padding: 32px 16px;
+            text-align: center;
+            color: var(--co-muted, #6b7280);
         }
 
-        .receipt-sample-icon {
+        .pw-spinner {
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background: #1a3a5c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            border: 3px solid rgba(0, 0, 0, .08);
+            border-top-color: currentColor;
+            color: var(--co-primary, #3b82f6);
+            animation: pwSpin .7s linear infinite;
         }
 
-        .receipt-sample-rows {
-            padding: 4px 12px 8px;
+        @keyframes pwSpin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        .receipt-sample-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--border);
-            color: var(--muted);
-        }
-
-        .receipt-sample-row:last-child {
-            border-bottom: none;
-        }
-
-        .receipt-sample-row.highlight {
-            background: #FFF8E6;
-            margin: 0 -12px;
-            padding: 6px 12px;
-            border-bottom: none;
-        }
-
-        .receipt-sample-row.highlight .rs-label {
-            color: #92400e;
-            font-weight: 600;
-        }
-
-        .receipt-sample-row.highlight .rs-value {
-            font-family: var(--mono);
-            color: #92400e;
-            font-weight: 700;
-            letter-spacing: .05em;
-        }
-
-        .rs-value {
-            font-weight: 500;
-            color: var(--text);
+        .btn-checkout-secondary {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: transparent;
+            border: 1px solid var(--co-border, #e5e7eb);
+            color: inherit;
         }
     </style>
-    <div class="pay-wrap">
-        {{-- Header --}}
-        <div class="pay-header">
-            <div class="pay-header-icon">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <rect x="3" y="3" width="7" height="7" rx="1" />
-                    <rect x="14" y="3" width="7" height="7" rx="1" />
-                    <rect x="3" y="14" width="7" height="7" rx="1" />
-                    <path d="M14 14h3v3m0 4h4v-4m-4 0h-3v4" />
-                </svg>
-            </div>
-            <div>
-                <h1>Scan to Pay</h1>
-                <p>Open your Bakong app, scan the QR, then enter the <strong>Bakong hash #</strong> from your receipt</p>
-            </div>
-        </div>
-        {{-- Card --}}
-        <div class="pay-card">
-            <div class="pay-body">
-                {{-- Left: details --}}
-                <div class="pay-details">
-                    <h2>Payment Details</h2>
-                    <div class="detail-row">
-                        <span class="detail-label">Course</span>
-                        <span class="detail-value">{{ $invoice->course->title }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Invoice</span>
-                        <span class="detail-value"
-                            style="font-family:var(--mono);font-size:13px">{{ $invoice->invoice_code }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Amount</span>
-                        <span class="detail-value amount-value">${{ number_format($invoice->total_amount, 2) }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Status</span>
-                        <span class="detail-value">
-                            <span id="status-badge" class="status-badge waiting">
-                                <span class="dot"></span>
-                                <span id="status-text">Waiting</span>
-                            </span>
-                        </span>
-                    </div>
-                    <div class="countdown-wrap">
-                        <span class="countdown-label">QR expires in</span>
-                        <span id="countdown" class="countdown-time">10:00</span>
-                    </div>
-                </div>
-                {{-- Right: QR + hash form --}}
-                <div class="pay-qr">
-                    {{-- Skeleton --}}
-                    <div id="qr-skeleton">
-                        <div class="qr-skeleton"></div>
-                        <div class="qr-skeleton-text" style="margin:14px auto 0"></div>
-                    </div>
-                    {{-- QR frame --}}
-                    <div id="qr-frame-wrap" style="display:none">
-                        <div class="qr-frame">
-                            <img id="qr-image" alt="KHQR Code">
-                            <div class="pay-overlay success-ov" id="overlay-success">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="m9 12 2 2 4-4" />
-                                </svg>
-                                Payment Confirmed
-                            </div>
-                            <div class="pay-overlay failed-ov" id="overlay-failed">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="m15 9-6 6m0-6 6 6" />
-                                </svg>
-                                Verification Failed
-                            </div>
-                        </div>
-                        <p class="qr-hint" style="margin-top:12px">
-                            Open <strong>Bakong</strong> or any KHQR app and scan.<br>
-                            Make sure to pay <strong>${{ number_format($invoice->total_amount, 2) }}</strong>
-                        </p>
-                    </div>
-                    {{-- Hash form ← ADD THIS BACK --}}
-                    {{-- Hash form --}}
-                    <div class="hash-form" id="hash-form" style="display:none">
 
-                        {{-- Sample receipt toggle --}}
-                        <div class="receipt-sample">
-                            <button class="receipt-sample-toggle" onclick="toggleSample(this)" type="button">
-                                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"
-                                    viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="M12 16v-4m0-4h.01" />
-                                </svg>
-                                Where do I find the Bakong hash?
-                            </button>
-                            <div class="receipt-sample-body">
-                                <div class="receipt-sample-top">
-                                    <div class="receipt-sample-icon">
-                                        <svg width="14" height="14" fill="none" stroke="white" stroke-width="2"
-                                            viewBox="0 0 24 24">
-                                            <rect x="3" y="3" width="7" height="7" rx="1" />
-                                            <rect x="14" y="3" width="7" height="7" rx="1" />
-                                            <rect x="3" y="14" width="7" height="7" rx="1" />
-                                            <path d="M14 14h3v3m0 4h4v-4m-4 0h-3v4" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div style="font-weight:600;font-size:13px;color:var(--text)">-0.01 USD</div>
-                                        <div style="color:var(--muted);font-size:11px">ICTCenter</div>
-                                    </div>
-                                </div>
-                                <div class="receipt-sample-rows">
-                                    <div class="receipt-sample-row">
-                                        <span class="rs-label">Trx. ID</span>
-                                        <span class="rs-value"
-                                            style="font-size:11px;color:var(--muted)">56175214148</span>
-                                    </div>
-                                    <div class="receipt-sample-row highlight">
-                                        <span class="rs-label">Bakong hash #</span>
-                                        <span class="rs-value">bea22256</span>
-                                    </div>
-                                    <div class="receipt-sample-row">
-                                        <span class="rs-label">Bank</span>
-                                        <span class="rs-value">Bakong</span>
-                                    </div>
-                                    <div class="receipt-sample-row">
-                                        <span class="rs-label">Amount</span>
-                                        <span class="rs-value">0.01 USD</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    {{-- Hidden form posted to PayWay's purchase endpoint by the checkout widget.
+         IMPORTANT: action must point at PayWay, not this page — the JS SDK opens
+         a popup/modal named "aba_webservice" and renders PayWay's hosted
+         checkout HTML inside it via this form's target.
+         IMPORTANT: nothing below may edit these field values after page load —
+         every value here was baked into the server-side hash. Changing even one
+         character (including payment_option) invalidates the hash and PayWay
+         rejects the request with "Wrong Hash". Payment method selection (KHQR
+         vs card) happens on PayWay's own hosted page, not here. --}}
+    <form id="aba_merchant_request" method="POST" target="aba_webservice"
+        action="{{ config('services.payway.api_url') }}/api/payment-gateway/v1/payments/purchase" style="display:none">
+        @if ($paywayFields)
+            @foreach ($paywayFields as $key => $value)
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endforeach
+        @endif
+    </form>
 
-                        <p class="hash-form-label">
-                            Enter the <strong>Bakong hash #</strong> from your ABA receipt (8 characters, e.g. <code
-                                style="font-family:var(--mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:4px">bea22256</code>)
-                        </p>
-                        <div class="hash-input-row">
-                            <input id="hash-input" class="hash-input" type="text" maxlength="8"
-                                placeholder="e.g. bea22256" autocomplete="off" spellcheck="false">
-                            <button class="btn-verify" id="btn-verify" onclick="submitHash()">
-                                Verify
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{-- Alerts --}}
-            <div id="alert-success" class="pay-alert success">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
-                    viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="m9 12 2 2 4-4" />
-                </svg>
-                <span>Payment confirmed! Enrolling you in the course — redirecting shortly…</span>
-            </div>
-            <div id="alert-error" class="pay-alert danger" style="margin-bottom:0">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
-                    viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="m15 9-6 6m0-6 6 6" />
-                </svg>
-                <span id="alert-error-text"></span>
-            </div>
-            {{-- Footer --}}
-            <div class="pay-footer" style="margin-top:16px">
-                <div class="pay-footer-brand">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                    Secured by Bakong · National Bank of Cambodia
-                </div>
-                <button class="btn-refresh" onclick="regenerateQr()">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
-                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                        <path d="M3 3v5h5" />
-                    </svg>
-                    New QR
-                </button>
-            </div>
-        </div>
-    </div>
-@endsection
-@push('scripts')
+    {{-- Hidden form used to switch to a sibling schedule/batch — submitting
+         this reloads the checkout page against a re-targeted invoice with a
+         freshly signed PayWay payload. --}}
+    <form id="switch-schedule-form" action="{{ route('student.payment.switch-schedule', $invoice->id) }}" method="POST"
+        style="display:none">
+        @csrf
+        <input type="hidden" name="course_id" id="switch-schedule-course-id">
+    </form>
+
     <script>
-        let timer = null;
-        let seconds = 600;
-        let isDone = false;
-        generateQr();
-
-        function generateQr() {
-            isDone = false;
-            resetUI();
-            startCountdown();
-            $.ajax({
-                url: "{{ route('bakong.generate-qr') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    invoice_id: '{{ $invoice->id }}'
-                },
-                success(res) {
-                    if (!res.success) {
-                        showError(res.message ?? 'Unable to generate QR.');
-                        return;
-                    }
-                    showQr(res.qr_image);
-                    document.getElementById('hash-form').style.display = '';
-                },
-                error(xhr) {
-                    showError(xhr.responseJSON?.message ?? 'Unable to generate QR.');
-                }
-            });
-        }
-
-        function regenerateQr() {
-            if (isDone) return;
-            stopCountdown();
-            seconds = 600;
-            generateQr();
-        }
-
-        function submitHash() {
-            const hash = document.getElementById('hash-input').value.trim().toLowerCase();
-            if (hash.length !== 8) {
-                showError('Please enter the 8-character <strong>Bakong hash</strong> from your receipt.');
-                return;
-            }
-            const btn = document.getElementById('btn-verify');
-            btn.disabled = true;
-            btn.textContent = 'Verifying…';
-            document.getElementById('alert-error').classList.remove('show');
-            $.ajax({
-                url: "{{ route('bakong.verify-hash') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    hash,
-                    invoice_id: '{{ $invoice->id }}'
-                },
-                success(res) {
-                    if (res.status === 'success') {
-                        onSuccess();
-                    } else {
-                        btn.disabled = false;
-                        btn.textContent = 'Verify';
-                        showError(res.message ?? 'Verification failed. Please check your hash and try again.');
-                        document.getElementById('overlay-failed').classList.add('show');
-                        setTimeout(() => {
-                            document.getElementById('overlay-failed').classList.remove('show');
-                        }, 2000);
-                    }
-                },
-                error() {
-                    btn.disabled = false;
-                    btn.textContent = 'Verify';
-                    showError('Network error. Please try again.');
-                }
-            });
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('hash-input')?.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') submitHash();
-            });
+        var $scheduleSelect = $('#scheduleSelect').select2({
+            width: '100%',
+            minimumResultsForSearch: Infinity,
+            placeholder: 'Select your schedule',
+            allowClear: false
         });
-
-        function onSuccess() {
-            if (isDone) return;
-            isDone = true;
-            stopCountdown();
-            setStatus('success', 'Paid');
-            document.getElementById('overlay-success').classList.add('show');
-            document.getElementById('alert-success').classList.add('show');
-            document.getElementById('hash-form').style.display = 'none';
-            setTimeout(() => {
-                window.location.href = '{{ route('student.dashboard') }}';
-            }, 2500);
-        }
-
-        function onExpired() {
-            isDone = false;
-            setStatus('failed', 'Expired');
-            showError('QR code expired. Click <strong>New QR</strong> to generate a new one.');
-        }
-
-        function startCountdown() {
-            stopCountdown();
-            renderCountdown();
-            timer = setInterval(() => {
-                seconds--;
-                renderCountdown();
-                if (seconds <= 0) {
-                    stopCountdown();
-                    onExpired();
-                }
-            }, 1000);
-        }
-
-        function stopCountdown() {
-            clearInterval(timer);
-            timer = null;
-        }
-
-        function renderCountdown() {
-            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-            const s = String(seconds % 60).padStart(2, '0');
-            const el = document.getElementById('countdown');
-            el.textContent = `${m}:${s}`;
-            el.classList.toggle('urgent', seconds <= 60);
-        }
-
-        function resetUI() {
-            document.getElementById('qr-skeleton').style.display = '';
-            document.getElementById('qr-frame-wrap').style.display = 'none';
-            document.getElementById('hash-form').style.display = 'none';
-            document.getElementById('qr-image').src = '';
-            document.getElementById('overlay-success').classList.remove('show');
-            document.getElementById('overlay-failed').classList.remove('show');
-            document.getElementById('alert-success').classList.remove('show');
-            document.getElementById('alert-error').classList.remove('show');
-            document.getElementById('hash-input').value = '';
-            document.getElementById('btn-verify').disabled = false;
-            document.getElementById('btn-verify').textContent = 'Verify';
-            setStatus('waiting', 'Waiting');
-        }
-
-        function showQr(src) {
-            document.getElementById('qr-image').src = src;
-            document.getElementById('qr-skeleton').style.display = 'none';
-            document.getElementById('qr-frame-wrap').style.display = '';
-        }
-
-        function showError(msg) {
-            document.getElementById('alert-error-text').innerHTML = msg;
-            document.getElementById('alert-error').classList.add('show');
-        }
-
-        function setStatus(type, label) {
-            document.getElementById('status-badge').className = `status-badge ${type}`;
-            document.getElementById('status-text').textContent = label;
-        }
-
-        function toggleSample(btn) {
-            const body = btn.nextElementSibling;
-            const open = body.classList.toggle('open');
-            btn.querySelector('svg').style.transform = open ? 'rotate(0deg)' : '';
-            btn.childNodes[1].textContent = open ? ' Hide sample receipt' : ' Where do I find the Bakong hash?';
-        }
     </script>
-@endpush
+
+    <script src="{{ $paywayCheckoutJsUrl }}"></script>
+    <script>
+        (function() {
+            var CURRENT_COURSE_ID = @json($invoice->course_id);
+            var SCHEDULES_URL = @json(route('student.course.schedules', $invoice->course_id));
+            var COURSE_TITLE = @json($invoice->course->title);
+            var select = document.getElementById('scheduleSelect');
+            var startDateValue = document.getElementById('startDateValue');
+
+            function applyStartDate() {
+                var opt = select.options[select.selectedIndex];
+                if (opt && startDateValue) {
+                    startDateValue.textContent = opt.dataset.start || 'Depends on schedule';
+                }
+            }
+
+            function loadOtherSchedules() {
+                // Capture whatever the student actually has selected right
+                // now (the placeholder, by default) so it can be restored
+                // after appending options below — Select2 loses track of
+                // the real selection once new <option> elements are
+                // appended after init and defaults its display to the
+                // first option in the list.
+                var previousValue = select.value;
+
+                fetch(SCHEDULES_URL + '?title=' + encodeURIComponent(COURSE_TITLE), {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(res) {
+                        var sections = res.sections || [];
+                        sections.forEach(function(s) {
+                            if (s.id == CURRENT_COURSE_ID) return; // already rendered server-side (loose compare: AJAX ids may come back as strings)
+                            var opt = document.createElement('option');
+                            opt.value = s.id;
+                            opt.dataset.start = s.start_date ? s.start_date : 'Depends on schedule';
+                            var label = s.days + ' · ' + s.time;
+                            if (s.is_full) label += ' (Full)';
+                            opt.textContent = label;
+                            if (s.is_full) opt.disabled = true;
+                            select.appendChild(opt);
+                        });
+                        select.value = previousValue;
+                        $scheduleSelect.trigger('change');
+                    })
+                    .catch(function() {
+                        // Sibling schedules just won't be selectable — current one still works.
+                    });
+            }
+
+            $scheduleSelect.on('change', function() {
+                var chosenId = parseInt($(this).val(), 10);
+                applyStartDate();
+                if (!chosenId || chosenId === CURRENT_COURSE_ID) return;
+                document.getElementById('switch-schedule-course-id').value = chosenId;
+                document.getElementById('switch-schedule-form').submit();
+            });
+
+            applyStartDate();
+            loadOtherSchedules();
+
+            /* ── Stepper: purely visual — the page loads directly on
+                   "Payment" (step 3) since there's only one payment method
+                   to choose from. This just advances to "Success" once the
+                   payment is actually confirmed. ── */
+            function advanceStep(target) {
+                if (target === 'success') {
+                    document.getElementById('step-payment').classList.replace('is-active', 'is-done');
+                    document.getElementById('step-payment').querySelector('.step-dot').innerHTML = '<i class="fa-solid fa-check"></i>';
+                    document.getElementById('step-line-success').classList.add('is-done');
+                    document.getElementById('step-success').classList.add('is-active');
+                }
+            }
+
+            function showSuccessPanel(invoice) {
+                document.getElementById('paymentMethodCard').style.display = 'none';
+
+                document.getElementById('rc-course').textContent = invoice.course_title;
+                document.getElementById('rc-schedule').textContent = invoice.schedule;
+                document.getElementById('rc-invoice').textContent = invoice.invoice_code;
+                document.getElementById('rc-option').textContent = invoice.payment_option || '—';
+                document.getElementById('rc-tranid').textContent = invoice.tran_id || '—';
+                document.getElementById('rc-paidat').textContent = invoice.paid_at || '—';
+                document.getElementById('rc-amount').textContent = '$' + invoice.amount_paid;
+
+                var receiptBtn = document.getElementById('downloadReceiptBtn');
+                receiptBtn.onclick = function() {
+                    window.location.href = invoice.receipt_url;
+                };
+
+                document.getElementById('successCard').style.display = 'block';
+            }
+
+            /* ── Payment: clicking the ABA option opens PayWay's hosted checkout,
+                   then polls our status endpoint until confirmed. ── */
+            var abaOption = document.getElementById('abaOption');
+            var abaOptionSub = document.getElementById('abaOptionSub');
+            var statusBox = document.getElementById('pw-status');
+            var statusUrl = @json(route('student.payment.status', $invoice->id));
+            var pollTimer = null;
+            var pollAttempts = 0;
+            var MAX_ATTEMPTS = 20; // ~2 minutes at 6s interval
+
+            function pollStatus() {
+                pollAttempts++;
+                fetch(statusUrl, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (data.status === 'paid') {
+                            clearInterval(pollTimer);
+                            advanceStep('success');
+                            showSuccessPanel(data.invoice);
+                            return;
+                        }
+                        if (pollAttempts >= MAX_ATTEMPTS) {
+                            clearInterval(pollTimer);
+                            statusBox.innerHTML =
+                                'Still waiting on confirmation — refresh this page once you\'ve completed payment.';
+                        }
+                    })
+                    .catch(function() {
+                        // transient network hiccup — keep polling silently
+                    });
+            }
+
+            var paywayFieldsPresent = @json((bool) $paywayFields);
+
+            if (paywayFieldsPresent) {
+                abaOption.addEventListener('click', function() {
+                    abaOption.disabled = true;
+                    abaOptionSub.textContent = 'Opening secure checkout…';
+
+                    // AbaPayway.checkout() opens PayWay's hosted popup/bottom-sheet
+                    // using the hidden #aba_merchant_request form above, untouched
+                    // since it was rendered.
+                    AbaPayway.checkout();
+
+                    abaOptionSub.textContent = 'Waiting for payment…';
+                    statusBox.style.display = 'block';
+                    pollTimer = setInterval(pollStatus, 6000);
+                });
+            }
+
+            /* ── On page load, check once whether this invoice is already
+                   paid. PayWay's continue_success_url redirect lands here as
+                   a brand-new page load — any in-memory poll state from
+                   before the redirect is gone — so without this check the
+                   page just falls back to showing Step 3 again even though
+                   payment succeeded. If it's not paid yet (e.g. the webhook
+                   hasn't landed a beat after the redirect), start the same
+                   polling loop the click handler uses so it resolves within
+                   a few seconds instead of leaving the student stuck. ── */
+            function checkStatusOnLoad() {
+                var loadingCard = document.getElementById('statusLoadingCard');
+
+                fetch(statusUrl, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        loadingCard.style.display = 'none';
+
+                        if (data.status === 'paid') {
+                            advanceStep('success');
+                            showSuccessPanel(data.invoice);
+                            return;
+                        }
+
+                        // Not paid — show the payment card so the student
+                        // can pay.
+                        document.getElementById('paymentMethodCard').style.display = 'block';
+
+                        // If a tran_id already exists (a checkout was
+                        // already started), start polling in case the
+                        // webhook/confirmation is still in flight.
+                        if (@json((bool) $invoice->payway_tran_id) && data.status !== 'unpaid') {
+                            abaOption.disabled = true;
+                            abaOptionSub.textContent = 'Waiting for payment…';
+                            statusBox.style.display = 'block';
+                            pollTimer = setInterval(pollStatus, 6000);
+                        }
+                    })
+                    .catch(function() {
+                        // transient — fall back to showing the payment card
+                        // so the student isn't stuck on a loading spinner
+                        loadingCard.style.display = 'none';
+                        document.getElementById('paymentMethodCard').style.display = 'block';
+                    });
+            }
+
+            checkStatusOnLoad();
+        })();
+    </script>
+@endsection

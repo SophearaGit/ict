@@ -1,6 +1,7 @@
 @extends('frontend.staff.layout.master')
 @section('page_title', isset($page_title) ? $page_title : 'Student Registration')
 @push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
   .reg-wrap {
@@ -575,6 +576,21 @@
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
+                  <input type="text" name="khmer_name" placeholder=" ">
+                  <label>Full Name (Khmer)</label>
+                </div>
+                <x-input-error :messages="$errors->get('khmer_name')" class="field-error" />
+              </div>
+              <div class="col-md-6">
+                <div class="reg-field">
+                  <input type="text" name="dob" id="dobInput" placeholder=" " autocomplete="off">
+                  <label>Date of Birth</label>
+                  <i class="ti ti-calendar field-icon"></i>
+                </div>
+                <x-input-error :messages="$errors->get('dob')" class="field-error" />
+              </div>
+              <div class="col-md-6">
+                <div class="reg-field">
                   <input type="password" name="password" id="pass1" placeholder=" ">
                   <label>Password <span class="text-danger">*</span></label>
                   <span class="eye-toggle" data-target="pass1"><i class="ti ti-eye-off"></i></span>
@@ -731,6 +747,7 @@
 </div>
 @endsection
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
   $(document).ready(function() {
     // ==============================
@@ -765,6 +782,20 @@
       } else {
         input.attr('type', 'password');
         icon.removeClass('ti-eye').addClass('ti-eye-off');
+      }
+    });
+    // ==============================
+    // FLATPICKR — DATE OF BIRTH
+    // ==============================
+    $('#dobInput').flatpickr({
+      dateFormat: 'Y-m-d',
+      altInput: true,
+      altFormat: 'M d, Y',
+      maxDate: 'today',
+      allowInput: true,
+      disableMobile: true,
+      onReady: function(selectedDates, dateStr, instance) {
+        instance.altInput.setAttribute('placeholder', ' ');
       }
     });
     // ==============================
