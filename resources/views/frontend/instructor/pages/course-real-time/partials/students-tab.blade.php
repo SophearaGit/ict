@@ -58,7 +58,7 @@
                                 <!-- Card body -->
                                 <div class="card-body">
                                     <div class="text-center">
-                                        <img src=" {{ $student->image == 'no-img.jpg' ? asset('\default-images\user\both.jpg') : asset($student->image) }}"
+                                        <img src=" {{ $student->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($student->image) }}"
                                             class="rounded-circle avatar-xl mb-3" alt="avatar">
                                         <h4 class="mb-1">
                                             {{ $student->name }}
@@ -158,7 +158,7 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <img src="
-                                                                                    {{ $student->image == 'no-img.jpg' ? asset('\default-images\user\both.jpg') : asset($student->image) }}"
+                                                                                    {{ $student->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($student->image) }}"
                                                     alt="" class="rounded-circle avatar-md me-2">
                                                 <h5 class="mb-0">
                                                     {{ $student->name }}

@@ -95,7 +95,7 @@ class CourseDetailService
                 $attendanceMap[$formatted] = match ($attendance->status) {
                     'present' => 'P',
                     'absent' => 'A',
-                    'late' => 'L',
+                    'permission' => 'PM',
                     default => '-',
                 };
             }

@@ -58,8 +58,16 @@ class RealTimeCoursesController extends Controller
             ->where('id', $id)
             ->where('instructor_id', Auth::id())
             ->firstOrFail();
-        // Paginate students (IMPORTANT)
-        $students = $course->students()->paginate(20); // 5 per page
+        // Retrieve EVERY actively-enrolled student — the Mark Attendance
+        // table below only has rows for whatever ends up in $students, so
+        // paginating this used to silently drop anyone past the page size
+        // from attendance marking entirely (they'd never get a status
+        // clicked and would always come back as unmarked). Sizing the
+        // page to the actual enrolled count keeps $students a real
+        // paginator (so the Students tab's pagination controls still
+        // work) while guaranteeing everyone fits on that one page.
+        $activeStudentCount = $course->students()->count();
+        $students = $course->students()->paginate(max($activeStudentCount, 1));
         // Total taught hours
         $totalATH = $course->teacherAttendances()->latest()->first()->actual_hours ?? 0;
         // Course duration

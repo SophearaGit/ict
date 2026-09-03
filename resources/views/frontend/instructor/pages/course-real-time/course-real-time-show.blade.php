@@ -141,6 +141,7 @@
                 $.ajax({
                     url: "{{ route('instructor.student-attendance.get') }}",
                     type: 'GET',
+                    cache: false, // same date can be reloaded (Today/Reset) — never serve stale attendance
                     data: {
                         course_id: "{{ $course->id }}",
                         date: date,
@@ -161,6 +162,8 @@
                                 btn = row.find('.status-toggle span:nth-child(1)');
                             else if (status === 'absent')
                                 btn = row.find('.status-toggle span:nth-child(2)');
+                            else if (status === 'permission')
+                                btn = row.find('.status-toggle span:nth-child(3)');
                             else
                                 return;
                             setStatus(btn[0], status, false);
@@ -262,7 +265,7 @@
                 el.classList.remove('bg-light', 'text-dark');
                 el.classList.add(
                     status === 'present' ? 'bg-success' :
-                    status === 'absent' ? 'bg-danger' : 'bg-warning'
+                    status === 'absent' ? 'bg-danger' : 'bg-warning' // 'permission'
                 );
                 el.classList.add('active');
                 // ✅ Mark this badge as saving
@@ -276,7 +279,7 @@
             function updateSummary() {
                 let present = 0;
                 let absent = 0;
-                let late = 0;
+                let permission = 0;
                 let unmarked = 0;
                 document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
                     let status = group.dataset.status;
@@ -286,11 +289,11 @@
                     }
                     if (status === 'present') present++;
                     if (status === 'absent') absent++;
-                    if (status === 'late') late++;
+                    if (status === 'permission') permission++;
                 });
                 $('#presentCount').text(present);
                 $('#absentCount').text(absent);
-                $('#lateCount').text(late);
+                $('#permissionCount').text(permission);
                 $('#unmarkedCount').text(unmarked);
             }
             /* =========================
@@ -598,12 +601,12 @@
                                                     <h5 id="absentCount">0</h5>
                                                 </div>
                                             </div>
-                                            {{-- <div class="col">
+                                            <div class="col">
                                                 <div class="summary-card warning">
-                                                    <small>Late</small>
-                                                    <h5 id="lateCount">0</h5>
+                                                    <small>Permission</small>
+                                                    <h5 id="permissionCount">0</h5>
                                                 </div>
-                                            </div> --}}
+                                            </div>
                                         </div>
 
                                         <!-- SEARCH -->
@@ -650,10 +653,10 @@
                                                                         onclick="event.stopPropagation(); setStatus(this, 'absent')">
                                                                         Absent
                                                                     </span>
-                                                                    {{-- <span class="badge bg-light text-dark"
-                                                                        onclick="event.stopPropagation(); setStatus(this, 'late')">
-                                                                        Late
-                                                                    </span> --}}
+                                                                    <span class="badge bg-light text-dark"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'permission')">
+                                                                        Permission
+                                                                    </span>
                                                                 </div>
                                                             </td>
 
@@ -684,6 +687,22 @@
                                 </div>
                                 {{-- Session Log Tab --}}
                                 <div class="tab-pane fade" id="session-log" role="tabpanel">
+                                    <div class="d-flex justify-content-end mb-3" id="sessionLogFilterBar"
+                                         style="display:none;">
+                                        <div class="d-flex align-items-center gap-2 rounded-pill"
+                                             style="background:#f8f9fa; border:1px solid #e9ecef; padding:6px 8px 6px 14px;">
+                                            <i class="fe fe-user text-muted" style="font-size:13px;"></i>
+                                            <select id="sessionLogStudentFilter"
+                                                    class="form-select form-select-sm border-0 bg-transparent shadow-none py-0"
+                                                    style="min-width:170px; font-size:13px; box-shadow:none;">
+                                                <option value="">All students</option>
+                                            </select>
+                                            <button type="button" id="sessionLogFilterClear"
+                                                    class="btn-close"
+                                                    style="display:none; font-size:9px; flex-shrink:0;"
+                                                    title="Clear filter" aria-label="Clear filter"></button>
+                                        </div>
+                                    </div>
                                     <div id="sessionLogContainer">
                                         <div class="d-flex justify-content-center py-5">
                                             <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
@@ -883,7 +902,7 @@
                     <div class="card  mb-4">
                         <div class="p-1">
                             <div class="d-flex justify-content-center align-items-center rounded border-white border rounded-3 bg-cover"
-                                style="background-image: url({{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}); height: 210px">
+                                style="background-image: url({{ ($course->thumbnail == '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail)) }}); height: 210px">
                             </div>
                         </div>
                     </div>
@@ -980,13 +999,23 @@
                         </div>
                     </div>
                     <div class="row">
-                        @forelse ($other_courses as $course)
+                        {{-- IMPORTANT: loop variable is $otherCourse, NOT $course.
+                             Reusing $course here used to silently overwrite the
+                             outer $course (the course this whole page is about)
+                             for every {{ $course->... }} that appears further
+                             down the template — including the Session Log tab's
+                             course_id and the request/cancel-approval forms.
+                             Since PHP foreach doesn't restore a shadowed
+                             variable after the loop ends, all of those picked
+                             up whatever course happened to be last in this
+                             list instead of the real one. --}}
+                        @forelse ($other_courses as $otherCourse)
                             <div class="col-lg-3 col-md-6 col-12">
 
                                 <!-- Card -->
                                 <div class="card mb-4 card-hover">
-                                    <a href="{{ route('instructor.courses.real_time.show', $course->id) }}">
-                                        <img src="{{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}"
+                                    <a href="{{ route('instructor.courses.real_time.show', $otherCourse->id) }}">
+                                        <img src="{{ ($otherCourse->thumbnail == '' ? asset('/default-images/staff/no-course-img.png') : asset($otherCourse->thumbnail)) }}"
                                             alt="course" class="card-img-top"
                                             style="height: 160px; object-fit: cover;">
                                     </a>
@@ -994,9 +1023,9 @@
                                     <!-- Card body -->
                                     <div class="card-body">
                                         <h4 class="mb-2 text-truncate-line-2">
-                                            <a href="{{ route('instructor.courses.real_time.show', $course->id) }}"
+                                            <a href="{{ route('instructor.courses.real_time.show', $otherCourse->id) }}"
                                                 class="text-inherit text-capitalize">
-                                                {{ $course->title }}
+                                                {{ $otherCourse->title }}
                                             </a>
                                         </h4>
                                         <ul class="mb-3 list-inline">
@@ -1005,7 +1034,7 @@
                                                     <i class="bi bi-clock"></i>
                                                 </span>
                                                 <span>
-                                                    {{ $course->duration ?? 'N/A' }}h
+                                                    {{ $otherCourse->duration ?? 'N/A' }}h
                                                 </span>
                                             </li>
                                             <li class="list-inline-item">
@@ -1013,13 +1042,13 @@
                                                     <i class="bi bi-people"></i>
                                                 </span>
                                                 <span>
-                                                    {{ $course->enrollments->count() ?? 0 }} Enrolled
+                                                    {{ $otherCourse->enrollments->count() ?? 0 }} Enrolled
                                                 </span>
                                             </li>
                                         </ul>
                                         <div class="mt-3 d-flex align-baseline lh-1">
                                             <span class="fs-6">
-                                                {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
+                                                {{ $otherCourse->start_date ? $otherCourse->start_date->format('d M, Y') : 'N/A' }}
                                             </span>
                                         </div>
                                     </div>
@@ -1247,6 +1276,11 @@
         ========================= */
         (function() {
             let loaded = false;
+            // ✅ Cached from the last fetch so the student filter can
+            // re-render instantly without another AJAX round-trip
+            let lastSessions = [];
+            let lastStudents = [];
+            let selectedStudentId = '';
             // ✅ Exposed so autoSaveAttendance can call it
             window.reloadSessionLog = function() {
                 fetchAndRender();
@@ -1262,6 +1296,7 @@
                 $.ajax({
                     url: "{{ route('instructor.student-attendance.session-log') }}",
                     type: 'GET',
+                    cache: false, // the URL is otherwise identical every call — never serve a stale cached response
                     data: {
                         course_id: "{{ $course->id }}"
                     },
@@ -1272,7 +1307,10 @@
                             );
                             return;
                         }
-                        renderSessionLog(res.sessions, res.students);
+                        lastSessions = res.sessions || [];
+                        lastStudents = res.students || [];
+                        renderStudentFilter(lastStudents);
+                        renderSessionLog(lastSessions, lastStudents);
                     },
                     error: function() {
                         $('#sessionLogContainer').html(
@@ -1292,6 +1330,34 @@
                 }
             });
 
+            function renderStudentFilter(students) {
+                if (!students || !students.length) {
+                    $('#sessionLogFilterBar').hide();
+                    return;
+                }
+                let options = students.map(s =>
+                    `<option value="${s.id}" ${String(s.id) === String(selectedStudentId) ? 'selected' : ''}>${s.name}</option>`
+                ).join('');
+                $('#sessionLogStudentFilter').html(`<option value="">All students</option>${options}`);
+                $('#sessionLogFilterClear').toggle(!!selectedStudentId);
+                $('#sessionLogFilterBar').show();
+            }
+
+            // ✅ One handler for the life of the page — reads whatever was
+            // last fetched, no extra request needed to switch students
+            $(document).off('change', '#sessionLogStudentFilter').on('change', '#sessionLogStudentFilter',
+                function() {
+                    selectedStudentId = $(this).val() || '';
+                    $('#sessionLogFilterClear').toggle(!!selectedStudentId);
+                    renderSessionLog(lastSessions, lastStudents);
+                });
+            $(document).off('click', '#sessionLogFilterClear').on('click', '#sessionLogFilterClear', function() {
+                selectedStudentId = '';
+                $('#sessionLogStudentFilter').val('');
+                $(this).hide();
+                renderSessionLog(lastSessions, lastStudents);
+            });
+
             function renderSessionLog(sessions, students) {
                 if (!sessions || !sessions.length) {
                     $('#sessionLogContainer').html(
@@ -1302,12 +1368,18 @@
                     );
                     return;
                 }
+                if (selectedStudentId) {
+                    renderStudentSessionLog(sessions, students, selectedStudentId);
+                    return;
+                }
                 let totalPresent = 0;
                 let totalAbsent = 0;
+                let totalPermission = 0;
                 let totalSessions = sessions.length;
                 sessions.forEach(s => {
                     totalPresent += parseInt(s.present_count || 0);
                     totalAbsent += parseInt(s.absent_count || 0);
+                    totalPermission += parseInt(s.permission_count || 0);
                 });
                 // ✅ Remember which sessions were open so we can restore after re-render
                 let openIndexes = new Set();
@@ -1337,6 +1409,12 @@
                         <div class="fw-bold fs-5" style="color:#58151c;">${totalAbsent}</div>
                     </div>
                 </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#fff3cd;">
+                        <div class="small mb-1" style="color:#664d03;">Total Permission</div>
+                        <div class="fw-bold fs-5" style="color:#664d03;">${totalPermission}</div>
+                    </div>
+                </div>
             </div>
             <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <span class="text-muted small">
@@ -1345,12 +1423,15 @@
                 <div class="d-flex gap-3 small text-muted">
                     <span><span class="badge bg-success me-1">&nbsp;</span>Present</span>
                     <span><span class="badge bg-danger me-1">&nbsp;</span>Absent</span>
+                    <span><span class="badge bg-warning me-1">&nbsp;</span>Permission</span>
+                    <span><span class="badge bg-light border me-1">&nbsp;</span>Unmarked</span>
                 </div>
             </div>`;
                 sessions.forEach((session, index) => {
                     let totalStudents = parseInt(session.total_students || 0);
                     let presentCount = parseInt(session.present_count || 0);
                     let absentCount = parseInt(session.absent_count || 0);
+                    let permissionCount = parseInt(session.permission_count || 0);
                     let unmarkedCount = parseInt(session.unmarked_count || 0);
                     let attendanceRate = totalStudents > 0 ?
                         Math.round((presentCount / totalStudents) * 100) :
@@ -1364,6 +1445,7 @@
                         let status = record ? record.status : null;
                         let color = status === 'present' ? '#198754' :
                             status === 'absent' ? '#dc3545' :
+                            status === 'permission' ? '#ffc107' :
                             '#dee2e6';
                         return `<span title="${student.name}: ${status ?? 'unmarked'}" style="
                     display:inline-block; width:10px; height:10px;
@@ -1375,6 +1457,7 @@
                         let note = record ? (record.note ?? '') : '';
                         let badgeClass = status === 'present' ? 'bg-success' :
                             status === 'absent' ? 'bg-danger' :
+                            status === 'permission' ? 'bg-warning text-dark' :
                             'bg-light text-dark border';
                         let initials = student.name.substring(0, 2).toUpperCase();
                         return `
@@ -1389,7 +1472,7 @@
                         </td>
                         <td class="text-center">
                             <span class="badge ${badgeClass}" style="font-size:11px;">
-                                ${status ? status.charAt(0).toUpperCase() + status.slice(1) : '—'}
+                                ${status && status !== 'unmarked' ? status.charAt(0).toUpperCase() + status.slice(1) : '—'}
                             </span>
                         </td>
                         <td class="text-muted small">${note || '—'}</td>
@@ -1412,7 +1495,7 @@
                         <div class="flex-grow-1 min-w-0">
                             <div class="mb-1 d-flex align-items-center gap-2">
                                 <span class="small fw-semibold ${rateColor}">${attendanceRate}%</span>
-                                <span class="text-muted small">${presentCount}P / ${absentCount}A
+                                <span class="text-muted small">${presentCount}P / ${absentCount}A / ${permissionCount}Perm
                                     ${unmarkedCount > 0 ? `/ ${unmarkedCount} unmarked` : ''}
                                 </span>
                             </div>
@@ -1449,6 +1532,92 @@
                     detail.slideToggle(150);
                     chevron.css('transform', isOpen ? 'rotate(0deg)' : 'rotate(180deg)');
                 });
+            }
+
+            // ✅ Single-student view: one row per session (no expand/collapse
+            // needed since there's only one student's status to show)
+            function renderStudentSessionLog(sessions, students, studentId) {
+                let student = students.find(s => String(s.id) === String(studentId));
+                let studentName = student ? student.name : 'Student';
+                let present = 0;
+                let absent = 0;
+                let permission = 0;
+                let rows = sessions.map(session => {
+                    let record = (session.records || {})[studentId];
+                    let status = record ? record.status : null;
+                    let note = record ? (record.note ?? '') : '';
+                    if (status === 'present') present++;
+                    else if (status === 'absent') absent++;
+                    else if (status === 'permission') permission++;
+                    let badgeClass = status === 'present' ? 'bg-success' :
+                        status === 'absent' ? 'bg-danger' :
+                        status === 'permission' ? 'bg-warning text-dark' :
+                        'bg-light text-dark border';
+                    return `
+                <tr>
+                    <td>
+                        <span class="fw-semibold">${session.day}</span>
+                        <span class="text-muted small text-uppercase ms-1">${session.month} ${session.year}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge ${badgeClass}" style="font-size:11px;">
+                            ${status && status !== 'unmarked' ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unmarked'}
+                        </span>
+                    </td>
+                    <td class="text-muted small">${note || '—'}</td>
+                </tr>`;
+                }).join('');
+                let totalSessions = sessions.length;
+                let rate = totalSessions > 0 ? Math.round((present / totalSessions) * 100) : 0;
+                let rateColor = rate >= 80 ? 'text-success' : rate >= 50 ? 'text-warning' : 'text-danger';
+                let initials = studentName.substring(0, 2).toUpperCase();
+                let html = `
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0;">${initials}</div>
+                <div>
+                    <div class="fw-semibold text-capitalize">${studentName}</div>
+                    <div class="small ${rateColor}">${rate}% attendance</div>
+                </div>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col">
+                    <div class="p-3 rounded-3 bg-light text-center">
+                        <div class="text-muted small mb-1">Total Sessions</div>
+                        <div class="fw-bold fs-5">${totalSessions}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#d1e7dd;">
+                        <div class="small mb-1" style="color:#0a3622;">Present</div>
+                        <div class="fw-bold fs-5" style="color:#0a3622;">${present}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#f8d7da;">
+                        <div class="small mb-1" style="color:#58151c;">Absent</div>
+                        <div class="fw-bold fs-5" style="color:#58151c;">${absent}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#fff3cd;">
+                        <div class="small mb-1" style="color:#664d03;">Permission</div>
+                        <div class="fw-bold fs-5" style="color:#664d03;">${permission}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle" style="font-size:13px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th class="text-center">Status</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+                $('#sessionLogContainer').html(html);
             }
         })();
     </script>
