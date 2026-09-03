@@ -1,53 +1,447 @@
-@extends('admin.layouts.master')
+@extends('frontend.layouts.master')
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
+@php
+    $status = $course->studentReports->first()?->approval_status;
+@endphp
 @push('styles')
-    <link rel="stylesheet" href="/admin/assets/dist/libs/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-    @include('admin.pages.real-time-courses-detail.style.teacher-attendant-table')
-    @include('admin.pages.real-time-courses-detail.style.attendanceTable_students')
+    <style>
+        @keyframes savingPulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.45;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .badge.saving {
+            animation: savingPulse 0.8s ease-in-out infinite;
+            cursor: wait;
+            pointer-events: none;
+        }
+    </style>
+    @include('frontend.instructor.pages.course-real-time.styling.style')
+    <script>
+        $(document).on('change', '.score-input', function() {
+            let input = $(this);
+            let id = input.data('id');
+            let field = input.data('field');
+            let value = parseFloat(input.val()) || 0;
+            let max = 100;
+            if (field === 'assignment_score') max = 30;
+            if (field === 'mini_project_score') max = 20;
+            if (field === 'final_project_score') max = 40;
+            if (value < 0) value = 0;
+            if (value > max) value = max;
+            input.val(value);
+            $.ajax({
+                url: `/instructor/student-report/update/${id}`,
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    field: field,
+                    value: value,
+                },
+                success: function(res) {
+                    input.closest('tr').find('.total-score').text(res.total_score);
+                    let badge = input.closest('tr').find('.badge');
+                    badge.text(res.result);
+                    badge.removeClass('bg-success bg-danger');
+                    badge.addClass(res.result === 'pass' ? 'bg-success' : 'bg-danger');
+                },
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            let saveTimeout = null;
+            let originalTableHTML = '';
+            /* =========================
+               CONFIRM DIALOG
+            ========================= */
+            function showConfirm(title, message, confirmLabel, type, onConfirm) {
+                $('#confirmOverlay').remove();
+                let borderColor = type === 'danger' ? 'var(--bs-danger)' : '#198754';
+                let btnClass = type === 'danger' ? 'btn-danger' : 'btn-success';
+                let html = `
+                    <div id="confirmOverlay" style="
+                        position: absolute; inset: 0; z-index: 1050;
+                        background: rgba(0,0,0,0.35);
+                        display: flex; align-items: center; justify-content: center;
+                        border-radius: inherit;">
+                        <div style="
+                            background: #fff; border-radius: 12px;
+                            border: 1px solid ${borderColor};
+                            padding: 1.25rem 1.5rem; max-width: 380px; width: 90%;
+                            box-shadow: 0 4px 24px rgba(0,0,0,0.12);">
+                            <p class="fw-semibold mb-1">${title}</p>
+                            <p class="text-muted small mb-3">${message}</p>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-secondary" id="confirmNo">Cancel</button>
+                                <button class="btn btn-sm ${btnClass}" id="confirmYes">${confirmLabel}</button>
+                            </div>
+                        </div>
+                    </div>`;
+                let $anchor = $('.attendance-box').closest('.card');
+                $anchor.css('position', 'relative').append(html);
+                $('#confirmNo').on('click', function() {
+                    $('#confirmOverlay').remove();
+                });
+                $('#confirmYes').on('click', function() {
+                    $('#confirmOverlay').remove();
+                    onConfirm();
+                });
+            }
+            /* =========================
+               RESET UI
+            ========================= */
+            function resetAttendanceUI() {
+                $('#attendanceTable .student-row').each(function() {
+                    let row = $(this);
+                    row.find('.status-toggle span')
+                        .removeClass('bg-success bg-danger bg-warning active')
+                        .addClass('bg-light text-dark');
+                    row.find('.status-toggle').attr('data-status', '');
+                    row.find('input').val('');
+                });
+                updateSummary();
+            }
+            /* =========================
+               LOADING (SKELETON)
+            ========================= */
+            function showLoading() {
+                if (!originalTableHTML) {
+                    originalTableHTML = $('#attendanceTable').html();
+                }
+                let rows = '';
+                for (let i = 0; i < 5; i++) {
+                    rows += `
+                        <tr class="loading-row">
+                            <td><div class="skeleton"></div></td>
+                            <td><div class="skeleton"></div></td>
+                            <td><div class="skeleton"></div></td>
+                            <td><div class="skeleton"></div></td>
+                        </tr>`;
+                }
+                $('#attendanceTable').html(rows);
+            }
+
+            function restoreTable() {
+                $('#attendanceTable').html(originalTableHTML);
+            }
+            /* =========================
+               LOAD ATTENDANCE
+            ========================= */
+            function loadAttendance() {
+                let date = $('#attendance-date').val();
+                showLoading();
+                $.ajax({
+                    url: "{{ route('instructor.student-attendance.get') }}",
+                    type: 'GET',
+                    cache: false, // same date can be reloaded (Today/Reset) — never serve stale attendance
+                    data: {
+                        course_id: "{{ $course->id }}",
+                        date: date,
+                    },
+                    success: function(res) {
+                        restoreTable();
+                        resetAttendanceUI();
+                        if (!res.success) return;
+                        let data = res.data;
+                        $('#attendanceTable .student-row').each(function() {
+                            let studentId = $(this).data('student-id');
+                            if (!data[studentId]) return;
+                            let status = data[studentId].status;
+                            let note = data[studentId].note;
+                            let row = $(this);
+                            let btn;
+                            if (status === 'present')
+                                btn = row.find('.status-toggle span:nth-child(1)');
+                            else if (status === 'absent')
+                                btn = row.find('.status-toggle span:nth-child(2)');
+                            else if (status === 'permission')
+                                btn = row.find('.status-toggle span:nth-child(3)');
+                            else
+                                return;
+                            setStatus(btn[0], status, false);
+                            row.find('input').val(note);
+                        });
+                        updateSummary();
+                    },
+                    error: function(err) {
+                        console.error(err);
+                    },
+                });
+            }
+            // 🔒 Lock attendance if report is pending approval
+            @if ($status === 'pending')
+                document.querySelectorAll('#attendanceTable .status-toggle span').forEach(btn => {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.6';
+                });
+                document.querySelectorAll('#attendanceTable input').forEach(input => {
+                    input.setAttribute('disabled', true);
+                    input.setAttribute('placeholder', 'Locked');
+                });
+                $(document).off('click', '#attendanceTable tr');
+                document.querySelector('[onclick="markAllPresent()"]')?.setAttribute('disabled', true);
+                document.querySelector('[onclick="resetAttendance()"]')?.setAttribute('disabled', true);
+                $('#attendanceTable').off('keyup', 'input');
+            @endif
+            /* =========================
+            AUTO SAVE (silent — no toast)
+            ========================= */
+            function autoSaveAttendance() {
+                let attendances = [];
+                $('#attendanceTable .student-row').each(function() {
+                    let studentId = $(this).data('student-id');
+                    let status = $(this).find('.status-toggle').attr('data-status') || '';
+                    let note = $(this).find('input').val();
+                    attendances.push({
+                        student_id: studentId,
+                        status: status,
+                        note: note
+                    });
+                });
+                $.ajax({
+                    url: "{{ route('instructor.student-attendance.store') }}",
+                    type: 'POST',
+                    data: {
+                        course_id: "{{ $course->id }}",
+                        date: $('#attendance-date').val(),
+                        attendances: attendances,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(res) {
+                        // ✅ Clear ALL pulsing badges at once
+                        $('#attendanceTable .badge.saving').removeClass('saving');
+                        let reports = res.reports;
+                        Object.keys(reports).forEach(studentId => {
+                            let row = $(`#report-row-${studentId}`);
+                            if (!row.length) return;
+                            let report = reports[studentId];
+                            row.find('.present').text(report.present);
+                            row.find('.absent').text(report.absent);
+                            row.find('.total-score').text(report.total_score);
+                            let badge = row.find('.badge');
+                            badge.text(report.result);
+                            badge.removeClass('bg-success bg-danger');
+                            badge.addClass(report.result === 'pass' ? 'bg-success' :
+                                'bg-danger');
+                        });
+                        // ✅ Silently refresh session log if it's open
+                        if (typeof window.reloadSessionLog === 'function') {
+                            window.reloadSessionLog();
+                        }
+                    },
+                    error: function() {
+                        // ✅ Same here — clear all on failure too
+                        $('#attendanceTable .badge.saving').removeClass('saving');
+                    },
+                });
+            }
+
+            function triggerAutoSave() {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    autoSaveAttendance();
+                }, 500);
+            }
+            /* =========================
+            STATUS
+            ========================= */
+            window.setStatus = function(el, status, shouldSave = true) {
+                let parent = el.parentElement;
+                if (parent.dataset.status === status) return;
+                parent.dataset.status = status;
+                let badges = parent.querySelectorAll('span');
+                badges.forEach(b => {
+                    b.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'active', 'saving');
+                    b.classList.add('bg-light', 'text-dark');
+                });
+                el.classList.remove('bg-light', 'text-dark');
+                el.classList.add(
+                    status === 'present' ? 'bg-success' :
+                    status === 'absent' ? 'bg-danger' : 'bg-warning' // 'permission'
+                );
+                el.classList.add('active');
+                // ✅ Mark this badge as saving
+                if (shouldSave) el.classList.add('saving');
+                updateSummary();
+                if (shouldSave) triggerAutoSave();
+            };
+            /* =========================
+               SUMMARY
+            ========================= */
+            function updateSummary() {
+                let present = 0;
+                let absent = 0;
+                let permission = 0;
+                let unmarked = 0;
+                document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
+                    let status = group.dataset.status;
+                    if (!status) {
+                        unmarked++;
+                        return;
+                    }
+                    if (status === 'present') present++;
+                    if (status === 'absent') absent++;
+                    if (status === 'permission') permission++;
+                });
+                $('#presentCount').text(present);
+                $('#absentCount').text(absent);
+                $('#permissionCount').text(permission);
+                $('#unmarkedCount').text(unmarked);
+            }
+            /* =========================
+               MARK ALL PRESENT (with confirm)
+            ========================= */
+            window.markAllPresent = function() {
+                showConfirm(
+                    'Mark all students as present?',
+                    `This will overwrite any statuses already set for <strong>${$('#attendance-date').val()}</strong>. Continue?`,
+                    'Yes, mark all present',
+                    'success',
+                    function() {
+                        let changed = false;
+                        document.querySelectorAll('#attendanceTable .status-toggle').forEach(group => {
+                            if (group.dataset.status === 'present') return;
+                            changed = true;
+                            let presentBtn = group.querySelector('span:nth-child(1)');
+                            setStatus(presentBtn, 'present', false);
+                        });
+                        updateSummary();
+                        if (changed) triggerAutoSave();
+                    }
+                );
+            };
+            /* =========================
+               RESET ATTENDANCE (with confirm)
+            ========================= */
+            window.resetAttendance = function() {
+                let date = $('#attendance-date').val();
+                showConfirm(
+                    'Reset all attendance for this date?',
+                    `All statuses and notes for <strong>${date}</strong> will be permanently cleared.`,
+                    'Yes, reset',
+                    'danger',
+                    function() {
+                        $.ajax({
+                            url: "{{ route('instructor.student-attendance.reset') }}",
+                            type: 'POST',
+                            data: {
+                                course_id: "{{ $course->id }}",
+                                date: date,
+                                _token: "{{ csrf_token() }}",
+                            },
+                            success: function(res) {
+                                resetAttendanceUI();
+                                // ✅ Sync report table rows
+                                let reports = res.reports;
+                                Object.keys(reports).forEach(studentId => {
+                                    let row = $(`#report-row-${studentId}`);
+                                    if (!row.length) return;
+                                    let report = reports[studentId];
+                                    row.find('.present').text(report.present);
+                                    row.find('.absent').text(report.absent);
+                                    row.find('.total-score').text(report.total_score);
+                                    let badge = row.find('.badge');
+                                    badge.text(report.result);
+                                    badge.removeClass('bg-success bg-danger');
+                                    badge.addClass(report.result === 'pass' ?
+                                        'bg-success' : 'bg-danger');
+                                });
+                                // ✅ Toast only on destructive reset
+                                showSavedIndicator();
+                                // In resetAttendance success callback, after showSavedIndicator():
+                                if (typeof window.reloadSessionLog === 'function') {
+                                    window.reloadSessionLog();
+                                }
+                            },
+                            error: function() {
+                                alert('Something went wrong. Please try again.');
+                            },
+                        });
+                    }
+                );
+            };
+            /* =========================
+               ROW CLICK
+            ========================= */
+            $(document).on('click', '#attendanceTable tr', function(e) {
+                if ($(e.target).closest('.status-toggle').length) return;
+                if (e.target.tagName === 'INPUT') return;
+                let presentBtn = $(this).find('.status-toggle span:nth-child(1)');
+                setStatus(presentBtn[0], 'present');
+            });
+            /* =========================
+               NOTE CHANGE
+            ========================= */
+            $('#attendanceTable').on('keyup', 'input', function() {
+                triggerAutoSave();
+            });
+            /* =========================
+               DATE
+            ========================= */
+            function updateDateLabel() {
+                let input = document.getElementById('attendance-date').value;
+                let selected = new Date(input);
+                let today = new Date();
+                today.setHours(0, 0, 0, 0);
+                selected.setHours(0, 0, 0, 0);
+                let diff = Math.floor((selected - today) / (1000 * 60 * 60 * 24));
+                let label = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : selected.toDateString();
+                document.querySelector('.attendance-box small').innerText =
+                    `${label} — ${selected.toDateString()}`;
+            }
+            window.setDate = function(days) {
+                let date = new Date();
+                date.setDate(date.getDate() + days);
+                let formatted = date.toISOString().split('T')[0];
+                $('#attendance-date').val(formatted).trigger('change');
+            };
+            $('#attendance-date').on('change', function() {
+                updateDateLabel();
+                loadAttendance();
+            });
+            /* =========================
+               SAVE INDICATOR
+            ========================= */
+            function showSavedIndicator() {
+                let el = $('#saveStatus');
+                el.fadeIn(200);
+                setTimeout(() => {
+                    el.fadeOut(500);
+                }, 1000);
+            }
+            /* =========================
+               INIT
+            ========================= */
+            updateSummary();
+            updateDateLabel();
+            loadAttendance();
+        });
+    </script>
 @endpush
 @section('content')
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-12">
 
-            <!-- Page Header -->
-            <div class="border-bottom pb-3 mb-3 d-md-flex align-items-center justify-content-between">
-                <div class="mb-3 mb-md-0">
-                    <h1 class="mb-1 h2 fw-bold">
-                        Courses
-                    </h1>
-
-                    <!-- Breadcrumb -->
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item active">
-                                <a href="javascript:void;">
-                                    Courses
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                {{ $course->title }}
-                            </li>
-                        </ol>
-                    </nav>
-                </div>
-                <div class="nav btn-group" role="tablist">
-                    <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-primary">
-                        {{-- <i class="bi bi-arrow-left"></i>  --}}
-                        Back to List
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <section class="pt-lg-8 pb-8 bg-primary rounded">
+    <!-- Page header -->
+    <section class="pt-lg-8 pb-8
+        d-flex align-items-center"
+        style="background-image: url({{ asset('/admin/assets/dist/images/banner/banner_space.jpg') }}); background-size: cover; background-position: center;">
         <div class="container pb-lg-8">
             <div class="row align-items-center">
                 <div class="col-xl-7 col-lg-7 col-md-12">
                     <div>
-                        <h1 class="text-white display-4 fw-semibold">
+                        {{-- button going back --}}
+                        <a href="{{ route('instructor.courses.real_time') }}" class="btn btn-sm btn-light mb-4">
+                            <i class="fe fe-arrow-left me-2"></i>
+                            Back to courses
+                        </a>
+                        <h1 class="text-white display-4 fw-semibold text-capitalize mb-3">
                             {{ $course->title }}
                         </h1>
                         <p class="text-white mb-3 lead">
@@ -69,25 +463,24 @@
                             @endif
                         </p>
                         <div class="d-flex align-items-center">
-                            {{-- <a href="#" class="bookmark text-white">
-                                <i class="fe fe-bookmark fs-4 me-2"></i>
-                                Bookmark
-                            </a> --}}
-                            <span class="text-white">
+                            <span class="text-white ms-0">
                                 <i class="fe fe-user"></i>
-                                {{ $course->enrollments->count() }} Enrolled
+                                {{ $course->enrollments->count() ?? 0 }} Enrolled
                             </span>
                             <div>
-                                <span class="text-white ms-4 d-none d-md-block">
-                                    <i class="fe fe-clock"></i>
-                                    {{ $course->duration }} Hours
+                                <span class="fs-6 ms-4 align-text-top">
+                                    {{-- loop 5 time --}}
+                                    @for ($i = 0; $i < 5; $i++)
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    @endfor
+                                </span>
+                                <span class="text-white">
+                                    (5.0)
                                 </span>
                             </div>
                             <span class="text-white ms-4 d-none d-md-block">
-                                <i class="fe fe-calendar"></i>
-                                <span class="align-middle">
-                                    {{ $course->total_sessions ?? 0 }} Sessions
-                                </span>
+                                <i class="bi bi-bar-chart-fill"></i>
+                                <span class="align-middle">Beginner</span>
                             </span>
                         </div>
                     </div>
@@ -95,6 +488,8 @@
             </div>
         </div>
     </section>
+
+    <!-- Page content -->
     <section class="pb-8">
         <div class="container">
             <div class="row">
@@ -106,323 +501,216 @@
                         <!-- Card header -->
                         <div class="card-header border-bottom-0 p-0">
                             <div>
-                                @include('admin.pages.real-time-courses-detail.partials.tabs.tabs')
+
+                                <!-- Nav -->
+                                <ul class="nav nav-lb-tab" id="tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="students-tab" data-bs-toggle="pill" href="#students"
+                                            role="tab" aria-controls="students" aria-selected="false"
+                                            tabindex="-1">Students</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="student-attendance-tab" data-bs-toggle="pill"
+                                            href="#student-attendance" role="tab" aria-controls="student-attendance"
+                                            aria-selected="false">
+                                            Student's Attendance
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="session-log-tab" data-bs-toggle="pill" href="#session-log"
+                                            role="tab" aria-controls="session-log" aria-selected="false" tabindex="-1">
+                                            Session Log
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="report-tab" data-bs-toggle="pill" href="#report"
+                                            role="tab" aria-controls="report" aria-selected="false"
+                                            tabindex="-1">Student Report</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link " id="attendance-tab" data-bs-toggle="pill" href="#attendance"
+                                            role="tab" aria-controls="attendance" aria-selected="false"
+                                            tabindex="-1">My Attendance</a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
 
                         <!-- Card Body -->
                         <div class="card-body">
                             <div class="tab-content" id="tabContent">
-                                @include('admin.pages.real-time-courses-detail.partials.tab-contents.students-tab')
-                                {{-- teacher attendance emtpy tab content --}}
-                                <div class="tab-pane fade" id="teacher-attendance" role="tabpanel"
-                                    aria-labelledby="teacher-attendance-tab">
-                                    <div class="sheet">
+                                @include('frontend.instructor.pages.course-real-time.partials.my-attendance-tab')
+                                @include('frontend.instructor.pages.course-real-time.partials.students-tab')
+                                <div class="tab-pane fade " id="student-attendance" role="tabpanel">
+                                    <div class="attendance-box">
 
-                                        <!-- Header -->
-                                        <div class="top-header">
-                                            <div class="logo">
-                                                <i class="fe fe-calendar text-primary fs-1 me-2"></i>
-                                            </div>
+                                        <!-- HEADER -->
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
                                             <div>
-                                                <div class="title">ICT Professional Training Center</div>
-                                                <div class="sub-title">Teacher's Attendant</div>
-                                            </div>
-                                        </div>
-                                        <form method="GET" class="mb-3">
-                                            <div class="filter-bar p-3 rounded-3 bg-light border">
-                                                <div class="row g-2 align-items-end">
-
-                                                    <!-- Date Range -->
-                                                    <div class="col-12 col-md-6 col-lg-7">
-                                                        <label class="form-label fw-semibold mb-1">
-                                                            <i class="ti ti-calendar me-1"></i> Date Range
-                                                        </label>
-                                                        <div class="input-daterange input-group" id="date-range">
-                                                            <input type="text" class="form-control" name="from_date"
-                                                                placeholder="From"
-                                                                value="{{ request('from_date', now()->startOfMonth()->format('Y-m-d')) }}">
-                                                            <span
-                                                                class="input-group-text bg-primary text-white px-2 px-md-3">
-                                                                TO
-                                                            </span>
-                                                            <input type="text" class="form-control" name="to_date"
-                                                                placeholder="To"
-                                                                value="{{ request('to_date', now()->endOfMonth()->format('Y-m-d')) }}">
+                                                <h4 class="fw-bold mb-1">📋 Student Attendance</h4>
+                                                @if ($status === 'pending')
+                                                    <div class="alert alert-warning d-flex align-items-center mb-4"
+                                                        role="alert">
+                                                        <i class="fe fe-lock me-2"></i>
+                                                        <div>
+                                                            Attendance and scores are <strong>locked</strong> while approval
+                                                            is pending.
+                                                            Cancel the request to make changes.
                                                         </div>
                                                     </div>
-
-                                                    <!-- Buttons -->
-                                                    <div class="col-12 col-md-6 col-lg-5">
-                                                        <div class="d-flex flex-column flex-md-row gap-2">
-                                                            <button class="btn btn-primary w-100">
-                                                                <i class="ti ti-search me-1"></i> Filter
-                                                            </button>
-                                                            <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
-                                                                class="btn btn-outline-secondary w-100">
-                                                                Reset
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                @endif
+                                                <small class="text-muted">
+                                                    {{-- dynamic date when select eg.Today — Tue, 14 Apr 2026 --}}
+                                                </small>
                                             </div>
-                                        </form>
-                                        @if (request('from_date') && request('to_date'))
-                                            <div
-                                                class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
-                                                <div>
-                                                    <strong>Filtered:</strong>
-                                                    {{ request('from_date') }} → {{ request('to_date') }}
-                                                </div>
-                                                <div class="d-flex gap-4">
-                                                    <span><strong>Hours:</strong> {{ $course->filtered_hours ?? 0 }}</span>
-                                                    <span><strong>Sessions:</strong>
-                                                        {{ $course->filtered_sessions ?? 0 }}</span>
-                                                    <span><strong>Earnings:</strong>
-                                                        ${{ $course->filtered_earnings ?? 0 }}</span>
-                                                </div>
-                                            </div>
-                                        @endif
-
-                                        <!-- Teacher -->
-                                        <div class="info-row">
-                                            <div class="info-label">
-                                                Teacher's Name:
-                                            </div>
-                                            <div class="info-value text-capitalize text-center" contenteditable="false">
-                                                <strong class="text-black">
-                                                    {{ $course->instructor->name ?? 'No Instructor' }}
-                                                </strong>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-light btn-sm" onclick="setDate(0)">Today</button>
+                                                <button class="btn btn-outline-secondary btn-sm"
+                                                    onclick="setDate(1)">Tomorrow</button>
+                                                <input type="date" id="attendance-date"
+                                                    class="form-control form-control-sm w-auto"
+                                                    value="{{ now()->format('Y-m-d') }}">
                                             </div>
                                         </div>
 
-                                        <!-- Subject -->
-                                        <div class="info-row highlight">
-                                            <div class="info-label">Subject:</div>
-                                            <div class="info-value text-capitalize text-center" contenteditable="false">
-                                                <strong class="text-black">
-                                                    {{ $course->title }} |
-                                                    @if ($course->schedule)
-                                                        @php
-                                                            $days = collect(explode('-', $course->schedule->study_day))
-                                                                ->map(fn($day) => ucfirst($day))
-                                                                ->implode(' • ');
-                                                            $start = \Carbon\Carbon::parse(
-                                                                $course->schedule->start_time,
-                                                            )->format('g:i ');
-                                                            $end = \Carbon\Carbon::parse(
-                                                                $course->schedule->end_time,
-                                                            )->format('g:i A');
-                                                            $shift = ucfirst($course->schedule->shift);
-                                                        @endphp
-                                                        <strong>
-                                                            {{ $days }} | {{ $shift }} (
-                                                            {{ $start }}
-                                                            –
-                                                            {{ $end }} )
-                                                        </strong>
-                                                    @else
-                                                        <span class="text-muted">No schedule</span>
-                                                    @endif
-                                                </strong>
+                                        <!-- SUMMARY -->
+                                        <div class="row text-center mb-4 g-3">
+                                            {{-- <div class="col">
+                                                    <div class="summary-card">
+                                                        <small>Total</small>
+                                                        <h5 id="totalCount">
+                                                            {{ $students->count() }}
+                    </h5>
+                  </div>
+                </div> --}}
+                                            {{-- <div class="col">
+                                                <div class="summary-card secondary">
+                                                    <small>Unmarked</small>
+                                                    <h5 id="unmarkedCount">0</h5>
+                                                </div>
+                                            </div> --}}
+                                            <div class="col">
+                                                <div class="summary-card success">
+                                                    <small>Present</small>
+                                                    <h5 id="presentCount">0</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="summary-card danger">
+                                                    <small>Absent</small>
+                                                    <h5 id="absentCount">0</h5>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="summary-card warning">
+                                                    <small>Permission</small>
+                                                    <h5 id="permissionCount">0</h5>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Table -->
-                                        <table id="attendanceTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Date</th>
-                                                    <th>Time in</th>
-                                                    <th>Time out</th>
-                                                    <th>T H</th>
-                                                    <th>A T H</th>
-                                                    {{-- <th>Room</th> --}}
-                                                    <th>
-                                                        នាទីខ្វះ
-                                                    </th>
-                                                    <th>Note</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="attendanceBody">
-                                                @php
-                                                    $attendances = $course->teacherAttendances;
-                                                @endphp
-                                                @if ($attendances->isNotEmpty())
-                                                    @foreach ($attendances as $index => $attendance)
-                                                        <tr>
-                                                            <td style="padding: 10px">{{ $index + 1 }}</td>
-                                                            <td style="display:none;">
-                                                                <input type="hidden"
-                                                                    name="attendances[{{ $index }}][id]"
-                                                                    value="{{ $attendance->id }}">
-                                                            </td>
-                                                            <td class="text-center fw-semibold">
-                                                                {{ \Carbon\Carbon::parse($attendance->date)->format('d M, Y') }}
-                                                            </td>
+                                        <!-- SEARCH -->
+                                        {{-- <div class="mb-3">
+                                            <input type="text" id="searchStudent" class="form-control"
+                                                placeholder="🔍 Search student...">
+                                        </div> --}}
+
+                                        <!-- TABLE -->
+                                        <div class="table-responsive">
+                                            <table class="table align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Student</th>
+                                                        <th>Status</th>
+                                                        <th style="width: 200px;">Note</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="attendanceTable">
+                                                    @foreach ($students as $index => $student)
+                                                        <tr class="student-row" data-student-id="{{ $student->id }}"
+                                                            data-name="{{ strtolower($student->name) }}">
+                                                            <td>{{ $index + 1 }}</td>
+
+                                                            <!-- Student -->
                                                             <td>
-                                                                <input type="time"
-                                                                    name="attendances[{{ $index }}][start_time]"
-                                                                    value="{{ \Carbon\Carbon::parse($attendance->start_time)->format('H:i') }}"
-                                                                    class="form-control text-dark" readonly>
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <div class="avatar">
+                                                                        {{ strtoupper(substr($student->name, 0, 2)) }}
+                                                                    </div>
+                                                                    <span>{{ $student->name }}</span>
+                                                                </div>
                                                             </td>
+
+                                                            <!-- Status -->
                                                             <td>
-                                                                <input type="time"
-                                                                    name="attendances[{{ $index }}][end_time]"
-                                                                    value="{{ \Carbon\Carbon::parse($attendance->end_time)->format('H:i') }}"
-                                                                    class="form-control text-dark" readonly>
+                                                                <div class="status-toggle" data-status="">
+                                                                    <span class="badge bg-light text-dark"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'present')">
+                                                                        Present
+                                                                    </span>
+                                                                    <span class="badge bg-light text-dark"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'absent')">
+                                                                        Absent
+                                                                    </span>
+                                                                    <span class="badge bg-light text-dark"
+                                                                        onclick="event.stopPropagation(); setStatus(this, 'permission')">
+                                                                        Permission
+                                                                    </span>
+                                                                </div>
                                                             </td>
+
+                                                            <!-- Note -->
                                                             <td>
-                                                                <input type="text"
-                                                                    name="attendances[{{ $index }}][total_hours]"
-                                                                    value="{{ number_format($attendance->total_hours) }}"
-                                                                    class="form-control total-hours text-uppercase text-dark text-center"
-                                                                    readonly>
-                                                            </td>
-                                                            <td>
-                                                                <input type="text"
-                                                                    name="attendances[{{ $index }}][actual_hours]"
-                                                                    value="{{ number_format($attendance->actual_hours) }}"
-                                                                    class="form-control actual-hours text-uppercase text-dark text-center"
-                                                                    readonly>
-                                                            </td>
-                                                            {{-- <td>
-                                                                <input type="text"
-                                                                    name="attendances[{{ $index }}][room]"
-                        value="{{ $attendance->room }}"
-                        class="form-control text-uppercase text-dark text-center">
-                        </td> --}}
-                                                            <td>
-                                                                <input type="number"
-                                                                    name="attendances[{{ $index }}][late_minutes]"
-                                                                    value="{{ $attendance->late_minutes }}"
-                                                                    class="form-control text-center" readonly>
-                                                            </td>
-                                                            <td>
-                                                                <input type="text"
-                                                                    name="attendances[{{ $index }}][late_reason]"
-                                                                    value="{{ $attendance->late_reason }}"
-                                                                    class="form-control" readonly>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    placeholder="Optional...">
                                                             </td>
                                                         </tr>
                                                     @endforeach
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade " id="student-attendance" role="tabpanel">
-                                    @php
-                                        $data = $attendanceData;
-                                        $dates = array_slice($data['table_structure']['columns'], 5);
-                                    @endphp
-                                    <div class="attendance-wrapper mt-4">
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-                                        <!-- HEADER CARD -->
-                                        {{-- <div class="card mb-3">
-                                            <div class="card-body">
-                                                <div class="row text-sm">
-                                                    <div class="col-md-3"><strong>Start:</strong>
-                                                        {{ $data['form_metadata']['class_start'] }}
-                </div>
-                <div class="col-md-3"><strong>Room:</strong>
-                  {{ $data['form_metadata']['room'] }}
-                </div>
-                <div class="col-md-3"><strong>Lecturer:</strong>
-                  {{ $data['form_metadata']['lecturer_name'] }}
-                </div>
-                <div class="col-md-3"><strong>Phone:</strong>
-                  {{ $data['form_metadata']['lecturer_phone'] ?? '-' }}
-                </div>
-              </div>
-            </div>
-          </div> --}}
-
-                                        <!-- TABLE -->
-                                        <div class="card">
-                                            <div class="card-body p-0">
-                                                <div class="table-responsive">
-                                                    <table id="attendanceTable_students"
-                                                        class="table table-bordered table-hover align-middle text-center mb-0">
-
-                                                        <!-- TITLE -->
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th colspan="{{ count($data['table_structure']['columns']) }}"
-                                                                    class="text-center fw-bold">
-                                                                    {{ $data['form_metadata']['class_title'] }}
-                                                                </th>
-                                                            </tr>
-
-                                                            <!-- HEADER -->
-                                                            <tr>
-                                                                @foreach ($data['table_structure']['columns'] as $col)
-                                                                    <th>{{ $col }}</th>
-                                                                @endforeach
-                                                            </tr>
-                                                        </thead>
-
-                                                        <!-- BODY -->
-                                                        <tbody>
-                                                            @foreach ($data['table_structure']['data_rows'] as $row)
-                                                                <tr>
-
-                                                                    <!-- No -->
-                                                                    <td>{{ $row['no'] }}</td>
-
-                                                                    <!-- Student Name -->
-                                                                    <td class="text-start">
-                                                                        <div class="fw-semibold text-capitalize">
-                                                                            {{ $row['student_name'] }}
-                                                                        </div>
-                                                                    </td>
-
-                                                                    <!-- Gender -->
-                                                                    <td>
-                                                                        {{ $row['sex'] == 'M' ? 'Male' : ($row['sex'] == 'F' ? 'Female' : '-') }}
-                                                                    </td>
-
-                                                                    <!-- Day -->
-                                                                    <td class="text-capitalize">
-                                                                        {{ ucfirst($row['day']) }}
-                                                                    </td>
-
-                                                                    <!-- Shift -->
-                                                                    <td class="text-capitalize">
-                                                                        {{ ucfirst($row['shift']) }}
-                                                                    </td>
-
-                                                                    <!-- Attendance -->
-                                                                    @foreach ($dates as $date)
-                                                                        @php
-                                                                            $status = $row['attendance'][$date] ?? null;
-                                                                        @endphp
-                                                                        <td>
-                                                                            @if ($status == 'P')
-                                                                                <span class="badge bg-success">P</span>
-                                                                            @elseif ($status == 'A')
-                                                                                <span class="badge bg-danger">A</span>
-                                                                            @elseif ($status == 'L')
-                                                                                <span
-                                                                                    class="badge bg-warning text-dark">Late</span>
-                                                                            @else
-                                                                                <span class="text-muted">—</span>
-                                                                            @endif
-                                                                        </td>
-                                                                    @endforeach
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
+                                        <!-- ACTION -->
+                                        <div class="text-end mt-3 d-flex gap-2 justify-content-end">
+                                            @if ($status !== 'pending')
+                                                <button class="btn btn-outline-danger btn-sm" onclick="resetAttendance()">
+                                                    <i class="fe fe-refresh-cw me-1"></i> Reset Attendance
+                                                </button>
+                                                <button class="btn btn-outline-secondary btn-sm"
+                                                    onclick="markAllPresent()">
+                                                    Mark All Present
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
-                                {{-- student-report-tab (empty) --}}
-                                <div class="tab-pane fade" id="student-report" role="tabpanel"
-                                    aria-labelledby="student-report-tab">
+                                {{-- Session Log Tab --}}
+                                <div class="tab-pane fade" id="session-log" role="tabpanel">
+                                    <div class="d-flex justify-content-end mb-3" id="sessionLogFilterBar"
+                                         style="display:none;">
+                                        <div class="d-flex align-items-center gap-2 rounded-pill"
+                                             style="background:#f8f9fa; border:1px solid #e9ecef; padding:6px 8px 6px 14px;">
+                                            <i class="fe fe-user text-muted" style="font-size:13px;"></i>
+                                            <select id="sessionLogStudentFilter"
+                                                    class="form-select form-select-sm border-0 bg-transparent shadow-none py-0"
+                                                    style="min-width:170px; font-size:13px; box-shadow:none;">
+                                                <option value="">All students</option>
+                                            </select>
+                                            <button type="button" id="sessionLogFilterClear"
+                                                    class="btn-close"
+                                                    style="display:none; font-size:9px; flex-shrink:0;"
+                                                    title="Clear filter" aria-label="Clear filter"></button>
+                                        </div>
+                                    </div>
+                                    <div id="sessionLogContainer">
+                                        <div class="d-flex justify-content-center py-5">
+                                            <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- student report empty content --}}
+                                <div class="tab-pane fade" id="report" role="tabpanel">
                                     {{-- Report Header --}}
                                     <div class="card-body border-bottom">
                                         <h5 class="text-uppercase text-center fw-bold mb-4">Student Report</h5>
@@ -504,7 +792,8 @@
                                                                 data-id="{{ $report->id }}"
                                                                 data-field="assignment_score"
                                                                 value="{{ $report->assignment_score }}" min="0"
-                                                                max="30" readonly>
+                                                                max="30"
+                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
                                                         <td class="text-center">
                                                             <input type="number"
@@ -513,7 +802,8 @@
                                                                 data-id="{{ $report->id }}"
                                                                 data-field="mini_project_score"
                                                                 value="{{ $report->mini_project_score }}" min="0"
-                                                                max="20" readonly>
+                                                                max="20"
+                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
                                                         <td class="text-center">
                                                             <input type="number"
@@ -522,7 +812,8 @@
                                                                 data-id="{{ $report->id }}"
                                                                 data-field="final_project_score"
                                                                 value="{{ $report->final_project_score }}" min="0"
-                                                                max="40" readonly>
+                                                                max="40"
+                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
                                                         </td>
                                                         {{-- Auto-updated by JS after save --}}
                                                         <td class="text-center fw-bold total-score">
@@ -545,9 +836,6 @@
                                             <div class="col-md-6">
                                                 <p class="text-muted mb-0">Seen and approved by</p>
                                                 <div class="mt-5 pt-3 mx-auto position-relative" style="width: 160px;">
-                                                    @php
-                                                        $status = $course->studentReports->first()?->approval_status;
-                                                    @endphp
                                                     @if ($status === 'approved')
                                                         <div
                                                             class="position-relative d-flex align-items-center justify-content-center mb-3">
@@ -589,25 +877,15 @@
                                                 {{-- Show Send For Approval only for draft/pending --}}
                                                 <div class="mt-4">
                                                     @if ($status === 'draft')
+                                                        <button type="button" class="btn btn-primary btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#approvalModal">
+                                                            <i class="fe fe-send me-1"></i> Send For Approval
+                                                        </button>
                                                     @elseif ($status === 'pending')
-                                                        <div class="d-flex gap-2">
-                                                            {{-- Approve Button --}}
-                                                            <button type="button"
-                                                                class="btn btn-success w-100 rounded-pill shadow-sm py-2"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#approveReportModal">
-                                                                <i class="fe fe-check-circle me-1"></i>
-                                                                Approve
-                                                            </button>
-                                                            {{-- Reject Button --}}
-                                                            <button type="button"
-                                                                class="btn btn-outline-danger w-100 rounded-pill py-2"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#rejectReportModal">
-                                                                <i class="fe fe-x-circle me-1"></i>
-                                                                Reject
-                                                            </button>
-                                                        </div>
+                                                        <button type="button" class="btn btn-danger btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#cancelApprovalModal">
+                                                            <i class="fe fe-x me-1"></i> Cancel Request
+                                                        </button>
                                                     @endif
                                                 </div>
                                             </div>
@@ -618,108 +896,15 @@
                         </div>
                     </div>
                 </div>
-                {{-- APPROVE MODAL --}}
-                <div class="modal fade" id="approveReportModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 rounded-4 shadow">
-                            <div class="modal-body p-5 text-center">
-                                <div class="mb-4">
-                                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex p-4">
-                                        <i class="fe fe-check-circle text-light fs-1"></i>
-                                    </div>
-                                </div>
-                                <h4 class="fw-bold mb-2">
-                                    Approve Student Report?
-                                </h4>
-                                <p class="text-muted mb-4">
-                                    This will officially approve all student
-                                    reports for this course.
-                                </p>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-light w-50 rounded-pill"
-                                        data-bs-dismiss="modal">
-                                        Cancel
-                                    </button>
-                                    <form action="{{ route('admin.student-report.approve', $course->id) }}"
-                                        method="POST" class="w-50">
-                                        @csrf
-                                        <button class="btn btn-success w-100 rounded-pill">
-                                            Yes, Approve
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {{-- REJECT MODAL --}}
-                <div class="modal fade" id="rejectReportModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 rounded-4 shadow">
-                            <div class="modal-body p-5 text-center">
-                                <div class="mb-4">
-                                    <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex p-4">
-                                        <i class="fe fe-x-circle text-light fs-1"></i>
-                                    </div>
-                                </div>
-                                <h4 class="fw-bold mb-2">
-                                    Reject Student Report?
-                                </h4>
-                                <p class="text-muted mb-4">
-                                    This action will move the report back to
-                                    draft status.
-                                </p>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-light w-50 rounded-pill"
-                                        data-bs-dismiss="modal">
-                                        Cancel
-                                    </button>
-                                    <form action="{{ route('admin.student-report.reject', $course->id) }}" method="POST"
-                                        class="w-50">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button class="btn btn-danger w-100 rounded-pill">
-                                            Yes, Reject
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="col-lg-3 col-md-12 col-12 mt-lg-n8">
 
                     <!-- Card -->
-                    <div class="card mb-4">
+                    <div class="card  mb-4">
                         <div class="p-1">
                             <div class="d-flex justify-content-center align-items-center rounded border-white border rounded-3 bg-cover"
-                                style="background-image: url({{ $course->thumbnail === '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail) }}); height: 210px">
-                                {{-- <a class="glightbox icon-shape rounded-circle btn-play icon-xl"
-                                    href="https://www.youtube.com/watch?v=Nfzi7034Kbg">
-                                    <i class="fe fe-camera"></i>
-                                </a> --}}
+                                style="background-image: url({{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}); height: 210px">
                             </div>
                         </div>
-
-                        <!-- Card body -->
-                        {{-- <div class="card-body">
-
-                            <!-- Price single page -->
-                            <div class="mb-3">
-                                <span class="text-dark fw-bold h2">
-                                    Course Revenue:
-                                    ${{ number_format($course->enrollments->sum(fn($enrollment) => $enrollment->course->price)) }}
-      </span><br>
-      <span class="fs-4">
-                                    Teacher Earning:
-                                    ${{ number_format($course->enrollments->sum(fn($enrollment) => $enrollment->course->price) * 0.7) }}
-                                </span>
-    </div>
-    <div class="d-grid">
-      <a href="#" class="btn btn-primary mb-2">Start Free Month</a>
-      <a href="pricing.html" class="btn btn-outline-primary">Get Full Access</a>
-    </div>
-  </div> --}}
                     </div>
 
                     <!-- Card -->
@@ -736,49 +921,17 @@
                                     <i class="fe fe-users"></i>
                                 </div>
                             </div>
-                            {{--
 
- <!-- Start Date -->
+                            <!-- Start Date -->
                             <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded-3 bg-light">
                                 <div>
                                     <h6 class="mb-0 text-muted">Start Date</h6>
                                     <h6 class="mb-0 fw-semibold">
                                         {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
-      </h6>
-    </div>
-    <div class="text-info fs-3">
-      <i class="fe fe-calendar"></i>
-    </div>
-  </div> --}}
-                            <div class="position-relative mb-3 p-3 rounded-3 bg-light">
-
-                                <!-- Top Right Icon -->
-                                <div class="position-absolute top-0 end-0 p-3">
-                                    <i class="fe fe-calendar text-info fs-3 opacity-75"></i>
+                                    </h6>
                                 </div>
-                                <h6 class="mb-3 text-muted">Course Schedule</h6>
-                                <div class="d-flex align-items-center">
-
-                                    <!-- Start -->
-                                    <div class="pe-4">
-                                        <span class="badge bg-success-subtle text-success mb-2">
-                                            Start Date
-                                        </span>
-                                        <div class="fw-semibold text-dark">
-                                            {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
-                                        </div>
-                                    </div>
-                                    <div class="vr mx-2"></div>
-
-                                    <!-- End -->
-                                    <div class="ps-2">
-                                        <span class="badge bg-danger-subtle text-danger mb-2">
-                                            End Date
-                                        </span>
-                                        <div class="fw-semibold text-dark">
-                                            {{ $course->end_date ? $course->end_date->format('d M, Y') : 'N/A' }}
-                                        </div>
-                                    </div>
+                                <div class="text-info fs-3">
+                                    <i class="fe fe-calendar"></i>
                                 </div>
                             </div>
 
@@ -832,207 +985,252 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Card -->
-                    <div class="card border-0 rounded-4 overflow-hidden">
-                        {{-- Avatar + name + tags + rating --}}
-                        <div class="card-body border-bottom text-center pb-3">
-                            <div class="position-relative d-inline-block mb-3">
-                                <img src="{{ $course->instructor->image === 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}"
-                                    alt="instructor" class="rounded-circle"
-                                    style="width:64px;height:64px;object-fit:cover;">
-                                <span
-                                    class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-2 border-white d-flex align-items-center justify-content-center"
-                                    style="width:18px;height:18px;">
-                                    <i class="fe fe-check" style="font-size:9px;color:#fff;"></i>
-                                </span>
-                            </div>
-                            <h5 class="mb-1 fw-semibold text-capitalize">
-                                {{ $course->instructor->name ?? 'No Instructor' }}
-                            </h5>
-                            @if ($course->instructor->courses->isNotEmpty())
-                                <p class="text-muted mb-2" style="font-size:12px;">
-                                    {{ $course->instructor->courses->unique('title')->take(3)->pluck('title')->implode(' · ') }}
-                                    ...
-                                </p>
-                            @endif
-                            <div class="d-flex align-items-center justify-content-center gap-1" style="font-size:12px;">
-                                <i class="fe fe-star text-warning" style="font-size:13px;"></i>
-                                <span class="fw-semibold">4.5</span>
-                                <span class="text-muted">instructor rating</span>
-                            </div>
-                        </div>
-                        {{-- Stats row --}}
-                        <div class="row g-0 border-bottom text-center">
-                            <div class="col border-end py-3">
-                                <h6 class="mb-0 fw-semibold">
-                                    {{ $course->instructor->courses->sum(fn($c) => $c->enrollments->count()) }}
-                                </h6>
-                                <small class="text-muted">Students</small>
-                            </div>
-                            <div class="col border-end py-3">
-                                <h6 class="mb-0 fw-semibold">{{ $course->instructor->courses->count() }}</h6>
-                                <small class="text-muted">Courses</small>
-                            </div>
-                            <div class="col py-3">
-                                <h6 class="mb-0 fw-semibold">12,230</h6>
-                                <small class="text-muted">Reviews</small>
-                            </div>
-                        </div>
-                        {{-- Bio + link --}}
-                        <div class="card-body">
-                            {{-- <p class="text-muted mb-3" style="font-size:13px;line-height:1.6;">
-                                {{ $course->instructor->headline ?? 'No bio available for this instructor.' }}
-        </p> --}}
-                            <a href="instructor-profile.html"
-                                class="d-inline-flex align-items-center gap-1 text-primary fw-semibold"
-                                style="font-size:13px;text-decoration:none;">
-                                View full profile <i class="fe fe-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
+            @if ($other_courses->count() > 0)
 
-            <!-- Card -->
-            @if ($other_courses->isNotEmpty())
+                <!-- Card -->
                 <div class="pt-8 pb-3">
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <div style="width:4px;height:28px;background:#4f46e5;border-radius:2px;flex-shrink:0;"></div>
-                        <div>
-                            <p class="mb-0 text-muted text-uppercase fw-semibold"
-                                style="font-size:11px;letter-spacing:.08em;">More from</p>
-                            <h2 class="mb-0 fw-semibold text-capitalize" style="font-size:18px;">
-                                {{ $course->instructor->name ?? 'No Instructor' }}
+                    <div class="row d-md-flex align-items-center mb-4">
+                        <div class="col-12">
+                            <h2 class="mb-0">
+                                MY TEACHING COURSES
                             </h2>
                         </div>
                     </div>
                     <div class="row">
-                        {{-- course cards ... --}}
-                        <div class="row">
-                            @forelse ($other_courses as $course)
-                                <div class="col-lg-3 col-md-6 col-12">
+                        @forelse ($other_courses as $course)
+                            <div class="col-lg-3 col-md-6 col-12">
 
-                                    <!-- Card -->
-                                    <div class="card mb-4 card-hover">
-                                        <a href="{{ route('admin.courses.realtime.show', $course->id) }}"><img
-                                                src="{{ $course->thumbnail === '' ? asset('/default-images/staff/no-course-img.png') : asset($course->thumbnail) }}"
-                                                alt="course-thumbnail" class="card-img-top"></a>
+                                <!-- Card -->
+                                <div class="card mb-4 card-hover">
+                                    <a href="{{ route('instructor.courses.real_time.show', $course->id) }}">
+                                        <img src="{{ asset($course->thumbnail == '' ? asset('\default-images\staff\no-course-img.png') : asset($course->thumbnail)) }}"
+                                            alt="course" class="card-img-top"
+                                            style="height: 160px; object-fit: cover;">
+                                    </a>
 
-                                        <!-- Card body -->
-                                        <div class="card-body">
-                                            <h4 class="mb-2 text-truncate-line-2">
-                                                <a href="{{ route('admin.courses.realtime.show', $course->id) }}"
-                                                    class="text-inherit text-capitalize">
-                                                    {{ $course->title }}
-                                                </a>
-                                            </h4>
-                                            <ul class="mb-3 list-inline">
-                                                <li class="list-inline-item">
-                                                    <span>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12"
-                                                            height="12" fill="currentColor"
-                                                            class="bi bi-clock align-baseline" viewBox="0 0 16 16">
-                                                            <path
-                                                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z">
-                                                            </path>
-                                                            <path
-                                                                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z">
-                                                            </path>
-                                                        </svg>
-                                                    </span>
-                                                    <span>
-                                                        {{ $course->duration }} Hours
-                                                    </span>
-                                                </li>
-                                                <li class="list-inline-item">
-                                                    <span>
-                                                        <i class="fe fe-users align-middle me-1"></i>
-                                                    </span>
-                                                    <span>
-                                                        {{ $course->enrollments->count() }} Enrolled
-                                                    </span>
-                                                </li>
-                                            </ul>
-                                            <div class="mt-3 d-flex align-baseline lh-1">
-                                                <span class="fs-6">
-                                                    @for ($i = 0; $i < 5; $i++)
-                                                        <i class="fe fe-star text-warning"></i>
-                                                    @endfor
+                                    <!-- Card body -->
+                                    <div class="card-body">
+                                        <h4 class="mb-2 text-truncate-line-2">
+                                            <a href="{{ route('instructor.courses.real_time.show', $course->id) }}"
+                                                class="text-inherit text-capitalize">
+                                                {{ $course->title }}
+                                            </a>
+                                        </h4>
+                                        <ul class="mb-3 list-inline">
+                                            <li class="list-inline-item">
+                                                <span>
+                                                    <i class="bi bi-clock"></i>
                                                 </span>
-                                                <span class="text-warning mx-1">
-                                                    4.5
+                                                <span>
+                                                    {{ $course->duration ?? 'N/A' }}h
                                                 </span>
-                                                <span class="fs-6">
-                                                    (2,500)
+                                            </li>
+                                            <li class="list-inline-item">
+                                                <span>
+                                                    <i class="bi bi-people"></i>
                                                 </span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Card footer -->
-                                        <div class="card-footer">
-                                            <div class="row align-items-center g-0">
-                                                <div class="col-auto">
-                                                    <img src="
-                                            {{ $course->instructor->image === 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image }}
-                                        "
-                                                        class="rounded-circle avatar-xs" alt="avatar">
-                                                </div>
-                                                <div class="col ms-2">
-                                                    <span class="text-capitalize">
-                                                        {{ $course->instructor->name ?? 'No Instructor' }}
-                                                    </span>
-                                                </div>
-                                                {{-- <div class="col-auto">
-                                        <a href="#" class="text-reset bookmark">
-                                            <i class="fe fe-bookmark fs-4"></i>
-                                        </a>
-                                    </div> --}}
-                                            </div>
+                                                <span>
+                                                    {{ $course->enrollments->count() ?? 0 }} Enrolled
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-3 d-flex align-baseline lh-1">
+                                            <span class="fs-6">
+                                                {{ $course->start_date ? $course->start_date->format('d M, Y') : 'N/A' }}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
-                            @empty
-                                <div class="col-12">
-                                    <div class="card mb-4">
-                                        <div class="card-body text-center">
-                                            <h4 class="mb-0">
-                                                No other courses found for this instructor.
-                                            </h4>
-                                        </div>
+                            </div>
+                        @empty
+                            <div class="col-12">
+                                <div class="card mb-4">
+                                    <div class="card-body text-center">
+                                        <h4 class="mb-0">You have no other courses.</h4>
                                     </div>
                                 </div>
-                            @endforelse
-                        </div>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             @endif
         </div>
     </section>
+
+    <!-- Modal -->
+
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" role="dialog" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        ⚠️ Send for Approval?
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="approvalCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1">You are about to submit the student report for:</p>
+                    <p class="fw-bold text-capitalize mb-3">📚 {{ $course->title }}</p>
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-0">
+                        <i class="fe fe-alert-triangle mt-1"></i>
+                        <div>
+                            Once submitted, <strong>attendance and scores will be locked</strong>
+                            until the admin approves or you cancel the request.
+                            Please make sure everything is accurate before proceeding.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
+                        id="approvalCancelBtn">
+                        Cancel
+                    </button>
+                    <form id="approvalForm"
+                        action="{{ route('instructor.student-report.request-approval', $course->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm" id="approvalSubmitBtn">
+                            <span id="approvalBtnText">
+                                <i class="fe fe-send me-1"></i> Yes, Send For Approval
+                            </span>
+                            <span id="approvalBtnLoading" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                Sending...
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Approval Modal -->
+    <div class="modal fade" id="cancelApprovalModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Approval Request?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="cancelModalCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1">You are about to withdraw the approval request for:</p>
+                    <p class="fw-bold text-capitalize mb-3">📚 {{ $course->title }}</p>
+                    <div class="alert alert-danger d-flex align-items-start gap-2 mb-0">
+                        <i class="fe fe-alert-triangle mt-1"></i>
+                        <div>
+                            This will revert the report back to <strong>Draft</strong>.
+                            Attendance and scores will be <strong>editable again</strong>.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
+                        id="cancelModalKeepBtn">
+                        No, Keep Pending
+                    </button>
+                    <form action="{{ route('instructor.student-report.cancel-approval', $course->id) }}" method="POST"
+                        id="cancelApprovalForm">
+                        @csrf
+                        <button type="submit" class="btn btn-danger btn-sm" id="cancelSubmitBtn">
+                            <span id="cancelBtnText">
+                                <i class="fe fe-x me-1"></i> Yes, Cancel Request
+                            </span>
+                            <span id="cancelBtnLoading" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                Cancelling...
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="saveStatus" style="position: fixed; bottom: 20px; right: 20px; display:none;" class="badge bg-success">
+        Saved ✅
+    </div>
 @endsection
 @push('scripts')
-    <script src="/admin/assets/dist/libs/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script>
+        /* =========================
+                                                                                                           APPROVAL MODAL
+                                                                                                        ========================= */
+        document.getElementById('approvalForm')?.addEventListener('submit', function() {
+            const submitBtn = document.getElementById('approvalSubmitBtn');
+            const cancelBtn = document.getElementById('approvalCancelBtn');
+            const closeBtn = document.getElementById('approvalCloseBtn');
+            const btnText = document.getElementById('approvalBtnText');
+            const btnLoading = document.getElementById('approvalBtnLoading');
+            // Lock everything
+            submitBtn.disabled = true;
+            cancelBtn.disabled = true;
+            closeBtn.disabled = true;
+            // Show spinner
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+        });
+        // Reset approval modal state when closed
+        document.getElementById('approvalModal')?.addEventListener('hidden.bs.modal', function() {
+            const submitBtn = document.getElementById('approvalSubmitBtn');
+            const cancelBtn = document.getElementById('approvalCancelBtn');
+            const closeBtn = document.getElementById('approvalCloseBtn');
+            const btnText = document.getElementById('approvalBtnText');
+            const btnLoading = document.getElementById('approvalBtnLoading');
+            submitBtn.disabled = false;
+            cancelBtn.disabled = false;
+            closeBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+        });
+        /* =========================
+           CANCEL APPROVAL MODAL
+        ========================= */
+        document.getElementById('cancelApprovalForm')?.addEventListener('submit', function() {
+            const submitBtn = document.getElementById('cancelSubmitBtn');
+            const keepBtn = document.getElementById('cancelModalKeepBtn');
+            const closeBtn = document.getElementById('cancelModalCloseBtn');
+            const btnText = document.getElementById('cancelBtnText');
+            const btnLoading = document.getElementById('cancelBtnLoading');
+            // Lock everything
+            submitBtn.disabled = true;
+            keepBtn.disabled = true;
+            closeBtn.disabled = true;
+            // Show spinner
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+        });
+        // Reset cancel modal state when closed
+        document.getElementById('cancelApprovalModal')?.addEventListener('hidden.bs.modal', function() {
+            const submitBtn = document.getElementById('cancelSubmitBtn');
+            const keepBtn = document.getElementById('cancelModalKeepBtn');
+            const closeBtn = document.getElementById('cancelModalCloseBtn');
+            const btnText = document.getElementById('cancelBtnText');
+            const btnLoading = document.getElementById('cancelBtnLoading');
+            submitBtn.disabled = false;
+            keepBtn.disabled = false;
+            closeBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+        });
         document.addEventListener("DOMContentLoaded", function() {
-            const tabs = document.querySelectorAll('#tab a[data-bs-toggle="pill"]');
-            // Restore active tab
-            let activeTab = localStorage.getItem('activeTab');
-            if (activeTab) {
-                let triggerEl = document.querySelector(`#tab a[href="${activeTab}"]`);
-                if (triggerEl) {
-                    new bootstrap.Tab(triggerEl).show();
-                }
-            } else {
-                // Default tab (optional)
-                let defaultTab = document.querySelector('#tab a[href="#teacher-attendance"]');
-                if (defaultTab) {
-                    new bootstrap.Tab(defaultTab).show();
-                }
+            const tabButtons = document.querySelectorAll('#tab a[data-bs-toggle="pill"]');
+            // 🔥 Default tab = My Attendance
+            const defaultTab = '#attendance';
+            // 🔁 Restore from localStorage OR use default
+            let activeTab = localStorage.getItem('instructorActiveTab') || defaultTab;
+            let triggerEl = document.querySelector(`#tab a[href="${activeTab}"]`);
+            if (triggerEl) {
+                let tab = new bootstrap.Tab(triggerEl);
+                tab.show();
             }
-            // Save active tab on change
-            tabs.forEach(tab => {
-                tab.addEventListener('shown.bs.tab', function(event) {
-                    localStorage.setItem('activeTab', event.target.getAttribute('href'));
+            // 💾 Save selected tab
+            tabButtons.forEach(button => {
+                button.addEventListener('shown.bs.tab', function(event) {
+                    let target = event.target.getAttribute('href');
+                    localStorage.setItem('instructorActiveTab', target);
                 });
             });
         });
@@ -1063,10 +1261,354 @@
                 });
             });
         });
-        $('#date-range').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true,
-            todayHighlight: true,
-        });
+        /* =========================
+           SESSION LOG TAB
+        ========================= */
+        (function() {
+            let loaded = false;
+            // ✅ Cached from the last fetch so the student filter can
+            // re-render instantly without another AJAX round-trip
+            let lastSessions = [];
+            let lastStudents = [];
+            let selectedStudentId = '';
+            // ✅ Exposed so autoSaveAttendance can call it
+            window.reloadSessionLog = function() {
+                fetchAndRender();
+            };
+
+            function loadSessionLog() {
+                if (loaded) return;
+                loaded = true;
+                fetchAndRender();
+            }
+
+            function fetchAndRender() {
+                $.ajax({
+                    url: "{{ route('instructor.student-attendance.session-log') }}",
+                    type: 'GET',
+                    cache: false, // the URL is otherwise identical every call — never serve a stale cached response
+                    data: {
+                        course_id: "{{ $course->id }}"
+                    },
+                    success: function(res) {
+                        if (!res.success) {
+                            $('#sessionLogContainer').html(
+                                '<div class="text-center text-muted py-5">No data returned.</div>'
+                            );
+                            return;
+                        }
+                        lastSessions = res.sessions || [];
+                        lastStudents = res.students || [];
+                        renderStudentFilter(lastStudents);
+                        renderSessionLog(lastSessions, lastStudents);
+                    },
+                    error: function() {
+                        $('#sessionLogContainer').html(
+                            '<div class="text-center text-muted py-5">Failed to load session log.</div>'
+                        );
+                    }
+                });
+            }
+            // ✅ Delegated — catches pill tab reliably regardless of init order
+            $(document).on('shown.bs.tab', 'a[href="#session-log"]', function() {
+                loadSessionLog();
+            });
+            // ✅ Handle localStorage tab restore
+            $(document).ready(function() {
+                if ($('#session-log').hasClass('active show')) {
+                    loadSessionLog();
+                }
+            });
+
+            function renderStudentFilter(students) {
+                if (!students || !students.length) {
+                    $('#sessionLogFilterBar').hide();
+                    return;
+                }
+                let options = students.map(s =>
+                    `<option value="${s.id}" ${String(s.id) === String(selectedStudentId) ? 'selected' : ''}>${s.name}</option>`
+                ).join('');
+                $('#sessionLogStudentFilter').html(`<option value="">All students</option>${options}`);
+                $('#sessionLogFilterClear').toggle(!!selectedStudentId);
+                $('#sessionLogFilterBar').show();
+            }
+
+            // ✅ One handler for the life of the page — reads whatever was
+            // last fetched, no extra request needed to switch students
+            $(document).off('change', '#sessionLogStudentFilter').on('change', '#sessionLogStudentFilter',
+                function() {
+                    selectedStudentId = $(this).val() || '';
+                    $('#sessionLogFilterClear').toggle(!!selectedStudentId);
+                    renderSessionLog(lastSessions, lastStudents);
+                });
+            $(document).off('click', '#sessionLogFilterClear').on('click', '#sessionLogFilterClear', function() {
+                selectedStudentId = '';
+                $('#sessionLogStudentFilter').val('');
+                $(this).hide();
+                renderSessionLog(lastSessions, lastStudents);
+            });
+
+            function renderSessionLog(sessions, students) {
+                if (!sessions || !sessions.length) {
+                    $('#sessionLogContainer').html(
+                        `<div class="text-center py-5">
+                    <i class="fe fe-calendar fs-1 text-muted d-block mb-3"></i>
+                    <p class="text-muted mb-0">No attendance recorded yet.</p>
+                </div>`
+                    );
+                    return;
+                }
+                if (selectedStudentId) {
+                    renderStudentSessionLog(sessions, students, selectedStudentId);
+                    return;
+                }
+                let totalPresent = 0;
+                let totalAbsent = 0;
+                let totalPermission = 0;
+                let totalSessions = sessions.length;
+                sessions.forEach(s => {
+                    totalPresent += parseInt(s.present_count || 0);
+                    totalAbsent += parseInt(s.absent_count || 0);
+                    totalPermission += parseInt(s.permission_count || 0);
+                });
+                // ✅ Remember which sessions were open so we can restore after re-render
+                let openIndexes = new Set();
+                $('#sessionLogContainer .session-row').each(function() {
+                    let idx = $(this).data('index');
+                    if ($(`.session-detail-${idx}`).is(':visible')) {
+                        openIndexes.add(idx);
+                    }
+                });
+                let html = `
+            <div class="row g-3 mb-4">
+                <div class="col">
+                    <div class="p-3 rounded-3 bg-light text-center">
+                        <div class="text-muted small mb-1">Total Sessions</div>
+                        <div class="fw-bold fs-5">${totalSessions}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#d1e7dd;">
+                        <div class="small mb-1" style="color:#0a3622;">Total Present</div>
+                        <div class="fw-bold fs-5" style="color:#0a3622;">${totalPresent}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#f8d7da;">
+                        <div class="small mb-1" style="color:#58151c;">Total Absent</div>
+                        <div class="fw-bold fs-5" style="color:#58151c;">${totalAbsent}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#fff3cd;">
+                        <div class="small mb-1" style="color:#664d03;">Total Permission</div>
+                        <div class="fw-bold fs-5" style="color:#664d03;">${totalPermission}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span class="text-muted small">
+                    <i class="fe fe-list me-1"></i>${totalSessions} session${totalSessions !== 1 ? 's' : ''} recorded
+                </span>
+                <div class="d-flex gap-3 small text-muted">
+                    <span><span class="badge bg-success me-1">&nbsp;</span>Present</span>
+                    <span><span class="badge bg-danger me-1">&nbsp;</span>Absent</span>
+                    <span><span class="badge bg-warning me-1">&nbsp;</span>Permission</span>
+                    <span><span class="badge bg-light border me-1">&nbsp;</span>Unmarked</span>
+                </div>
+            </div>`;
+                sessions.forEach((session, index) => {
+                    let totalStudents = parseInt(session.total_students || 0);
+                    let presentCount = parseInt(session.present_count || 0);
+                    let absentCount = parseInt(session.absent_count || 0);
+                    let permissionCount = parseInt(session.permission_count || 0);
+                    let unmarkedCount = parseInt(session.unmarked_count || 0);
+                    let attendanceRate = totalStudents > 0 ?
+                        Math.round((presentCount / totalStudents) * 100) :
+                        0;
+                    let rateColor = attendanceRate >= 80 ? 'text-success' :
+                        attendanceRate >= 50 ? 'text-warning' :
+                        'text-danger';
+                    let records = session.records || {};
+                    let dots = students.map(student => {
+                        let record = records[student.id];
+                        let status = record ? record.status : null;
+                        let color = status === 'present' ? '#198754' :
+                            status === 'absent' ? '#dc3545' :
+                            status === 'permission' ? '#ffc107' :
+                            '#dee2e6';
+                        return `<span title="${student.name}: ${status ?? 'unmarked'}" style="
+                    display:inline-block; width:10px; height:10px;
+                    border-radius:50%; background:${color}; margin:1px;"></span>`;
+                    }).join('');
+                    let detailRows = students.map(student => {
+                        let record = records[student.id];
+                        let status = record ? record.status : null;
+                        let note = record ? (record.note ?? '') : '';
+                        let badgeClass = status === 'present' ? 'bg-success' :
+                            status === 'absent' ? 'bg-danger' :
+                            status === 'permission' ? 'bg-warning text-dark' :
+                            'bg-light text-dark border';
+                        let initials = student.name.substring(0, 2).toUpperCase();
+                        return `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">
+                                    ${initials}
+                                </div>
+                                <span class="text-capitalize small">${student.name}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge ${badgeClass}" style="font-size:11px;">
+                                ${status ? status.charAt(0).toUpperCase() + status.slice(1) : '—'}
+                            </span>
+                        </td>
+                        <td class="text-muted small">${note || '—'}</td>
+                    </tr>`;
+                    }).join('');
+                    // ✅ Restore open state after re-render
+                    let isOpen = openIndexes.has(index);
+                    let detailDisplay = isOpen ? 'block' : 'none';
+                    let chevronRotate = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+                    html += `
+                <div class="card mb-2 border rounded-3 overflow-hidden">
+                    <div class="p-3 d-flex align-items-center gap-3 session-row"
+                         data-index="${index}" style="cursor:pointer; user-select:none;">
+                        <div class="text-center flex-shrink-0" style="width:46px;">
+                            <div class="fw-bold" style="font-size:18px;line-height:1;">${session.day}</div>
+                            <div class="text-muted" style="font-size:11px;text-transform:uppercase;">${session.month}</div>
+                            <div class="text-muted" style="font-size:11px;">${session.year}</div>
+                        </div>
+                        <div style="width:1px;height:40px;background:#dee2e6;flex-shrink:0;"></div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="mb-1 d-flex align-items-center gap-2">
+                                <span class="small fw-semibold ${rateColor}">${attendanceRate}%</span>
+                                <span class="text-muted small">${presentCount}P / ${absentCount}A / ${permissionCount}Perm
+                                    ${unmarkedCount > 0 ? `/ ${unmarkedCount} unmarked` : ''}
+                                </span>
+                            </div>
+                            <div style="line-height:1;">${dots}</div>
+                        </div>
+                        <div class="text-muted flex-shrink-0 session-chevron" data-index="${index}"
+                             style="transform:${chevronRotate}; transition:transform 0.2s;">
+                            <i class="fe fe-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="session-detail-${index}"
+                         style="display:${detailDisplay}; border-top:1px solid #dee2e6;">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0" style="font-size:13px;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th class="text-center">Status</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${detailRows}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+                });
+                $('#sessionLogContainer').html(html);
+                $('#sessionLogContainer').off('click', '.session-row').on('click', '.session-row', function() {
+                    let idx = $(this).data('index');
+                    let detail = $(`.session-detail-${idx}`);
+                    let chevron = $(`[data-index="${idx}"].session-chevron`);
+                    let isOpen = detail.is(':visible');
+                    detail.slideToggle(150);
+                    chevron.css('transform', isOpen ? 'rotate(0deg)' : 'rotate(180deg)');
+                });
+            }
+
+            // ✅ Single-student view: one row per session (no expand/collapse
+            // needed since there's only one student's status to show)
+            function renderStudentSessionLog(sessions, students, studentId) {
+                let student = students.find(s => String(s.id) === String(studentId));
+                let studentName = student ? student.name : 'Student';
+                let present = 0;
+                let absent = 0;
+                let permission = 0;
+                let rows = sessions.map(session => {
+                    let record = (session.records || {})[studentId];
+                    let status = record ? record.status : null;
+                    let note = record ? (record.note ?? '') : '';
+                    if (status === 'present') present++;
+                    else if (status === 'absent') absent++;
+                    else if (status === 'permission') permission++;
+                    let badgeClass = status === 'present' ? 'bg-success' :
+                        status === 'absent' ? 'bg-danger' :
+                        status === 'permission' ? 'bg-warning text-dark' :
+                        'bg-light text-dark border';
+                    return `
+                <tr>
+                    <td>
+                        <span class="fw-semibold">${session.day}</span>
+                        <span class="text-muted small text-uppercase ms-1">${session.month} ${session.year}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge ${badgeClass}" style="font-size:11px;">
+                            ${status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unmarked'}
+                        </span>
+                    </td>
+                    <td class="text-muted small">${note || '—'}</td>
+                </tr>`;
+                }).join('');
+                let totalSessions = sessions.length;
+                let rate = totalSessions > 0 ? Math.round((present / totalSessions) * 100) : 0;
+                let rateColor = rate >= 80 ? 'text-success' : rate >= 50 ? 'text-warning' : 'text-danger';
+                let initials = studentName.substring(0, 2).toUpperCase();
+                let html = `
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0;">${initials}</div>
+                <div>
+                    <div class="fw-semibold text-capitalize">${studentName}</div>
+                    <div class="small ${rateColor}">${rate}% attendance</div>
+                </div>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col">
+                    <div class="p-3 rounded-3 bg-light text-center">
+                        <div class="text-muted small mb-1">Total Sessions</div>
+                        <div class="fw-bold fs-5">${totalSessions}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#d1e7dd;">
+                        <div class="small mb-1" style="color:#0a3622;">Present</div>
+                        <div class="fw-bold fs-5" style="color:#0a3622;">${present}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#f8d7da;">
+                        <div class="small mb-1" style="color:#58151c;">Absent</div>
+                        <div class="fw-bold fs-5" style="color:#58151c;">${absent}</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="p-3 rounded-3 text-center" style="background:#fff3cd;">
+                        <div class="small mb-1" style="color:#664d03;">Permission</div>
+                        <div class="fw-bold fs-5" style="color:#664d03;">${permission}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle" style="font-size:13px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th class="text-center">Status</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+                $('#sessionLogContainer').html(html);
+            }
+        })();
     </script>
 @endpush

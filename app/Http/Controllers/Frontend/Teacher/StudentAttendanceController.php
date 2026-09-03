@@ -35,10 +35,12 @@ class StudentAttendanceController extends Controller
         foreach ($students as $student) {
             $present = $student->student_attendances->where('status', 'present')->count();
             $absent = $student->student_attendances->where('status', 'absent')->count();
+            $permission = $student->student_attendances->where('status', 'permission')->count();
             /*
             |--------------------------------------------------------------------------
             | ATTENDANCE SCORE
-            | Start with 10 points. Every 4 absences = -1 point
+            | Start with 10 points. Every 4 (unexcused) absences = -1 point.
+            | 'permission' (excused) absences don't cost points.
             |--------------------------------------------------------------------------
             */
             $attendanceScore = max(0, 10 - floor($absent / 4));
@@ -60,6 +62,7 @@ class StudentAttendanceController extends Controller
                 [
                     'present' => $present,
                     'absent' => $absent,
+                    'permission' => $permission,
                     'attendance_score' => round(min(10, $attendanceScore), 2),
                     'total_score' => round($totalScore, 2),
                     'result' => $totalScore >= 50 ? 'pass' : 'fail',
@@ -68,6 +71,7 @@ class StudentAttendanceController extends Controller
             $result[$student->id] = [
                 'present' => $report->present,
                 'absent' => $report->absent,
+                'permission' => $report->permission,
                 'attendance_score' => $report->attendance_score,
                 'total_score' => $report->total_score,
                 'result' => $report->result,
@@ -81,10 +85,19 @@ class StudentAttendanceController extends Controller
             'course_id' => 'required|exists:i_c_t_courses,id',
             'date' => 'required|date',
             'attendances' => 'required|array',
+            'attendances.*.status' => 'nullable|in:present,absent,permission,unmarked',
         ]);
         DB::beginTransaction();
         try {
             foreach ($request->attendances as $attendance) {
+                // A student left unclicked sends status: '' — persist that
+                // explicitly as 'unmarked' rather than skipping the row.
+                // Otherwise a save where nobody was clicked yet (e.g. the
+                // instructor just opened the date and hit save) writes
+                // zero rows, and the Session Log — which only lists dates
+                // that have at least one row — never shows that session
+                // even though attendance was genuinely opened/saved for it.
+                $status = $attendance['status'] ?: 'unmarked';
                 StudentAttendances::updateOrCreate(
                     [
                         'course_id' => $request->course_id,
@@ -92,7 +105,7 @@ class StudentAttendanceController extends Controller
                         'date' => $request->date,
                     ],
                     [
-                        'status' => $attendance['status'],
+                        'status' => $status,
                         'note' => $attendance['note'] ?? null,
                     ]
                 );
@@ -142,8 +155,15 @@ class StudentAttendanceController extends Controller
             ->distinct()
             ->orderBy('date', 'desc')
             ->pluck('date');
-        // All enrolled students
-        $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $request->course_id))
+        // All ACTIVELY enrolled students — same scope as the Mark
+        // Attendance roster ($course->students(), which filters to
+        // status = 'active'). Without this filter a dropped/completed
+        // student who can no longer be marked would still inflate
+        // total_students here, making every session look like it has
+        // extra "unmarked" students who were never markable in the
+        // first place.
+        $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $request->course_id)
+            ->where('status', 'active'))
             ->select('id', 'name')
             ->orderBy('name')
             ->get();
@@ -155,7 +175,12 @@ class StudentAttendanceController extends Controller
                 ->keyBy('student_id');
             $presentCount = $records->where('status', 'present')->count();
             $absentCount = $records->where('status', 'absent')->count();
-            $unmarkedCount = $totalStudents - $records->count();
+            $permissionCount = $records->where('status', 'permission')->count();
+            // Rows explicitly saved as 'unmarked', plus (for sessions saved
+            // before that status existed, or students enrolled afterward)
+            // any enrolled student with no row at all for this date.
+            $unmarkedCount = $records->where('status', 'unmarked')->count()
+                + max(0, $totalStudents - $records->count());
             $parsed = Carbon::parse($date);
             return [
                 'date' => $date,
@@ -164,6 +189,7 @@ class StudentAttendanceController extends Controller
                 'year' => $parsed->format('Y'),
                 'present_count' => $presentCount,
                 'absent_count' => $absentCount,
+                'permission_count' => $permissionCount,
                 'unmarked_count' => max(0, $unmarkedCount),
                 'total_students' => $totalStudents,
                 'records' => $records->map(fn($r) => [

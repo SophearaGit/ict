@@ -92,7 +92,7 @@ class RealTimeCoursesController extends Controller
                 $attendanceMap[$formatted] = match ($att->status) {
                     'present' => 'P',
                     'absent' => 'A',
-                    'late' => 'L',
+                    'permission' => 'PM',
                     default => '-',
                 };
             }
