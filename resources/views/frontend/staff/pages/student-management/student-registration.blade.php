@@ -870,6 +870,7 @@
       if (val === 'other') {
         $('#manualEntryWrapper').removeClass('d-none');
         clearSummary();
+        applyManualDiscount();
       } else {
         $('#manualEntryWrapper').addClass('d-none');
         calculateAmounts();
@@ -884,6 +885,10 @@
       const currentOption = $('#paymentOptionInput').val();
       if (currentOption && currentOption !== 'other') {
         calculateAmounts();
+      } else if (currentOption === 'other') {
+        // Keep Total Amount matching (course price − discount) if the
+        // course selection changes while Manual Entry is already open.
+        applyManualDiscount();
       }
     });
     function handleMultiCourseUI(count) {
@@ -906,13 +911,26 @@
     // ==============================
     // MANUAL ENTRY LIVE CALC
     // ==============================
-    $('#manualTotalAmount, #manualPaidAmount').on('input', function() {
+    function recalcManualEntry() {
       const total = parseFloat($('#manualTotalAmount').val()) || 0;
       const paid = parseFloat($('#manualPaidAmount').val()) || 0;
       const remaining = Math.max(0, total - paid);
       $('#manualRemainingAmount').val(remaining.toFixed(2));
       updateSummary(total, paid, remaining, 'other');
-    });
+    }
+    // Discount auto-fills Total Amount from the selected course(s) price,
+    // so staff enter the discount instead of doing the subtraction by
+    // hand. Total Amount stays a normal, still-editable input afterwards
+    // in case the real total needs a manual override.
+    function applyManualDiscount() {
+      const coursePrice = getTotalPrice($('#courseSelect').find(':selected'));
+      const discount = parseFloat($('#manualDiscount').val()) || 0;
+      const total = Math.max(0, coursePrice - discount);
+      $('#manualTotalAmount').val(total.toFixed(2));
+      recalcManualEntry();
+    }
+    $('#manualDiscount').on('input', applyManualDiscount);
+    $('#manualTotalAmount, #manualPaidAmount').on('input', recalcManualEntry);
     // ==============================
     // MAIN CALCULATION
     // ==============================

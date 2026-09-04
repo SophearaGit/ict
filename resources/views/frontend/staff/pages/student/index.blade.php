@@ -40,6 +40,66 @@
     font-size: .75rem;
     color: #adb5bd;
   }
+
+  /* ─── Date of Birth (flatpickr) ─────────────────────────────────────── */
+  .dob-input-group .input-group-text {
+    border-right: 0;
+  }
+  .dob-input-group .form-control {
+    border-left: 0;
+  }
+  .dob-input-group .form-control:focus {
+    box-shadow: none;
+  }
+  .dob-input-group:focus-within {
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb), .15);
+    border-radius: .375rem;
+  }
+  .flatpickr-calendar {
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .12);
+    border: 1px solid #e9ecef;
+  }
+  .flatpickr-day.selected,
+  .flatpickr-day.selected:hover {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+  }
+  .flatpickr-day.today {
+    border-color: var(--bs-primary);
+  }
+
+  /* ─── Gender (segmented toggle instead of a plain <select>) ────────────── */
+  .gender-toggle {
+    display: flex;
+    gap: .5rem;
+  }
+  .gender-toggle .gender-toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+    border-radius: .375rem;
+    padding: .5rem .75rem;
+    color: #6c757d;
+    background: #fff;
+    cursor: pointer;
+    transition: .15s ease-in-out;
+    transition-property: color, background-color, border-color;
+  }
+  .gender-toggle .gender-toggle-btn:hover {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+  }
+  .gender-toggle .gender-toggle-input:checked+.gender-toggle-btn {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
+  }
+  .gender-toggle .gender-toggle-input:focus-visible+.gender-toggle-btn {
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb), .25);
+  }
 </style>
 @include('frontend.staff.pages.partials.breadcrumb')
 {{-- Toolbar --}}
@@ -358,16 +418,26 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label fw-semibold">Date of Birth</label>
-                <input type="text" name="dob" id="dob" class="form-control flatpickr-date" placeholder="Select date" autocomplete="off" value="{{ old('dob') }}">
+                <label class="form-label fw-semibold" for="dob">Date of Birth</label>
+                <div class="input-group dob-input-group">
+                  <span class="input-group-text bg-white"><i class="ti ti-calendar-event text-muted"></i></span>
+                  <input type="text" name="dob" id="dob" class="form-control flatpickr-date" placeholder="Select date" autocomplete="off" value="{{ old('dob') }}">
+                </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Gender <span
                                             class="text-danger">*</span></label>
-                <select name="gender" class="form-select @error('gender') is-invalid @enderror">
-                  <option value="" disabled selected>Select Gender</option>
+                <div class="gender-toggle" data-target="#gender">
+                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_add" id="gender-add-male" value="male" autocomplete="off" {{ old('gender') === 'male' ? 'checked' : '' }}>
+                  <label class="gender-toggle-btn" for="gender-add-male"><i class="ti ti-gender-male me-1"></i> Male</label>
+                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_add" id="gender-add-female" value="female" autocomplete="off" {{ old('gender') === 'female' ? 'checked' : '' }}>
+                  <label class="gender-toggle-btn" for="gender-add-female"><i class="ti ti-gender-female me-1"></i> Female</label>
+                </div>
+                {{-- Real field that actually submits — the buttons above just drive it --}}
+                <select name="gender" id="gender" class="d-none @error('gender') is-invalid @enderror">
+                  <option value="" {{ old('gender') ? '' : 'selected' }}>Select Gender</option>
                   <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Male
                   </option>
                   <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female
@@ -518,15 +588,25 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label class="form-label fw-semibold">Date of Birth</label>
-                <input type="text" name="dob" id="edit-dob" class="form-control flatpickr-date" placeholder="Select date" autocomplete="off">
+                <label class="form-label fw-semibold" for="edit-dob">Date of Birth</label>
+                <div class="input-group dob-input-group">
+                  <span class="input-group-text bg-white"><i class="ti ti-calendar-event text-muted"></i></span>
+                  <input type="text" name="dob" id="edit-dob" class="form-control flatpickr-date" placeholder="Select date" autocomplete="off">
+                </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Gender <span
                                             class="text-danger">*</span></label>
-                <select name="gender" id="edit-gender" class="form-select">
+                <div class="gender-toggle" data-target="#edit-gender">
+                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_edit" id="gender-edit-male" value="male" autocomplete="off">
+                  <label class="gender-toggle-btn" for="gender-edit-male"><i class="ti ti-gender-male me-1"></i> Male</label>
+                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_edit" id="gender-edit-female" value="female" autocomplete="off">
+                  <label class="gender-toggle-btn" for="gender-edit-female"><i class="ti ti-gender-female me-1"></i> Female</label>
+                </div>
+                {{-- Real field that actually submits — the buttons above just drive it --}}
+                <select name="gender" id="edit-gender" class="d-none">
                   <option value="" disabled>Select Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -715,12 +795,43 @@
       altInput: true,
       altFormat: 'F j, Y',
       maxDate: 'today',
+      // A DOB is often decades back — bound the picker to a sane range and
+      // open it already showing a birth-year-ish decade instead of today's
+      // month, so you're not stuck clicking "previous month" hundreds of
+      // times to get there.
+      minDate: new Date().getFullYear() - 100 + '-01-01',
       allowInput: true,
       defaultDate: defaultDate,
+      // Bootstrap's modal wrapper animates with a CSS transform, and any
+      // transformed ancestor becomes the positioning context for an
+      // absolutely-positioned child — so a calendar appended next to the
+      // input (flatpickr's default) was measuring itself against the
+      // modal's box instead of the viewport, landing wherever, overlapping
+      // other fields instead of sitting under the input. Appending to
+      // <body> sidesteps that ancestor entirely.
+      appendTo: document.body,
     });
   }
   let dobPickerAdd = createDobPicker('#dob');
   let dobPickerEdit = createDobPicker('#edit-dob');
+  // ─── Gender Toggle (segmented buttons synced to the real, hidden <select name="gender">) ──
+  document.querySelectorAll('.gender-toggle').forEach(function(toggle) {
+    const target = document.querySelector(toggle.dataset.target);
+    if (!target) return;
+    toggle.querySelectorAll('.gender-toggle-input').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (this.checked) target.value = this.value;
+      });
+    });
+  });
+  // Reflects a select's current value onto its matching toggle buttons —
+  // used when the Edit modal opens and sets edit-gender.value from data-*.
+  function syncGenderToggle(selectEl) {
+    const toggle = document.querySelector(`.gender-toggle[data-target="#${selectEl.id}"]`);
+    if (!toggle) return;
+    const radio = toggle.querySelector(`.gender-toggle-input[value="${selectEl.value}"]`);
+    if (radio) radio.checked = true;
+  }
   // ─── Bio Character Counter ─────────────────────────────────────────────────
   function bindBioCounter(textareaId, counterId) {
     const textarea = document.getElementById(textareaId);
@@ -826,6 +937,7 @@
       dobPickerEdit = createDobPicker('#edit-dob', this.dataset.dob || null);
       document.getElementById('edit-location').value = this.dataset.location ?? '';
       document.getElementById('edit-gender').value = this.dataset.gender ?? '';
+      syncGenderToggle(document.getElementById('edit-gender'));
       document.getElementById('edit-nationality').value = this.dataset.nationality ?? '';
       document.getElementById('edit-alternate-phone').value = this.dataset.alternatePhone ?? '';
       document.getElementById('edit-bio').value = this.dataset.bio ?? '';
