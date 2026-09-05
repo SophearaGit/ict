@@ -137,7 +137,7 @@ $categoryIcons = [
             <a href="{{ route('course.details', $course->slug ?? $course->id) }}" class="boxcard"
                 data-category="{{ \Illuminate\Support\Str::slug($course->category->name ?? '') }}"
                 data-title="{{ strtolower($course->title) }}">
-                <img src="{{ $course->thumbnail ? asset($course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                <img src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('default-images/course-default.jpg') }}"
                     alt="{{ $course->title }}">
                 <div class="detail-boxcard">
                     <button>{{ $course->category->name ?? 'Development' }}</button>

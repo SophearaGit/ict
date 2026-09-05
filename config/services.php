@@ -46,4 +46,9 @@ return [
         'api_url' => env('PAYWAY_API_URL', 'https://checkout-sandbox.payway.com.kh'),
         'checkout_js_url' => env('PAYWAY_CHECKOUT_JS_URL', 'https://checkout.payway.com.kh/plugins/checkout2-0.js'),
     ],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
 ];

@@ -213,7 +213,7 @@
                 </section>
             </div>
             <div class="boxcard">
-                <img src="{{ $course->thumbnail ? asset($course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                <img src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('default-images/course-default.jpg') }}"
                     alt="{{ $course->title }}">
                 <div class="coursedetail-price-rating">
                     <h3>${{ number_format($course->price ?? 0, 2) }}</h3>
@@ -278,7 +278,7 @@
             @forelse ($moreCourses as $moreTitle => $moreGroup)
                 @php $moreCourse = $moreGroup->first(); @endphp
                 <a href="{{ route('course.details', $moreCourse->slug) }}" class="boxcard" data-aos="fade-up">
-                    <img src="{{ $moreCourse->thumbnail ? asset($moreCourse->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                    <img src="{{ $moreCourse->thumbnail ? asset($moreCourse->thumbnail) : asset('default-images/course-default.jpg') }}"
                         alt="{{ $moreCourse->title }}">
                     <div class="detail-boxcard">
                         <button>{{ $moreCourse->category->name ?? 'Development' }}</button>

@@ -127,6 +127,19 @@
             box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
         }
 
+        .register-btn-google {
+            height: 50px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .register-btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
         .nav-pills {
             background: #F3F4F6;
             padding: 5px;
@@ -293,184 +306,31 @@
                                         Create Account
                                     </h2>
                                     <p class="text-muted mb-0">
-                                        Register as a student or teacher to access the ICT Center platform.
+                                        Register with your Google account to access the ICT Center platform.
                                     </p>
                                 </div>
-                                {{-- TABS --}}
-                                <ul class="nav nav-pills gap-2 mb-4" role="tablist">
-                                    <li class="nav-item">
-                                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#student"
-                                            type="button">
-                                            Student
-                                        </button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#teacher"
-                                            type="button">
-                                            Teacher
-                                        </button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content">
-                                    {{-- STUDENT --}}
-                                    <div class="tab-pane fade show active" id="student">
-                                        <form method="POST" action="{{ route('register', ['type' => 'student']) }}">
-                                            @csrf
-                                            {{-- NAME --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Full Name
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-user input-icon"></i>
-                                                    <input type="text" name="name"
-                                                        class="form-control register-form-control"
-                                                        placeholder="Enter your full name" value="{{ old('name') }}"
-                                                        required>
-                                                </div>
-                                            </div>
-                                            {{-- EMAIL --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Email Address
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-mail input-icon"></i>
-                                                    <input type="email" name="email"
-                                                        class="form-control register-form-control"
-                                                        placeholder="Enter your email" value="{{ old('email') }}" required>
-                                                </div>
-                                            </div>
-                                            {{-- PASSWORD --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Password
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-lock input-icon"></i>
-                                                    <input type="password" id="studentPassword" name="password"
-                                                        class="form-control register-form-control pe-5"
-                                                        placeholder="Create password" required>
-                                                    <i class="ti ti-eye toggle-password" data-target="#studentPassword"></i>
-                                                </div>
-                                            </div>
-                                            {{-- CONFIRM --}}
-                                            <div class="mb-4">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Confirm Password
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-lock-check input-icon"></i>
-                                                    <input type="password" id="studentConfirmPassword"
-                                                        name="password_confirmation"
-                                                        class="form-control register-form-control pe-5"
-                                                        placeholder="Confirm password" required>
-                                                    <i class="ti ti-eye toggle-password"
-                                                        data-target="#studentConfirmPassword"></i>
-                                                </div>
-                                            </div>
-                                            {{-- BUTTON --}}
-                                            <div class="d-grid mb-3 mt-4">
-                                                <button type="submit" class="btn register-btn text-white">
-                                                    Create Student Account
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    {{-- TEACHER --}}
-                                    <div class="tab-pane fade" id="teacher">
-                                        <form method="POST" action="{{ route('register', ['type' => 'instructor']) }}"
-                                            enctype="multipart/form-data">
-                                            @csrf
-                                            {{-- NAME --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Full Name
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-user input-icon"></i>
-                                                    <input type="text" name="name"
-                                                        class="form-control register-form-control"
-                                                        placeholder="Enter your full name" required>
-                                                </div>
-                                            </div>
-                                            {{-- EMAIL --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Email Address
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-mail input-icon"></i>
-                                                    <input type="email" name="email"
-                                                        class="form-control register-form-control"
-                                                        placeholder="Enter your email" required>
-                                                </div>
-                                            </div>
-                                            {{-- RESUME --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Resume / CV
-                                                </label>
-                                                <label class="custom-file-upload w-100">
-                                                    <input type="file" name="document" id="document" required>
-                                                    <div class="custom-file-content">
-                                                        <div class="custom-file-left">
-                                                            <div class="custom-file-icon">
-                                                                <i class="ti ti-file-text"></i>
-                                                            </div>
-                                                            <div>
-                                                                <h6 class="mb-1 fw-semibold">
-                                                                    Upload Resume
-                                                                </h6>
-                                                                <small class="text-muted">
-                                                                    PDF, DOC, DOCX
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="browse-btn">
-                                                            Browse
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                                <small id="fileName" class="text-muted mt-2 d-block"></small>
-                                            </div>
-                                            {{-- PASSWORD --}}
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Password
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-lock input-icon"></i>
-                                                    <input type="password" id="teacherPassword" name="password"
-                                                        class="form-control register-form-control pe-5"
-                                                        placeholder="Create password" required>
-                                                    <i class="ti ti-eye toggle-password"
-                                                        data-target="#teacherPassword"></i>
-                                                </div>
-                                            </div>
-                                            {{-- CONFIRM --}}
-                                            <div class="mb-4">
-                                                <label class="form-label fw-semibold mb-2">
-                                                    Confirm Password
-                                                </label>
-                                                <div class="position-relative">
-                                                    <i class="ti ti-lock-check input-icon"></i>
-                                                    <input type="password" id="teacherConfirmPassword"
-                                                        name="password_confirmation"
-                                                        class="form-control register-form-control pe-5"
-                                                        placeholder="Confirm password" required>
-                                                    <i class="ti ti-eye toggle-password"
-                                                        data-target="#teacherConfirmPassword"></i>
-                                                </div>
-                                            </div>
-                                            {{-- BUTTON --}}
-                                            <div class="d-grid mb-3 mt-4">
-                                                <button type="submit" class="btn register-btn text-white">
-                                                    Create Teacher Account
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                <x-auth-session-status class="mb-4" :status="session('status')" />
+                                {{-- Self-entered name/email/password registration is
+                                     intentionally removed — it let anyone create an
+                                     account with made-up info, no proof it's a real
+                                     person or a real, owned email. Google verifies both,
+                                     so it's now the only way a student account gets
+                                     created. (Teacher self-registration is separately on
+                                     hold — staff/admin still create instructor accounts
+                                     directly. That old form is preserved in git history /
+                                     RegisteredUserController::store() if it's needed again.) --}}
+                                {{-- GOOGLE --}}
+                                <div class="d-grid mb-4">
+                                    <a href="{{ route('auth.google.redirect') }}"
+                                        class="btn btn-light border register-btn-google d-flex align-items-center justify-content-center gap-2">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                            <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" />
+                                            <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" />
+                                            <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" />
+                                            <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.581C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" />
+                                        </svg>
+                                        <span class="fw-semibold">Register with Google</span>
+                                    </a>
                                 </div>
                                 {{-- LOGIN --}}
                                 <div class="text-center mt-2">
@@ -489,23 +349,3 @@
         </div>
     </section>
 @endsection
-@push('scripts')
-    <script>
-        $('.toggle-password').on('click', function() {
-            let target = $(this).data('target');
-            let input = $(target);
-            let type = input.attr('type') === 'password' ?
-                'text' :
-                'password';
-            input.attr('type', type);
-            $(this).toggleClass('ti-eye');
-            $(this).toggleClass('ti-eye-off');
-        });
-        $('#document').on('change', function() {
-            let fileName = this.files[0]?.name;
-            if (fileName) {
-                $('#fileName').text(fileName);
-            }
-        });
-    </script>
-@endpush

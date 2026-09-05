@@ -53,7 +53,7 @@
             <section class="co-card course-summary-card" data-aos="fade-up">
                 <div class="course-summary-top">
                     <div class="course-thumb">
-                        <img src="{{ $invoice->course->thumbnail ? asset($invoice->course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                        <img src="{{ $invoice->course->thumbnail ? asset($invoice->course->thumbnail) : asset('default-images/course-default.jpg') }}"
                             alt="{{ $invoice->course->title }} thumbnail">
                     </div>
                     <div class="course-summary-info">
@@ -523,12 +523,19 @@
                     });
             }
 
+            // Picking a schedule used to submit #switch-schedule-form and
+            // reload the whole page against a re-targeted invoice (needed
+            // if a sibling schedule has a different price/date, so PayWay's
+            // signed payload matches). That reload was breaking the
+            // intended flow of "pick a schedule → generate the QR" in one
+            // go, so for now this only updates the displayed start date —
+            // no reload, and the ABA payload keeps referring to whichever
+            // schedule this invoice was created for. If switching to a
+            // sibling schedule needs to actually re-price the payment
+            // later, that'll need an AJAX endpoint that re-signs the
+            // PayWay fields in place instead of a full page reload.
             $scheduleSelect.on('change', function() {
-                var chosenId = parseInt($(this).val(), 10);
                 applyStartDate();
-                if (!chosenId || chosenId === CURRENT_COURSE_ID) return;
-                document.getElementById('switch-schedule-course-id').value = chosenId;
-                document.getElementById('switch-schedule-form').submit();
             });
 
             applyStartDate();
@@ -607,13 +614,47 @@
             var paywayFieldsPresent = @json((bool) $paywayFields);
 
             if (paywayFieldsPresent) {
+                // Where to send the student if they back out of PayWay's
+                // checkout without paying, instead of leaving them stuck
+                // looking at a closed modal and a disabled button.
+                var COURSE_DETAILS_URL = @json(route('course.details', $invoice->course->slug));
+
                 abaOption.addEventListener('click', function() {
                     abaOption.disabled = true;
                     abaOptionSub.textContent = 'Opening secure checkout…';
 
-                    // AbaPayway.checkout() opens PayWay's hosted popup/bottom-sheet
-                    // using the hidden #aba_merchant_request form above, untouched
-                    // since it was rendered.
+                    // AbaPayway.checkout() renders PayWay's own hosted
+                    // checkout modal/bottom-sheet in-page — it manages its
+                    // own UI entirely, so nothing here needs to open (or
+                    // pre-open) any window of our own for it.
+                    //
+                    // PayWay's SDK doesn't expose a documented close/cancel
+                    // callback, but its own modal close (X) button calls
+                    // AbaPayway.closeCheckout() directly — that's the only
+                    // hook available, so we wrap it (once AbaPayway is
+                    // actually loaded, which it will be by the time the
+                    // student can click this) to notice when the modal
+                    // closes without a completed payment.
+                    if (typeof AbaPayway !== 'undefined' &&
+                        typeof AbaPayway.closeCheckout === 'function' &&
+                        !AbaPayway.__redirectOnCloseWrapped) {
+                        var originalCloseCheckout = AbaPayway.closeCheckout.bind(AbaPayway);
+                        AbaPayway.closeCheckout = function(isAsk) {
+                            originalCloseCheckout(isAsk);
+                            // pollStatus() may have already confirmed the
+                            // payment and swapped in the success panel by
+                            // the time the modal closes — don't redirect
+                            // away from a successful payment.
+                            var alreadyPaid = document.getElementById('successCard')
+                                .style.display === 'block';
+                            if (!alreadyPaid) {
+                                clearInterval(pollTimer);
+                                window.location.href = COURSE_DETAILS_URL;
+                            }
+                        };
+                        AbaPayway.__redirectOnCloseWrapped = true;
+                    }
+
                     AbaPayway.checkout();
 
                     abaOptionSub.textContent = 'Waiting for payment…';
