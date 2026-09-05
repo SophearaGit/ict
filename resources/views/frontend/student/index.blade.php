@@ -39,9 +39,7 @@
                                         <!-- Card -->
                                         <div class="card mb-4 card-hover">
                                             <a href="{{ route('student.my.course.detail', $enrolled_course->course->id) }}"><img
-                                                    src="
-                                                    {{ $enrolled_course->course->thumbnail === '' ? asset('/default-images/staff/no-course-img.png') : $enrolled_course->course->thumbnail }}
-                                                "
+                                                    src="{{ $enrolled_course->course->thumbnail ? asset($enrolled_course->course->thumbnail) : asset('default-images/course-default.jpg') }}"
                                                     alt="course" class="card-img-top"></a>
                                             <!-- Card body -->
                                             <div class="card-body">
@@ -109,9 +107,7 @@
                                             <div class="card-footer">
                                                 <div class="row align-items-center g-0">
                                                     <div class="col-auto">
-                                                        <img src="
-                                                            {{ $enrolled_course->course->instructor->image === 'no-img.jpg' ? asset('\default-images\user\both.jpg') : $enrolled_course->course->instructor->image }}
-                                                        "
+                                                        <img src="{{ !$enrolled_course->course->instructor->image || $enrolled_course->course->instructor->image === 'no-img.jpg' ? asset('default-images/user/both.jpg') : asset($enrolled_course->course->instructor->image) }}"
                                                             class="rounded-circle avatar-xs" alt="avatar">
                                                     </div>
                                                     <div class="col ms-2">

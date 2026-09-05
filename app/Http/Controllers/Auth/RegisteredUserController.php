@@ -34,21 +34,26 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Self-entered student registration (name/email/password typed in
+        // by hand) is intentionally disabled — it let anyone create an
+        // account with made-up info and an email nobody verified they
+        // actually own. Google sign-in (see GoogleAuthController) is now
+        // the only way a student account gets created; it's checked first
+        // and rejected before touching the rest of this method, in case
+        // this endpoint is ever hit directly (e.g. a scripted request)
+        // rather than through the (now Google-only) register page.
+        if ($request->type === 'student') {
+            return redirect()->route('register')
+                ->with('status', 'Student registration is now done with Google — please use the "Register with Google" button.');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        if ($request->type === 'student') {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'student',
-                'approval_status' => 'approved',
-            ]);
-        } elseif ($request->type === 'instructor') {
+        if ($request->type === 'instructor') {
 
             $request->validate([
                 'document' => ['required', 'mimes:pdf,doc,docx,jpg,png', 'max:12000'],

@@ -1450,7 +1450,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <!-- Card -->
                     <div class="card mb-4 card-hover">
-                        <a href="course-single.html"><img src="../assets/images/course/course-react.jpg" alt="course"
+                        <a href="course-single.html"><img src="{{ asset('default-images/course-default.jpg') }}" alt="course"
                                 class="card-img-top"></a>
                         <!-- Card body -->
                         <div class="card-body">
@@ -1526,7 +1526,7 @@
                         <div class="card-footer">
                             <div class="row align-items-center g-0">
                                 <div class="col-auto">
-                                    <img src="../assets/images/avatar/avatar-1.jpg" class="rounded-circle avatar-xs"
+                                    <img src="{{ asset('default-images/user/both.jpg') }}" class="rounded-circle avatar-xs"
                                         alt="avatar">
                                 </div>
                                 <div class="col ms-2">
@@ -1544,7 +1544,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <!-- Card -->
                     <div class="card mb-4 card-hover">
-                        <a href="course-single.html"><img src="../assets/images/course/course-graphql.jpg" alt="course"
+                        <a href="course-single.html"><img src="{{ asset('default-images/course-default.jpg') }}" alt="course"
                                 class="card-img-top"></a>
                         <!-- Card body -->
                         <div class="card-body">
@@ -1620,7 +1620,7 @@
                         <div class="card-footer">
                             <div class="row align-items-center g-0">
                                 <div class="col-auto">
-                                    <img src="../assets/images/avatar/avatar-2.jpg" class="rounded-circle avatar-xs"
+                                    <img src="{{ asset('default-images/user/both.jpg') }}" class="rounded-circle avatar-xs"
                                         alt="avatar">
                                 </div>
                                 <div class="col ms-2">
@@ -1638,7 +1638,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <!-- Card -->
                     <div class="card mb-4 card-hover">
-                        <a href="course-single.html"><img src="../assets/images/course/course-angular.jpg" alt="course"
+                        <a href="course-single.html"><img src="{{ asset('default-images/course-default.jpg') }}" alt="course"
                                 class="card-img-top"></a>
                         <div class="card-body">
                             <h4 class="mb-2 text-truncate-line-2">
@@ -1713,7 +1713,7 @@
                         <div class="card-footer">
                             <div class="row align-items-center g-0">
                                 <div class="col-auto">
-                                    <img src="../assets/images/avatar/avatar-3.jpg" class="rounded-circle avatar-xs"
+                                    <img src="{{ asset('default-images/user/both.jpg') }}" class="rounded-circle avatar-xs"
                                         alt="avatar">
                                 </div>
                                 <div class="col ms-2">
@@ -1730,7 +1730,7 @@
                 </div>
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="card mb-4 card-hover">
-                        <a href="course-single.html"><img src="../assets/images/course/course-python.jpg"
+                        <a href="course-single.html"><img src="{{ asset('default-images/course-default.jpg') }}"
                                 alt="course" class="card-img-top"></a>
                         <div class="card-body">
                             <h4 class="mb-2 text-truncate-line-2">
@@ -1806,7 +1806,7 @@
                         <div class="card-footer">
                             <div class="row align-items-center g-0">
                                 <div class="col-auto">
-                                    <img src="../assets/images/avatar/avatar-4.jpg" class="rounded-circle avatar-xs"
+                                    <img src="{{ asset('default-images/user/both.jpg') }}" class="rounded-circle avatar-xs"
                                         alt="avatar">
                                 </div>
                                 <div class="col ms-2">

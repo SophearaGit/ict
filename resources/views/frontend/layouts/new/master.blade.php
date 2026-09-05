@@ -239,10 +239,6 @@
             }
             evt.currentTarget.className += " active";
         }
-        /* ── Register buttons -> go to register.html ── */
-        document.querySelectorAll('#registerbtn, .drawer-register').forEach(btn => {
-            btn.addEventListener('click', () => window.location.href = 'register.html');
-        });
         /* ── Hamburger Drawer ── */
         const hamburger = document.getElementById('hamburger');
         const drawer = document.getElementById('mobileDrawer');

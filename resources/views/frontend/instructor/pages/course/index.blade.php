@@ -61,7 +61,7 @@
                                                     <div>
                                                         <a
                                                             href="{{ route('instructor.courses.edit', ['id' => $course->id, 'step' => 1]) }}">
-                                                            <img src="{{ asset($course->thumbnail) }}" alt="course"
+                                                            <img src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('default-images/course-default.jpg') }}" alt="course"
                                                                 class="rounded img-4by3-lg"
                                                                 style="height: 4.5rem !important; object-fit: cover !important;">
                                                         </a>

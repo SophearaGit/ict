@@ -64,7 +64,7 @@
                         @endphp
                         <a href="{{ route('course.details', $course->slug) }}" class="boxcard">
                             <img id="course-imgg"
-                                src="{{ $course->thumbnail ? asset($course->thumbnail) : 'frontend/asset/images/Course-Language/default.jpg' }}"
+                                src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('default-images/course-default.jpg') }}"
                                 alt="{{ $course->title }}">
                             <div class="detail-boxcard">
                                 <button>{{ $course->category->name ?? 'Development' }}</button>
