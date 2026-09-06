@@ -399,7 +399,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="e.g. student@gmail.com" value="{{ old('email') }}">
+                <input type="email" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a full email address including a domain, e.g. name@example.com" class="form-control @error('email') is-invalid @enderror" placeholder="e.g. student@gmail.com" value="{{ old('email') }}">
                 @error('email')
                 <span class="text-danger small">{{ $message }}</span>
                 @enderror
@@ -408,7 +408,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
-                <input type="text" name="phone" inputmode="tel" maxlength="20" class="form-control @error('phone') is-invalid @enderror" placeholder="e.g. 012000000" value="{{ old('phone') }}">
+                <input type="text" name="phone" inputmode="tel" maxlength="20" required pattern="[0-9+\-\s]{8,20}" title="Phone number: digits only, optionally starting with +, 8–20 characters" class="form-control @error('phone') is-invalid @enderror" placeholder="e.g. 012000000" value="{{ old('phone') }}">
                 @error('phone')
                 <span class="text-danger small">{{ $message }}</span>
                 @enderror
@@ -523,6 +523,77 @@
     </div>
   </div>
 </div>
+{{-- VIEW MODAL --}}
+<div class="modal fade" id="viewStudentModal" tabindex="-1" aria-hidden="true" style="display:none;">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center">
+        <h5 class="modal-title">Student Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="image-preview-circle">
+            <img id="view-image" src="" alt="Profile">
+          </div>
+          <div>
+            <h5 class="mb-0" id="view-name"></h5>
+            <div class="text-muted" id="view-khmer-name"></div>
+            <div class="d-flex gap-2 mt-2">
+              <span class="badge rounded-pill" id="view-gender-badge"></span>
+              <span class="badge rounded-pill" id="view-status-badge"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-title"><i class="ti ti-address-book me-1"></i> Contact</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="text-muted small">Email</div>
+            <div class="fw-semibold text-truncate"><i class="ti ti-mail me-1 text-muted"></i><span id="view-email"></span></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="text-muted small">Phone</div>
+            <div class="fw-semibold"><i class="ti ti-phone me-1 text-muted"></i><span id="view-phone"></span></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="text-muted small">Alternate Phone</div>
+            <div class="fw-semibold"><i class="ti ti-phone-plus me-1 text-muted"></i><span id="view-alternate-phone"></span></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="text-muted small">Location</div>
+            <div class="fw-semibold"><i class="ti ti-map-pin me-1 text-muted"></i><span id="view-location"></span></div>
+          </div>
+        </div>
+
+        <div class="form-section-title"><i class="ti ti-id me-1"></i> Personal Information</div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="text-muted small">Date of Birth</div>
+            <div class="fw-semibold" id="view-dob"></div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="text-muted small">Nationality</div>
+            <div class="fw-semibold" id="view-nationality"></div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="text-muted small">Joined</div>
+            <div class="fw-semibold" id="view-joined"></div>
+          </div>
+        </div>
+
+        <div class="form-section-title"><i class="ti ti-notes me-1"></i> Bio</div>
+        <p class="mb-0 text-break" id="view-bio"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="view-edit-btn">
+          <i class="ti ti-edit me-1"></i> Edit Student
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {{-- EDIT MODAL --}}
 <div class="modal fade" id="editStudentModal" tabindex="-1" aria-hidden="true" style="display:none;">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -575,13 +646,13 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                <input type="email" name="email" id="edit-email" class="form-control">
+                <input type="email" name="email" id="edit-email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a full email address including a domain, e.g. name@example.com" class="form-control">
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
-                <input type="text" name="phone" id="edit-phone" inputmode="tel" maxlength="20" class="form-control">
+                <input type="text" name="phone" id="edit-phone" inputmode="tel" maxlength="20" required pattern="[0-9+\-\s]{8,20}" title="Phone number: digits only, optionally starting with +, 8–20 characters" class="form-control">
               </div>
             </div>
           </div>
@@ -925,28 +996,97 @@
     document.getElementById('add-bio-counter').textContent = '0 / 1000';
   });
   // ─── Edit ───────────────────────────────────────────────────────────────────
+  // Pulled out of the click handler so the View modal's "Edit Student"
+  // button can reuse it too, instead of duplicating every field assignment.
+  function openEditStudentModal(dataset) {
+    const form = document.getElementById('editStudentForm');
+    form.action = `/staff/student/${dataset.id}`;
+    document.getElementById('edit-name').value = dataset.name ?? '';
+    document.getElementById('edit-khmer-name').value = dataset.khmerName ?? '';
+    document.getElementById('edit-email').value = dataset.email ?? '';
+    document.getElementById('edit-phone').value = dataset.phone ?? '';
+    dobPickerEdit.destroy();
+    dobPickerEdit = createDobPicker('#edit-dob', dataset.dob || null);
+    document.getElementById('edit-location').value = dataset.location ?? '';
+    document.getElementById('edit-gender').value = dataset.gender ?? '';
+    syncGenderToggle(document.getElementById('edit-gender'));
+    document.getElementById('edit-nationality').value = dataset.nationality ?? '';
+    document.getElementById('edit-alternate-phone').value = dataset.alternatePhone ?? '';
+    document.getElementById('edit-bio').value = dataset.bio ?? '';
+    document.getElementById('edit-bio-counter').textContent =
+      `${(dataset.bio ?? '').length} / 1000`;
+    document.getElementById('edit-image-preview').src = dataset.imageUrl ?? '';
+    document.getElementById('edit-image-file').value = '';
+    new bootstrap.Modal(document.getElementById('editStudentModal')).show();
+  }
   document.querySelectorAll('.btn-edit-student').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      const form = document.getElementById('editStudentForm');
-      form.action = `/staff/student/${this.dataset.id}`;
-      document.getElementById('edit-name').value = this.dataset.name ?? '';
-      document.getElementById('edit-khmer-name').value = this.dataset.khmerName ?? '';
-      document.getElementById('edit-email').value = this.dataset.email ?? '';
-      document.getElementById('edit-phone').value = this.dataset.phone ?? '';
-      dobPickerEdit.destroy();
-      dobPickerEdit = createDobPicker('#edit-dob', this.dataset.dob || null);
-      document.getElementById('edit-location').value = this.dataset.location ?? '';
-      document.getElementById('edit-gender').value = this.dataset.gender ?? '';
-      syncGenderToggle(document.getElementById('edit-gender'));
-      document.getElementById('edit-nationality').value = this.dataset.nationality ?? '';
-      document.getElementById('edit-alternate-phone').value = this.dataset.alternatePhone ?? '';
-      document.getElementById('edit-bio').value = this.dataset.bio ?? '';
-      document.getElementById('edit-bio-counter').textContent =
-        `${(this.dataset.bio ?? '').length} / 1000`;
-      document.getElementById('edit-image-preview').src = this.dataset.imageUrl ?? '';
-      document.getElementById('edit-image-file').value = '';
-      new bootstrap.Modal(document.getElementById('editStudentModal')).show();
+      openEditStudentModal(this.dataset);
     });
+  });
+  // ─── View ───────────────────────────────────────────────────────────────────
+  // The eye icon already carried every data-* attribute the Edit modal
+  // uses (it was just never wired to anything) — this reads the same
+  // dataset into a read-only profile view instead of a form.
+  function formatDobDisplay(raw) {
+    if (!raw) return '—';
+    const parsed = new Date(`${raw}T00:00:00`);
+    if (isNaN(parsed.getTime())) return raw;
+    return parsed.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+  let viewStudentDataset = null;
+  document.querySelectorAll('.btn-view-student').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const d = this.dataset;
+      viewStudentDataset = d;
+
+      document.getElementById('view-image').src = d.imageUrl ?? '';
+      document.getElementById('view-name').textContent = d.name || '—';
+      const khmerNameEl = document.getElementById('view-khmer-name');
+      khmerNameEl.textContent = d.khmerName ?? '';
+      khmerNameEl.style.display = d.khmerName ? '' : 'none';
+
+      const genderLabel = d.gender ? d.gender.charAt(0).toUpperCase() + d.gender.slice(1) : '—';
+      const genderBadge = document.getElementById('view-gender-badge');
+      genderBadge.textContent = genderLabel;
+      genderBadge.className = 'badge rounded-pill ' +
+        (d.gender === 'male' ? 'bg-light-primary text-primary' : 'bg-light-danger text-danger');
+
+      const status = d.status || 'active';
+      const statusBadge = document.getElementById('view-status-badge');
+      statusBadge.innerHTML = `<i class="ti ${status === 'active' ? 'ti-circle-check' : 'ti-circle-x'} me-1"></i>${status.charAt(0).toUpperCase() + status.slice(1)}`;
+      statusBadge.className = 'badge rounded-pill ' +
+        (status === 'active' ? 'bg-light-success text-success' : 'bg-light-secondary text-secondary');
+
+      document.getElementById('view-email').textContent = d.email || '—';
+      document.getElementById('view-phone').textContent = d.phone || '—';
+      document.getElementById('view-alternate-phone').textContent = d.alternatePhone || '—';
+      document.getElementById('view-location').textContent = d.location || '—';
+      document.getElementById('view-dob').textContent = formatDobDisplay(d.dob);
+      document.getElementById('view-nationality').textContent = d.nationality || '—';
+      document.getElementById('view-joined').textContent = d.joined || '—';
+      document.getElementById('view-bio').textContent = d.bio || 'No bio provided.';
+
+      new bootstrap.Modal(document.getElementById('viewStudentModal')).show();
+    });
+  });
+  // "Edit Student" inside the View modal: close this one first (waiting for
+  // its hide transition to finish avoids Bootstrap stacking two modal
+  // backdrops), then open Edit pre-filled with the same student.
+  document.getElementById('view-edit-btn').addEventListener('click', function() {
+    const viewModalEl = document.getElementById('viewStudentModal');
+    const dataset = viewStudentDataset;
+    viewModalEl.addEventListener('hidden.bs.modal', function onHidden() {
+      viewModalEl.removeEventListener('hidden.bs.modal', onHidden);
+      if (dataset) {
+        openEditStudentModal(dataset);
+      }
+    });
+    bootstrap.Modal.getInstance(viewModalEl)?.hide();
   });
 </script>
 @endpush
