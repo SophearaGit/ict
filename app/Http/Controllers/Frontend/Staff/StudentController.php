@@ -43,8 +43,18 @@ class StudentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'khmer_name' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20',
+            // email:rfc alone (Laravel/PHP's default) accepts "student@gmail"
+            // as a syntactically valid address — a bare hostname with no dot
+            // is technically legal RFC 5321 syntax, even though it's never a
+            // real, reachable domain. Adding the "dns" check makes it also
+            // confirm the domain actually has a DNS record (so "gmail" on
+            // its own is rejected, "gmail.com" passes).
+            'email' => 'required|email:rfc,dns|max:255|unique:users,email',
+            // Was just "string|max:20" — accepted literally any text.
+            // Require it to actually look like a phone number: digits only,
+            // with an optional leading + and spaces/dashes as separators,
+            // 8–20 characters long.
+            'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'dob' => 'nullable|date',
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
@@ -102,8 +112,13 @@ class StudentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'khmer_name' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string|max:20',
+            // Same reasoning as store(): plain email:rfc accepts a
+            // dot-less domain like "gmail" as valid, so require a real,
+            // resolvable domain too.
+            'email' => 'required|email:rfc,dns|max:255|unique:users,email,' . $id,
+            // Same as store(): require it to actually look like a phone
+            // number instead of accepting any string.
+            'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'dob' => 'nullable|date',
             'gender' => 'required|in:male,female,other',
             'password' => 'nullable|min:8|confirmed',
