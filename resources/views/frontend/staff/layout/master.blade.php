@@ -73,6 +73,36 @@
         .page-item.disabled .page-link {
             opacity: 0.5;
         }
+
+        /*
+         * The admin theme (style.min.css) defines the "bg-light-*" badge
+         * background utilities (very pale tints) but never defines their
+         * matching "text-dark-*" text-color utilities. Without them, badges
+         * like `bg-light-success text-dark-success` fall back to the base
+         * .badge rule's white text color on a near-white background, making
+         * labels such as "Published" / "Scheduled" / "Draft" unreadable.
+         * These rules add the missing dark, readable text colors to match
+         * each pale background.
+         */
+        .text-dark-primary {
+            color: #1e40af !important;
+        }
+
+        .text-dark-secondary {
+            color: #155e75 !important;
+        }
+
+        .text-dark-info {
+            color: #075985 !important;
+        }
+
+        .text-dark-success {
+            color: #065f46 !important;
+        }
+
+        .text-dark-warning {
+            color: #92400e !important;
+        }
     </style>
     @stack('styles')
 </head>

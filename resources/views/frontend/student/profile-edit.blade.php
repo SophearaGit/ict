@@ -111,8 +111,10 @@
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="khmer_name">Name ( Khmer )</label>
                                         <input type="text" id="khmer_name" name="khmer_name" class="form-control"
-                                            placeholder="" value="{{ auth()->user()->khmer_name }}" required="">
-                                        <div class="invalid-feedback">Please entername.</div>
+                                            placeholder="" value="{{ auth()->user()->khmer_name }}"
+                                            pattern="[ក-៿\s]*"
+                                            title="Khmer letters only" autocomplete="off">
+                                        <div class="invalid-feedback">Please use Khmer letters only.</div>
                                         <x-input-error :messages="$errors->get('khmer_name')" class="mt-2 text-danger" />
                                     </div>
                                     {{-- email --}}
@@ -127,16 +129,14 @@
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="headline">Headline</label>
                                         <input type="text" id="headline" name="headline" class="form-control"
-                                            placeholder="" value="{{ auth()->user()->headline }}" required="">
-                                        <div class="invalid-feedback">Please enter headline.</div>
+                                            placeholder="" value="{{ auth()->user()->headline }}">
                                         <x-input-error :messages="$errors->get('headline')" class="mt-2 text-danger" />
                                     </div>
                                     {{-- bio --}}
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="bio">Bio</label>
                                         <input type="text" id="bio" name="bio" class="form-control"
-                                            placeholder="" value="{{ auth()->user()->bio }}" required="">
-                                        <div class="invalid-feedback">Please enter bio.</div>
+                                            placeholder="" value="{{ auth()->user()->bio }}">
                                         <x-input-error :messages="$errors->get('bio')" class="mt-2 text-danger" />
                                     </div>
                                     {{--  --}}
@@ -188,6 +188,15 @@
             format: 'yyyy-mm-dd',
             autoclose: true,
             todayHighlight: true,
+        });
+        // Strip out anything that isn't a Khmer letter (or a space between
+        // words) as the student types, rather than only catching it at
+        // submit time via the pattern attribute above.
+        document.getElementById('khmer_name').addEventListener('input', function() {
+            const cleaned = this.value.replace(/[^ក-៿\s]/g, '');
+            if (cleaned !== this.value) {
+                this.value = cleaned;
+            }
         });
     </script>
 @endpush
