@@ -61,6 +61,11 @@
         color: #dc2626;
     }
 
+    .inv-status-badge.free {
+        background: #d1fae5;
+        color: #059669;
+    }
+
     .inv-btn {
         display: inline-flex;
         align-items: center;
@@ -114,6 +119,24 @@
         box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
     }
 
+    /* Full Screen mode — toggled by .btn_toggle_fullscreen below. Rather
+       than the browser's native Fullscreen API (finicky permissions,
+       vendor prefixes, no control over how the backdrop looks), this just
+       lifts the whole invoice wrap out of the sidebar/list layout to
+       cover the viewport, so staff can review a long invoice without the
+       student list crowding it. */
+    .inv-detail-wrap.inv-fullscreen-active {
+        position: fixed;
+        inset: 0;
+        z-index: 1080;
+        overflow-y: auto;
+        background: #f8f8fb;
+    }
+
+    body.inv-fullscreen-open {
+        overflow: hidden;
+    }
+
     @media print {
 
         .inv-topbar,
@@ -124,6 +147,10 @@
         .inv-detail-wrap {
             padding: 0;
             background: #fff;
+        }
+
+        .inv-detail-wrap.inv-fullscreen-active {
+            position: static;
         }
 
         #printableArea {
@@ -143,11 +170,13 @@
                 $badgeClass = match ($invoice->payment_status) {
                     'paid' => 'paid',
                     'half_paid' => 'half',
+                    'free' => 'free',
                     default => 'unpaid',
                 };
                 $badgeLabel = match ($invoice->payment_status) {
                     'paid' => 'Fully Paid',
                     'half_paid' => 'Half Paid',
+                    'free' => 'Free',
                     default => 'Unpaid',
                 };
             @endphp
@@ -160,7 +189,7 @@
                 <i class="ti ti-trash"></i>
                 Delete &amp; Re-register
             </button>
-            @if ($invoice->payment_status !== 'paid')
+            @if (!in_array($invoice->payment_status, ['paid', 'free']))
                 <a href="javascript:void(0)" data-url="{{ route('staff.invoice.confirm-payment', $invoice->id) }}"
                     data-remaining="{{ $invoice->remaining_amount }}"
                     class="inv-btn inv-btn-success btn_confirm_payment">
@@ -168,6 +197,10 @@
                     Confirm Payment
                 </a>
             @endif
+            <button type="button" class="inv-btn inv-btn-outline btn_toggle_fullscreen">
+                <i class="ti ti-maximize"></i>
+                <span class="fs-label">Full Screen</span>
+            </button>
             <button class="inv-btn inv-btn-outline print-page">
                 <i class="ti ti-printer"></i>
                 Print
@@ -194,62 +227,89 @@
                 </div>
             </div>
             {{-- Meta strip --}}
-            @php $count = $invoice->payments->count(); @endphp
+            @php
+                // Small lookup for how each payment_method should be
+                // labelled/iconed — used here and in the Payment History
+                // section below. 'payway' is ABA PayWay's online checkout;
+                // 'online'/'card'/'bank_transfer' are other gateway-style
+                // methods; anything else (incl. legacy blank values) is
+                // treated as a plain cash payment recorded by staff.
+                $paymentMeta = fn(string $method): array => match ($method) {
+                    'payway' => ['icon' => 'ti-qrcode', 'label' => 'ABA PayWay'],
+                    'card' => ['icon' => 'ti-credit-card', 'label' => 'Card'],
+                    'bank_transfer' => ['icon' => 'ti-building-bank', 'label' => 'Bank Transfer'],
+                    'online' => ['icon' => 'ti-world', 'label' => 'Online'],
+                    default => ['icon' => 'ti-cash', 'label' => 'Cash'],
+                };
+                $paymentMethodsUsed = $invoice->payments->pluck('payment_method')->unique();
+                $isFree = $invoice->payment_status === 'free';
+                $metaLabelStyle =
+                    'font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;';
+                $metaValueStyle = 'font-size:13px;font-weight:700;color:#222;';
+
+                // How this invoice's discount/extra-charge was decided at
+                // registration time (i_c_t_invoices.payment_option). Not
+                // always set on older/manually-entered invoices, so the
+                // meta chip below is skipped entirely when null.
+                $paymentOptionLabel = match ($invoice->payment_option) {
+                    'full' => 'Full Payment',
+                    'half' => 'Half Payment Plan',
+                    'multi' => 'Multi-Course Discount',
+                    'normal' => 'Standard',
+                    'free' => 'Free Enrollment',
+                    'other' => 'Custom Plan',
+                    default => null,
+                };
+            @endphp
             <div
-                style="background:#f4f4f8;padding:14px 36px;display:flex;align-items:center;gap:32px;border-bottom:1px solid #e8e8f0;">
+                style="background:#f4f4f8;padding:14px 36px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;border-bottom:1px solid #e8e8f0;">
                 <div>
-                    <div
-                        style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
-                        Invoice Date</div>
-                    <div style="font-size:13px;font-weight:700;color:#222;">{{ $invoice->created_at->format('d M Y') }}
+                    <div style="{{ $metaLabelStyle }}">Invoice Date</div>
+                    <div style="{{ $metaValueStyle }}">{{ $invoice->created_at->format('d M Y') }}</div>
+                </div>
+                <div>
+                    <div style="{{ $metaLabelStyle }}">Payment Method</div>
+                    <div style="{{ $metaValueStyle }}">
+                        @if ($isFree)
+                            &mdash;
+                        @elseif ($paymentMethodsUsed->isEmpty())
+                            Not paid yet
+                        @elseif ($paymentMethodsUsed->count() > 1)
+                            Multiple
+                        @else
+                            {{ $paymentMeta($paymentMethodsUsed->first())['label'] }}
+                        @endif
                     </div>
                 </div>
-                @if ($count === 1)
-                    @if ($invoice->payment_status === 'half_paid')
-                        <div>
-                            <div
-                                style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
-                                Half-Paid</div>
-                            <div style="font-size:13px;font-weight:700;color:#ca8a04;">
-                                {{ $invoice->payments->first()->created_at->format('d M Y') }}
-                            </div>
-                        </div>
-                    @elseif ($invoice->payment_status === 'paid')
-                        <div>
-                            <div
-                                style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
-                                Paid On</div>
-                            <div style="font-size:13px;font-weight:700;color:#16a34a;">
-                                {{ $invoice->payments->first()->created_at->format('d M Y') }}
-                            </div>
-                        </div>
-                    @endif
-                @elseif ($count > 1)
+                @if ($paymentOptionLabel)
                     <div>
-                        <div
-                            style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
-                            Half-Paid</div>
-                        <div style="font-size:13px;font-weight:700;color:#ca8a04;">
-                            {{ $invoice->payments->first()->created_at->format('d M Y') }}
+                        <div style="{{ $metaLabelStyle }}">Payment Plan</div>
+                        <div style="{{ $metaValueStyle }}">{{ $paymentOptionLabel }}</div>
+                    </div>
+                @endif
+                @if ($invoice->payway_tran_id && $paymentMethodsUsed->contains('payway'))
+                    <div>
+                        <div style="{{ $metaLabelStyle }}">Transaction ID</div>
+                        <div style="font-size:12px;font-weight:700;color:#222;font-family:'Courier New',monospace;">
+                            {{ $invoice->payway_tran_id }}
                         </div>
                     </div>
+                @endif
+                @if ($invoice->payment_status === 'paid' && $invoice->paid_at)
                     <div>
-                        <div
-                            style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
-                            Full-Paid</div>
-                        <div style="font-size:13px;font-weight:700;color:#16a34a;">
-                            {{ $invoice->payments->last()->created_at->format('d M Y') }}
+                        <div style="{{ $metaLabelStyle }}">Paid On</div>
+                        <div style="{{ $metaValueStyle }}">
+                            {{ \Carbon\Carbon::parse($invoice->paid_at)->format('d M Y') }}
                         </div>
                     </div>
                 @endif
                 <div style="margin-left:auto;text-align:right;">
-                    <div
-                        style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#aaa;margin-bottom:3px;">
-                        {{ $invoice->payment_status === 'paid' ? 'Fully Paid' : 'To Pay' }}
+                    <div style="{{ $metaLabelStyle }}">
+                        {{ $isFree ? 'Free Enrollment' : ($invoice->payment_status === 'paid' ? 'Fully Paid' : 'To Pay') }}
                     </div>
                     <div
-                        style="font-size:20px;font-weight:800;color:{{ $invoice->payment_status === 'paid' ? '#16a34a' : '#0f0e17' }};">
-                        ${{ number_format($invoice->remaining_amount, 2) }}
+                        style="font-size:20px;font-weight:800;color:{{ $isFree || $invoice->payment_status === 'paid' ? '#16a34a' : '#0f0e17' }};">
+                        {{ $isFree ? 'Free' : '$' . number_format($invoice->remaining_amount, 2) }}
                     </div>
                 </div>
             </div>
@@ -264,6 +324,11 @@
                         {{ $invoice->student->name }}
                     </div>
                     <div style="font-size:12px;color:#666;">ICT Professional Training Center</div>
+                    @if ($invoice->staff)
+                        <div style="font-size:11px;color:#999;margin-top:6px;">
+                            Registered by {{ $invoice->staff->name }}
+                        </div>
+                    @endif
                 </div>
                 <div style="text-align:right;">
                     <div
@@ -315,15 +380,97 @@
                                 </td>
                                 <td
                                     style="padding:14px 16px;font-size:13px;font-weight:700;color:#0f0e17;text-align:right;">
-                                    <span class="view-mode">
-                                        ${{ number_format($invoice->price, 2) }}
-                                    </span>
+                                    ${{ number_format($item->total ?? $invoice->price, 2) }}
+                                    {{-- On a multi-course invoice, the discount/extra charge is split
+                                         per course and can differ from item to item — the invoice-level
+                                         Summary below only shows the combined total, so surface each
+                                         item's own adjustment here when it has one. --}}
+                                    @if ($item->discount > 0 || $item->extra_charge > 0)
+                                        <div style="font-size:10px;font-weight:500;color:#aaa;margin-top:2px;">
+                                            @if ($item->discount > 0)
+                                                -${{ number_format($item->discount, 2) }} disc
+                                            @endif
+                                            @if ($item->discount > 0 && $item->extra_charge > 0)
+                                                &middot;
+                                            @endif
+                                            @if ($item->extra_charge > 0)
+                                                +${{ number_format($item->extra_charge, 2) }} extra
+                                            @endif
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+            {{-- Payment History --}}
+            @if ($invoice->payments->isNotEmpty())
+                <div style="padding:24px 36px 0;">
+                    <div style="{{ $metaLabelStyle }} margin-bottom:12px;">Payment History</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        @foreach ($invoice->payments->sortBy('paid_at') as $payment)
+                            @php
+                                $pMeta = $paymentMeta($payment->payment_method);
+                                $isGatewayPayment = in_array($payment->payment_method, ['payway', 'online']);
+                            @endphp
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#f8f8fb;border-radius:10px;">
+                                <div
+                                    style="width:36px;height:36px;border-radius:50%;background:#0f0e17;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="ti {{ $pMeta['icon'] }}" style="color:#fff;font-size:16px;"></i>
+                                </div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:13px;font-weight:700;color:#0f0e17;">
+                                        {{ $pMeta['label'] }}
+                                        @if ($isGatewayPayment)
+                                            <span
+                                                style="font-size:10px;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 8px;border-radius:10px;margin-left:6px;">ONLINE</span>
+                                        @endif
+                                    </div>
+                                    <div style="font-size:11px;color:#888;margin-top:2px;">
+                                        {{-- paid_at isn't cast to a Carbon instance on this model (unlike
+                                             created_at, which Eloquent casts automatically), so it comes
+                                             back as a plain string — parse it explicitly rather than
+                                             calling ->format() directly on it. --}}
+                                        {{ \Carbon\Carbon::parse($payment->paid_at ?? $payment->created_at)->format('d M Y, g:i A') }}
+                                        @if ($isGatewayPayment)
+                                            &middot; paid by student via ABA PayWay
+                                        @elseif ($payment->paidBy)
+                                            &middot; recorded by {{ $payment->paidBy->name }}
+                                        @endif
+                                    </div>
+                                    @if ($payment->gateway_reference || $payment->gateway_approval_code)
+                                        <div
+                                            style="font-size:11px;color:#aaa;margin-top:3px;font-family:'Courier New',monospace;">
+                                            @if ($payment->gateway_reference)
+                                                Ref: {{ $payment->gateway_reference }}
+                                            @endif
+                                            @if ($payment->gateway_reference && $payment->gateway_approval_code)
+                                                &middot;
+                                            @endif
+                                            @if ($payment->gateway_approval_code)
+                                                Approval: {{ $payment->gateway_approval_code }}
+                                            @endif
+                                        </div>
+                                    @endif
+                                    {{-- Only shown for staff-recorded (cash) payments — the gateway
+                                         note on PayWay payments just repeats the ref already printed
+                                         above, so it's skipped here to avoid duplicate text. --}}
+                                    @if (!$isGatewayPayment && $payment->note)
+                                        <div style="font-size:11px;color:#aaa;margin-top:3px;font-style:italic;">
+                                            {{ $payment->note }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <div style="font-size:14px;font-weight:800;color:#0f0e17;white-space:nowrap;">
+                                    ${{ number_format($payment->amount, 2) }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
             {{-- Summary --}}
             <div style="padding:24px 36px;display:flex;justify-content:space-between;gap:32px;">
                 {{-- Terms --}}
@@ -340,32 +487,17 @@
                     <div
                         style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
                         <span>Full Price</span>
-                        <span class="view-mode">
-                            ${{ number_format($invoice->price, 2) }}
-                        </span>
-                        <input name="price" id="price" type="number"
-                            class="form-control form-control-sm edit-mode d-none invoice-calc"
-                            value="{{ $invoice->price }}">
+                        <span>${{ number_format($invoice->price, 2) }}</span>
                     </div>
                     <div
                         style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
                         <span>Discount</span>
-                        <span class="view-mode">
-                            ${{ number_format($invoice->discount, 2) }}
-                        </span>
-                        <input name="discount" id="discount" type="number"
-                            class="form-control form-control-sm edit-mode d-none invoice-calc"
-                            value="{{ $invoice->discount }}">
+                        <span>${{ number_format($invoice->discount, 2) }}</span>
                     </div>
                     <div
                         style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
                         <span>Extra Charge</span>
-                        <span class="view-mode">
-                            ${{ number_format($invoice->extra_charge, 2) }}
-                        </span>
-                        <input name="extra_charge" id="extra_charge" type="number"
-                            class="form-control form-control-sm edit-mode d-none invoice-calc"
-                            value="{{ $invoice->extra_charge }}">
+                        <span>${{ number_format($invoice->extra_charge, 2) }}</span>
                     </div>
                     <div
                         style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f5;">
@@ -403,6 +535,44 @@
     </div>{{-- /#printableArea --}}
 </div>
 <script>
+    // ── FULL SCREEN TOGGLE ──
+    // `position: fixed; inset: 0` alone isn't enough here — the invoice
+    // list/detail app sits several levels deep inside the admin layout's
+    // wrappers, and (same issue already hit with the flatpickr calendar
+    // inside a Bootstrap modal elsewhere in this app) a fixed-position
+    // element still gets boxed in by an ancestor rather than truly
+    // covering the viewport. Physically moving the wrap to a direct child
+    // of <body> while full screen is active sidesteps that entirely, then
+    // moves it back to where it came from on exit.
+    //
+    // Re-bound fresh every time this partial is re-injected (a new
+    // invoice click replaces .invoiceing-box's content), so make sure a
+    // previous invoice's fullscreen state doesn't linger.
+    $('body').removeClass('inv-fullscreen-open');
+    $(document).off('keydown.invFullscreen');
+    $(document).off('click', '.btn_toggle_fullscreen').on('click', '.btn_toggle_fullscreen', function() {
+        const $wrap = $('.inv-detail-wrap');
+        const goingFullscreen = !$wrap.hasClass('inv-fullscreen-active');
+        if (goingFullscreen) {
+            $wrap.data('fullscreen-origin', $wrap.parent());
+            $wrap.appendTo(document.body).addClass('inv-fullscreen-active');
+        } else {
+            const $origin = $wrap.data('fullscreen-origin');
+            $wrap.removeClass('inv-fullscreen-active');
+            if ($origin && $origin.length) {
+                $wrap.appendTo($origin);
+            }
+        }
+        $('body').toggleClass('inv-fullscreen-open', goingFullscreen);
+        $(this).find('i').attr('class', goingFullscreen ? 'ti ti-minimize' : 'ti ti-maximize');
+        $(this).find('.fs-label').text(goingFullscreen ? 'Exit Full Screen' : 'Full Screen');
+    });
+    // Escape exits full screen mode
+    $(document).on('keydown.invFullscreen', function(e) {
+        if (e.key === 'Escape' && $('.inv-detail-wrap').hasClass('inv-fullscreen-active')) {
+            $('.btn_toggle_fullscreen').trigger('click');
+        }
+    });
     $(document).off('click', '.btn_delete_invoice').on('click', '.btn_delete_invoice', function(e) {
         e.preventDefault();
         const invoiceId = $(this).data('id');

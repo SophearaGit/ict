@@ -12,13 +12,21 @@
         }
 
         /* ── LEFT PANEL ── */
+        /* No fixed height here — it stretches to match .inv-main's actual
+           height (the row's other flex item, via the parent's default
+           align-items: stretch), so the dark sidebar always runs the full
+           height of the invoice next to it instead of stopping short and
+           leaving blank space below it. min-height keeps it from looking
+           too short when an invoice is small/empty. .inv-list's flex:1
+           then simply fills whatever extra height that gives it, still
+           scrolling internally if there are more students than fit. */
         .inv-sidebar {
             width: 300px;
             min-width: 300px;
+            min-height: calc(100vh - 180px);
             background: #0f0e17;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 180px);
         }
 
         .inv-sidebar-header {
@@ -223,11 +231,16 @@
         }
 
         /* ── RIGHT PANEL ── */
+        /* No fixed height / overflow here on purpose: a full invoice
+           (course table + payment history + totals) is often taller than
+           one screen, and clipping it into a small internally-scrolling
+           box made it feel cramped. min-height keeps it from collapsing
+           when empty; beyond that it just grows with its content and the
+           page scrolls normally, same as the sidebar list next to it. */
         .inv-main {
             flex: 1;
             background: #f8f8fb;
-            overflow-y: auto;
-            height: calc(100vh - 180px);
+            min-height: calc(100vh - 180px);
         }
 
         .inv-empty-state {
@@ -235,7 +248,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            min-height: calc(100vh - 280px);
             color: #aaa;
             gap: 12px;
         }
@@ -254,7 +267,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            min-height: calc(100vh - 280px);
         }
 
         /* Mobile toggle */
@@ -276,7 +289,7 @@
             }
 
             .inv-main {
-                height: calc(100vh - 200px);
+                min-height: calc(100vh - 200px);
             }
         }
     </style>
@@ -292,7 +305,7 @@
             </button>
             <span style="color:rgba(255,255,255,0.5);font-size:13px;font-family:'DM Sans',sans-serif;">Invoices</span>
         </div>
-        <div class="d-flex" style="height:calc(100vh - 180px);">
+        <div class="d-flex" style="min-height:calc(100vh - 180px);">
             {{-- ── LEFT SIDEBAR ── --}}
             <div class="inv-sidebar d-none d-lg-flex flex-column">
                 <div class="inv-sidebar-header">
@@ -354,8 +367,8 @@
             </div>
             {{-- ── RIGHT MAIN ── --}}
             <div class="inv-main">
-                <div class="invoiceing-box h-100">
-                    <div class="inv-empty-state h-100">
+                <div class="invoiceing-box">
+                    <div class="inv-empty-state">
                         <i class="ti ti-file-invoice"></i>
                         <p>Select an invoice to view details</p>
                     </div>
@@ -410,7 +423,7 @@
     <script src="/admin/assets/dist/js/apps/jquery.PrintArea.js"></script>
     <script>
         let loader = `
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;">
+            <div style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 280px);">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -422,6 +435,14 @@
             $('.inv-list-item').removeClass('active');
             $(this).addClass('active');
             let invoice_id = $(this).data('invoice-id');
+            // If full screen mode moved the previous invoice's markup out
+            // to a direct child of <body> (see inv-body.blade.php), it's
+            // no longer inside .invoiceing-box and won't be cleared by the
+            // .html() call below on its own — drop it explicitly so
+            // switching invoices while full screen is open doesn't leave
+            // a stale overlay stuck on the page.
+            $('body > .inv-detail-wrap').remove();
+            $('body').removeClass('inv-fullscreen-open');
             $.ajax({
                 method: 'GET',
                 url: base_url + `/staff/invoice-detail/${invoice_id}`,
@@ -433,7 +454,7 @@
                 },
                 error: function() {
                     $('.invoiceing-box').html(`
-                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#aaa;font-family:'DM Sans',sans-serif;">
+                        <div style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 280px);color:#aaa;font-family:'DM Sans',sans-serif;">
                             Failed to load invoice.
                         </div>
                     `);
