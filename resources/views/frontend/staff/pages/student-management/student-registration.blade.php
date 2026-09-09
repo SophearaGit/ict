@@ -479,6 +479,17 @@
 </style>
 @endpush
 @section('content')
+@php
+    // When the server-side validation fails, Laravel flashes the submitted
+    // input to the session (except password fields) and redirects back
+    // here. These two values drive which tab / payment option / wrapper
+    // should already be showing as "selected" on reload, so staff don't
+    // have to redo their picks — only re-type the parts that actually
+    // failed validation.
+    $oldStudentType = old('student_type', 'new');
+    $oldPaymentOption = old('payment_option', '');
+    $oldCourseIds = old('course_ids', []);
+@endphp
 @include('frontend.staff.pages.partials.breadcrumb')
 <div class="reg-wrap">
   <div class="reg-card">
@@ -500,8 +511,8 @@
           {{-- ── STUDENT SELECTION ── --}}
           <p class="reg-section-label">Student</p>
           <div class="type-tabs">
-            <button type="button" class="type-tab active" data-type="new">New Student</button>
-            <button type="button" class="type-tab" data-type="existing">Existing Student</button>
+            <button type="button" class="type-tab {{ $oldStudentType === 'existing' ? '' : 'active' }}" data-type="new">New Student</button>
+            <button type="button" class="type-tab {{ $oldStudentType === 'existing' ? 'active' : '' }}" data-type="existing">Existing Student</button>
           </div>
           <div class="d-none" id="prefillBanner" style="
     background: linear-gradient(135deg, #fef2f2, #fff1f2);
@@ -541,14 +552,14 @@
               <i class="ti ti-user-x me-1"></i> Not this student? Pick another
             </button>
           </div>
-          <input type="hidden" name="student_type" id="studentTypeInput" value="new">
+          <input type="hidden" name="student_type" id="studentTypeInput" value="{{ $oldStudentType }}">
           {{-- Existing student selector --}}
-          <div class="d-none" id="existingStudentWrapper">
+          <div class="{{ $oldStudentType === 'existing' ? '' : 'd-none' }}" id="existingStudentWrapper">
             <div class="reg-field mb-3">
               <select class="form-select" name="student_id" id="studentSelect">
                 <option value="" disabled selected></option>
                 @foreach ($students as $student)
-                <option value="{{ $student->id }}">
+                <option value="{{ $student->id }}" @selected(old('student_id') == $student->id)>
                   {{ $student->name }} — {{ $student->email }}
                 </option>
                 @endforeach
@@ -557,33 +568,38 @@
             </div>
           </div>
           {{-- New student fields --}}
-          <div id="newStudentWrapper">
+          <div id="newStudentWrapper" class="{{ $oldStudentType === 'existing' ? 'd-none' : '' }}">
             <p class="reg-section-label">Basic Information</p>
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="text" name="name" placeholder=" ">
+                  <input type="text" name="name" placeholder=" " value="{{ old('name') }}"
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Full Name <span class="text-danger">*</span></label>
                 </div>
                 <x-input-error :messages="$errors->get('name')" class="field-error" />
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="email" name="email" placeholder=" ">
+                  <input type="email" name="email" placeholder=" " value="{{ old('email') }}"
+                    pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address, e.g. name@example.com"
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Email Address <span class="text-danger">*</span></label>
                 </div>
                 <x-input-error :messages="$errors->get('email')" class="field-error" />
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="text" name="khmer_name" placeholder=" ">
+                  <input type="text" name="khmer_name" placeholder=" " value="{{ old('khmer_name') }}"
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Full Name (Khmer)</label>
                 </div>
                 <x-input-error :messages="$errors->get('khmer_name')" class="field-error" />
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="text" name="dob" id="dobInput" placeholder=" " autocomplete="off">
+                  <input type="text" name="dob" id="dobInput" placeholder=" " autocomplete="off"
+                    value="{{ old('dob') }}" {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Date of Birth</label>
                   <i class="ti ti-calendar field-icon"></i>
                 </div>
@@ -591,7 +607,8 @@
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="password" name="password" id="pass1" placeholder=" ">
+                  <input type="password" name="password" id="pass1" placeholder=" "
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Password <span class="text-danger">*</span></label>
                   <span class="eye-toggle" data-target="pass1"><i class="ti ti-eye-off"></i></span>
                 </div>
@@ -599,21 +616,26 @@
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="password" name="password_confirmation" id="pass2" placeholder=" ">
+                  <input type="password" name="password_confirmation" id="pass2" placeholder=" "
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Confirm Password <span class="text-danger">*</span></label>
                   <span class="eye-toggle" data-target="pass2"><i class="ti ti-eye-off"></i></span>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="text" name="phone" placeholder=" ">
+                  <input type="text" name="phone" placeholder=" " value="{{ old('phone') }}"
+                    pattern="[0-9+\-\s]{8,20}" title="8-20 digits, optionally with +, spaces, or dashes"
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Phone Number <span class="text-danger">*</span></label>
                 </div>
                 <x-input-error :messages="$errors->get('phone')" class="field-error" />
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="text" name="alternate_phone" placeholder=" ">
+                  <input type="text" name="alternate_phone" placeholder=" " value="{{ old('alternate_phone') }}"
+                    pattern="[0-9+\-\s]{8,20}" title="8-20 digits, optionally with +, spaces, or dashes"
+                    {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Alternate Phone</label>
                 </div>
               </div>
@@ -640,7 +662,8 @@
                   $end = \Carbon\Carbon::parse($schedule->end_time)->format('g:i A');
                   }
                   @endphp
-                  <option value="{{ $course->id }}" data-price="{{ $course->price }}">
+                  <option value="{{ $course->id }}" data-price="{{ $course->price }}"
+                    @selected(in_array($course->id, $oldCourseIds))>
                     ${{ $course->price }} · {{ $course->title }}
                     @if ($schedule)
                     · {{ $days }} · {{ $shift }}
@@ -656,29 +679,29 @@
           </div>
           {{-- Payment option badges --}}
           <p class="reg-section-label" style="margin-top:1rem">Payment Option</p>
-          <input type="hidden" name="payment_option" id="paymentOptionInput" value="">
+          <input type="hidden" name="payment_option" id="paymentOptionInput" value="{{ $oldPaymentOption }}">
           <div class="payment-badges" id="paymentBadges">
-            <span class="pay-badge normal" data-value="normal">Pay Full</span>
-            <span class="pay-badge full" data-value="full">Full + $10 Off</span>
-            <span class="pay-badge half" data-value="half">Half + $20 Fee</span>
-            <span class="pay-badge multi" data-value="multi">Multi ($25 Off)</span>
-            <span class="pay-badge free" data-value="free">Free</span>
-            <span class="pay-badge other" data-value="other">Other / Manual</span>
+            <span class="pay-badge normal {{ $oldPaymentOption === 'normal' ? 'active' : '' }}" data-value="normal">Pay Full</span>
+            <span class="pay-badge full {{ $oldPaymentOption === 'full' ? 'active' : '' }}" data-value="full">Full + $10 Off</span>
+            <span class="pay-badge half {{ $oldPaymentOption === 'half' ? 'active' : '' }}" data-value="half">Half + $20 Fee</span>
+            <span class="pay-badge multi {{ $oldPaymentOption === 'multi' ? 'active' : '' }}" data-value="multi">Multi ($25 Off)</span>
+            <span class="pay-badge free {{ $oldPaymentOption === 'free' ? 'active' : '' }}" data-value="free">Free</span>
+            <span class="pay-badge other {{ $oldPaymentOption === 'other' ? 'active' : '' }}" data-value="other">Other / Manual</span>
           </div>
-          <div id="multiNoteWrapper" class="d-none">
+          <div id="multiNoteWrapper" class="{{ count($oldCourseIds) >= 2 ? '' : 'd-none' }}">
             <span class="multi-note">
                                 <i class="ti ti-sparkles"></i> $25 multi-course discount applied
                             </span>
           </div>
           {{-- ── MANUAL ENTRY PANEL ── --}}
-          <div class="manual-panel d-none" id="manualEntryWrapper">
+          <div class="manual-panel {{ $oldPaymentOption === 'other' ? '' : 'd-none' }}" id="manualEntryWrapper">
             <p class="manual-panel-title">
               <i class="ti ti-edit"></i> Manual Entry
             </p>
             <div class="row g-3">
               <div class="col-md-4">
                 <div class="reg-field">
-                  <input type="number" step="0.01" min="0" id="manualDiscount" name="manual_discount" placeholder=" " value="0">
+                  <input type="number" step="0.01" min="0" id="manualDiscount" name="manual_discount" placeholder=" " value="{{ old('manual_discount', 0) }}">
                   <label>Discount ($)</label>
                 </div>
                 <x-input-error :messages="$errors->get('manual_discount')" class="field-error" />
@@ -693,14 +716,14 @@
                                 </div> --}}
               <div class="col-md-4">
                 <div class="reg-field">
-                  <input type="number" step="0.01" min="0" id="manualTotalAmount" name="manual_total_amount" placeholder=" ">
+                  <input type="number" step="0.01" min="0" id="manualTotalAmount" name="manual_total_amount" placeholder=" " value="{{ old('manual_total_amount') }}">
                   <label>Total Amount ($) <span class="text-danger">*</span></label>
                 </div>
                 <x-input-error :messages="$errors->get('manual_total_amount')" class="field-error" />
               </div>
               <div class="col-md-4">
                 <div class="reg-field">
-                  <input type="number" step="0.01" min="0" id="manualPaidAmount" name="manual_paid_amount" placeholder=" ">
+                  <input type="number" step="0.01" min="0" id="manualPaidAmount" name="manual_paid_amount" placeholder=" " value="{{ old('manual_paid_amount') }}">
                   <label>Paid Amount ($) <span class="text-danger">*</span></label>
                 </div>
                 <x-input-error :messages="$errors->get('manual_paid_amount')" class="field-error" />
@@ -792,10 +815,21 @@
       altInput: true,
       altFormat: 'M d, Y',
       maxDate: 'today',
+      // A DOB is often decades back — bound the picker to a sane range and
+      // jump it to a birth-year-ish decade by default (when nothing is
+      // already selected), instead of leaving it on today's month. Without
+      // this, opening the month dropdown for the current year makes any
+      // month after today look "missing" (it's hidden because a birth
+      // date can't be in the future), which reads as a bug when really
+      // you just haven't navigated to the actual birth year yet.
+      minDate: new Date().getFullYear() - 100 + '-01-01',
       allowInput: true,
       disableMobile: true,
       onReady: function(selectedDates, dateStr, instance) {
         instance.altInput.setAttribute('placeholder', ' ');
+        if (!selectedDates.length) {
+          instance.jumpToDate(new Date(new Date().getFullYear() - 20, 0, 1));
+        }
       }
     });
     // ==============================
@@ -809,6 +843,24 @@
       width: '100%',
       placeholder: 'Search student by name or email'
     });
+    // ==============================
+    // RESTORE STATE AFTER A VALIDATION ERROR
+    // The blade markup above already re-renders the previously chosen tab,
+    // student, course(s) and payment option from old() so nothing looks
+    // reset — this just re-runs the same calculations the click handlers
+    // normally do, so the summary cards / hidden totals aren't left blank.
+    // ==============================
+    (function restoreStateAfterValidationError() {
+      const oldPaymentOption = @json($oldPaymentOption);
+      const oldCourseCount = $('#courseSelect').find(':selected').length;
+      if (oldCourseCount >= 2) {
+        handleMultiCourseUI(oldCourseCount);
+      } else if (oldPaymentOption === 'other') {
+        recalcManualEntry();
+      } else if (oldPaymentOption) {
+        calculateAmounts();
+      }
+    })();
     // ==============================
     // PRE-FILL FROM DELETED INVOICE (?student_id=...)
     // Must run AFTER select2 init and AFTER .type-tab handler is bound

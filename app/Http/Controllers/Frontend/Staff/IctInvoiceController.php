@@ -40,7 +40,15 @@ class IctInvoiceController extends Controller
     public function getInvoiceDetail(string $invoice_id): string
     {
         $data = [
-            'invoice' => ICTInvoice::with(['student', 'course.schedule', 'payments', 'items'])->findOrFail($invoice_id),
+            // "payments.paidBy" is needed so the detail view can show who
+            // recorded a cash payment (a staff member) vs. an ABA PayWay
+            // payment (recorded automatically, paid_by is the student).
+            // "staff" is the staff member who registered/created the
+            // invoice (shown as "Registered by" on the detail view).
+            // "items.course.schedule" is eager-loaded (rather than just
+            // "items") since the course table renders each item's own
+            // course + schedule.
+            'invoice' => ICTInvoice::with(['student', 'staff', 'course.schedule', 'payments.paidBy', 'items.course.schedule'])->findOrFail($invoice_id),
         ];
         return view('frontend.staff.pages.partials.inv-body', $data)->render();
     }
@@ -58,7 +66,13 @@ class IctInvoiceController extends Controller
         $invoice->update([
             'paid_amount' => $totalPaid,
             'remaining_amount' => $remaining,
-            'payment_status' => $remaining <= 0 ? 'paid' : ($totalPaid > 0 ? 'partial' : 'unpaid'),
+            // The payment_status column only allows 'paid', 'half_paid',
+            // 'unpaid', or 'free' (see the i_c_t_invoices migration) —
+            // this used to write 'partial', an invalid value the blade
+            // views never actually checked for, which meant a
+            // partially-paid invoice's status badge silently fell back to
+            // "Unpaid" here after any staff-recorded payment.
+            'payment_status' => $remaining <= 0 ? 'paid' : ($totalPaid > 0 ? 'half_paid' : 'unpaid'),
             'paid_at' => $remaining <= 0 ? now() : $invoice->paid_at,
         ]);
     }
@@ -99,7 +113,7 @@ class IctInvoiceController extends Controller
                 });
             })
             ->latest()
-            ->paginate(5);
+            ->paginate(15);
         // Keep search term in pagination links
         $invoices->appends(['search' => $search]);
         return view('frontend.staff.pages.invoice', [

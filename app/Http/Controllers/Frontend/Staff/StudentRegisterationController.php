@@ -29,9 +29,20 @@ class StudentRegisterationController extends Controller
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'khmer_name' => ['nullable', 'string', 'max:255'],
-                'email' => ['required', 'email', 'unique:users,email'],
+                // Plain "email" alone accepts a dot-less domain like
+                // "soksan@gmail" as syntactically valid (RFC 5321 technically
+                // allows a bare hostname). Adding "dns" requires the domain
+                // to actually have a DNS record, matching the same rule used
+                // on the admin Add/Edit Student forms.
+                'email' => ['required', 'email:rfc,dns', 'unique:users,email'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
-                'phone' => ['required', 'string', 'max:20'],
+                // Was just "string|max:20" with no minimum, so "09876" (5
+                // digits) passed. Require it to actually look like a phone
+                // number: digits only, optional leading +, spaces/dashes as
+                // separators, 8-20 characters long — same rule used on the
+                // admin Add/Edit Student forms.
+                'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
+                'alternate_phone' => ['nullable', 'regex:/^[0-9+\-\s]{8,20}$/'],
                 'dob' => ['nullable', 'date', 'before:today'],
             ]);
         } else {

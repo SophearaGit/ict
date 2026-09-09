@@ -881,6 +881,14 @@
       // other fields instead of sitting under the input. Appending to
       // <body> sidesteps that ancestor entirely.
       appendTo: document.body,
+      onReady: function(selectedDates, dateStr, instance) {
+        // Only jump when there's no DOB yet (a brand-new student). Editing
+        // an existing student already passes their DOB as defaultDate,
+        // which naturally opens on the right month/year on its own.
+        if (!defaultDate) {
+          instance.jumpToDate(new Date(new Date().getFullYear() - 20, 0, 1));
+        }
+      },
     });
   }
   let dobPickerAdd = createDobPicker('#dob');
