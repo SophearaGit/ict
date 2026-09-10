@@ -77,6 +77,15 @@
             <div>
                 <img src="{{ asset('frontend/asset/images/footer/playstore.svg') }}" alt="">
             </div>
+            <div class="payment-accept">
+                <span class="payment-accept-label">We accept:</span>
+                <div class="payment-accept-logos">
+                    <img src="{{ asset('frontend/asset/images/aba-footer-pay.jpg') }}" alt="ABA Pay"
+                        class="payment-badge">
+                    <img src="{{ asset('frontend/asset/images/khqr-footer-payment.jpg') }}" alt="KHQR"
+                        class="payment-badge">
+                </div>
+            </div>
         </div>
     </div>
 </footer>

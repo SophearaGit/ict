@@ -1018,6 +1018,13 @@
                 grid-template-columns: repeat(2, 1fr);
                 /* 3 -> 2 columns */
             }
+
+            .sidebar-tags span {
+                font-size: 10px;
+                border: 1px solid #ddd;
+                padding: 5px 9px;
+                border-radius: 20px;
+            }
         }
 
         /* ----- 768px: Tablet portrait ----- */
@@ -1573,7 +1580,10 @@
         </div>
         @if ($spotlight)
             <div class="project-with-slide" data-aos="fade-up">
-                <img src="{{ $spotlight->thumbnail_url ?? asset('asset/images/Course-Language/networkAdvance.webp') }}"
+                {{-- 'asset/images/...' (missing the 'frontend/' segment every other asset path in
+                     this app uses) pointed at a URL with no public/asset folder behind it — broken
+                     whenever a project has no thumbnail of its own. --}}
+                <img src="{{ $spotlight->thumbnail_url ?? asset('frontend/asset/images/Course-Language/networkAdvance.webp') }}"
                     alt="{{ $spotlight->title }}">
                 <div class="project-content">
                     <span>{{ $spotlight->category->name ?? 'Project' }}</span>
@@ -1648,7 +1658,7 @@
                             <span class="tag-featured"><i class="fa-solid fa-star"></i>
                                 {{ $project->featured_label ?: 'Featured' }}</span>
                         @endif
-                        <img src="{{ $project->thumbnail_url ?? asset('asset/images/Course-Language/networkAdvance.webp') }}"
+                        <img src="{{ $project->thumbnail_url ?? asset('frontend/asset/images/Course-Language/networkAdvance.webp') }}"
                             alt="{{ $project->title }}">
                     </div>
                     <div class="portfolio-body">
@@ -1700,14 +1710,20 @@
         <div class="avertisement-slide">
             <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
+                    {{-- These live under the Gallery-aboutus/ subfolder (same files the blog page's
+                         identical carousel uses) — the folder segment was missing here, so all
+                         three slides were broken image icons. --}}
                     <div class="carousel-item active" data-bs-interval="4000">
-                        <img src="/frontend/asset/images/slide-cut-v1.jpg" class="d-block w-100" alt="...">
+                        <img src="{{ asset('frontend/asset/images/Gallery-aboutus/slide-cut-v1.jpg') }}"
+                            class="d-block w-100" alt="...">
                     </div>
                     <div class="carousel-item" data-bs-interval="4000">
-                        <img src="/frontend/asset/images/slide-cut-v7.jpg" class="d-block w-100" alt="...">
+                        <img src="{{ asset('frontend/asset/images/Gallery-aboutus/slide-cut-v7.jpg') }}"
+                            class="d-block w-100" alt="...">
                     </div>
                     <div class="carousel-item">
-                        <img src="/frontend/asset/images/ICT_SlideShow.jpg" class="d-block w-100" alt="...">
+                        <img src="{{ asset('frontend/asset/images/Gallery-aboutus/ICT_SlideShow.jpg') }}"
+                            class="d-block w-100" alt="...">
                     </div>
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
