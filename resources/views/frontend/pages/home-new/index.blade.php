@@ -79,7 +79,7 @@
             </div>
         </div>
         <div class="imgdescript" data-aos="fade-left" data-aos-delay="150">
-            <img src="frontend/asset/images/slide-cut-v1.jpg" alt="Hero Image">
+            <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v1.jpg" alt="Hero Image">
         </div>
     </div>
 
@@ -175,8 +175,6 @@ $categoryIcons = [
         @endforelse
     </div>
     <p id="noCourseResults" class="no-courses" style="display:none;">No courses match your search or filter.</p>
-
-    <!-- ═══ COURSE CARDS ═══ -->
     <div class="card-areaa">
         <a href="blog.html" style="text-decoration: none; color: inherit;">
             <h3 id="blogsection" data-aos="fade-up">About Blog Videos <span>›</span></h3>
@@ -187,7 +185,14 @@ $categoryIcons = [
             <div class="box-area">
                 @forelse ($latest_blogs as $index => $blog)
                     <a href="{{ route('blog.details', $blog->slug) }}" class="boxx {{ $index === 0 ? 'active' : '' }}">
-                        <img src="{{ $blog->thumbnail ? asset($blog->thumbnail) : 'frontend/asset/images/Blog/default.png' }}"
+                        {{-- $blog->thumbnail_url (model accessor) is already asset()-wrapped and null
+                             when no thumbnail is set. The old fallback here pointed at
+                             frontend/asset/images/Blog/default.png, a file that doesn't actually
+                             exist on disk, so every blog without a thumbnail rendered a broken
+                             image icon instead of a picture. Reuse blog-slide.avif — the same
+                             fallback already used (and confirmed to exist) on the dedicated blog
+                             listing/detail pages — so this section matches them. --}}
+                        <img src="{{ $blog->thumbnail_url ?? asset('frontend/asset/images/blog-slide.avif') }}"
                             alt="{{ $blog->title }}">
                         <div class="overlay">
                             <p>{{ $blog->admin->name ?? ($blog->staff->name ?? 'ICT Team') }}</p>
@@ -200,7 +205,7 @@ $categoryIcons = [
             </div>
         </div>
     </div>
-    </div>
+
     <div class="aboutschool">
         <div class="text" data-aos="fade-right">
             <p id="WCU">WHY CHOOSE US</p>
@@ -231,7 +236,7 @@ $categoryIcons = [
             </div>
         </div>
         <div class="imgaboutschool" data-aos="fade-left" data-aos-delay="150">
-            <img src="frontend/asset/images/photo_2026-04-30_15-36-55.jpg" alt="About Us Image">
+            <img src="frontend/asset/images/Gallery-aboutus/photo_2026-04-30_15-36-55.jpg" alt="About Us Image">
         </div>
     </div>
 
@@ -280,7 +285,15 @@ $categoryIcons = [
             @forelse ($featured_instructors as $index => $instructor)
                 <div class="teacher-card" data-aos="fade-up" data-aos-delay="{{ ($index % 4) * 80 }}">
                     <div class="teacher-avatar-wrap">
-                        <img src="{{ $instructor->image ? asset($instructor->image) : 'frontend/asset/images/Teacher/default.jpg' }}"
+                        {{-- users.image is NOT nullable — it defaults to the literal string
+                             'no-img.jpg', which is always truthy, so the old `$instructor->image
+                             ? ... : ...` check never actually fell through to its fallback (which
+                             pointed at a nonexistent frontend/asset/images/Teacher/default.jpg
+                             anyway). Every other instructor/teacher card in the app instead checks
+                             against that literal default value and falls back to
+                             default-images/user/both.jpg (confirmed to exist) — match that
+                             established pattern here for consistency. --}}
+                        <img src="{{ $instructor->image == 'no-img.jpg' ? asset('/default-images/user/both.jpg') : asset($instructor->image) }}"
                             alt="{{ $instructor->name }}">
                     </div>
                     <h3>{{ $instructor->name }}</h3>
@@ -442,16 +455,16 @@ $categoryIcons = [
                     <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active" data-bs-interval="4000">
-                                <img src="frontend/asset/images/slide-cut-v24.jpg" class="d-block w-100"
-                                    alt="Advertisement">
+                                <img src="./frontend/asset/images/Gallery-aboutus/slide-cut-v24.jpg" class="d-block w-100"
+                                    alt="...">
                             </div>
                             <div class="carousel-item" data-bs-interval="4000">
-                                <img src="frontend/asset/images/slide-cut-v15.jpg" class="d-block w-100"
-                                    alt="Advertisement">
+                                <img src="./frontend/asset/images/Gallery-aboutus/slide-cut-v15.jpg" class="d-block w-100"
+                                    alt="...">
                             </div>
-                            <div class="carousel-item" data-bs-interval="4000">
-                                <img src="frontend/asset/images/ICT_SlideShow.jpg" class="d-block w-100"
-                                    alt="Advertisement">
+                            <div class="carousel-item">
+                                <img src="./frontend/asset/images/Gallery-aboutus/ICT_SlideShow.jpg" class="d-block w-100"
+                                    alt="...">
                             </div>
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"

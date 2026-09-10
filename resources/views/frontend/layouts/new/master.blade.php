@@ -129,16 +129,16 @@
                         <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                             <div class="carousel-inner">
                                 <div class="carousel-item active" data-bs-interval="4000">
-                                    <img src="frontend/asset/images/slide-cut-v24.jpg" class="d-block w-100"
-                                        alt="...">
+                                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v24.jpg"
+                                        class="d-block w-100" alt="...">
                                 </div>
                                 <div class="carousel-item" data-bs-interval="4000">
-                                    <img src="frontend/asset/images/slide-cut-v15.jpg" class="d-block w-100"
-                                        alt="...">
+                                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v15.jpg"
+                                        class="d-block w-100" alt="...">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="frontend/asset/images/ICT_SlideShow.jpg" class="d-block w-100"
-                                        alt="...">
+                                    <img src="frontend/asset/images/Gallery-aboutus/ICT_SlideShow.jpg"
+                                        class="d-block w-100" alt="...">
                                 </div>
                             </div>
                             <button class="carousel-control-prev" type="button"
@@ -239,20 +239,30 @@
             }
             evt.currentTarget.className += " active";
         }
-        /* ── Hamburger Drawer ── */
         const hamburger = document.getElementById('hamburger');
         const drawer = document.getElementById('mobileDrawer');
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('open');
             drawer.classList.toggle('open');
-            document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+            const isOpen = drawer.classList.contains('open');
+            document.documentElement.style.overflow = isOpen ? 'hidden' : '';
+            document.body.style.overflow = isOpen ? 'clip' : '';
         });
         drawer.querySelectorAll('a').forEach(a => {
             a.addEventListener('click', () => {
                 hamburger.classList.remove('open');
                 drawer.classList.remove('open');
+                document.documentElement.style.overflow = '';
                 document.body.style.overflow = '';
             });
+        });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                hamburger.classList.remove('open');
+                drawer.classList.remove('open');
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+            }
         });
         var i = 0;
         var a = setInterval(function() {

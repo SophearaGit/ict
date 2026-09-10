@@ -8,7 +8,7 @@
             background-color: #000203;
             background-image:
                 linear-gradient(135deg, rgba(1, 22, 39, 0.92), rgba(1, 12, 24, 0.7)),
-                url(frontend/asset/images/advertisement/advertisement-slideshow\(2\).webp);
+                url(/frontend/asset/images/advertisement/advertisement-slideshow\(2\).webp);
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -49,6 +49,11 @@
             height: 500px;
             margin-bottom: 40px;
             border: none;
+            /* The static mockup used a plain <div> here; this links to the
+               post, so it's a real <a> — without display:block an anchor
+               is inline and ignores height entirely, collapsing the hero
+               card, and without these resets it'd pick up the browser's
+               default blue/underlined link styling. */
             display: block;
             color: inherit;
             text-decoration: none;
@@ -138,6 +143,10 @@
             font-weight: 500;
             cursor: pointer;
             transition: 0.2s ease;
+            /* The static mockup used <button> here; these filter pills are
+               real <a href> links (so a filter choice is a shareable/
+               bookmarkable URL) — without these resets they'd render with
+               the browser's default blue underlined link look. */
             color: #000;
             text-decoration: none;
             display: inline-block;
@@ -188,6 +197,11 @@
             overflow: hidden;
             box-shadow: 0 0 7px 0 rgb(202, 202, 202);
             transition: box-shadow 0.2s ease, transform 0.2s ease;
+            /* The static mockup wrapped each card in a <div>; this whole
+               card links to the post, so it's a real <a> — without these
+               resets its text (title, excerpt) would inherit the browser's
+               default blue/underlined link styling instead of the design's
+               colors. */
             display: block;
             color: inherit;
             text-decoration: none;
@@ -208,8 +222,7 @@
             height: auto;
             max-width: 100%;
             aspect-ratio: 4 / 2.6;
-            /*new important*/
-            /* object-fit: cover; */
+            background-color: rgb(243, 250, 253);
         }
 
         .badge-category {
@@ -217,8 +230,7 @@
             top: 12px;
             left: 12px;
             background: #fff;
-            color: #000;
-            text-decoration: none;
+            color: blue;
             font-size: 12px;
             font-weight: 600;
             padding: 4px 12px;
@@ -283,11 +295,22 @@
 
         .avertisement-slide .carousel-inner {
             border-radius: 30px;
+
         }
+
+        .desktop-screen {
+            object-fit: cover;
+        }
+
+        .phone-screen {
+            object-fit: contain;
+        }
+
 
         /* ============================================= */
         /* ===== Responsive: Blog Page ===== */
         /* ============================================= */
+
         /* ----- 1024px: Tablet / small laptop ----- */
         @media (max-width: 1024px) {
             .blog-header {
@@ -437,15 +460,14 @@
             }
 
             /* .card-img-blog{
-                            height: 150px;
-                        } */
+            height: 150px;
+        } */
             .card-img-blog .badge-category {
                 position: absolute;
                 top: 12px;
                 left: 12px;
                 background: #fff;
-                color: #000;
-                text-decoration: none;
+                color: blue;
                 font-size: 10px;
                 font-weight: 600;
                 padding: 4px 11px;
@@ -453,8 +475,8 @@
             }
 
             /* .card-body-blog p{
-                            font-size: 9px;
-                        } */
+            font-size: 9px;
+        } */
             .card-footer-blog {
                 font-size: 11px;
             }
@@ -466,7 +488,9 @@
             .card-footer-blog a {
                 font-size: 10px;
             }
+
         }
+
 
         /* ----- 480px: Mobile ----- */
         @media (max-width: 560px) {
@@ -537,6 +561,7 @@
                 font-size: 10px;
                 font-weight: 600;
                 height: 30px;
+
             }
 
             .blog-card-section .card-body-blog p {
@@ -545,15 +570,14 @@
             }
 
             /* .card-img-blog{
-                            height: 120px;
-                        } */
+            height: 120px;
+        } */
             .card-img-blog .badge-category {
                 position: absolute;
                 top: 12px;
                 left: 12px;
                 background: #fff;
-                color: #000;
-                text-decoration: none;
+                color: blue;
                 font-size: 9px;
                 font-weight: 600;
                 padding: 3px 8px;
@@ -561,8 +585,8 @@
             }
 
             /* .card-body-blog p{
-                            font-size: 9px;
-                        } */
+            font-size: 9px;
+        } */
             .card-footer-blog {
                 font-size: 9px;
             }
@@ -599,7 +623,10 @@
         <!-- ===== Hero / Feature Card ===== -->
         @if ($featured)
             <a href="{{ route('blog.details', $featured->slug) }}" class="hero-cardd" data-aos="fade-up">
-                <img src="{{ $featured->thumbnail ?? asset('frontend/asset/images/blog-slide.avif') }}"
+                {{-- $featured->thumbnail_url (model accessor) is asset()-wrapped and null when no
+                     thumbnail is set — using the raw `thumbnail` column here (as before) skipped
+                     asset() entirely, breaking whenever the stored path wasn't already a full URL. --}}
+                <img src="{{ $featured->thumbnail_url ?? asset('frontend/asset/images/blog-slide.avif') }}"
                     alt="{{ $featured->title }}">
                 <div class="hero-overlay">
                     <span class="badge-feature">Feature</span>
@@ -643,11 +670,20 @@
         @if ($blogs->count())
             <div class="card-grid">
                 @foreach ($blogs as $index => $blog)
+                    @php
+                        // TikTok/Facebook posts are usually a vertical phone clip or screenshot,
+                        // so they get the tall "phone-screen" card look; Article/YouTube posts get
+                        // the wide "desktop-screen" look.
+                        $screenClass = in_array($blog->type, ['facebook', 'tiktok'])
+                            ? 'phone-screen'
+                            : 'desktop-screen';
+                    @endphp
                     <a href="{{ route('blog.details', $blog->slug) }}" class="blog-card-section" data-aos="fade-up"
                         data-aos-delay="{{ ($index % 3) * 60 }}">
                         <div class="card-img-blog">
                             <span class="badge-category">{{ ucfirst($blog->type) }}</span>
-                            <img src="{{ $blog->thumbnail ?? asset('frontend/asset/images/blog-slide.avif') }}"
+                            <img class="{{ $screenClass }}"
+                                src="{{ $blog->thumbnail_url ?? asset('frontend/asset/images/blog-slide.avif') }}"
                                 alt="{{ $blog->title }}">
                         </div>
                         <div class="card-body-blog">
@@ -695,13 +731,16 @@
             <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active" data-bs-interval="4000">
-                        <img src="frontend/asset/images/slide-cut-v1.jpg" class="d-block w-100" alt="...">
+                        <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v1.jpg" class="d-block w-100"
+                            alt="...">
                     </div>
                     <div class="carousel-item" data-bs-interval="4000">
-                        <img src="frontend/asset/images/slide-cut-v7.jpg" class="d-block w-100" alt="...">
+                        <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v7.jpg" class="d-block w-100"
+                            alt="...">
                     </div>
                     <div class="carousel-item">
-                        <img src="frontend/asset/images/ICT_SlideShow.jpg" class="d-block w-100" alt="...">
+                        <img src="frontend/asset/images/Gallery-aboutus/ICT_SlideShow.jpg" class="d-block w-100"
+                            alt="...">
                     </div>
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"

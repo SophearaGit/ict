@@ -75,7 +75,8 @@
                 <div class="timeline-spacer"></div>
                 <div class="timeline-icon"><i class="fa-solid fa-flag"></i></div>
                 <div class="timeline-card">
-                    <div class="card-img"><img src="frontend/asset/images/slide-cut-v19.jpg" alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/Gallery-aboutus/slide-cut-v19.jpg" alt="">
+                    </div>
                     <div class="card-text">
                         <span class="year-badge">2019</span>
                         <h3>Our Beginning</h3>
@@ -89,7 +90,8 @@
             <!-- 2020 - left side -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"> <img src="frontend/asset/images/slide-cut-v15.jpg" alt=""></div>
+                    <div class="card-img"> <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v15.jpg"
+                            alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2020</span>
                         <h3>Bridging the Skills Gap</h3>
@@ -106,7 +108,8 @@
                 <div class="timeline-spacer"></div>
                 <div class="timeline-icon"><i class="fa-solid fa-flag"></i></div>
                 <div class="timeline-card">
-                    <div class="card-img"> <img src="frontend/asset/images/slide-cut-v6.jpg" alt=""></div>
+                    <div class="card-img"> <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v6.jpg" alt="">
+                    </div>
                     <div class="card-text">
                         <span class="year-badge">2021</span>
                         <h3>Expanding Training Programs</h3>
@@ -120,7 +123,8 @@
             <!-- 2021 - left side -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"><img src="frontend/asset/images/slide-cut-v22.JPG" alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/Gallery-aboutus/slide-cut-v22.JPG" alt="">
+                    </div>
                     <div class="card-text">
                         <span class="year-badge">2023</span>
                         <h3>Empowering Future Professionals</h3>
@@ -138,7 +142,8 @@
                 <div class="timeline-spacer"></div>
                 <div class="timeline-icon"><i class="fa-solid fa-building-columns"></i></div>
                 <div class="timeline-card">
-                    <div class="card-img"><img src="frontend/asset/images/slide-cut-v17.jpg" alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/Gallery-aboutus/slide-cut-v17.jpg" alt="">
+                    </div>
                     <div class="card-text">
                         <span class="year-badge">2026</span>
                         <h3>Continuing Our Mission</h3>
@@ -152,8 +157,7 @@
             <!-- 2021 - left side (repeat) -->
             <div class="timeline-item left">
                 <div class="timeline-card">
-                    <div class="card-img"><img src="frontend/asset/images/istockphoto-1061639630-170667a.jpg"
-                            alt=""></div>
+                    <div class="card-img"><img src="frontend/asset/images/ML.jpg" alt=""></div>
                     <div class="card-text">
                         <span class="year-badge">2021</span>
                         <h3>Continuing Our Mission</h3>
@@ -610,65 +614,67 @@
             </div>
             <div id="All" class="tabcontent active" style="display: block;">
                 <div class="about-gallery">
-                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_ShildeShow2.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v8.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/ICT_Slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/ICT_ShildeShow2.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v5.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v6.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v9.jpg" alt="2">
                 </div>
             </div>
             <div id="Classes" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_Slideshow4.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v22.JPG" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v23.JPG" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
+
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/ICT_Slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v22.JPG" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v23.JPG" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v5.jpg" alt="2">
+
                 </div>
             </div>
             <div id="Competition" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_SlideShow.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v8.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/ICT_SlideShow.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v9.jpg" alt="2">
                 </div>
             </div>
             <div id="Graduation" class="tabcontent" style="display:none">
                 <div class="about-gallery">
-                    <img src="frontend/asset/images/slide-cut-v9.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v19.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v13.jpg" alt="2">
-                    <img src="frontend/asset/images/slideshow4.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v14.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v15.jpg" alt="2">
-                    <img src="frontend/asset/images/ICT_ShildeShow2.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v17.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v18.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v11.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v21.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v5.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v6.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v7.jpg" alt="2">
-                    <img src="frontend/asset/images/slide-cut-v8.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v9.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v19.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v13.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slideshow4.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v14.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v15.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/ICT_ShildeShow2.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v17.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v18.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v11.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v21.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v5.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v6.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v7.jpg" alt="2">
+                    <img src="frontend/asset/images/Gallery-aboutus/slide-cut-v8.jpg" alt="2">
                 </div>
             </div>
         </div>
@@ -750,4 +756,3 @@
         });
     </script>
 @endsection
-

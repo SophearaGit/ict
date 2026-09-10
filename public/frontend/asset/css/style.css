@@ -15,9 +15,9 @@
 html {
     overflow-x: hidden;
 }
- body {
-    overflow-x: clip;
-}
+ /* body {
+    overflow-x: hidden;
+} */
  html {
      scroll-behavior: smooth;
 }
@@ -46,11 +46,12 @@ html {
      font-family: var(--font-body);
      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
- .schoollogo {
+
+.schoollogo {
      display: flex;
      align-items: center;
      justify-content: center;
-     flex-shrink: 0;
+     flex: 0 0 auto;
 }
  .header .schoollogo img {
      width: 65px;
@@ -59,18 +60,16 @@ html {
      margin-left: 10px;
 }
  .header .schoollogo h2 {
-     margin-top: 15px;
+     margin-top: 14px;
      font-weight: 700;
      color: rgb(71,108,220);
-     padding: 10px;
+     padding: 5px;
      font-family: var(--font-body);
      white-space: nowrap;
      font-size: 18px;
 }
  .schoollogo span {
-     font-size: 12px;
-    /* color: rgb(146, 146, 146);
-     */
+     font-size: 13px;
      font-family: var(--font-body);
      margin-top: -8px;
 }
@@ -78,20 +77,23 @@ html {
      display: flex;
      align-items: center;
      justify-content: center;
-     margin-left: 60px;
+     margin-left: 20px;
      padding: 0;
      margin-bottom: 0;
      list-style: none;
-     flex: 1;
-     gap: 10px;
+     flex: 1 1 0;          /* grow to fill space, but also shrink first when things get tight */
+     min-width: 0;         /* required so a flex item is actually allowed to shrink below its content size */
+     gap: 8px;
 }
- .header > ul > li {
+
+.header > ul > li {
      list-style-type: none;
-     font-size: 18px;
+     font-size: clamp(13px, 1.6vw, 18px);   /* only font-size needs clamp — flexbox can't shrink text */
      font-weight: 700;
      font-family: var(--font-body);
+     flex-shrink: 1;
 }
- .header a, .dropbtn {
+.header a, .dropbtn {
      display: inline-block;
      color: rgb(13,13,13);
      text-align: center;
@@ -103,26 +105,11 @@ html {
  .submenu a:hover {
      color:rgb(71,108,220);
 }
-/* --- Level 1 dropdown --- */
  .header li.dropdown {
      display: inline-block;
      position: relative;
 }
-/* .header .dropdown-content {
-     display: none;
-     position: absolute;
-     top: 100%;
-     left: 0;
-     background-color: #f9f9f9;
-     min-width: 200px;
-     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-     z-index: 200;
-     border-top: 3px solid rgb(71,108,220);
-}
- .dropdown:hover .dropdown-content {
-     display: flex;
-}
- */
+
  .header .dropdown-content {
     /* was: display: none;
      */
@@ -247,6 +234,64 @@ html {
 }
  .header > ul > li > a:active{
      transform: scale(0.96);
+}
+.navbtn {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     margin-left: auto;
+     margin-right: 10px;
+     flex: 0 1 auto;        /* won't grow, but WILL shrink if the row runs out of room */
+     min-width: 0;
+}
+
+.navbtn a {
+     padding: 0;
+     flex-shrink: 1;
+     min-width: 0;
+}
+
+#loginbtn {
+     flex-shrink: 1;
+     min-width: 0;
+     width: auto;
+     height: 38px;
+     background-color: #130f89;
+     color: rgb(254, 254, 254);
+     font-size: clamp(11px, 1.3vw, 16px);
+     font-weight: 600;
+     padding: 0 clamp(8px, 1.5vw, 20px);
+     border-radius: 10px;
+     border: 1px solid #ddd;
+     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+     cursor: pointer;
+     white-space: nowrap;
+}
+
+#registerbtn {
+     flex-shrink: 1;
+     min-width: 0;
+     width: auto;
+     height: 38px;
+     background-color: #f9f9f9;
+     color: black;
+     font-size: clamp(11px, 1.3vw, 16px);
+     font-weight: 600;
+     padding: 0 clamp(8px, 1.5vw, 20px);
+     border-radius: 10px;
+     border: 1px solid #ddd;
+     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+     cursor: pointer;
+     white-space: nowrap;
+}
+
+#loginbtn:active {
+     background-color: black;
+     color: white;
+}
+#registerbtn:active {
+     background-color: black;
+     color: white;
 }
 /* HAMBURGER — hidden */
  .hamburger {
@@ -428,78 +473,38 @@ html {
      background: #f0f4ff;
      color: #3966e1;
 }
- .drawer-btns {
-     display: flex;
-     gap: 10px;
-     margin-top: 20px;
-     padding: 0 4px;
+.drawer-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 0 4px;
 }
- .drawer-login {
-     flex: 1;
-     height: 44px;
-     font-size: 15px;
-     font-weight: 600;
-     border-radius: 10px;
-     cursor: pointer;
-     border: 1.5px solid #ddd;
-     background: #f9f9f9;
-     color: #0d0d0d;
-     font-family: var(--font-body);
+.drawer-login {
+    width: 100%;
+    height: 46px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1.5px solid #ddd;
+    background: #f9f9f9;
+    color: #0d0d0d;
+    font-family: var(--font-body);
 }
- .drawer-register {
-     flex: 1;
-     height: 44px;
-     font-size: 15px;
-     font-weight: 600;
-     border-radius: 10px;
-     cursor: pointer;
-     border: none;
-     background: #3966e1;
-     color: white;
-     font-family: var(--font-body);
+.drawer-register {
+    width: 100%;
+    height: 46px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    background: dodgerblue;
+    color: #fff;
+    font-family: var(--font-body);
 }
- .navbtn {
-     padding: 10px;
-     align-items: center;
-     display: flex;
-     justify-content: center;
-     margin-left: auto;
-     margin-right: 20px;
-     gap: 10px;
-     flex-shrink: 0;
-}
- #loginbtn {
-     width: 80px;
-     height: 38px;
-     background-color: #f9f9f9;
-     color: black;
-     font-size: 16px;
-     font-weight: 600;
-     border-radius: 10px;
-     border: 1px solid #ddd;
-     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
-     cursor: pointer;
-}
- #registerbtn {
-     width: 100px;
-     height: 38px;
-     background-color: #f9f9f9;
-     color: black;
-     font-size: 16px;
-     font-weight: 600;
-     border-radius: 10px;
-     border: 1px solid #ddd;
-     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
-     cursor: pointer;
-}
- #loginbtn:active {
-     background-color: black;
-     color: white;
-}
- #registerbtn:active {
-     background-color: black;
-     color: white;
-}
+
 /* ── THEME VARIABLES ── */
  :root {
      --nav-bg: #ffffff;
@@ -539,6 +544,7 @@ html {
  .header {
      background-color: var(--nav-bg) !important;
      border-bottom: 1px solid var(--nav-border);
+     position: sticky !important;
      transition: background .3s, border-color .3s;
 }
  .header .schoollogo span {
@@ -695,6 +701,7 @@ html {
      height: 40px;
      border-radius: 50%;
      margin-left: auto;
+     margin: 10px;
      border: 1.5px solid rgb(225, 222, 222);
      background: var(--toggle-bg);
      box-shadow: 0 0 10px 0 rgb(186, 185, 185);
@@ -705,7 +712,8 @@ html {
      justify-content: center;
      cursor: pointer;
      transition: background .25s, border-color .25s, transform .25s, color .25s;
-     flex-shrink: 0;
+     /* flex-shrink: 0; */
+     flex: 0 0 auto
     /* position: fixed;
      top: 17px;
      right: 65px;
@@ -732,8 +740,8 @@ html {
  .vc-overlay {
      position: absolute;
      inset: 0;
-     background-color: rgba(0, 0, 0, 0.5);
-    /*fix it, i want color black than this rgba(6, 5, 5, 0.4) but with more opacity */
+    /*fix it, i want color soft, thin black color than this background-color: rgba(0, 0, 0, 0.5);*/
+    background-color: rgba(0, 0, 0, 0.4);
      backdrop-filter: blur(1px);
     /* background: linear-gradient( to right, rgba(10, 15, 40, 0.80) 30%, rgba(10, 15, 40, 0.40) 85%, rgba(10, 15, 40, 0.10) 100% );
      */
@@ -979,16 +987,16 @@ html {
      background: linear-gradient(to right, #122161, #7e9ef5);
      justify-content: center;
      align-items: center;
-     gap: 80px;
+     gap: 20px;
      padding: 0 40px;
 }
  .description {
      height: 400px;
-     width: 35%;
+     width: 47%;
 }
  .imgdescript img {
      height: 480px;
-     width: 100%;
+     width: 99%;
      border-radius: 25px;
      object-fit: cover;
 }
@@ -998,14 +1006,14 @@ html {
      font-size: 14px;
      font-family: var(--font-body);
      font-weight: 600;
-     border: 2px solid rgb(236,227,227);
      border-radius: 15px;
-     background-color: #122161;
+     border: none;
+     background: rgba(249, 249, 255, 0.2);
      color: white;
      cursor: pointer;
 }
  .showpage .description h1 {
-     font-size: 40px;
+     font-size: 41px;
      font-family: var(--font-body);
      margin-top: 20px;
      color: white;
@@ -1014,7 +1022,7 @@ html {
      color: white;
      margin-top: 20px;
      font-family: var(--font-body);
-     font-size: 14px;
+     font-size: 15px;
 }
  .btndescript {
      margin-top: 20px;
@@ -1022,7 +1030,7 @@ html {
      gap: 15px;
 }
  .btndescript #studyon {
-     width: 140px;
+     width: 145px;
      height: 40px;
      color: #3966e1;
      padding: 2px;
@@ -1034,8 +1042,9 @@ html {
 }
  .btndescript #regis {
      width: 250px;
-     height: 40px;
-     padding: 2px;
+     height: 42px;
+     padding: 2px 10px;
+     line-height: 1.2;
      color: #edeef0;
      background-color: #3966e1;
      font-size: 15px;
@@ -1057,18 +1066,24 @@ html {
      width: 40px;
      height: 40px;
      border-radius: 50%;
+     margin-top: 1px;
      border: 2px solid rgb(254,250,250);
      object-fit: cover;
 }
  .studentenroll .aboutstudent {
      margin-left: 20px;
-     padding-top: 20px;
-     line-height: 1px;
+     padding: 6px;
+     line-height: 0.4;
+}
+.aboutstudent #se{
+    line-height: 1.5;
 }
  .studentenroll .star {
+    width: 145px;
+    margin-top: -7px;
      display: flex;
      align-items: center;
-     margin-top: 5px;
+     /* margin-top: 5px; */
 }
  .star .fa-solid.fa-star {
      font-size: 12px;
@@ -1242,37 +1257,6 @@ html {
  .mainbox a {
      text-decoration: none;
 }
- /* .teacher img {
-     width: 35px;
-     height: 35px;
-     border-radius: 50%;
-     object-fit: cover;
-     border: 1px solid rgb(157, 157, 160);
-     flex-shrink: 0;
-}
- .teacher p {
-     padding: 1% 5px;
-     font-family: var(--font-body);
-     font-weight: 600;
-     font-size: 16px;
-     margin-top: 18px;
-} */
- /* .boxcard .teacher button {
-     position: absolute;
-     top: 24px;
-     right: 24px;
-     z-index: 1;
-     padding: 1% 8px;
-     width: auto;
-     margin-left: auto;
-     background: rgba(255, 255, 255, 0.7);
-     color: #0087fe;
-     font-weight: 600;
-     border: 1px solid rgb(63, 104, 252);
-     border-radius: 10px;
-     cursor: pointer;
-     font-size: 11px;
-} */
   .boxcard .detail-boxcard button {
      position: absolute;
      top: 24px;
@@ -1390,7 +1374,7 @@ html {
      width: 50%;
      height: auto;
 }
- .box-area {
+ /* .box-area {
      display: flex;
      flex-wrap: nowrap;
      gap: 60px;
@@ -1398,11 +1382,9 @@ html {
      overflow-x: auto;
      padding: 10px 0 20px;
      scroll-behavior: smooth;
-    /* Firefox */
      scrollbar-width: none;
-    /* IE & Edge */
      -ms-overflow-style: none;
-}
+} */
 /* Chrome, Safari, Opera */
  .box-area::-webkit-scrollbar {
      display: none;
@@ -2003,6 +1985,29 @@ html {
      margin-top: 12px;
 }
 
+/* We accept (payment badges) */
+.payment-accept {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+.payment-accept-label {
+    font-size: .82rem;
+    white-space: nowrap;
+}
+.payment-accept-logos {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.payment-badge {
+    height: 22px;
+    width: auto;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+}
+
 /* ═══ AD POPUP MODAL ═══ */
 .ad-popup-overlay {
     position: fixed;
@@ -2250,10 +2255,13 @@ html {
 }
  .question-block h1 {
      text-align: center;
+     margin-top: 40px;
+
 }
- /* .question-block p {
+ .question-block p {
      text-align: center;
-} */
+     padding-bottom: 20px;
+}
  .accordion-menu {
      display: inline-block;
      position: relative;
@@ -5070,27 +5078,65 @@ html {
     }
 } */
  @media (max-width: 1024px) {
+    .header {
+     width: 100%;
+     height: 80px;
+    }
+
     .header .schoollogo img{
         width: 45px;
         height: 45px;
+        margin-left: 3px;
     }
+
+ .schoollogo span {
+     font-size: 11px;
+}
      .header .schoollogo h2 {
-         font-size: 15px;
-         padding: 2px;
+         font-size: 13px;
+         padding: 1px;
     }
      .header > ul {
-         margin-left: 20px;
+         margin-left: 10px;
+         gap: 5px;
     }
+    /* .header > ul {
+
+     margin-left: 60px;
+     padding: 0;
+     margin-bottom: 0;
+     list-style: none;
+     flex: 1 1 0;
+     min-width: 0;
+     gap: 10px;
+} */
      .header > ul > li {
-         font-size: 14px;
+        font-size: 14px;
+        /* background-color: #007bff; */
+
     }
      .header a, .dropbtn {
          padding: 10px 10px;
     }
-     #loginbtn, #registerbtn {
+    .navbtn {
          font-size: 14px;
+         padding: 0px;
+         gap: 6px;
+    }
+    .navbtn a{
+         padding: 3px;
+         gap: 6px;
+    }
+     #loginbtn {
+         font-size: 13px;
          width: auto;
-         padding: 0 14px;
+         padding: 0 10px;
+    }
+
+    #registerbtn {
+         font-size: 13px;
+         width: auto;
+         padding: 0 10px;
     }
     /* Hero */
      .showpage {
@@ -5103,15 +5149,25 @@ html {
          height: auto;
     }
      .showpage .description h1 {
-         font-size: 32px;
+         font-size: 30px;
     }
      #desone {
-         width: 70%;
+         width: 90%;
+         padding: 0 10px;
+         font-size: 13px;
+    }
+    .btndescript #studyon {
+         width: 120px;
+         height: 33px;
          font-size: 13px;
     }
      .btndescript #regis {
-         width: 210px;
-         font-size: 14px;
+         width: 230px;
+         height: 33px;
+         font-size: 13px;
+    }
+    .description #p {
+         font-size: 13px;
     }
      .imgdescript img {
          height: 360px;
@@ -5209,6 +5265,16 @@ html {
      .question-block {
          padding: 40px 30px;
     }
+    .theme-toggle-btn {
+         width: 34px;
+         height: 34px;
+         /* position: fixed;
+         top: 17px;
+         right: 65px;
+         bottom: 0;
+         z-index: 99;
+         overflow-y: auto; */
+    }
 }
  @media (max-width: 768px) {
      .body {
@@ -5217,23 +5283,17 @@ html {
     /* ── Header ── */
      .header {
          height: 72px;
-         /* width: 100%; */
+         position: sticky;
+         top: 0;
     }
      .header > ul {
          display: none;
     }
-     .theme-toggle-btn {
-         position: fixed;
-         top: 17px;
-         right: 65px;
-         bottom: 0;
-         z-index: 99;
-         overflow-y: auto;
-    }
+
      .navbtn {
          display: none;
     }
-    /* hide desktop buttons */
+
      .hamburger {
          display: flex;
          margin-left: auto;
@@ -5247,7 +5307,9 @@ html {
     }
      .header .schoollogo h2 {
          font-size: 14px;
-         padding: 10px 12px;
+    }
+    .header .schoollogo span {
+         font-size: 12px;
     }
     /* ── Carousel ── */
     /* .carousel img {
@@ -5295,10 +5357,14 @@ html {
     }
      .theme-toggle-btn {
          position: fixed;
-         top: 13px;
-         right: 65px;
+         top: 9px;
+         right: 55px;
+         width: 32px;
+         height: 32px;
          bottom: 0;
+         font-size: 16px;
          z-index: 99;
+         border: none;
          overflow-y: auto;
     }
      .description {
@@ -5332,6 +5398,9 @@ html {
      .studentenroll {
          justify-content: center;
          flex-wrap: wrap;
+    }
+    .studentenroll .star p{
+        margin-top: 1px;
     }
      .imgdescript {
          width: 100%;
@@ -5593,7 +5662,9 @@ html {
  @media (max-width: 480px) {
     /* ── Header ── */
      .header {
+        width: 100%;
          height: 62px;
+         position: sticky;
     }
      .header .schoollogo img {
          width: 40px;
@@ -5601,12 +5672,24 @@ html {
          margin-left: 12px;
     }
      .header .schoollogo h2 {
-         font-size: 10px;
+         font-size: 12px;
          padding: 0;
          /* padding: 8px 10px; */
     }
     .header .schoollogo span{
         font-size: 11px;
+    }
+    .theme-toggle-btn {
+         position: fixed;
+         top: 8px;
+         right: 55px;
+         width: 29px;
+         height: 29px;
+         bottom: 0;
+         font-size: 14px;
+         z-index: 99;
+         border: none;
+         overflow-y: auto;
     }
      .mobile-drawer {
          top: 62px;
@@ -5994,6 +6077,10 @@ html {
      .app-col {
          grid-column: 1 / -1;
     }
+    .payment-accept {
+        justify-content: left;
+        align-items: left;
+    }
 }
  @media (max-width: 480px) {
      .partnership {
@@ -6017,5 +6104,10 @@ html {
     }
      footer {
          padding: 50px 5% 0;
+    }
+    .payment-accept {
+        align-items: left;
+        justify-content: left;
+
     }
 }

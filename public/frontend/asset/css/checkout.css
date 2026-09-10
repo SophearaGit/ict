@@ -539,14 +539,6 @@ body:has(.checkout-wrap) {
     color: var(--co-primary);
 }
 
-/* Added: loading/disabled state while checkout is opening or a payment is
-   being confirmed — the base design didn't include this state. */
-.payment-option:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
 /* ---------- CTA ---------- */
 .btn-checkout-primary {
     width: 100%;
