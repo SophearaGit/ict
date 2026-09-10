@@ -166,7 +166,13 @@
                 </div>
 
                 <div class="co-card payment-card" id="paymentMethodCard" style="display:none">
-                    <h3 class="co-card-title payment-card-title">Payment Method</h3>
+                    <div class="payment-card-head">
+                        <h3 class="co-card-title payment-card-title">Payment Method</h3>
+                        <span class="pw-countdown" id="pw-countdown" style="display:none">
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                            <span id="pw-countdown-text"></span>
+                        </span>
+                    </div>
 
                     <button type="button" class="payment-option is-selected mmb-3" id="abaOption">
                         <span class="payment-option-logo">
@@ -177,13 +183,13 @@
                             <span class="payment-option-sub" id="abaOptionSub">Scan to pay with any banking app — tap to
                                 continue</span>
                         </span>
-                        <i class="fa-solid fa-chevron-right payment-option-chevron"></i>
+                        <i class="fa-solid fa-chevron-right payment-option-chevron" id="abaOptionIcon"></i>
                     </button>
 
-                    <p class="secure-note" id="pw-status" style="display:none">
-                        <span class="pw-waiting-dots" aria-hidden="true"><span></span><span></span><span></span></span>
-                        Waiting for payment confirmation…
-                    </p>
+                    {{-- Only used for the "session expired, try again" state —
+                         ordinary waiting is communicated once, inline in
+                         abaOptionSub above, rather than repeated here too. --}}
+                    <p class="secure-note" id="pw-status" style="display:none"></p>
                 </div>
 
                 {{-- Step 4 success panel — hidden until payment is confirmed. --}}
@@ -357,11 +363,54 @@
             display: none;
         }
 
+        .payment-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .payment-card-head .payment-card-title {
+            margin: 0;
+        }
+
+        .pw-countdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--co-muted, #6b7280);
+            background: var(--co-surface-muted, #f9fafb);
+            border: 1px solid var(--co-border, #e5e7eb);
+            border-radius: 20px;
+            padding: 4px 10px;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pw-countdown i {
+            font-size: 11px;
+        }
+
+        .pw-countdown--warning {
+            color: #b45309;
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .pw-countdown--expired {
+            color: #b91c1c;
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
         .pw-waiting-dots {
             display: inline-flex;
             gap: 4px;
             vertical-align: middle;
-            margin-right: 6px;
+            margin-left: 6px;
         }
 
         .pw-waiting-dots span {
@@ -554,7 +603,67 @@
                 }
             }
 
+            /* ── Countdown: mirrors the deadline PayWay itself enforces on
+                   this tran_id (see CourseEnrollmentController's `lifetime`
+                   + payway_tran_started_at) so the student sees the same
+                   clock PayWay is actually running, not one we invented.
+                   Only starts once the QR is actually opened (the abaOption
+                   click, or on reload if a checkout was already in flight)
+                   rather than the instant the payment card appears — but
+                   PAYWAY_EXPIRES_AT itself is fixed at page-render time
+                   (== the purchase payload's req_time), so if the student
+                   sits on the page a while before clicking, the countdown
+                   correctly opens already partway elapsed rather than
+                   showing a fresh 5:00 that PayWay wouldn't honor. ── */
+            var PAYWAY_EXPIRES_AT = @json($paywayExpiresAt);
+            var countdownEl = document.getElementById('pw-countdown');
+            var countdownTextEl = document.getElementById('pw-countdown-text');
+            var countdownTimer = null;
+
+            function stopCountdown() {
+                if (countdownTimer) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                }
+                if (countdownEl) {
+                    countdownEl.style.display = 'none';
+                }
+            }
+
+            function startCountdown() {
+                if (!PAYWAY_EXPIRES_AT || !countdownEl || countdownTimer) return;
+
+                var expiresAtMs = new Date(PAYWAY_EXPIRES_AT).getTime();
+
+                function tick() {
+                    var remainingMs = expiresAtMs - Date.now();
+
+                    if (remainingMs <= 0) {
+                        clearInterval(countdownTimer);
+                        countdownTimer = null;
+                        countdownTextEl.textContent = 'QR code expired';
+                        countdownEl.classList.add('pw-countdown--expired');
+                        // The polling loop (or PayWay's own modal) is what
+                        // actually surfaces "Try Again" — this badge just
+                        // stops ticking rather than duplicating that UI.
+                        return;
+                    }
+
+                    var totalSeconds = Math.ceil(remainingMs / 1000);
+                    var mins = Math.floor(totalSeconds / 60);
+                    var secs = totalSeconds % 60;
+                    countdownTextEl.textContent = 'Expires in ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                    countdownEl.classList.toggle('pw-countdown--warning', remainingMs <= 30000);
+                }
+
+                countdownEl.style.display = 'inline-flex';
+                countdownEl.classList.remove('pw-countdown--expired');
+                tick();
+                countdownTimer = setInterval(tick, 1000);
+            }
+
             function showSuccessPanel(invoice) {
+                stopCountdown();
                 document.getElementById('paymentMethodCard').style.display = 'none';
 
                 document.getElementById('rc-course').textContent = invoice.course_title;
@@ -577,11 +686,30 @@
                    then polls our status endpoint until confirmed. ── */
             var abaOption = document.getElementById('abaOption');
             var abaOptionSub = document.getElementById('abaOptionSub');
+            var abaOptionIcon = document.getElementById('abaOptionIcon');
             var statusBox = document.getElementById('pw-status');
             var statusUrl = @json(route('student.payment.status', $invoice->id));
             var pollTimer = null;
             var pollAttempts = 0;
-            var MAX_ATTEMPTS = 20; // ~2 minutes at 6s interval
+            var POLL_INTERVAL_MS = 3000; // PayWay asks for a ~3s check-transaction cadence
+            var MAX_ATTEMPTS = 100; // 5 minutes at 3s — matches the purchase payload's `lifetime` (see CourseEnrollmentController)
+
+            /* One place for "a checkout is in flight" — used both right
+               after the student clicks and when a reload finds one already
+               started. Swaps the chevron for a spinner (it stopped being
+               something you can tap) and folds the "waiting" message +
+               its animated dots into the option itself instead of a
+               separate line underneath repeating the same thing. */
+            function setWaitingUI() {
+                abaOption.disabled = true;
+                abaOptionSub.innerHTML = 'Waiting for payment' +
+                    '<span class="pw-waiting-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
+                if (abaOptionIcon) {
+                    abaOptionIcon.className = 'fa-solid fa-circle-notch fa-spin payment-option-chevron';
+                }
+                startCountdown();
+                pollTimer = setInterval(pollStatus, POLL_INTERVAL_MS);
+            }
 
             function pollStatus() {
                 pollAttempts++;
@@ -601,14 +729,54 @@
                             return;
                         }
                         if (pollAttempts >= MAX_ATTEMPTS) {
-                            clearInterval(pollTimer);
-                            statusBox.innerHTML =
-                                'Still waiting on confirmation — refresh this page once you\'ve completed payment.';
+                            expireSession();
                         }
                     })
                     .catch(function() {
                         // transient network hiccup — keep polling silently
                     });
+            }
+
+            /* This lines up with PayWay's own purchase `lifetime` (see
+               CourseEnrollmentController::PAYWAY_LIFETIME_MINUTES) — by the
+               time our own polling gives up, that tran_id is dead on
+               PayWay's side too, and its own checkout modal shows a
+               "Transaction is expired. Please re-initiate the
+               transaction." error whose own "Try Again" button can't
+               actually fix anything (it just resubmits the same expired
+               tran_id). Reloading this page is what actually works, since
+               the server now mints a fresh tran_id whenever the current
+               one has expired — so that's what our own "Try Again" does. */
+            function expireSession() {
+                clearInterval(pollTimer);
+                stopCountdown();
+
+                if (typeof AbaPayway !== 'undefined' && typeof AbaPayway.closeCheckout === 'function') {
+                    try {
+                        AbaPayway.closeCheckout(false);
+                    } catch (e) {
+                        // modal may already be closed — nothing to do
+                    }
+                }
+
+                abaOptionSub.textContent = 'This QR code has expired';
+                if (abaOptionIcon) {
+                    abaOptionIcon.className = 'fa-solid fa-rotate-right payment-option-chevron';
+                }
+
+                statusBox.style.display = 'block';
+                statusBox.innerHTML = 'This payment session has expired.' +
+                    ' <button type="button" id="pwRetryBtn" ' +
+                    'style="display:inline-block;margin-left:6px;padding:6px 16px;' +
+                    'border:none;border-radius:8px;background:var(--co-primary, #3777ff);' +
+                    'color:#fff;font-weight:600;font-size:13px;cursor:pointer;">Try Again</button>';
+
+                var retryBtn = document.getElementById('pwRetryBtn');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', function() {
+                        window.location.reload();
+                    });
+                }
             }
 
             var paywayFieldsPresent = @json((bool) $paywayFields);
@@ -656,10 +824,7 @@
                     }
 
                     AbaPayway.checkout();
-
-                    abaOptionSub.textContent = 'Waiting for payment…';
-                    statusBox.style.display = 'block';
-                    pollTimer = setInterval(pollStatus, 6000);
+                    setWaitingUI();
                 });
             }
 
@@ -693,17 +858,19 @@
                         }
 
                         // Not paid — show the payment card so the student
-                        // can pay.
+                        // can pay. The countdown itself only starts once
+                        // the student actually opens the QR (see the
+                        // abaOption click handler below) — except in the
+                        // branch just below, where a checkout was already
+                        // opened before this page load, so the clock is
+                        // already running whether we display it or not.
                         document.getElementById('paymentMethodCard').style.display = 'block';
 
                         // If a tran_id already exists (a checkout was
                         // already started), start polling in case the
                         // webhook/confirmation is still in flight.
                         if (@json((bool) $invoice->payway_tran_id) && data.status !== 'unpaid') {
-                            abaOption.disabled = true;
-                            abaOptionSub.textContent = 'Waiting for payment…';
-                            statusBox.style.display = 'block';
-                            pollTimer = setInterval(pollStatus, 6000);
+                            setWaitingUI();
                         }
                     })
                     .catch(function() {

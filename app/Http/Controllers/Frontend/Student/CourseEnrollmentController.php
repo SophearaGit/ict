@@ -12,6 +12,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 class CourseEnrollmentController extends Controller
 {
+    // PayWay requires a short purchase `lifetime` (their minimum is 3
+    // minutes) rather than letting a QR session sit open indefinitely.
+    // Shared between the purchase payload below and the staleness check in
+    // paymentPage() so both always agree on the same window.
+    private const PAYWAY_LIFETIME_MINUTES = 5;
+
     public function startEnrollment(ICTCourse $course)
     {
         $student = auth()->user();
@@ -57,12 +63,25 @@ class CourseEnrollmentController extends Controller
         $invoice->load('course.schedule');
 
         // Reuse the same tran_id across page reloads/retries for this
-        // invoice so status polling and the PayWay dashboard stay
-        // consistent — only mint a new one the first time (or after a
-        // schedule switch, which clears it — see switchSchedule()).
-        if (empty($invoice->payway_tran_id)) {
+        // invoice — as long as its purchase request hasn't expired — so
+        // status polling and the PayWay dashboard stay consistent. But
+        // since we now send a short `lifetime` on the purchase payload
+        // (see PAYWAY_LIFETIME_MINUTES), PayWay permanently rejects that
+        // same tran_id once the window passes ("Transaction is expired.
+        // Please re-initiate the transaction.", Error Code: 68) — its own
+        // "Try Again" button can't fix this because it just resubmits the
+        // same dead tran_id. So a stale tran_id must be treated the same
+        // as a missing one: mint a fresh one (also cleared on a schedule
+        // switch — see switchSchedule()) so simply reloading this page is
+        // enough to actually get a working, unexpired QR again.
+        $tranExpired = $invoice->payway_tran_id
+            && $invoice->payway_tran_started_at
+            && $invoice->payway_tran_started_at->addMinutes(self::PAYWAY_LIFETIME_MINUTES)->isPast();
+
+        if (empty($invoice->payway_tran_id) || $tranExpired) {
             $invoice->update([
                 'payway_tran_id' => 'ICT' . $invoice->id . strtoupper(Str::random(8)),
+                'payway_tran_started_at' => now(),
             ]);
         }
 
@@ -78,6 +97,7 @@ class CourseEnrollmentController extends Controller
                 'invoice' => $invoice,
                 'paywayFields' => null,
                 'paywayCheckoutJsUrl' => $payway->checkoutJsUrl(),
+                'paywayExpiresAt' => null,
             ]);
         }
 
@@ -92,6 +112,12 @@ class CourseEnrollmentController extends Controller
             'phone' => $student->phone ?? '',
             'currency' => 'USD',
             'payment_option' => 'abapay_khqr', // skip PayWay's own "Choose way to pay" picker — KHQR is the only method offered
+            // PayWay requires merchants to set a short lifetime so unpaid
+            // QR sessions don't linger. After this many minutes PayWay
+            // itself rejects the payment (and reverses any KHQR fund
+            // transfer that arrives late) — see the staleness check above,
+            // which re-mints tran_id once this window passes.
+            'lifetime' => self::PAYWAY_LIFETIME_MINUTES,
             'return_url' => base64_encode(route('payway.callback')),
             'cancel_url' => route('student.payment.page', $invoice->id),
             'continue_success_url' => route('student.payment.page', $invoice->id),
@@ -102,6 +128,15 @@ class CourseEnrollmentController extends Controller
             'invoice' => $invoice,
             'paywayFields' => $paywayFields,
             'paywayCheckoutJsUrl' => $payway->checkoutJsUrl(),
+            // Lets the page render a live "expires in mm:ss" countdown
+            // against the same deadline the staleness check above enforces
+            // server-side — computed here (not just PAYWAY_LIFETIME_MINUTES
+            // from page-load time) so it's still correct if the student had
+            // this tab open for a while before the tran_id was actually minted.
+            'paywayExpiresAt' => $invoice->payway_tran_started_at
+                ->copy()
+                ->addMinutes(self::PAYWAY_LIFETIME_MINUTES)
+                ->toIso8601String(),
         ]);
     }
 

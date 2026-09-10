@@ -113,8 +113,16 @@ class PayWayService
      * This is the source of truth — always confirm via this call (or the
      * push to return_url) rather than trusting anything the browser says.
      *
-     * NOTE: PayWay rate-limits this endpoint to 10 requests/minute per
-     * their docs, so don't poll it too aggressively from the frontend.
+     * Uses "Check Transaction" (v2) rather than the older "Transaction
+     * Detail" (v1) endpoint, per PayWay's integration requirement to poll
+     * this at ~3s intervals for the duration of the purchase's `lifetime`
+     * window (see CourseEnrollmentController::paymentPage()) so payment
+     * status reaches the student as soon as possible. Request/response
+     * shape (req_time + merchant_id + tran_id → hash; response carries
+     * data.payment_status) matches v1, per PayWay's docs:
+     * https://developer.payway.com.kh/check-transaction-14530826e0
+     * Note: PayWay only allows checking transactions created within the
+     * last 7 days.
      */
     public function getTransactionDetail(string $tranId): array
     {
@@ -123,7 +131,7 @@ class PayWayService
         $hash = base64_encode(hash_hmac('sha512', $hashString, $this->apiKey, true));
 
         $response = Http::asJson()
-            ->post("{$this->apiUrl}/api/payment-gateway/v1/payments/transaction-detail", [
+            ->post("{$this->apiUrl}/api/payment-gateway/v1/payments/check-transaction-2", [
                 'req_time' => $reqTime,
                 'merchant_id' => $this->merchantId,
                 'tran_id' => $tranId,
@@ -131,7 +139,7 @@ class PayWayService
             ]);
 
         if (!$response->successful()) {
-            Log::warning('PayWay transaction-detail request failed', [
+            Log::warning('PayWay check-transaction request failed', [
                 'tran_id' => $tranId,
                 'status' => $response->status(),
                 'body' => $response->body(),

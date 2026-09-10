@@ -72,7 +72,14 @@ class PayWayPaymentController extends Controller
                 ? trim($schedule->short_days . ' ' . $schedule->formatted_time . ($schedule->shift_label ? " ({$schedule->shift_label})" : ''))
                 : 'Not scheduled yet',
             'student_name' => $invoice->student->name ?? '—',
-            'payment_option' => $invoice->payment_option,
+            // This receipt only ever renders invoices paid through the
+            // checkout's hard-locked ABA KHQR channel (see
+            // CourseEnrollmentController@storePayment's 'abapay_khqr'
+            // payment_option request param), so we show the payment method
+            // used rather than $invoice->payment_option — that column is an
+            // unrelated discount/registration plan enum (full/half/multi/...)
+            // and would confusingly show "full" etc. here instead.
+            'payment_option' => 'ABA KHQR',
             'amount_paid' => number_format((float) $invoice->paid_amount, 2),
             'paid_at' => optional($invoice->paid_at)->format('d M Y, h:i A'),
             'tran_id' => $invoice->payway_tran_id,
