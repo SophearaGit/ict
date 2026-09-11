@@ -337,7 +337,6 @@
                                             <th>Price</th>
                                             <th>Revenue</th>
                                             <th>Status</th>
-                                            <th class="pe-4"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -412,19 +411,6 @@
                                                             class="badge-dot bg-success me-1 d-inline-block align-middle"></span>
                                                         <span class="small">OPEN</span>
                                                     @endif
-                                                </td>
-                                                {{-- Actions --}}
-                                                <td class="pe-4 text-end">
-                                                    <a href="javascript:void(0);"
-                                                        class="btn btn-sm btn-outline-secondary edit_course_btn"
-                                                        data-course-id="{{ $course['id'] }}" title="Edit">
-                                                        <i class="fe fe-edit"></i>
-                                                    </a>
-                                                    <a href="{{ route('admin.courses.realtime.destroy', $course['id']) }}"
-                                                        class="btn btn-sm btn-outline-danger btn_dynamic_delete_course"
-                                                        title="Delete">
-                                                        <i class="fe fe-trash"></i>
-                                                    </a>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -595,12 +581,17 @@
                         @forelse($recent_courses as $index => $course)
                             <li class="list-group-item px-4 py-3">
                                 <div class="d-flex align-items-center gap-3">
-                                    <img src="{{ $course['thumbnail'] }}" alt="{{ $course['title'] }}"
-                                        class="rounded flex-shrink-0"
-                                        style="width: 56px; height: 40px; object-fit: cover;">
+                                    <a href="{{ route('admin.courses.realtime.show', $course['id']) }}">
+                                        <img src="{{ $course['thumbnail'] }}" alt="{{ $course['title'] }}"
+                                            class="rounded flex-shrink-0"
+                                            style="width: 56px; height: 40px; object-fit: cover;">
+                                    </a>
                                     <div class="flex-grow-1 min-w-0">
                                         <p class="mb-0 fw-semibold text-truncate">
-                                            {{ Str::limit($course['title'], 36) }}
+                                            <a href="{{ route('admin.courses.realtime.show', $course['id']) }}"
+                                                class="text-inherit text-decoration-none">
+                                                {{ Str::limit($course['title'], 36) }}
+                                            </a>
                                         </p>
                                         <div class="d-flex align-items-center gap-1 mt-1">
                                             <img src="{{ $course['instructor_image'] }}"
@@ -609,22 +600,15 @@
                                             <small class="text-muted">{{ $course['instructor_name'] }}</small>
                                         </div>
                                     </div>
-                                    <div class="dropdown dropstart flex-shrink-0">
-                                        <a class="btn btn-ghost btn-sm btn-icon rounded-circle" href="#"
-                                            role="button" id="courseDrop{{ $index }}" data-bs-toggle="dropdown"
-                                            data-bs-offset="-20,20" aria-expanded="false">
-                                            <i class="fe fe-more-vertical"></i>
-                                        </a>
-                                        <div class="dropdown-menu" aria-labelledby="courseDrop{{ $index }}">
-                                            <span class="dropdown-header">Actions</span>
-                                            <a class="dropdown-item" href="#">
-                                                <i class="fe fe-edit dropdown-item-icon"></i> Edit
-                                            </a>
-                                            <a class="dropdown-item text-danger" href="#">
-                                                <i class="fe fe-trash dropdown-item-icon"></i> Remove
-                                            </a>
-                                        </div>
-                                    </div>
+                                    {{-- Admin is view-only for courses — this used to be an Edit/Remove
+                                         dropdown (its links were dead placeholders anyway, `href="#"`,
+                                         since no course id was even passed to this view). Replaced with
+                                         a plain View link. --}}
+                                    <a class="btn btn-ghost btn-sm btn-icon rounded-circle flex-shrink-0"
+                                        href="{{ route('admin.courses.realtime.show', $course['id']) }}"
+                                        title="View course">
+                                        <i class="fe fe-eye"></i>
+                                    </a>
                                 </div>
                             </li>
                         @empty

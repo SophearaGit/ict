@@ -176,8 +176,9 @@
                     },
                 });
             }
-            // 🔒 Lock attendance if report is pending approval
-            @if ($status === 'pending')
+            // 🔒 Lock attendance while pending approval, and keep it locked
+            // once approved — only a rejection (back to draft) reopens it
+            @if (in_array($status, ['pending', 'approved']))
                 document.querySelectorAll('#attendanceTable .status-toggle span').forEach(btn => {
                     btn.style.pointerEvents = 'none';
                     btn.style.opacity = '0.6';
@@ -558,6 +559,16 @@
                                                             Cancel the request to make changes.
                                                         </div>
                                                     </div>
+                                                @elseif ($status === 'approved')
+                                                    <div class="alert alert-success d-flex align-items-center mb-4"
+                                                        role="alert">
+                                                        <i class="fe fe-check-circle me-2"></i>
+                                                        <div>
+                                                            Attendance and scores are <strong>locked</strong> — this report
+                                                            has been approved.
+                                                            An admin can reject it to make it editable again.
+                                                        </div>
+                                                    </div>
                                                 @endif
                                                 <small class="text-muted">
                                                     {{-- dynamic date when select eg.Today — Tue, 14 Apr 2026 --}}
@@ -673,7 +684,7 @@
 
                                         <!-- ACTION -->
                                         <div class="text-end mt-3 d-flex gap-2 justify-content-end">
-                                            @if ($status !== 'pending')
+                                            @if (!in_array($status, ['pending', 'approved']))
                                                 <button class="btn btn-outline-danger btn-sm" onclick="resetAttendance()">
                                                     <i class="fe fe-refresh-cw me-1"></i> Reset Attendance
                                                 </button>
@@ -793,7 +804,7 @@
                                                                 data-field="assignment_score"
                                                                 value="{{ $report->assignment_score }}" min="0"
                                                                 max="30"
-                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
+                                                                {{ in_array($status, ['pending', 'approved']) ? 'readonly disabled' : '' }}>
                                                         </td>
                                                         <td class="text-center">
                                                             <input type="number"
@@ -803,7 +814,7 @@
                                                                 data-field="mini_project_score"
                                                                 value="{{ $report->mini_project_score }}" min="0"
                                                                 max="20"
-                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
+                                                                {{ in_array($status, ['pending', 'approved']) ? 'readonly disabled' : '' }}>
                                                         </td>
                                                         <td class="text-center">
                                                             <input type="number"
@@ -813,7 +824,7 @@
                                                                 data-field="final_project_score"
                                                                 value="{{ $report->final_project_score }}" min="0"
                                                                 max="40"
-                                                                {{ $status === 'pending' ? 'readonly disabled' : '' }}>
+                                                                {{ in_array($status, ['pending', 'approved']) ? 'readonly disabled' : '' }}>
                                                         </td>
                                                         {{-- Auto-updated by JS after save --}}
                                                         <td class="text-center fw-bold total-score">

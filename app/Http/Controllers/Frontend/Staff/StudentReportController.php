@@ -50,6 +50,16 @@ class StudentReportController extends Controller
     {
         $report = StudentReports::findOrFail($id);
 
+        // Scores are locked the same way attendance is: once the report is
+        // pending approval or already approved, only an admin rejection
+        // (back to 'draft') reopens editing. The UI already disables these
+        // inputs; this is the server-side backstop.
+        if (in_array($report->approval_status, ['pending', 'approved'])) {
+            return response()->json([
+                'message' => 'This report is locked while pending approval or already approved.',
+            ], 403);
+        }
+
         // update field
         $report->{$request->field} = $request->value;
 

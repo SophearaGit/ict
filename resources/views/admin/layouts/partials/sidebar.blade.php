@@ -19,6 +19,13 @@
                     <i class="nav-icon fe fe-home me-2"></i> Dashboard
                 </a>
             </li>
+            {{-- ── Invoices ── --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Route::is('admin.invoices.*') ? 'active' : '' }}"
+                    href="{{ route('admin.invoices.index') }}">
+                    <i class="nav-icon fe fe-file-text me-2"></i> Invoices
+                </a>
+            </li>
             {{-- ── Instructor Request ── --}}
             {{-- <li class="nav-item">
                 <a class="nav-link {{ Route::is('admin.instructor-request.index') ? 'active' : '' }}"
@@ -64,7 +71,7 @@
                             </a>
                         </li>
                     </ul>
-                    
+
                 </div>
             </li>
             {{-- ── Users (collapsible) ── --}}

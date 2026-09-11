@@ -76,6 +76,20 @@
                                             {{ $student->pivot->created_at->format('d M, Y') }}
                                         </span>
                                     </div>
+                                    @if ($canManageInvoices ?? false)
+                                        @php $studentInvoiceGrid = ($invoiceMap ?? collect())->get($student->id); @endphp
+                                        <div class="mt-3 d-grid">
+                                            @if ($studentInvoiceGrid)
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#quickInvoiceModal"
+                                                    data-invoice-id="{{ $studentInvoiceGrid->id }}">
+                                                    <i class="fe fe-file-text me-1"></i> View Invoice
+                                                </button>
+                                            @else
+                                                <span class="text-muted small text-center">No invoice</span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -174,25 +188,23 @@
                                                 {{ $student->location ?? 'Unknown' }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <span class="dropdown dropstart">
-                                                <a class="btn-icon btn btn-ghost btn-sm rounded-circle" href="#"
-                                                    role="button" id="courseDropdown" data-bs-toggle="dropdown"
-                                                    data-bs-offset="-20,20" aria-expanded="false">
-                                                    <i class="fe fe-more-vertical"></i>
-                                                </a>
-                                                <span class="dropdown-menu" aria-labelledby="courseDropdown">
-                                                    <span class="dropdown-header">Setting</span>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fe fe-edit dropdown-item-icon"></i>
-                                                        Edit
-                                                    </a>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fe fe-trash dropdown-item-icon"></i>
-                                                        Remove
-                                                    </a>
-                                                </span>
-                                            </span>
+                                        <td class="text-end">
+                                            {{-- Edit/Remove used to live here as dead `href="#"` links —
+                                                 removed for now. Invoice/payment visibility is admin-only:
+                                                 this partial is shared with the instructor's own course
+                                                 page, which never gets $canManageInvoices. --}}
+                                            @if ($canManageInvoices ?? false)
+                                                @php $studentInvoice = ($invoiceMap ?? collect())->get($student->id); @endphp
+                                                @if ($studentInvoice)
+                                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#quickInvoiceModal"
+                                                        data-invoice-id="{{ $studentInvoice->id }}">
+                                                        <i class="fe fe-file-text me-1"></i> View Invoice
+                                                    </button>
+                                                @else
+                                                    <span class="text-muted small">No invoice</span>
+                                                @endif
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

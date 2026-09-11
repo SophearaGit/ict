@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StaffReportController;
 use App\Http\Controllers\Admin\StudentInvoicePaymentDetailController;
 use App\Http\Controllers\Admin\StudentReportController;
+use App\Http\Controllers\Frontend\Teacher\StudentAttendanceController;
 
 
 use Illuminate\Support\Facades\Route;
@@ -92,9 +93,11 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::get('/realtime-courses/detail/{id}', [RealTimeCoursesController::class, 'realtimeShow'])->name('courses.realtime.show');
     Route::get('/realtime-courses/create', [RealTimeCoursesController::class, 'create'])->name('courses.realtime.create');
     Route::post('/realtime-courses', [RealTimeCoursesController::class, 'store'])->name('courses.realtime.store');
-    Route::get('/realtime-courses/{id}/edit', [RealTimeCoursesController::class, 'edit'])->name('courses.realtime.edit');
-    Route::put('/realtime-courses/{id}', [RealTimeCoursesController::class, 'update'])->name('courses.realtime.update');
-    Route::delete('/realtime-courses/{id}', [RealTimeCoursesController::class, 'destroy'])->name('courses.realtime.destroy');
+    // Admin is view-only for existing courses — creating a new one is still
+    // allowed above, but editing/deleting one is not. The edit/update/destroy
+    // routes were removed (not just their buttons) so a direct URL/request
+    // can't reach them either; RealTimeCoursesController::edit()/update()/
+    // destroy() are left in place but are now unreachable dead code.
     /*******************************************************
      * STUDENT INVOICE DETAIL IN COURSE
      *******************************************************/
@@ -102,11 +105,25 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
         ->name('courses.student.invoice')
         ->scopeBindings();
     /*******************************************************
+     * INVOICES (admin-wide list + quick-view modal)
+     *******************************************************/
+    Route::get('/invoices', [StudentInvoicePaymentDetailController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{invoice}/quick-view', [StudentInvoicePaymentDetailController::class, 'quickView'])->name('invoices.quick-view');
+    /*******************************************************
      *  STUDENT REPORT
      *******************************************************/
     Route::get('/student-report', [StudentReportController::class, 'studentReport'])->name('student-report.index');
     Route::post('/student-report/approve/{course}', [StudentReportController::class, 'approve'])->name('student-report.approve');
     Route::patch('/student-report/reject/{course}', [StudentReportController::class, 'reject'])->name('student-report.reject');
+    /*******************************************************
+     *  STUDENT ATTENDANCE (read-only — admin has no use for the
+     *  day-by-day "Student's Attendance" grid, so that tab and its
+     *  `student-attendance.get` route were removed; the Session Log
+     *  tab, which reuses the same read-only controller method, still
+     *  gives admin the full per-session history)
+     *******************************************************/
+    Route::get('/student-attendance/session-log', [StudentAttendanceController::class, 'sessionLog'])
+        ->name('student-attendance.session-log');
     /*******************************************************
      *  STAFF REPORT
      *******************************************************/
