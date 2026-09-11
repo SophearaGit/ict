@@ -15,6 +15,14 @@ class ICTInvoice extends Model
 
     protected $casts = [
         'payway_tran_started_at' => 'datetime',
+        // Without this cast, $invoice->paid_at is a raw DB string, not a
+        // Carbon instance. Every optional($invoice->paid_at)->format(...)
+        // call (the PayWay receipt's "Paid At", the staff invoice page's
+        // "Paid On" chip) was silently returning null either way —
+        // optional() only calls through on a real object, so on a plain
+        // string it just no-ops instead of erroring, which is why this
+        // went unnoticed rather than throwing.
+        'paid_at' => 'datetime',
     ];
 
     public function staff()
