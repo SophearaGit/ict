@@ -21,6 +21,18 @@ return Application::configure(basePath: dirname(__DIR__))
             'check_role' => CheckRoleMiddleWare::class,
             'report.grant' => EnsureHasReportGrant::class,
         ]);
+
+        // ABA PayWay POSTs its transaction callback directly to this URL
+        // (server-to-server) — it has no session/cookie, so it can never
+        // send our CSRF token. Without this exemption, routes/web.php's
+        // comment about excluding it was never actually wired up anywhere
+        // (there's no App\Http\Middleware\VerifyCsrfToken in this Laravel
+        // 11+ app to add an $except entry to), so every real callback from
+        // PayWay was silently rejected with a 419 before ever reaching
+        // PayWayPaymentController::callback().
+        $middleware->validateCsrfTokens(except: [
+            'payment/payway/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

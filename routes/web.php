@@ -21,9 +21,8 @@ Route::get('ict/projects', [ProjectShowcaseController::class, 'index'])->name('p
 Route::get('ict/projects/{slug}', [ProjectShowcaseController::class, 'show'])->name('projects.details');
 /*******************************************************
  * PAYWAY WEBHOOK (public — called server-to-server by ABA, not the browser)
- * NOTE: this must be added to the $except array in
- * App\Http\Middleware\VerifyCsrfToken (see notes) since PayWay's server
- * won't send a CSRF token.
+ * CSRF-exempt via bootstrap/app.php's validateCsrfTokens(except: [...])
+ * since PayWay's server won't send a CSRF token.
  *******************************************************/
 Route::post('/payment/payway/callback', [PayWayPaymentController::class, 'callback'])
     ->name('payway.callback');
