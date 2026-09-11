@@ -79,6 +79,19 @@ class StudentAttendanceController extends Controller
         }
         return $result;
     }
+    /**
+     * True once the student report has been sent for approval — attendance
+     * must not change under a report an admin is reviewing or already
+     * approved (only a rejection, which resets it to 'draft', reopens it).
+     * The UI already disables these controls client-side; this is the
+     * server-side backstop so a direct POST can't bypass that.
+     */
+    private function isLocked($courseId): bool
+    {
+        $status = StudentReports::where('course_id', $courseId)->value('approval_status');
+        return in_array($status, ['pending', 'approved']);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -87,6 +100,12 @@ class StudentAttendanceController extends Controller
             'attendances' => 'required|array',
             'attendances.*.status' => 'nullable|in:present,absent,permission,unmarked',
         ]);
+        if ($this->isLocked($request->course_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attendance is locked while the report is pending approval or already approved.',
+            ], 403);
+        }
         DB::beginTransaction();
         try {
             foreach ($request->attendances as $attendance) {
@@ -128,6 +147,12 @@ class StudentAttendanceController extends Controller
             'course_id' => 'required|exists:i_c_t_courses,id',
             'date' => 'required|date',
         ]);
+        if ($this->isLocked($request->course_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attendance is locked while the report is pending approval or already approved.',
+            ], 403);
+        }
         DB::beginTransaction();
         try {
             StudentAttendances::where('course_id', $request->course_id)

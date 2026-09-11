@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
+use App\Models\ICTInvoice;
 use App\Models\ICTSchedule;
 use App\Models\StudentAttendances;
 use App\Models\User;
@@ -121,14 +122,39 @@ class RealTimeCoursesController extends Controller
         ];
         // othher courses by the same instructor
         $others_courses = ICTCourse::where('instructor_id', $course->instructor_id)->where('id', '!=', $course->id)->latest()->get();
-        // Paginate students (IMPORTANT)
-        $students = $course->students()->paginate(5); // 5 per page
+        // Admin sees every enrolled student on this page, no pagination —
+        // still built as a paginator (sized to fit everyone on "page 1")
+        // rather than a plain collection, since the shared students-tab
+        // partial calls ->hasPages()/->currentPage()/etc. on $students.
+        $studentsCount = $course->students()->count();
+        $students = $course->students()->paginate(max($studentsCount, 1));
+        /*
+        |--------------------------------------------------------------------------
+        | 🧾 INVOICE LOOKUP FOR THIS PAGE OF STUDENTS
+        |--------------------------------------------------------------------------
+        | One query for the whole page rather than one per row. Keyed by
+        | student_id so the Students tab can look up "does this student
+        | have an invoice for this course" without N+1 queries. A student
+        | enrolled without ever going through checkout (e.g. added
+        | directly) simply won't have an entry here.
+        */
+        $invoiceMap = ICTInvoice::where('course_id', $course->id)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->latest()
+            ->get()
+            ->keyBy('student_id');
         return view('admin.pages.real-time-courses-detail.real-time-courses-detail', [
             'page_title' => 'ICT | Staff | Course Detail',
             'course' => $course,
             'attendanceData' => $attendanceData,
             'students' => $students,
             'other_courses' => $others_courses,
+            'invoiceMap' => $invoiceMap,
+            // Gates the invoice-viewing UI in the shared students-tab
+            // partial (also @include'd from the instructor's own course
+            // page) — instructors shouldn't see student payment/invoice
+            // data, only admins.
+            'canManageInvoices' => true,
         ]);
     }
     public function realtimeIndex(Request $request)

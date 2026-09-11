@@ -135,10 +135,10 @@
       <div class="d-flex align-items-end gap-2 flex-nowrap">
         {{-- Grid / List toggle --}}
         <div class="nav btn-group flex-nowrap" role="tablist">
-          <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneGrid" role="tab" aria-controls="tabPaneGrid" data-tab="grid">
+          <button class="btn btn-outline-secondary active" data-bs-toggle="tab" data-bs-target="#tabPaneGrid" role="tab" aria-controls="tabPaneGrid" aria-selected="true" data-tab="grid">
             <span class="fe fe-grid"></span>
           </button>
-          <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList" role="tab" aria-controls="tabPaneList" tabindex="-1" data-tab="list">
+          <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList" role="tab" aria-controls="tabPaneList" aria-selected="false" tabindex="-1" data-tab="list">
             <span class="fe fe-list"></span>
           </button>
         </div>
@@ -242,7 +242,12 @@
   <div class="col-xl-9 col-lg-9 col-md-8 col-12">
     <div class="tab-content">
       {{-- ════ GRID VIEW ════ --}}
-      <div class="tab-pane fade pb-4" id="tabPaneGrid" role="tabpanel">
+      {{-- Grid is the default view: it needs "show active" here so the
+           page renders something before the localStorage-restore script
+           below runs. Without a default, a first-ever visit (or any
+           visit where localStorage has no saved preference) left BOTH
+           tab-panes hidden until the user clicked a toggle button. --}}
+      <div class="tab-pane fade show active pb-4" id="tabPaneGrid" role="tabpanel">
         <div class="card rounded-3">
           {{-- Search --}}
           <div class="p-4">
@@ -337,16 +342,6 @@
                                                         class="badge bg-primary fs-6 px-3 py-2  fw-semibold">${{ number_format($course->price, 2) }}</span>
                   </div>
                 </div>
-                <div class="card-footer">
-                  <div class="d-flex justify-content-end gap-1">
-                    <a href="javascript:void;" class="btn btn-sm btn-outline-secondary edit_course_btn" data-course-id="{{ $course->id }}">
-                      <i class="fe fe-edit"></i>
-                    </a>
-                    <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}" class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
-                      <i class="fe fe-trash"></i>
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
             @empty
@@ -402,7 +397,6 @@
                 <th>Revenue</th>
                 <th>Full Price</th>
                 <th>Status</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -457,18 +451,10 @@
                   <span class="badge bg-info text-white">DRAFT</span>
                   @endif
                 </td>
-                <td>
-                  <a href="javascript:void;" class="btn btn-sm btn-outline-secondary edit_course_btn" data-course-id="{{ $course->id }}">
-                    <i class="fe fe-edit"></i>
-                  </a>
-                  <a href="{{ route('admin.courses.realtime.destroy', $course->id) }}" class="btn btn-sm btn-outline-danger btn_dynamic_delete_course">
-                    <i class="fe fe-trash"></i>
-                  </a>
-                </td>
               </tr>
               @empty
               <tr>
-                <td colspan="10" class="text-center py-5">
+                <td colspan="9" class="text-center py-5">
                   <i class="fe fe-inbox" style="font-size:2.5rem; color:#9ca3af;"></i>
                   <h3 class="mt-3 mb-2">No courses found</h3>
                   <p class="text-muted mb-4">Try adjusting your search or filters.</p>
@@ -496,37 +482,10 @@
 @endsection
 @push('scripts')
 <script>
-  // ── Delete course ──
-  $('.btn_dynamic_delete_course').on('click', function(e) {
-    e.preventDefault();
-    const url = $(this).attr('href');
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        $.ajax({
-          method: 'DELETE',
-          url: url,
-          data: {
-            _token: csrf_token
-          },
-          success: function(data) {
-            iziToast.success({
-              message: data.message,
-              position: 'bottomRight'
-            });
-            setTimeout(() => window.location.href = data.redirect_url, 1000);
-          },
-        });
-      }
-    });
-  });
+  // Admin is view-only for existing courses now — the Edit and Delete
+  // buttons/routes for a course were removed, so their click handlers
+  // (and the "Delete course" AJAX call) were removed here too. Creating
+  // a new course is still allowed, via the modal below.
   // ── Add course ──
   $('.add_new_course_btn').on('click', function(e) {
     e.preventDefault();
@@ -534,25 +493,6 @@
     $.ajax({
       method: 'GET',
       url: base_url + '/realtime-courses/create',
-      beforeSend: function() {
-        $('.dynamic_course_modal_content').html(
-          '<div class="d-flex justify-content-center align-items-center" style="height:200px;">' +
-          '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
-        );
-      },
-      success: function(data) {
-        $('.dynamic_course_modal_content').html(data);
-      },
-    });
-  });
-  // ── Edit course ──
-  $(document).on('click', '.edit_course_btn', function(e) {
-    e.preventDefault();
-    $('#addCourseModal').modal('show');
-    const course_id = $(this).data('course-id');
-    $.ajax({
-      method: 'GET',
-      url: base_url + '/realtime-courses/' + course_id + '/edit',
       beforeSend: function() {
         $('.dynamic_course_modal_content').html(
           '<div class="d-flex justify-content-center align-items-center" style="height:200px;">' +

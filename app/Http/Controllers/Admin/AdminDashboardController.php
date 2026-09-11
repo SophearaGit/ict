@@ -128,6 +128,7 @@ class AdminDashboardController extends Controller
         // Recent courses active in this month
         $recentCourses = ICTCourse::with('instructor')->where('start_date', '<=', $to)->where('end_date', '>=', $from)->latest('start_date')->take(8)->get()->map(
             fn($course) => [
+                'id' => $course->id,
                 'title' => $course->title,
                 'thumbnail' => $course->thumbnail ? asset($course->thumbnail) : asset('default-images/staff/no-course-img.png'),
                 'instructor_name' => $course->instructor?->name ?? 'N/A',
