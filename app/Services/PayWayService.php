@@ -65,6 +65,11 @@ class PayWayService
             'additional_params' => $params['additional_params'] ?? '',
             'google_pay_token' => $params['google_pay_token'] ?? '',
             'skip_success_page' => $params['skip_success_page'] ?? '',
+            // 'popup' opens the checkout as a bottom-sheet/modal over this
+            // page instead of redirecting to a new tab ('hosted_view').
+            // NOT part of the hash below — PayWay excludes view_type (and
+            // payment_gate) from the hash calculation.
+            'view_type' => $params['view_type'] ?? 'popup',
         ];
 
         $fields['hash'] = $this->hashPurchase($fields);
