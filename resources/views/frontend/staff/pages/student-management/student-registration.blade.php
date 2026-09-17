@@ -1084,6 +1084,16 @@
         .val('');
       $('#multiNoteWrapper').addClass('d-none');
       clearSummary();
+      // Switching between New/Existing Student starts a fresh registration —
+      // clear the previously chosen course(s) too, not just the payment
+      // fields. #courseSelect is one shared field for both tabs, so without
+      // this the "Select Course(s)" chips silently carried over from
+      // whichever tab you were on before, even though the payment summary
+      // above it had just been reset to blank — an inconsistent state that
+      // invited submitting courses nobody consciously picked for this
+      // student. Cleared last (after paymentOptionInput above is already
+      // ''), so the change handler's own recalculation below is a no-op.
+      $('#courseSelect').val(null).trigger('change');
     }
   });
 </script>

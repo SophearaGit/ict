@@ -76,18 +76,24 @@
             top: 100%;
             right: 0;
             min-width: 220px;
-            background: #fff;
+            background: var(--card-bg, #fff);
             border-radius: 14px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
             overflow: hidden;
             display: none;
             z-index: 9999;
+            transition: background .3s;
         }
 
         .user-dropdown:hover .user-menu {
             display: block;
         }
 
+        /* Text/icon color is tied to --text-main so it flips with the
+           dark-mode toggle instead of staying a fixed dark gray. Without
+           this, [data-theme="dark"] .header a (in style.css) turns the
+           "Dashboard" link near-white while this dropdown's background
+           stayed hardcoded white, making it invisible in dark mode. */
         .user-menu a,
         .user-menu button {
             width: 100%;
@@ -97,14 +103,14 @@
             background: transparent;
             text-align: left;
             text-decoration: none;
-            color: #333;
+            color: var(--text-main, #333) !important;
             cursor: pointer;
             font-size: 15px;
         }
 
         .user-menu a:hover,
         .user-menu button:hover {
-            background: #f5f5f5;
+            background: var(--dd-hover, #f5f5f5);
         }
 
         .user-menu form {
