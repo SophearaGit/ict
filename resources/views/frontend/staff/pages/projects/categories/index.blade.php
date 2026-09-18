@@ -37,6 +37,7 @@
             <table class="table search-table align-middle text-nowrap">
                 <thead class="header-item">
                     <tr>
+                        <th>No</th>
                         <th>Name</th>
                         <th>Slug</th>
                         <th>Projects</th>
@@ -48,6 +49,7 @@
                 <tbody>
                     @forelse ($categories as $category)
                         <tr>
+                            <td>{{ $categories->firstItem() + $loop->index }}</td>
                             <td>{{ $category->name }}</td>
                             <td><span class="text-muted">{{ $category->slug }}</span></td>
                             <td>{{ $category->projects_count }}</td>
@@ -74,7 +76,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
+                            <td colspan="7" class="text-center py-4 text-muted">
                                 <i class="ti ti-category-off fs-6 me-1"></i>
                                 No categories found{{ request('search') ? ' for "' . request('search') . '"' : '' }}.
                             </td>

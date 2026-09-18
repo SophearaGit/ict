@@ -1,4 +1,11 @@
   <style>
+      /* Soft page backdrop so the white overlapping card and media cards
+         have something to visually sit on top of, instead of white-on-white. */
+      .blog-detail-contianer {
+          background: #f6f8fb;
+          padding-bottom: 20px;
+      }
+
       /* ===== Hero Image ===== */
       .blog-detail-hero {
           position: relative;
@@ -11,6 +18,17 @@
           width: 100%;
           height: 100%;
           object-fit: cover;
+      }
+
+      /* Gentle bottom fade so the hero blends into the overlapping white
+         card instead of the two meeting on a hard, flat edge. */
+      .blog-detail-hero::after {
+          content: '';
+          position: absolute;
+          inset: auto 0 0 0;
+          height: 120px;
+          background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.35));
+          pointer-events: none;
       }
 
       .back-to-blog {
@@ -43,6 +61,7 @@
           border-radius: 20px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
           position: relative;
+          z-index: 2;
           text-align: center;
           animation: fadeSlideUp 0.7s ease forwards;
           opacity: 0;
@@ -63,7 +82,7 @@
       .blog-detail-category {
           display: inline-block;
           background: #e6efff;
-          color: blue;
+          color: #3777ff;
           font-size: 14px;
           font-weight: 600;
           padding: 6px 18px;
@@ -99,7 +118,7 @@
       }
 
       .meta-author div {
-          line-height: 0.6;
+          line-height: 1.3;
       }
 
       .meta-author img {
@@ -112,12 +131,13 @@
       }
 
       .detail-meta .meta-date {
-          line-height: 0.6;
+          line-height: 1.3;
       }
 
       .meta-author p,
       .meta-date p {
           display: block;
+          margin: 0 0 2px;
           font-size: 15px;
           font-weight: 600;
           color: #111;
@@ -125,6 +145,8 @@
 
       .meta-author span,
       .meta-date span {
+          display: block;
+          margin: 0;
           font-size: 13px;
           color: grey;
       }
@@ -157,8 +179,105 @@
           margin-top: 40px;
       }
 
+      /* Article body copy (the raw $blog->content HTML). This was
+         line-height: 0.9, which is tighter than the text itself and made
+         multi-line paragraphs crowd/overlap — bumped to a readable value. */
       .blog-description-detail div p {
-          line-height: 0.9;
+          line-height: 1.7;
+      }
+
+      /* Raw pasted embed/content HTML sometimes carries its own <ul>/<ol>
+         (e.g. from a Facebook fallback blockquote) with no matching
+         wrapper styles, which showed up as a stray, orphaned bullet with
+         nothing next to it. Neutralize list markup we don't control. */
+      .blog-description-detail ul,
+      .blog-description-detail ol {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+      }
+
+      /* ===== Embedded media (Facebook / TikTok / Instagram) =====
+         These wrapper classes were referenced in the template but had no
+         styles anywhere, so the raw <iframe> Facebook/TikTok generate
+         (which carries its own fixed pixel width/height) rendered at
+         whatever odd size it pleased inside an unstyled, height-less div —
+         that's what showed up as a large blank gap. Every iframe is now
+         forced to fill a properly proportioned, cropped container. */
+      .blog-media-wrap {
+          position: relative;
+          width: 100%;
+          max-width: 560px;
+          margin: 0 auto 30px;
+          border-radius: 16px;
+          overflow: hidden;
+          background: #eef1f6;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .blog-media-wrap.ratio-landscape {
+          aspect-ratio: 16 / 9;
+      }
+
+      .blog-media-wrap iframe,
+      .blog-media-wrap .fb-video,
+      .blog-media-wrap .fb-post,
+      .blog-media-wrap span,
+      .blog-media-wrap > div {
+          position: absolute;
+          inset: 0;
+          width: 100% !important;
+          height: 100% !important;
+          border: 0;
+          display: block;
+      }
+
+      /* Portrait embeds (TikTok / Reels) get a simple phone-style frame. */
+      .phone-frame-wrap {
+          display: flex;
+          justify-content: center;
+          margin: 0 auto 30px;
+      }
+
+      .phone-frame {
+          position: relative;
+          width: 100%;
+          max-width: 300px;
+          aspect-ratio: 9 / 16;
+          background: #111;
+          border-radius: 28px;
+          padding: 10px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .phone-screen {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          border-radius: 20px;
+          overflow: hidden;
+          background: #000;
+      }
+
+      .phone-screen iframe,
+      .phone-screen > div {
+          position: absolute;
+          inset: 0;
+          width: 100% !important;
+          height: 100% !important;
+          border: 0;
+      }
+
+      /* Link-only fallback when there's an embed_url but no inline embed
+         markup — a clean card pointing out to the original post. */
+      .external-embed-card {
+          max-width: 480px;
+          margin: 0 auto 30px;
+          padding: 30px;
+          text-align: center;
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 16px;
       }
 
       /* ===== Tags + Share Row ===== */
@@ -262,7 +381,7 @@
       }
 
       .author-link {
-          color: blue;
+          color: #3777ff;
           font-size: 14px;
           font-weight: 600;
           text-decoration: none;
