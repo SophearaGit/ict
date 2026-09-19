@@ -41,8 +41,13 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'khmer_name' => 'nullable|string|max:255',
+            // Letters only (English alphabet), plus spaces and the
+            // punctuation real names actually use (apostrophe, hyphen,
+            // period) — no digits or Khmer script here.
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\'\.\-\s]+$/'],
+            // Khmer Unicode block (\x{1780}-\x{17FF}) plus spaces only.
+            // Left nullable since the field itself is optional.
+            'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]+$/u'],
             // email:rfc alone (Laravel/PHP's default) accepts "student@gmail"
             // as a syntactically valid address — a bare hostname with no dot
             // is technically legal RFC 5321 syntax, even though it's never a
@@ -63,6 +68,9 @@ class StudentController extends Controller
             'alternate_phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.regex' => 'Full Name (English) can only contain English letters, spaces, apostrophes, hyphens and periods.',
+            'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
         ]);
         $imagePath = 'no-img.jpg';
         if ($request->hasFile('image')) {
@@ -110,8 +118,10 @@ class StudentController extends Controller
     {
         $student = User::findOrFail($id);
         $request->validate([
-            'name' => 'required|string|max:255',
-            'khmer_name' => 'nullable|string|max:255',
+            // Same as store(): English letters only for the English name,
+            // Khmer script only for the Khmer name.
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\'\.\-\s]+$/'],
+            'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]+$/u'],
             // Same reasoning as store(): plain email:rfc accepts a
             // dot-less domain like "gmail" as valid, so require a real,
             // resolvable domain too.
@@ -127,6 +137,9 @@ class StudentController extends Controller
             'alternate_phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.regex' => 'Full Name (English) can only contain English letters, spaces, apostrophes, hyphens and periods.',
+            'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
         ]);
         if ($request->hasFile('image')) {
             $this->deleteIfImageExist($student->image);

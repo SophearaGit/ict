@@ -32,6 +32,7 @@
     text-transform: uppercase;
     opacity: .7;
     margin-bottom: 2px;
+    white-space: nowrap;
   }
   .stat-card .stat-value {
     font-size: 1.75rem;
@@ -362,11 +363,17 @@
       </div>
     </div>
   </div>
-  {{-- Draft Courses --}}
+  {{-- Draft Courses ── "Draft Courses" (13 chars, the longest label in this
+       row) wrapped onto two lines inside the fixed carousel item width,
+       which pushed the count down and left the icon looking oddly tall
+       next to it. Shortened to "Drafts" to match the single-word length of
+       every sibling label, and given its own accent color instead of flat
+       gray-on-gray so it doesn't read as the one washed-out/disabled-
+       looking card in an otherwise color-coded row. --}}
   <div class="item">
-    <div class="stat-card shadow-sm" style="background:#f8fafc;">
-      <div class="stat-icon" style="background:#e2e8f0;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="stat-card shadow-sm" style="background:#f5f3ff;">
+      <div class="stat-icon" style="background:#ede9fe;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 3v4a1 1 0 0 0 1 1h4" />
           <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
           <path d="M9 12h6" />
@@ -374,8 +381,8 @@
         </svg>
       </div>
       <div>
-        <div class="stat-label" style="color:#64748b;">Draft Courses</div>
-        <div class="stat-value" style="color:#64748b;">{{ $draft_courses_count ?? 0 }}</div>
+        <div class="stat-label" style="color:#7c3aed;">Drafts</div>
+        <div class="stat-value" style="color:#7c3aed;">{{ $draft_courses_count ?? 0 }}</div>
       </div>
     </div>
   </div>

@@ -356,6 +356,7 @@
       <div class="modal-body">
         <form method="POST" action="{{ route('staff.student.store') }}" id="addStudentForm" enctype="multipart/form-data">
           @csrf
+          <input type="hidden" name="_modal" value="add">
           <div class="form-section-title"><i class="ti ti-user me-1"></i> Personal Information</div>
           <div class="row">
             <div class="col-12">
@@ -382,7 +383,7 @@
               <div class="mb-3">
                 <label class="form-label fw-semibold">Full Name (English) <span
                                             class="text-danger">*</span></label>
-                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" placeholder="e.g. Dara Chan" value="{{ old('name') }}">
+                <input type="text" name="name" id="add-name" required pattern="[A-Za-z'.\-\s]+" title="English letters only (spaces, apostrophes, hyphens and periods are OK)" class="form-control @error('name') is-invalid @enderror" placeholder="e.g. Dara Chan" value="{{ old('name') }}">
                 @error('name')
                 <span class="text-danger small">{{ $message }}</span>
                 @enderror
@@ -391,7 +392,10 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Full Name (Khmer)</label>
-                <input type="text" name="khmer_name" class="form-control" placeholder="e.g. ដារ៉ា ចាន់" value="{{ old('khmer_name') }}">
+                <input type="text" name="khmer_name" id="add-khmer-name" pattern="[ក-៿\s]+" title="Khmer script only" class="form-control @error('khmer_name') is-invalid @enderror" placeholder="e.g. ដារ៉ា ចាន់" value="{{ old('khmer_name') }}">
+                @error('khmer_name')
+                <span class="text-danger small">{{ $message }}</span>
+                @enderror
               </div>
             </div>
           </div>
@@ -606,6 +610,12 @@
         <form method="POST" id="editStudentForm" enctype="multipart/form-data">
           @csrf
           @method('PUT')
+          {{-- Lets a failed-validation redirect know (a) this came from the
+               Edit form, not Add, and (b) which student to re-submit to —
+               both are otherwise lost on a full-page reload, since this
+               form's action/fields are normally filled in by JS, not old(). --}}
+          <input type="hidden" name="_modal" value="edit">
+          <input type="hidden" name="_student_id" id="edit-student-id" value="{{ old('_student_id') }}">
           <div class="form-section-title"><i class="ti ti-user me-1"></i> Personal Information</div>
           <div class="row">
             <div class="col-12">
@@ -632,13 +642,19 @@
               <div class="mb-3">
                 <label class="form-label fw-semibold">Full Name (English) <span
                                             class="text-danger">*</span></label>
-                <input type="text" name="name" id="edit-name" class="form-control" placeholder="e.g. Dara Chan">
+                <input type="text" name="name" id="edit-name" required pattern="[A-Za-z'.\-\s]+" title="English letters only (spaces, apostrophes, hyphens and periods are OK)" class="form-control @error('name') is-invalid @enderror" placeholder="e.g. Dara Chan" value="{{ old('name') }}">
+                @error('name')
+                <span class="text-danger small">{{ $message }}</span>
+                @enderror
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Full Name (Khmer)</label>
-                <input type="text" name="khmer_name" id="edit-khmer-name" class="form-control">
+                <input type="text" name="khmer_name" id="edit-khmer-name" pattern="[ក-៿\s]+" title="Khmer script only" class="form-control @error('khmer_name') is-invalid @enderror" value="{{ old('khmer_name') }}">
+                @error('khmer_name')
+                <span class="text-danger small">{{ $message }}</span>
+                @enderror
               </div>
             </div>
           </div>
@@ -646,13 +662,19 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                <input type="email" name="email" id="edit-email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a full email address including a domain, e.g. name@example.com" class="form-control">
+                <input type="email" name="email" id="edit-email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a full email address including a domain, e.g. name@example.com" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}">
+                @error('email')
+                <span class="text-danger small">{{ $message }}</span>
+                @enderror
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
-                <input type="text" name="phone" id="edit-phone" inputmode="tel" maxlength="20" required pattern="[0-9+\-\s]{8,20}" title="Phone number: digits only, optionally starting with +, 8–20 characters" class="form-control">
+                <input type="text" name="phone" id="edit-phone" inputmode="tel" maxlength="20" required pattern="[0-9+\-\s]{8,20}" title="Phone number: digits only, optionally starting with +, 8–20 characters" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone') }}">
+                @error('phone')
+                <span class="text-danger small">{{ $message }}</span>
+                @enderror
               </div>
             </div>
           </div>
@@ -671,17 +693,20 @@
                 <label class="form-label fw-semibold">Gender <span
                                             class="text-danger">*</span></label>
                 <div class="gender-toggle" data-target="#edit-gender">
-                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_edit" id="gender-edit-male" value="male" autocomplete="off">
+                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_edit" id="gender-edit-male" value="male" autocomplete="off" {{ old('gender') === 'male' ? 'checked' : '' }}>
                   <label class="gender-toggle-btn" for="gender-edit-male"><i class="ti ti-gender-male me-1"></i> Male</label>
-                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_edit" id="gender-edit-female" value="female" autocomplete="off">
+                  <input type="radio" class="btn-check gender-toggle-input" name="gender_display_edit" id="gender-edit-female" value="female" autocomplete="off" {{ old('gender') === 'female' ? 'checked' : '' }}>
                   <label class="gender-toggle-btn" for="gender-edit-female"><i class="ti ti-gender-female me-1"></i> Female</label>
                 </div>
                 {{-- Real field that actually submits — the buttons above just drive it --}}
-                <select name="gender" id="edit-gender" class="d-none">
-                  <option value="" disabled>Select Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+                <select name="gender" id="edit-gender" class="d-none @error('gender') is-invalid @enderror">
+                  <option value="" disabled {{ old('gender') ? '' : 'selected' }}>Select Gender</option>
+                  <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Male</option>
+                  <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female</option>
                 </select>
+                @error('gender')
+                <span class="text-danger small">{{ $message }}</span>
+                @enderror
               </div>
             </div>
           </div>
@@ -807,11 +832,25 @@
     </div>
   </div>
 </div>
-{{-- Reopen modal on validation error --}}
+{{-- Reopen modal on validation error.
+     This used to always reopen the Add modal — a failed *Edit* would
+     silently pop the "Add Student" modal instead, with the just-typed
+     edits nowhere to be seen. The hidden _modal field (set in each form
+     above) says which form actually failed, so the right modal reopens
+     with its values and error messages intact. --}}
 @if ($errors->any())
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    new bootstrap.Modal(document.getElementById('addStudentModal')).show();
+    @if (old('_modal') === 'edit')
+      var editForm = document.getElementById('editStudentForm');
+      var studentId = @json(old('_student_id'));
+      if (studentId) {
+        editForm.action = `/staff/student/${studentId}`;
+      }
+      new bootstrap.Modal(document.getElementById('editStudentModal')).show();
+    @else
+      new bootstrap.Modal(document.getElementById('addStudentModal')).show();
+    @endif
   });
 </script>
 @endif
@@ -922,6 +961,34 @@
   }
   bindBioCounter('add-bio', 'add-bio-counter');
   bindBioCounter('edit-bio', 'edit-bio-counter');
+  // ─── Name Field Character Restriction ──────────────────────────────────────
+  // Strips disallowed characters as the person types, instead of only
+  // catching it on submit — English name fields can't contain Khmer script
+  // (or digits/symbols), and the Khmer name field can't contain anything
+  // but Khmer script. The `pattern` attribute on these inputs (and the
+  // matching regex in StudentController@store/update) is the real
+  // enforcement; this is just so a stray keystroke never gets in typed.
+  function restrictToPattern(inputId, allowedCharsRegex) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('input', function() {
+      const cursor = this.selectionStart;
+      const before = this.value;
+      this.value = this.value.split('').filter(ch => allowedCharsRegex.test(ch)).join('');
+      // Keep the caret from jumping to the end when characters were stripped
+      // from the middle of the string.
+      const removed = before.length - this.value.length;
+      if (removed > 0 && cursor !== null) {
+        this.setSelectionRange(cursor - removed, cursor - removed);
+      }
+    });
+  }
+  const ENGLISH_NAME_CHAR = /[A-Za-z'.\-\s]/;
+  const KHMER_NAME_CHAR = /[ក-៿\s]/;
+  restrictToPattern('add-name', ENGLISH_NAME_CHAR);
+  restrictToPattern('add-khmer-name', KHMER_NAME_CHAR);
+  restrictToPattern('edit-name', ENGLISH_NAME_CHAR);
+  restrictToPattern('edit-khmer-name', KHMER_NAME_CHAR);
   // ─── Image Upload + Croppie Preview ────────────────────────────────────────
   let croppieInstance = null;
   let cropTargetPrefix = null;
@@ -1009,6 +1076,7 @@
   function openEditStudentModal(dataset) {
     const form = document.getElementById('editStudentForm');
     form.action = `/staff/student/${dataset.id}`;
+    document.getElementById('edit-student-id').value = dataset.id ?? '';
     document.getElementById('edit-name').value = dataset.name ?? '';
     document.getElementById('edit-khmer-name').value = dataset.khmerName ?? '';
     document.getElementById('edit-email').value = dataset.email ?? '';
