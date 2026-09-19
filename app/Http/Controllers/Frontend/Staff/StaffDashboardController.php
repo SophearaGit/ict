@@ -2,9 +2,9 @@
 namespace App\Http\Controllers\Frontend\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
+use App\Models\ICTStaffReport;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
 class StaffDashboardController extends Controller
 {
     public function index(): View
@@ -12,9 +12,16 @@ class StaffDashboardController extends Controller
         $data = [
             'page_title' => 'ICT | STAFF | DASHBOARD',
             // ── Stat counters ──────────────────────────────────────────────
-            'students_count' => Auth::user()->students()->count(),
+            // These cards are labeled plainly "Students" / "Reports" (not
+            // "My Students" / "My Reports"), so they need to be whole-platform
+            // totals — same as Courses/Staffs/Draft Courses below. They were
+            // previously scoped to Auth::user() (students THIS staff member
+            // personally registered, reports THIS staff member filed), which
+            // is why "Students" showed 0 even though the LMS clearly has
+            // students enrolled by other staff.
+            'students_count' => User::where('role', 'student')->count(),
             'staffs_count' => User::where('role', 'staff')->count(),
-            'reports_count' => Auth::user()->reports()->count(),
+            'reports_count' => ICTStaffReport::count(),
             'courses_count' => ICTCourse::count(),
             'draft_courses_count' => ICTCourse::where('status', 'draft')->count(),
             // ── Today's Courses ────────────────────────────────────────────
