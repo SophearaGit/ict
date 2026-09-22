@@ -56,6 +56,7 @@
                     <table class="table mb-0 text-nowrap table-hover table-centered">
                         <thead class="table-light">
                             <tr>
+                                <th>No</th>
                                 <th>Invoice</th>
                                 <th>Student</th>
                                 <th>Course</th>
@@ -87,6 +88,7 @@
                                     $statusLabel = $statusClass === 'half_paid' ? 'Half Paid' : ucfirst($statusClass);
                                 @endphp
                                 <tr>
+                                    <td>{{ $invoices->firstItem() + $loop->index }}</td>
                                     <td class="fw-semibold">{{ $invoice->invoice_code }}</td>
                                     <td class="text-capitalize">{{ $invoice->student->name ?? '—' }}</td>
                                     <td class="text-capitalize">{{ $invoice->course->title ?? '—' }}</td>
@@ -107,7 +109,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">
+                                    <td colspan="10" class="text-center">
                                         <h5 class="mb-0">No invoices found.</h5>
                                     </td>
                                 </tr>
