@@ -51,16 +51,34 @@ class TeacherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'khmer_name' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20',
+            // Letters only (English alphabet), plus spaces and the
+            // punctuation real names actually use (apostrophe, hyphen,
+            // period) — no digits or Khmer script here.
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\'\.\-\s]+$/'],
+            // Khmer Unicode block (\x{1780}-\x{17FF}) plus spaces only.
+            // Left nullable since the field itself is optional.
+            'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]+$/u'],
+            // email:rfc alone (Laravel/PHP's default) accepts "teacher@gmail"
+            // as a syntactically valid address — a bare hostname with no dot
+            // is technically legal RFC 5321 syntax, even though it's never a
+            // real, reachable domain. Adding the "dns" check makes it also
+            // confirm the domain actually has a DNS record (so "gmail" on
+            // its own is rejected, "gmail.com" passes).
+            'email' => 'required|email:rfc,dns|max:255|unique:users,email',
+            // Was just "string|max:20" — accepted any text, including a bare
+            // 4-5 digit fragment. Require it to actually look like a phone
+            // number: digits only, optional leading +, 8-20 characters.
+            'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'dob' => 'nullable|date',
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
             'location' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'name.regex' => 'Full Name (English) can only contain English letters, spaces, apostrophes, hyphens and periods.',
+            'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
+            'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
         ]);
 
         $imagePath = 'no-img.jpg';
@@ -119,10 +137,17 @@ class TeacherController extends Controller
 
         $request->validate([
             // Basic Info
-            'name' => 'required|string|max:255',
-            'khmer_name' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string|max:20',
+            // Same restriction as store(): English letters only for the
+            // English name, Khmer script only for the Khmer name.
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\'\.\-\s]+$/'],
+            'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]+$/u'],
+            // Same reasoning as store(): plain email:rfc accepts a
+            // dot-less domain like "gmail" as valid, so require a real,
+            // resolvable domain too.
+            'email' => 'required|email:rfc,dns|max:255|unique:users,email,' . $id,
+            // Same reasoning as store(): require an actual phone-number
+            // shape instead of accepting any string.
+            'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'alternate_phone' => 'nullable|string|max:20',
             'dob' => 'nullable|date',
             'gender' => 'required|in:male,female',
@@ -151,6 +176,10 @@ class TeacherController extends Controller
             'password' => 'nullable|min:8|confirmed',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'name.regex' => 'Full Name (English) can only contain English letters, spaces, apostrophes, hyphens and periods.',
+            'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
+            'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
         ]);
 
         // Handle image upload

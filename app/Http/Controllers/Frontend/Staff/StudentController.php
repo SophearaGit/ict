@@ -14,13 +14,30 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
+        // Status, Gender and Sort all have a dropdown in the view that
+        // submits real query params — this method previously only ever
+        // applied `search`, so those three controls looked live but did
+        // nothing (e.g. picking "Female" still showed every gender).
         $students = User::where('role', 'student')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->search}%")->orWhere('email', 'like', "%{$request->search}%");
                 });
             })
-            ->latest()
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
+            ->when($request->filled('gender'), function ($query) use ($request) {
+                $query->where('gender', $request->gender);
+            })
+            ->when($request->get('sort', 'latest'), function ($query, $sort) {
+                match ($sort) {
+                    'oldest' => $query->oldest(),
+                    'name_asc' => $query->orderBy('name', 'asc'),
+                    'name_desc' => $query->orderBy('name', 'desc'),
+                    default => $query->latest(),
+                };
+            })
             ->paginate(24)
             ->withQueryString();
         return view('frontend.staff.pages.student.index', [
