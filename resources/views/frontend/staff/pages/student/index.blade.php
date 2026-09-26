@@ -179,6 +179,7 @@
     <table class="table search-table align-middle text-nowrap">
       <thead class="header-item">
         <tr>
+          <th>No</th>
           <th>Name</th>
           <th>Email</th>
           <th>Phone</th>
@@ -192,6 +193,7 @@
       <tbody>
         @forelse($students as $student)
         <tr class="search-items">
+          <td>{{ $students->firstItem() + $loop->index }}</td>
           <td>
             <div class="d-flex align-items-center">
               <img src="{{ $student->image == 'no-img.jpg'
@@ -250,7 +252,7 @@
         </tr>
         @empty
         <tr>
-          <td colspan="8" class="text-center py-4 text-muted">
+          <td colspan="9" class="text-center py-4 text-muted">
             <i class="ti ti-users-off fs-6 me-1"></i>
             No students found{{ request('search') ? ' for "' . request('search') . '"' : '' }}.
           </td>
@@ -883,6 +885,17 @@
   viewBtns.forEach(btn => {
     btn.addEventListener('click', () => setView(btn.dataset.view));
   });
+  // ─── Clear Search ───────────────────────────────────────────────────────────
+  // The "x" button only ever had markup (rendered when a search term is set) —
+  // there was no JS anywhere wiring it up, so clicking it did nothing. Clear
+  // the search box and resubmit the form, keeping the other filters intact.
+  const clearSearchBtn = document.getElementById('clear-search-btn');
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', function() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('search-form').submit();
+    });
+  }
   // ─── Password Toggle ────────────────────────────────────────────────────────
   $(document).on('click', '.toggle-password', function() {
     const target = $($(this).data('target'));

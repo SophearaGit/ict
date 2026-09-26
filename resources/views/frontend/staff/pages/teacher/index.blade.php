@@ -254,6 +254,9 @@
                             <form method="POST" action="{{ route('staff.teacher.store') }}" id="addContactModalTitle"
                                 enctype="multipart/form-data">
                                 @csrf
+                                {{-- Lets the reopen-on-error script (bottom of page) know it was THIS
+                                     form, not the Edit form, that failed validation. --}}
+                                <input type="hidden" name="_modal" value="add">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
@@ -261,7 +264,9 @@
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="c-name" name="name"
                                                 class="form-control @error('name') is-invalid @enderror"
-                                                placeholder="e.g. John Doe" value="{{ old('name') }}">
+                                                placeholder="e.g. John Doe" value="{{ old('name') }}"
+                                                pattern="[A-Za-z'.\-\s]+"
+                                                title="English letters only (spaces, apostrophes, hyphens and periods are OK)">
                                             @error('name')
                                                 <span class="text-danger small">{{ $message }}</span>
                                             @enderror
@@ -272,8 +277,14 @@
                                             <label for="c-khmer-name" class="form-label fw-semibold">Full Name
                                                 (Khmer)</label>
                                             <input type="text" id="c-khmer-name" name="khmer_name"
-                                                class="form-control" placeholder="e.g. គ្រូបង្រៀន"
-                                                value="{{ old('khmer_name') }}">
+                                                class="form-control @error('khmer_name') is-invalid @enderror"
+                                                placeholder="e.g. គ្រូបង្រៀន"
+                                                value="{{ old('khmer_name') }}"
+                                                pattern="[ក-៿\s]+"
+                                                title="Khmer script only">
+                                            @error('khmer_name')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -294,7 +305,9 @@
                                         <div class="mb-3">
                                             <label for="c-phone" class="form-label fw-semibold">Phone <span
                                                     class="text-danger">*</span></label>
-                                            <input type="text" id="c-phone" name="phone"
+                                            <input type="text" id="c-phone" name="phone" inputmode="tel"
+                                                maxlength="20" required pattern="[0-9+\-\s]{8,20}"
+                                                title="Phone number: digits only, optionally starting with +, 8–20 characters"
                                                 class="form-control @error('phone') is-invalid @enderror"
                                                 placeholder="e.g. 012000000" value="{{ old('phone') }}">
                                             @error('phone')
@@ -438,6 +451,13 @@
                     <form method="POST" id="editTeacherForm" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+                        {{-- Same purpose as the Add form's "_modal" field: tells the
+                             reopen-on-error script this is the Edit form, and carries the
+                             instructor id across the redirect so the form's action/data
+                             can be rebuilt (the modal is normally populated from JS
+                             dataset attributes on click, which is lost on a full reload). --}}
+                        <input type="hidden" name="_modal" value="edit">
+                        <input type="hidden" name="_teacher_id" id="edit-teacher-id" value="{{ old('_teacher_id') }}">
                         <div class="tab-content">
                             {{-- Basic Info --}}
                             <div class="tab-pane fade show active" id="tab-basic" role="tabpanel">
@@ -446,15 +466,29 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Full Name (English) <span
                                                     class="text-danger">*</span></label>
-                                            <input type="text" name="name" id="edit-name" class="form-control"
-                                                placeholder="e.g. John Doe">
+                                            <input type="text" name="name" id="edit-name"
+                                                class="form-control @error('name') is-invalid @enderror"
+                                                placeholder="e.g. John Doe"
+                                                pattern="[A-Za-z'.\-\s]+"
+                                                title="English letters only (spaces, apostrophes, hyphens and periods are OK)"
+                                                value="{{ old('name') }}">
+                                            @error('name')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Full Name (Khmer)</label>
                                             <input type="text" name="khmer_name" id="edit-khmer-name"
-                                                class="form-control" placeholder="e.g. គ្រូបង្រៀន">
+                                                class="form-control @error('khmer_name') is-invalid @enderror"
+                                                placeholder="e.g. គ្រូបង្រៀន"
+                                                pattern="[ក-៿\s]+"
+                                                title="Khmer script only"
+                                                value="{{ old('khmer_name') }}">
+                                            @error('khmer_name')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -463,16 +497,26 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Email <span
                                                     class="text-danger">*</span></label>
-                                            <input type="email" name="email" id="edit-email" class="form-control"
-                                                placeholder="e.g. teacher@gmail.com">
+                                            <input type="email" name="email" id="edit-email"
+                                                class="form-control @error('email') is-invalid @enderror"
+                                                placeholder="e.g. teacher@gmail.com" value="{{ old('email') }}">
+                                            @error('email')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Phone <span
                                                     class="text-danger">*</span></label>
-                                            <input type="text" name="phone" id="edit-phone" class="form-control"
-                                                placeholder="e.g. 012000000">
+                                            <input type="text" name="phone" id="edit-phone" inputmode="tel"
+                                                maxlength="20" required pattern="[0-9+\-\s]{8,20}"
+                                                title="Phone number: digits only, optionally starting with +, 8–20 characters"
+                                                class="form-control @error('phone') is-invalid @enderror"
+                                                placeholder="e.g. 012000000" value="{{ old('phone') }}">
+                                            @error('phone')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -481,13 +525,15 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Alternate Phone</label>
                                             <input type="text" name="alternate_phone" id="edit-alternate-phone"
-                                                class="form-control" placeholder="e.g. 097000000">
+                                                class="form-control" placeholder="e.g. 097000000"
+                                                value="{{ old('alternate_phone') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Date of Birth</label>
-                                            <input type="date" name="dob" id="edit-dob" class="form-control">
+                                            <input type="date" name="dob" id="edit-dob" class="form-control"
+                                                value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -496,25 +542,31 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Gender <span
                                                     class="text-danger">*</span></label>
-                                            <select name="gender" id="edit-gender" class="form-select">
+                                            <select name="gender" id="edit-gender"
+                                                class="form-select @error('gender') is-invalid @enderror">
                                                 <option value="" disabled>Select Gender</option>
-                                                <option value="male">Male</option>
-                                                <option value="female">Female</option>
+                                                <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Male</option>
+                                                <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Female</option>
                                             </select>
+                                            @error('gender')
+                                                <span class="text-danger small">{{ $message }}</span>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Nationality</label>
                                             <input type="text" name="nationality" id="edit-nationality"
-                                                class="form-control" placeholder="e.g. Khmer">
+                                                class="form-control" placeholder="e.g. Khmer"
+                                                value="{{ old('nationality') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Location</label>
                                             <input type="text" name="location" id="edit-location"
-                                                class="form-control" placeholder="e.g. Phnom Penh">
+                                                class="form-control" placeholder="e.g. Phnom Penh"
+                                                value="{{ old('location') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -771,8 +823,21 @@
     @if ($errors->any())
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var modal = new bootstrap.Modal(document.getElementById('addContactModal'));
-                modal.show();
+                // Was hardcoded to always reopen the Add modal, so a failed Edit
+                // submission (e.g. an invalid phone/name) silently popped up an
+                // empty "Add Teacher" modal instead of showing the Edit modal
+                // with the error and the teacher's data still in place.
+                @if (old('_modal') === 'edit')
+                    var editId = @json(old('_teacher_id'));
+                    if (editId) {
+                        document.getElementById('editTeacherForm').action = `/staff/teacher/${editId}`;
+                    }
+                    var modal = new bootstrap.Modal(document.getElementById('editContactModal'));
+                    modal.show();
+                @else
+                    var modal = new bootstrap.Modal(document.getElementById('addContactModal'));
+                    modal.show();
+                @endif
             });
         </script>
     @endif
@@ -812,6 +877,29 @@
             target.attr('type', isPassword ? 'text' : 'password');
             $(this).find('i').toggleClass('ti-eye ti-eye-off');
         });
+        // ─── Name Script Restriction ───────────────────────────────────────────────
+        // Full Name (English) and Full Name (Khmer) had no restriction at all on
+        // either the Add or Edit form, so either field silently accepted either
+        // script. Strip disallowed characters live as the user types.
+        function restrictToPattern(inputId, allowedCharsRegex) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.addEventListener('input', function() {
+                const cursor = this.selectionStart;
+                const before = this.value;
+                this.value = this.value.split('').filter(ch => allowedCharsRegex.test(ch)).join('');
+                const removed = before.length - this.value.length;
+                if (removed > 0 && cursor !== null) {
+                    this.setSelectionRange(cursor - removed, cursor - removed);
+                }
+            });
+        }
+        const ENGLISH_NAME_CHAR = /[A-Za-z'.\-\s]/;
+        const KHMER_NAME_CHAR = /[ក-៿\s]/;
+        restrictToPattern('c-name', ENGLISH_NAME_CHAR);
+        restrictToPattern('c-khmer-name', KHMER_NAME_CHAR);
+        restrictToPattern('edit-name', ENGLISH_NAME_CHAR);
+        restrictToPattern('edit-khmer-name', KHMER_NAME_CHAR);
         // ─── Delete ─────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-delete-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -945,6 +1033,7 @@
                 const id = this.dataset.id;
                 const form = document.getElementById('editTeacherForm');
                 form.action = `/staff/teacher/${id}`;
+                document.getElementById('edit-teacher-id').value = id ?? '';
 
                 // Basic Info
                 document.getElementById('edit-name').value = this.dataset.name ?? '';
