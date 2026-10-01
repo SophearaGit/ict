@@ -30,7 +30,15 @@ class StudentReportController extends Controller
         StudentReports::where('course_id', $course->id)
             ->update([
                 'approval_status' => 'approved',
-                'approved_by' => Auth::id(),
+                // This route sits behind the `admin` guard (see
+                // routes/admin.php), which authenticates against the
+                // separate `admins` table -- NOT the default `web` guard
+                // backed by `users`. Auth::id() (no guard) was reading the
+                // unrelated `web` session instead, which could hand back a
+                // stale/nonexistent users.id and trip the FK on
+                // approved_by (now pointed at `admins` -- see the
+                // 2026_10_01 migration).
+                'approved_by' => Auth::guard('admin')->id(),
                 'approved_at' => now(),
             ]);
         // notify teacher
