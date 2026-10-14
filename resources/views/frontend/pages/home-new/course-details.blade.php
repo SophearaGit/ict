@@ -216,7 +216,11 @@
                 <img src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('default-images/course-default.jpg') }}"
                     alt="{{ $course->title }}">
                 <div class="coursedetail-price-rating">
-                    <h3>${{ number_format($course->price ?? 0, 2) }}</h3>
+                    <h3 class="prn-price">
+                        ${{ number_format(max(0, ($course->price ?? 0) - 10), 2) }}
+                        <span class="prn-was">${{ number_format($course->price ?? 0, 2) }}</span>
+                        <span class="prn-save"><i class="fa-solid fa-tag" aria-hidden="true"></i> Save $10</span>
+                    </h3>
                     <div class="starate">
                         <p>{{ $course->rating ?? '4.9' }}</p>
                         @for ($i = 0; $i < 5; $i++)
@@ -226,11 +230,38 @@
                 </div>
                 @if ($alreadyEnrolled)
                     <button id="enroll-course" type="button" disabled>Already Enrolled</button>
+                @elseif ($blockingInvoice)
+                    {{-- Student still owes a final installment on a
+                         different (Pay Half) course — mirrors the
+                         server-side block in CourseEnrollmentController, so
+                         this button is honestly disabled rather than just
+                         decorative. The note below gives them a direct way
+                         out instead of a dead end. --}}
+                    <button id="enroll-course" type="button" disabled
+                        title="Finish paying for {{ $blockingInvoice->course->title ?? 'your other course' }} first">
+                        Enroll Now
+                    </button>
+                    <p style="margin-top:10px;margin-bottom:0;padding:10px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;color:#9a3412;font-size:13px;line-height:1.5;">
+                        You still owe <strong>${{ number_format($blockingInvoice->remaining_amount, 2) }}</strong>
+                        on <strong>{{ $blockingInvoice->course->title ?? 'another course' }}</strong>.
+                        Finish that payment before enrolling here.
+                        <a href="{{ route('student.payment.page', $blockingInvoice->id) }}?pay=1" style="color:#9a3412;font-weight:600;text-decoration:underline;">
+                            Pay remaining now &rarr;
+                        </a>
+                    </p>
                 @else
-                    <form action="{{ route('student.course.enroll', $course->id) }}" method="POST" style="display:contents">
-                        @csrf
-                        <button id="enroll-course" type="submit">Enroll Now</button>
-                    </form>
+                    {{-- Enroll now takes the student to the Select Schedule
+                         step first (see CourseEnrollmentController@selectSchedule)
+                         instead of immediately creating an invoice against
+                         whichever specific batch this details page happens
+                         to represent. A plain button (not a form submit, not
+                         an <a>) so it keeps this page's existing button
+                         styling and still gets a loading state + a guard
+                         against a double click firing two navigations. --}}
+                    <button id="enroll-course" type="button"
+                        data-select-schedule-url="{{ route('student.course.select-schedule', $course->id) }}">
+                        Enroll Now
+                    </button>
                 @endif
                 <div class="fav-share">
                     <div class="fav">
@@ -302,7 +333,11 @@
                         </p>
                     </div>
                     <div class="prnrate">
-                        <h3>${{ number_format($moreCourse->price ?? 0, 2) }}</h3>
+                        <h3 class="prn-price">
+                            ${{ number_format(max(0, ($moreCourse->price ?? 0) - 10), 2) }}
+                            <span class="prn-was">${{ number_format($moreCourse->price ?? 0, 2) }}</span>
+                            <span class="prn-save"><i class="fa-solid fa-tag" aria-hidden="true"></i> -$10</span>
+                        </h3>
                         <div class="starate">
                             <p>{{ $moreCourse->rating ?? '4.9' }}</p>
                             @for ($i = 0; $i < 5; $i++)
@@ -343,8 +378,25 @@
                 if (tabs.length) activate(tabs[0]);
             }
 
+            /* ── Enroll Now: navigates to the Select Schedule step. A plain
+                   button (not a link) so a double-click can't open the next
+                   step twice — the first click disables it and shows a
+                   loading label before the browser actually navigates. ── */
+            function initEnrollButton() {
+                var btn = document.getElementById('enroll-course');
+                if (!btn || !btn.dataset.selectScheduleUrl) return;
+
+                btn.addEventListener('click', function() {
+                    if (btn.disabled) return;
+                    btn.disabled = true;
+                    btn.textContent = 'Loading…';
+                    window.location.href = btn.dataset.selectScheduleUrl;
+                });
+            }
+
             function init() {
                 initTabs();
+                initEnrollButton();
             }
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);

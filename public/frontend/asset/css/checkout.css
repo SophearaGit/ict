@@ -2,7 +2,13 @@
    Checkout page
    Built on top of the existing design tokens defined in style.css:
    --card-bg, --card-border, --card-shadow, --text-main, --text-mid,
-   --text-light, --nav-hover (brand blue), plus [data-theme="dark"].
+   --text-light, --toggle-bg, --nav-hover (brand blue), plus
+   [data-theme="dark"]. Every checkout-only color/spacing value below
+   is a token too (--co-*) so nothing in this file is a one-off magic
+   number — the success/loading/trust-note styles that used to live
+   inline in the blade template now live here as well, reusing the
+   same --co-* tokens instead of inventing their own fallback-only
+   variables.
    ============================================================ */
 
 :root {
@@ -11,19 +17,31 @@
     --co-primary-soft: rgba(55, 119, 255, 0.1);
     --co-success: #16a34a;
     --co-success-soft: #e9f9ee;
+    --co-danger: #dc2626;
+    --co-danger-soft: #fef2f2;
+    --co-warning: #b45309;
+    --co-warning-soft: #fffbeb;
     --co-page-bg: #f6f8fc;
-    --co-radius-lg: 18px;
-    --co-radius-md: 12px;
+    --co-radius-lg: 20px;
+    --co-radius-md: 13px;
+    --co-radius-sm: 9px;
+    --co-shadow-card: var(--card-shadow);
+    --co-shadow-pop: 0 18px 40px -16px rgba(15, 23, 42, 0.18);
+    --co-ease: cubic-bezier(.4, 0, .2, 1);
 }
 
 [data-theme="dark"] {
     --co-page-bg: #0b1220;
-    --co-primary-soft: rgba(96, 165, 250, 0.14);
+    --co-primary-soft: rgba(96, 165, 250, 0.16);
+    --co-success-soft: rgba(22, 163, 74, 0.14);
+    --co-danger-soft: rgba(220, 38, 38, 0.14);
+    --co-warning-soft: rgba(180, 83, 9, 0.16);
+    --co-shadow-pop: 0 18px 40px -16px rgba(0, 0, 0, 0.5);
 }
 
 .checkout-wrap {
     background: var(--co-page-bg);
-    padding: 40px 6% 90px;
+    padding: 44px 6% 90px;
     min-height: 70vh;
 }
 
@@ -40,13 +58,14 @@ body:has(.checkout-wrap) {
     gap: 10px;
     font-size: 14px;
     color: var(--text-light);
-    margin-bottom: 28px;
+    margin-bottom: 30px;
     flex-wrap: wrap;
 }
 
 .checkout-crumb a {
     color: var(--text-mid);
     text-decoration: none;
+    transition: color .15s var(--co-ease);
 }
 
 .checkout-crumb a:hover {
@@ -70,7 +89,7 @@ body:has(.checkout-wrap) {
     justify-content: center;
     list-style: none;
     max-width: 560px;
-    margin: 0 auto 44px;
+    margin: 0 auto 48px;
     padding: 0;
 }
 
@@ -78,7 +97,7 @@ body:has(.checkout-wrap) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
     flex: 0 0 auto;
 }
 
@@ -89,12 +108,13 @@ body:has(.checkout-wrap) {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #e2e8f0;
+    background: var(--toggle-bg);
     color: var(--text-light);
     font-weight: 700;
     font-family: var(--font-heading);
     font-size: 14px;
-    transition: background .2s ease, color .2s ease;
+    font-variant-numeric: tabular-nums;
+    transition: background .25s var(--co-ease), color .25s var(--co-ease), box-shadow .25s var(--co-ease);
 }
 
 .step-label {
@@ -102,6 +122,7 @@ body:has(.checkout-wrap) {
     color: var(--text-light);
     font-weight: 500;
     white-space: nowrap;
+    transition: color .25s var(--co-ease);
 }
 
 .step.is-done .step-dot {
@@ -117,6 +138,7 @@ body:has(.checkout-wrap) {
     background: var(--co-primary);
     color: #fff;
     box-shadow: 0 0 0 5px var(--co-primary-soft);
+    animation: coStepPulse 2.4s ease-in-out infinite;
 }
 
 .step.is-active .step-label {
@@ -124,16 +146,334 @@ body:has(.checkout-wrap) {
     font-weight: 700;
 }
 
+@keyframes coStepPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 5px var(--co-primary-soft);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px var(--co-primary-soft);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .step.is-active .step-dot {
+        animation: none;
+    }
+}
+
 .step-line {
     flex: 1 1 60px;
     height: 2px;
-    background: #e2e8f0;
+    background: var(--card-border);
     margin: 0 8px;
-    margin-bottom: 24px;
+    margin-bottom: 25px;
+    transition: background .3s var(--co-ease);
 }
 
 .step-line.is-done {
     background: var(--co-success);
+}
+
+/* Three-node stepper (Select Schedule → Review & Pay → Confirmed) needs a
+   little more room than the two-node version the checkout page alone
+   would otherwise need. */
+.checkout-stepper--three {
+    max-width: 640px;
+}
+
+/* ---------- Select Schedule page ---------- */
+.schedule-select-header {
+    margin-bottom: 24px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.schedule-select-sub {
+    font-size: 13.5px;
+    color: var(--text-light);
+    margin: 2px 0 0;
+    max-width: 52ch;
+}
+
+.schedule-select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.schedule-option-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: border-color .15s var(--co-ease), box-shadow .15s var(--co-ease), transform .15s var(--co-ease);
+}
+
+.schedule-option-card.is-recommended {
+    border-color: var(--co-primary);
+    box-shadow: 0 0 0 3px var(--co-primary-soft);
+}
+
+.schedule-option-card.is-disabled-card {
+    opacity: .78;
+}
+
+/* The entire card is now the click target (selectable cards submit the
+   enroll form, already-enrolled cards link to the course). */
+.schedule-option-card.is-selectable {
+    cursor: pointer;
+    outline: none;
+}
+
+.schedule-option-card.is-selectable:hover {
+    border-color: var(--co-primary);
+    box-shadow: var(--co-shadow-pop);
+    transform: translateY(-2px);
+}
+
+.schedule-option-card.is-selectable:focus-visible {
+    border-color: var(--co-primary);
+    box-shadow: 0 0 0 3px var(--co-primary-soft);
+}
+
+.schedule-option-card.is-selectable:active {
+    transform: translateY(0);
+}
+
+.schedule-option-card.is-busy {
+    pointer-events: none;
+}
+
+.schedule-option-card[data-card-action="link"]:hover {
+    border-color: var(--co-success);
+    box-shadow: 0 0 0 3px var(--co-success-soft);
+}
+
+.schedule-option-card.is-disabled-card:not([data-card-action]) {
+    cursor: not-allowed;
+}
+
+.schedule-badge-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.schedule-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: .2px;
+}
+
+.schedule-badge--morning {
+    color: var(--co-warning);
+    background: var(--co-warning-soft);
+}
+
+.schedule-badge--afternoon {
+    color: var(--co-primary);
+    background: var(--co-primary-soft);
+}
+
+.schedule-badge--evening {
+    color: #7c3aed;
+    background: rgba(124, 58, 237, 0.12);
+}
+
+.schedule-badge--other {
+    color: var(--text-light);
+    background: var(--toggle-bg);
+}
+
+.schedule-badge--recommended {
+    color: var(--co-primary);
+    background: var(--co-primary-soft);
+}
+
+.schedule-badge--enrolled {
+    color: var(--co-success);
+    background: var(--co-success-soft);
+}
+
+.schedule-badge--full {
+    color: var(--co-danger);
+    background: var(--co-danger-soft);
+}
+
+.schedule-option-days {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    margin: 0 0 2px;
+}
+
+.schedule-option-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-light);
+    margin: 0 0 14px;
+}
+
+.schedule-option-time i {
+    font-size: 12px;
+}
+
+.schedule-option-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 0;
+    margin-bottom: 4px;
+    border-top: 1px dashed var(--card-border);
+    border-bottom: 1px dashed var(--card-border);
+}
+
+.schedule-option-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    color: var(--text-mid);
+}
+
+.schedule-option-meta-item i {
+    width: 16px;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 12px;
+}
+
+.seats-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 14px 0;
+}
+
+.seats-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--toggle-bg);
+    overflow: hidden;
+}
+
+.seats-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width .3s var(--co-ease);
+}
+
+.seats-bar-fill--ok {
+    background: var(--co-success);
+}
+
+.seats-bar-fill--low {
+    background: var(--co-warning);
+}
+
+.seats-bar-fill--full {
+    background: var(--co-danger);
+}
+
+.seats-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.seats-label--low {
+    color: var(--co-warning);
+}
+
+.seats-label--full {
+    color: var(--co-danger);
+}
+
+/* Footer row inside each card — a lightweight "tap to select" affordance
+   rather than a separate button, since the whole card is now clickable. */
+.schedule-select-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.schedule-select-footer span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.schedule-select-footer--select {
+    color: var(--co-primary);
+}
+
+.schedule-option-card.is-selectable:hover .schedule-select-chevron {
+    transform: translateX(3px);
+}
+
+.schedule-select-chevron {
+    font-size: 12px;
+    transition: transform .15s var(--co-ease);
+}
+
+.schedule-select-footer--enrolled {
+    color: var(--co-success);
+}
+
+.schedule-select-footer--full {
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.schedule-select-footer.is-loading {
+    opacity: .85;
+    cursor: wait;
+}
+
+.btn-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .4);
+    border-top-color: #fff;
+    vertical-align: -2px;
+    margin-right: 2px;
+    animation: pwSpin .7s linear infinite;
+}
+
+.no-schedule-note {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 14px;
+    padding: 40px 0;
+}
+
+@media (max-width: 640px) {
+    .schedule-select-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ---------- Grid layout ---------- */
@@ -150,8 +490,8 @@ body:has(.checkout-wrap) {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--co-radius-lg);
-    box-shadow: var(--card-shadow);
-    padding: 24px;
+    box-shadow: var(--co-shadow-card);
+    padding: 26px;
 }
 
 .co-card-title {
@@ -178,6 +518,7 @@ body:has(.checkout-wrap) {
     border-radius: var(--co-radius-md);
     overflow: hidden;
     background: linear-gradient(135deg, #4f6bf0, #7a5cf0);
+    box-shadow: 0 6px 16px -6px rgba(79, 107, 240, 0.45);
 }
 
 .course-thumb img {
@@ -191,7 +532,7 @@ body:has(.checkout-wrap) {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 6px;
+    gap: 7px;
     min-width: 0;
 }
 
@@ -229,7 +570,7 @@ body:has(.checkout-wrap) {
 .course-detail-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 18px 24px;
+    gap: 20px 24px;
 }
 
 .detail-item {
@@ -242,9 +583,9 @@ body:has(.checkout-wrap) {
     width: 36px;
     height: 36px;
     flex: 0 0 36px;
-    border-radius: 10px;
-    background: var(--toggle-bg);
-    color: var(--text-mid);
+    border-radius: 11px;
+    background: var(--co-primary-soft);
+    color: var(--co-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -282,14 +623,14 @@ body:has(.checkout-wrap) {
     font-weight: 600;
     color: var(--text-main);
     padding: 9px 30px 9px 12px;
-    border-radius: 9px;
+    border-radius: var(--co-radius-sm);
     cursor: pointer;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
     background-position: right 12px center;
     max-width: 100%;
     text-overflow: ellipsis;
-    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+    transition: border-color .15s var(--co-ease), box-shadow .15s var(--co-ease), background-color .15s var(--co-ease);
 }
 
 .detail-select:hover {
@@ -309,18 +650,99 @@ body:has(.checkout-wrap) {
     font-weight: 500;
 }
 
-.detail-item:has(.detail-select) {
+/* ---------- Schedule field: "assigned + Change" pattern ----------
+   A schedule is always already attached to the invoice (it's set the
+   moment the student enrolls), so there's no "nothing picked yet" state
+   to gate on — this just shows the fact, with a "Change" link that
+   reveals an inline picker on demand. */
+.schedule-field {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
 }
 
-.detail-item:has(.detail-select) .detail-icon {
+.schedule-field .detail-icon {
     display: none;
 }
 
-.detail-item:has(.detail-select) .detail-label {
+.schedule-field .detail-label {
     padding-left: 2px;
+}
+
+.schedule-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.schedule-display-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.schedule-change-link {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    padding: 2px 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--co-primary);
+    cursor: pointer;
+    transition: color .15s var(--co-ease);
+}
+
+.schedule-change-link:hover {
+    color: var(--co-primary-dark);
+    text-decoration: underline;
+}
+
+.schedule-picker {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--card-border);
+}
+
+.schedule-picker-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.schedule-picker-btn {
+    flex: 1;
+    border-radius: var(--co-radius-sm);
+    padding: 8px 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    transition: border-color .15s var(--co-ease), background-color .15s var(--co-ease), color .15s var(--co-ease);
+}
+
+.schedule-picker-btn--apply {
+    border-color: var(--co-primary);
+    background: var(--co-primary);
+    color: #fff;
+}
+
+.schedule-picker-btn--apply:hover {
+    background: var(--co-primary-dark);
+    border-color: var(--co-primary-dark);
+}
+
+.schedule-picker-btn--apply:disabled {
+    opacity: .7;
+    cursor: default;
+}
+
+.schedule-picker-btn--cancel:hover {
+    border-color: var(--co-primary);
+    color: var(--co-primary);
 }
 
 /* ---------- Select2 theme (schedule dropdown) ---------- */
@@ -328,9 +750,9 @@ body:has(.checkout-wrap) {
     height: auto;
     border: 1.5px solid var(--card-border);
     background-color: var(--card-bg);
-    border-radius: 9px;
+    border-radius: var(--co-radius-sm);
     padding: 9px 30px 9px 12px;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    transition: border-color .15s var(--co-ease), box-shadow .15s var(--co-ease);
 }
 
 .select2-container--default .select2-selection--single:hover {
@@ -375,7 +797,7 @@ body:has(.checkout-wrap) {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
     background-position: center;
-    transition: transform .15s ease;
+    transition: transform .15s var(--co-ease);
 }
 
 .select2-container--open .select2-selection--single .select2-selection__arrow b {
@@ -385,7 +807,7 @@ body:has(.checkout-wrap) {
 .select2-dropdown {
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--co-shadow-pop);
     background-color: var(--card-bg);
     overflow: hidden;
     padding: 4px;
@@ -422,121 +844,599 @@ body:has(.checkout-wrap) {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     font-size: 14px;
+    line-height: 1.4;
     color: var(--text-mid);
-    padding: 8px 0;
+    padding: 10px 0;
+}
+
+/* The price breakdown sits between the plan toggle and the CTA button
+   now (it used to be the last thing in its own card), so it needs its
+   own breathing room on both sides instead of relying on a card's
+   bottom padding to separate it from whatever comes next. */
+.price-breakdown {
+    margin-bottom: 20px;
 }
 
 .order-row--discount span:last-child {
+    display: inline-flex;
+    align-items: center;
+    background: var(--co-success-soft);
     color: var(--co-success);
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
 }
 
 .order-row--total {
-    border-top: 1px solid var(--card-border);
-    margin-top: 6px;
-    padding-top: 16px;
+    border-top: 1px dashed var(--card-border);
+    margin-top: 10px;
+    padding: 16px 14px;
+    margin-left: -14px;
+    margin-right: -14px;
+    border-radius: var(--co-radius-md);
+    background: var(--co-primary-soft);
     font-size: 16px;
     font-weight: 700;
     color: var(--text-main);
 }
 
-/* ---------- Payment card ---------- */
-/* Hidden until a real schedule is chosen (native <select>, no JS:
-   :checked tracks the live selection and :has() reacts to it). */
-.payment-card {
-    opacity: 1;
-    max-height: 340px;
-    overflow: hidden;
-    transform: translateY(0);
-    transition: opacity .3s ease, max-height .3s ease, transform .3s ease,
-        margin-top .3s ease, padding .3s ease, border-width .3s ease;
+.order-row--total span:last-child {
+    color: var(--co-primary);
+    font-size: 18px;
 }
 
-.checkout-grid:has(#scheduleSelect option[value=""]:checked) .payment-card {
-    opacity: 0;
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: -20px;
-    border-width: 0;
-    transform: translateY(-8px);
+.order-row--surcharge span:last-child {
+    display: inline-flex;
+    align-items: center;
+    background: var(--co-warning-soft);
+    color: var(--co-warning);
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+}
+
+/* Due-now / due-later / paid-so-far breakdown for the Pay Half plan —
+   visually subordinate to the Total row above it (smaller, indented,
+   no heavy background) so it reads as "here's how that total splits up"
+   rather than competing with it. */
+.order-row--installment {
+    font-size: 12.5px;
+    padding: 5px 4px;
+    color: var(--text-light);
+}
+
+.order-row--installment span:last-child {
+    font-weight: 600;
+    color: var(--text-mid);
+}
+
+.order-row--installment.order-row--due {
+    color: var(--text-main);
+}
+
+.order-row--installment.order-row--due span:last-child {
+    color: var(--co-primary);
+    font-weight: 700;
+}
+
+/* Pay Half's order summary layout — see order-summary-rows.blade.php's
+   comment for why. "Total plan cost" is intentionally the smallest,
+   least-emphasized number on the card (just context, like Subtotal
+   above it); "Due Today" below it is the one that gets the big
+   highlighted-pill treatment order-row--total uses for Pay Full, so
+   students never mistake the full 2-payment total for what they're
+   about to be charged right now. */
+.order-row--plan-total {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--card-border);
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.order-row--plan-total span:last-child {
+    font-weight: 600;
+    color: var(--text-mid);
+}
+
+.order-row-note {
+    font-weight: 400;
+    color: var(--text-light);
+    font-size: 11.5px;
+    margin-left: 3px;
+}
+
+/* ---------- Price highlight (Total / Due Today) ----------
+   The one number that actually matters on this card — what you're
+   paying right now — gets its own treatment instead of being just
+   another row in the list: a gradient card, a large amount, a soft
+   glow. Success ("Total Paid") gets the same shape in green. */
+.price-highlight {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 10px;
+    padding: 13px 18px;
+    margin-left: -14px;
+    margin-right: -14px;
+    border-radius: var(--co-radius-md);
+    background: linear-gradient(135deg, var(--co-primary) 0%, var(--co-primary-dark) 100%);
+    box-shadow: 0 10px 22px -12px rgba(55, 119, 255, 0.55);
+    overflow: hidden;
+}
+
+.price-highlight::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: -70%;
+    right: -14%;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, .18) 0%, rgba(255, 255, 255, 0) 72%);
     pointer-events: none;
 }
 
-.payment-card-title {
-    margin-bottom: 12px;
+.price-highlight-label {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: rgba(255, 255, 255, .88);
 }
 
-.payment-option {
+.price-highlight-label i {
+    font-size: 12px;
+    color: #fff;
+}
+
+.price-highlight-note {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    font-size: 11px;
+    color: rgba(255, 255, 255, .68);
+}
+
+.price-highlight-amount {
+    font-family: var(--font-heading);
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.price-highlight--paid {
+    background: linear-gradient(135deg, var(--co-success) 0%, #0e7a3d 100%);
+    box-shadow: 0 10px 22px -12px rgba(22, 163, 74, 0.55);
+}
+
+/* Milestone panel's "Remaining" box — same component, amber instead of
+   blue/green ("progress, one step left" rather than "due" or "done").
+   Its parent (.pw-success-card) only has 2px of its own padding on top
+   of the card's 26px, not the plain 0-padding context .price-highlight's
+   -14px bleed was built for — flush margins here keep it aligned with
+   the details panel and buttons around it instead of overshooting them. */
+.price-highlight--remaining {
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 22px;
+    background: linear-gradient(135deg, #d97706 0%, var(--co-warning) 100%);
+    box-shadow: 0 10px 22px -12px rgba(180, 83, 9, 0.5);
+}
+
+@media (max-width: 420px) {
+    .price-highlight {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .price-highlight-amount {
+        font-size: 19px;
+    }
+}
+
+/* The installment already paid — a quiet green confirmation line, not
+   competing with the Due Today card right below it. */
+.order-row--paid span:first-child {
+    color: var(--co-success);
+    font-weight: 600;
+}
+
+.order-row--paid span:first-child i {
+    margin-right: 4px;
+}
+
+.order-row--paid span:last-child {
+    color: var(--co-success);
+    font-weight: 700;
+}
+
+/* The installment still to come — subordinate to Due Today above it,
+   same treatment order-row--installment already uses, just with a
+   small clock icon so it visually reads as "later" at a glance. */
+.order-row--upcoming span:first-child i {
+    margin-right: 4px;
+    color: var(--text-light);
+}
+
+/* ---------- Payment Plan: segmented pill toggle ----------
+   Replaces the old pair of stacked full-width buttons — a single
+   two-up control with a sliding thumb reads as "pick one of two
+   settings" at a glance, instead of two separate cards competing for
+   attention. */
+.plan-toggle {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    background: var(--toggle-bg);
+    border-radius: var(--co-radius-md);
+    padding: 4px;
+    margin-bottom: 18px;
+}
+
+.plan-toggle-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+    background: var(--card-bg);
+    border-radius: calc(var(--co-radius-md) - 4px);
+    box-shadow: var(--co-shadow-card);
+    transition: transform .25s var(--co-ease);
+    z-index: 0;
+}
+
+.plan-toggle[data-plan="half"] .plan-toggle-thumb {
+    transform: translateX(100%);
+}
+
+.plan-toggle-option {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    border-radius: calc(var(--co-radius-md) - 4px);
+    padding: 13px 10px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: color .15s var(--co-ease);
+}
+
+.plan-toggle-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text-mid);
+}
+
+.plan-toggle-sub {
+    font-size: 11.5px;
+    line-height: 1.3;
+    color: var(--text-light);
+}
+
+.plan-toggle-option.is-active .plan-toggle-name {
+    color: var(--co-primary);
+}
+
+.plan-toggle-option:disabled {
+    cursor: default;
+}
+
+.plan-toggle.is-locked {
+    opacity: .85;
+}
+
+.plan-locked-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-light);
+    margin: 12px 0 0;
+}
+
+.plan-locked-note i {
+    font-size: 11px;
+}
+
+/* ---------- Consolidated payment card ----------
+   One card that morphs between loading / pay / milestone / success —
+   no stacked boxes to scroll past, and nothing to gate on a schedule
+   pick since a schedule is always already assigned. */
+.checkout-payment-card {
+    min-height: 1px;
+}
+
+.payment-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.payment-card-head .payment-card-title {
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.installment-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--co-primary);
+    background: var(--co-primary-soft);
+    padding: 2px 9px;
+    border-radius: 999px;
+    letter-spacing: .2px;
+}
+
+.pw-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-light);
+    background: var(--toggle-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    margin-bottom: 12px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    transition: color .2s var(--co-ease), background .2s var(--co-ease), border-color .2s var(--co-ease);
+}
+
+.pw-countdown i {
+    font-size: 11px;
+}
+
+.pw-countdown--warning {
+    color: var(--co-warning);
+    background: var(--co-warning-soft);
+    border-color: rgba(180, 83, 9, 0.3);
+}
+
+.pw-countdown--expired {
+    color: var(--co-danger);
+    background: var(--co-danger-soft);
+    border-color: rgba(220, 38, 38, 0.3);
+}
+
+/* A plain rule between "what you're paying" (the price breakdown /
+   highlight box above) and "how you're paying" (the option below) —
+   cheaper and clearer than relying on whitespace alone to say "new
+   group starts here". */
+.pay-cta-divider {
+    border: none;
+    border-top: 1px dashed var(--card-border);
+    margin: 16px 0 14px;
+}
+
+/* ---------- Pay CTA ----------
+   Folds what used to be a single-option "Payment Method" list into one
+   direct call to action — the amount is already in the button's own
+   label, so there's nothing left to "choose" beyond tapping it. */
+.pay-cta-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+/* The Pay button is this form's real submit control now (see the blade's
+   comment on #aba_merchant_request) — the form itself is just a layout
+   passthrough, not a visible element, so it shouldn't add any spacing of
+   its own around the button. */
+#aba_merchant_request {
+    margin: 0;
+}
+
+.pay-cta-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-light);
+}
+
+.pay-cta-logo {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .06);
+}
+
+.pw-waiting-dots {
+    display: inline-flex;
+    gap: 4px;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.pw-waiting-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .25;
+    animation: pwDotPulse 1.2s infinite ease-in-out;
+}
+
+.pw-waiting-dots span:nth-child(2) {
+    animation-delay: .2s;
+}
+
+.pw-waiting-dots span:nth-child(3) {
+    animation-delay: .4s;
+}
+
+@keyframes pwDotPulse {
+
+    0%,
+    80%,
+    100% {
+        opacity: .25;
+        transform: scale(0.85);
+    }
+
+    40% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Small, permanent reassurance line under the payment option — distinct
+   from #pw-status/.secure-note below, which JS repurposes for the
+   expired-session message and stays hidden the rest of the time. */
+.payment-trust-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-size: 11.5px;
+    color: var(--text-light);
+}
+
+.payment-trust-row i {
+    font-size: 11px;
+    color: var(--co-success);
+}
+
+.secure-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 10px;
+}
+
+.secure-note i {
+    margin-right: 4px;
+}
+
+/* ---------- ABA KHQR pay button ----------
+   Mirrors ABA's own payment-method card (logo badge + title + subtitle +
+   chevron) instead of a generic branded button — students already
+   recognize this layout from the ABA app and PayWay's own checkout.
+   #payButtonText/#payButtonIcon are styled by id (not their classes)
+   because the page's own JS overwrites payButtonIcon's className for
+   the waiting/expired states — id rules keep working no matter what
+   class it's wearing at the time. */
+.btn-aba-khqr {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    border: 1.5px solid var(--card-border);
     border-radius: var(--co-radius-md);
-    padding: 12px 14px;
-    cursor: pointer;
+    padding: 12px 16px;
     text-align: left;
-    transition: border-color .15s ease, box-shadow .15s ease;
-    font-family: var(--font-body);
+    cursor: pointer;
+    transition: border-color .15s var(--co-ease), box-shadow .15s var(--co-ease), transform .1s var(--co-ease);
 }
 
-.payment-option:hover {
-    border-color: var(--co-primary);
+.btn-aba-khqr:hover {
+    border-color: #0c4a6e;
+    box-shadow: 0 10px 24px -12px rgba(12, 74, 110, .35);
 }
 
-.payment-option.is-selected {
-    border-color: var(--co-primary);
-    box-shadow: 0 0 0 3px var(--co-primary-soft);
+.btn-aba-khqr:focus-visible {
+    outline: none;
+    border-color: #0c4a6e;
+    box-shadow: 0 0 0 3px rgba(12, 74, 110, .16);
 }
 
-.payment-option-logo {
-    flex: 0 0 auto;
-    width: 52px;
-    height: 52px;
-    border-radius: 10px;
+.btn-aba-khqr:active {
+    transform: translateY(1px);
+}
+
+.btn-aba-khqr:disabled {
+    opacity: .65;
+    cursor: wait;
+    transform: none;
+}
+
+.aba-khqr-btn-icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
     overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .04);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .06);
 }
 
-.payment-option-logo img {
+.aba-khqr-btn-icon img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.payment-option-text {
+.aba-khqr-btn-copy {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    flex: 1;
     min-width: 0;
+    flex: 1;
 }
 
-.payment-option-name {
-    font-size: 14px;
+.aba-khqr-btn-title {
+    font-family: var(--font-heading);
+    font-size: 15px;
     font-weight: 700;
     color: var(--text-main);
 }
 
-.payment-option-sub {
-    font-size: 12px;
+.aba-khqr-btn-sub {
+    font-size: 13px;
+    font-weight: 500;
     color: var(--text-light);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.payment-option-chevron {
-    font-size: 12px;
+#payButtonIcon {
+    flex: 0 0 auto;
+    font-size: 14px;
     color: var(--text-light);
+    transition: transform .15s var(--co-ease), color .15s var(--co-ease);
 }
 
-.payment-option.is-selected .payment-option-chevron {
-    color: var(--co-primary);
+.btn-aba-khqr:hover #payButtonIcon {
+    transform: translateX(3px);
+    color: var(--text-main);
 }
 
 /* ---------- CTA ---------- */
@@ -554,27 +1454,285 @@ body:has(.checkout-wrap) {
     font-family: var(--font-heading);
     font-size: 15px;
     font-weight: 700;
+    letter-spacing: .1px;
     cursor: pointer;
-    transition: background .15s ease, transform .1s ease;
+    box-shadow: 0 10px 24px -10px rgba(55, 119, 255, 0.55);
+    transition: background .15s var(--co-ease), transform .1s var(--co-ease), box-shadow .15s var(--co-ease);
 }
 
 .btn-checkout-primary:hover {
     background: var(--co-primary-dark);
+    box-shadow: 0 12px 26px -8px rgba(55, 119, 255, 0.6);
 }
 
 .btn-checkout-primary:active {
     transform: translateY(1px);
 }
 
-.secure-note {
+.btn-checkout-secondary {
+    display: block;
     text-align: center;
-    font-size: 12px;
-    color: var(--text-light);
-    margin-top: -6px;
+    text-decoration: none;
+    background: transparent;
+    border: 1.5px solid var(--card-border);
+    color: inherit;
+    box-shadow: none;
 }
 
-.secure-note i {
-    margin-right: 4px;
+.btn-checkout-secondary:hover {
+    background: var(--toggle-bg);
+    box-shadow: none;
+}
+
+/* ---------- Loading state ---------- */
+.pw-loading-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 34px 16px;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 13.5px;
+}
+
+.pw-spinner {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid var(--toggle-bg);
+    border-top-color: var(--co-primary);
+    animation: pwSpin .7s linear infinite;
+}
+
+.pw-spinner--sm {
+    width: 15px;
+    height: 15px;
+    border-width: 2px;
+}
+
+/* ---------- Pay state busy overlay ----------
+   Covers the plan toggle / price breakdown / CTA while setPlan() or
+   switchSchedule() is in flight — see payStateBusyOverlay in the
+   blade's script. Prevents a second click from firing a duplicate
+   request, and makes it obvious the numbers on screen are about to
+   change rather than letting a student pay against a stale amount. */
+#payState {
+    position: relative;
+}
+
+.pay-state-busy-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    opacity: 0;
+    border-radius: var(--co-radius-lg);
+    transition: opacity .15s var(--co-ease);
+}
+
+.pay-state-busy-overlay.is-visible {
+    display: flex;
+    opacity: .82;
+}
+
+.pay-state-busy-pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-mid);
+    background: var(--toggle-bg);
+    border: 1px solid var(--card-border);
+    padding: 8px 16px;
+    border-radius: 999px;
+    box-shadow: var(--co-shadow-pop);
+    opacity: 1;
+}
+
+@keyframes pwSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pw-spinner {
+        animation-duration: 1.4s;
+    }
+}
+
+/* ---------- Success panel (step 4) ---------- */
+.pw-success-card {
+    text-align: center;
+    padding: 38px 28px 28px;
+}
+
+/* Nested inside .checkout-payment-card (which already has its own 26px
+   padding), so the panel itself only needs a little breathing room on
+   top rather than the full stand-alone padding above. */
+.checkout-payment-card .pw-success-card {
+    padding: 10px 2px 2px;
+}
+
+.pw-success-badge {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 18px;
+}
+
+.pw-success-badge svg {
+    width: 100%;
+    height: 100%;
+}
+
+.pw-success-badge__circle {
+    stroke: var(--co-success);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 151;
+    stroke-dashoffset: 151;
+    animation: pwCircleDraw .5s ease-out forwards;
+}
+
+.pw-success-badge__check {
+    stroke: var(--co-success);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 36;
+    stroke-dashoffset: 36;
+    animation: pwCheckDraw .35s ease-out .45s forwards;
+}
+
+@keyframes pwCircleDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes pwCheckDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .pw-success-badge__circle,
+    .pw-success-badge__check {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}
+
+.pw-success-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    margin: 0 0 6px;
+}
+
+.pw-success-sub {
+    color: var(--text-light);
+    font-size: 14px;
+    margin: 0 0 24px;
+}
+
+.pw-success-details {
+    text-align: left;
+    background: var(--toggle-bg);
+    border-radius: var(--co-radius-md);
+    padding: 4px 16px;
+    margin-bottom: 24px;
+}
+
+.pw-success-details .order-row {
+    padding: 11px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.pw-success-details .order-row:last-child {
+    border-bottom: none;
+}
+
+.pw-success-details .order-row span:first-child {
+    color: var(--text-light);
+    font-size: 13px;
+}
+
+.pw-success-details .order-row span:last-child {
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: right;
+}
+
+.pw-success-details .order-row--total {
+    border: none;
+    background: none;
+    border-top: 1px dashed var(--card-border);
+    border-radius: 0;
+    margin: 2px 0 0;
+    padding: 12px 0 0;
+}
+
+.pw-success-details .order-row--total span:last-child {
+    color: var(--co-success);
+    font-size: 16px;
+}
+
+.pw-success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ---------- Milestone panel (Pay Half, 1st installment) ---------- */
+/* Same card/badge/details structure as the Step 4 success panel above,
+   just re-accented amber instead of green — "progress, one step left"
+   rather than "done" — and with its own highlighted "remaining" pill
+   instead of a plain total.
+   Named rather than reusing .order-row--paid/.order-row--due-today from
+   the Order Summary: those are plain single classes (specificity 0-1-0),
+   and the existing ".pw-success-details .order-row ..." rules above are
+   two classes deep (0-2-0 / 0-3-0 with a pseudo-class) — more specific,
+   so they'd silently win and flatten this panel's highlighting back to
+   the plain row look. Scoping these under .pw-success-details directly
+   avoids that fight instead of relying on source order. */
+.pw-success-details .pw-success-details__paid span:first-child,
+.pw-success-details .pw-success-details__paid span:last-child {
+    color: var(--co-success);
+    font-weight: 700;
+}
+
+.pw-success-details .pw-success-details__remaining {
+    border: none;
+    border-radius: var(--co-radius-md);
+    margin: 4px 0 0;
+    padding: 14px;
+    background: var(--co-warning-soft);
+}
+
+.pw-success-details .pw-success-details__remaining span:first-child {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.pw-success-details .pw-success-details__remaining span:last-child {
+    color: var(--co-warning);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.pw-success-card--partial .pw-success-badge__circle,
+.pw-success-card--partial .pw-success-badge__check {
+    stroke: var(--co-warning);
 }
 
 /* ---------- Responsive ---------- */
@@ -586,7 +1744,7 @@ body:has(.checkout-wrap) {
 
 @media (max-width: 640px) {
     .checkout-wrap {
-        padding: 28px 5% 70px;
+        padding: 30px 5% 70px;
     }
 
     .checkout-stepper {
@@ -610,7 +1768,7 @@ body:has(.checkout-wrap) {
     .course-thumb {
         width: 100%;
         flex-basis: auto;
-        height: 140px;
+        height: 150px;
     }
 
     .course-detail-grid {
@@ -618,7 +1776,13 @@ body:has(.checkout-wrap) {
     }
 
     .co-card {
-        padding: 18px;
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .order-row--total {
+        margin-left: -20px;
+        margin-right: -20px;
     }
 }
 

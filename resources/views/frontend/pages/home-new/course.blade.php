@@ -89,7 +89,11 @@
                                 </p>
                             </div>
                             <div class="prnrate">
-                                <h3>${{ number_format($course->price ?? 0, 2) }}</h3>
+                                <h3 class="prn-price">
+                                    ${{ number_format(max(0, ($course->price ?? 0) - 10), 2) }}
+                                    <span class="prn-was">${{ number_format($course->price ?? 0, 2) }}</span>
+                                    <span class="prn-save"><i class="fa-solid fa-tag" aria-hidden="true"></i> -$10</span>
+                                </h3>
                                 <div class="starate">
                                     <p>{{ $course->rating ?? '4.9' }}</p>
                                     @for ($i = 0; $i < 5; $i++)

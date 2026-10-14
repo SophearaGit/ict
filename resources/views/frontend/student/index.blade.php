@@ -35,9 +35,18 @@
                             aria-labelledby="currentlyLearning-tab">
                             <div class="row">
                                 @forelse ($enrolled_courses as $enrolled_course)
+                                    @php
+                                        $owesRemaining = $enrolled_course->payment_status === 'half_paid';
+                                    @endphp
                                     <div class="col-lg-3 col-md-6 col-12">
                                         <!-- Card -->
                                         <div class="card mb-4 card-hover">
+                                            @if ($owesRemaining)
+                                                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2"
+                                                    style="z-index: 2;">
+                                                    Payment Due
+                                                </span>
+                                            @endif
                                             <a href="{{ route('student.my.course.detail', $enrolled_course->course->id) }}"><img
                                                     src="{{ $enrolled_course->course->thumbnail ? asset($enrolled_course->course->thumbnail) : asset('default-images/course-default.jpg') }}"
                                                     alt="course" class="card-img-top"></a>
@@ -102,6 +111,34 @@
                                                         (2,345)
                                                     </span>
                                                 </div>
+
+                                                @if ($owesRemaining)
+                                                    {{-- Pay Half's 2nd installment is still outstanding — this is
+                                                         the one place a student would naturally come looking for
+                                                         "my courses" to see what's left to pay, so the amount and
+                                                         a direct link to finish paying live right on the card
+                                                         instead of only inside the payment flow itself. --}}
+                                                    <div
+                                                        class="d-flex align-items-center justify-content-between bg-warning-subtle border border-warning-subtle rounded-3 px-3 py-2 mt-3">
+                                                        <span class="small text-warning-emphasis fw-semibold">
+                                                            ${{ number_format($enrolled_course->remaining_amount, 2) }}
+                                                            remaining
+                                                        </span>
+                                                        {{-- ?pay=1 is the same flag the milestone panel's own
+                                                             "Pay Remaining Now" button uses (see
+                                                             CONTINUE_PAYMENT_URL in the payment page's script) —
+                                                             it skips straight past the "Installment 1 of 2
+                                                             Paid!" summary to the actual pay state. The student
+                                                             already knows they still owe money (that's why
+                                                             they're clicking this from the dashboard), so there's
+                                                             nothing that panel would tell them that one more
+                                                             click here doesn't. --}}
+                                                        <a href="{{ route('student.payment.page', $enrolled_course->invoice_id) }}?pay=1"
+                                                            class="btn btn-sm btn-warning fw-semibold">
+                                                            Pay Remaining
+                                                        </a>
+                                                    </div>
+                                                @endif
                                             </div>
                                             <!-- Card footer -->
                                             <div class="card-footer">

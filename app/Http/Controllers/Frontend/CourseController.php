@@ -221,10 +221,14 @@ class CourseController extends Controller
             ->map(function (ICTCourse $c) {
                 $schedule = $c->schedule;
 
-                // Treat as full only if max_students is set AND exceeded
-                $isFull = isset($c->max_students)
-                    && $c->max_students > 0
-                    && $c->students_count >= $c->max_students;
+                // Treat as full only if capacity is actually tracked (> 0)
+                // AND exceeded. `capacity` is the real column on
+                // i_c_t_courses (see the add_capacity_to_i_c_t_courses_table
+                // migration) — `max_students` isn't a column at all, so the
+                // previous version of this check always evaluated false and
+                // every section silently reported as never full.
+                $hasCapacity = (int) $c->capacity > 0;
+                $isFull = $hasCapacity && $c->students_count >= $c->capacity;
 
                 return [
                     'id' => $c->id,
@@ -234,6 +238,7 @@ class CourseController extends Controller
                     'instructor' => $c->instructor?->name ?? null,
                     'start_date' => $c->start_date?->format('M d, Y') ?? null,
                     'students' => $c->students_count,
+                    'seats_left' => $hasCapacity ? max(0, $c->capacity - $c->students_count) : null,
                     'is_full' => $isFull,
                 ];
             })

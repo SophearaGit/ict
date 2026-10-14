@@ -38,9 +38,11 @@ Route::middleware(['auth:web', 'verified', 'check_role:student'])
         | COURSE ENROLLMENT + PAYMENT
         |--------------------------------------------------------------------------
         */
+        Route::get('/course/{course}/select-schedule', [CourseEnrollmentController::class, 'selectSchedule'])->name('course.select-schedule');
         Route::post('/course/{course}/enroll', [CourseEnrollmentController::class, 'startEnrollment'])->name('course.enroll');
         Route::get('/payment/{invoice}', [CourseEnrollmentController::class, 'paymentPage'])->name('payment.page');
         Route::post('/payment/{invoice}/switch-schedule', [CourseEnrollmentController::class, 'switchSchedule'])->name('payment.switch-schedule');
+        Route::post('/payment/{invoice}/set-plan', [CourseEnrollmentController::class, 'setPlan'])->name('payment.set-plan');
         Route::get('/payment/{invoice}/status', [PayWayPaymentController::class, 'status'])->name('payment.status');
         Route::get('/payment/{invoice}/receipt', [PayWayPaymentController::class, 'downloadReceipt'])->name('payment.receipt');
         /*******************************************************
