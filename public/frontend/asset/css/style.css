@@ -6111,3 +6111,89 @@ html {
 
     }
 }
+
+/* ============================================================
+   Course card price teaser — "Pay in Full" discount shown as a
+   strikethrough on every course card (search results, homepage,
+   course detail page incl. its "more courses" row). The $10 here
+   mirrors the real Pay in Full discount applied at checkout (see
+   CourseEnrollmentController::FULL_PLAN_DISCOUNT) — purely a display
+   teaser, the actual price/plan is chosen on the checkout page.
+   ============================================================ */
+.prnrate h3.prn-price {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.prnrate h3 .prn-was {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: line-through;
+    margin: 0;
+}
+
+.coursedetail-price-rating h3.prn-price {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.coursedetail-price-rating h3 .prn-was {
+    font-size: 15px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-decoration: line-through;
+    margin: 0;
+}
+
+/* ---------- Course card "-$10" discount badge ---------- */
+.prn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: #fff;
+    background: linear-gradient(135deg, #ff7a59, #ef4444);
+    padding: 3px 8px;
+    border-radius: 999px;
+    box-shadow: 0 3px 10px -2px rgba(239, 68, 68, 0.55);
+    white-space: nowrap;
+    animation: prnSavePulse 2.2s ease-in-out infinite;
+}
+
+.prn-save i {
+    font-size: 9px;
+}
+
+@keyframes prnSavePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.07);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .prn-save {
+        animation: none;
+    }
+}
+
+.coursedetail-price-rating .prn-save {
+    font-size: 13px;
+    padding: 4px 11px;
+}
+
+.coursedetail-price-rating .prn-save i {
+    font-size: 10px;
+}

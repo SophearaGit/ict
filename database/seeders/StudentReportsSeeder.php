@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Admin;
 use App\Models\ICTCourseEnrollments;
 use App\Models\StudentAttendances;
 use App\Models\StudentReports;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class StudentReportsSeeder extends Seeder
@@ -20,11 +20,17 @@ class StudentReportsSeeder extends Seeder
      */
     public function run(): void
     {
-        $staffId = User::where('role', 'staff')->value('id');
+        // student_reports.approved_by has a foreign key to `admins`, not
+        // `users` — report cards are approved by an Admin, not a staff
+        // User, so this must pull from the Admin model (AdminSeeder runs
+        // before this one, per DatabaseSeeder's order) or the insert below
+        // fails its FK constraint whenever that id doesn't happen to also
+        // exist in `admins`.
+        $approverId = Admin::value('id');
 
         ICTCourseEnrollments::whereIn('status', ['active', 'completed'])
             ->orderBy('id')
-            ->each(function (ICTCourseEnrollments $enrollment) use ($staffId): void {
+            ->each(function (ICTCourseEnrollments $enrollment) use ($approverId): void {
                 $attendance = StudentAttendances::where('course_id', $enrollment->course_id)
                     ->where('student_id', $enrollment->student_id)
                     ->get();
@@ -73,7 +79,7 @@ class StudentReportsSeeder extends Seeder
                     'result' => $enrollment->status === 'completed' ? $result : null,
                     'remark' => $result === 'pass' ? 'Good progress.' : null,
                     'approval_status' => $approvalStatus,
-                    'approved_by' => $approvalStatus === 'approved' ? $staffId : null,
+                    'approved_by' => $approvalStatus === 'approved' ? $approverId : null,
                     'approved_at' => $approvalStatus === 'approved' ? now()->subDays(rand(1, 10)) : null,
                 ])->save();
             });

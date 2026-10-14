@@ -287,7 +287,15 @@
                         <div style="{{ $metaValueStyle }}">{{ $paymentOptionLabel }}</div>
                     </div>
                 @endif
-                @if ($invoice->payway_tran_id && $paymentMethodsUsed->contains('payway'))
+                {{-- Only shown once fully paid — markInvoicePaid() clears
+                     payway_tran_id after a non-final installment and the
+                     next checkout page load mints a fresh one for the next
+                     installment, so on a half_paid invoice this would
+                     actually be an unused, not-yet-paid tran_id rather than
+                     a real transaction. The actual reference/approval code
+                     for each completed payment is already shown per-row in
+                     Payment History below. --}}
+                @if ($invoice->payment_status === 'paid' && $invoice->payway_tran_id && $paymentMethodsUsed->contains('payway'))
                     <div>
                         <div style="{{ $metaLabelStyle }}">Transaction ID</div>
                         <div style="font-size:12px;font-weight:700;color:#222;font-family:'Courier New',monospace;">
@@ -311,6 +319,17 @@
                         style="font-size:20px;font-weight:800;color:{{ $isFree || $invoice->payment_status === 'paid' ? '#16a34a' : '#0f0e17' }};">
                         {{ $isFree ? 'Free' : '$' . number_format($invoice->remaining_amount, 2) }}
                     </div>
+                    {{-- A half-plan invoice's 1st installment already shows
+                         "To Pay" + the remaining balance above, but doesn't
+                         say WHY there's still a balance on an invoice with a
+                         payment on record — this makes it explicit at a
+                         glance rather than requiring a scroll to Payment
+                         History to work out that this is the 2nd of 2. --}}
+                    @if ($invoice->payment_status === 'half_paid')
+                        <div style="font-size:11px;font-weight:600;color:#ca8a04;margin-top:3px;">
+                            Installment 2 of 2
+                        </div>
+                    @endif
                 </div>
             </div>
             {{-- Parties --}}
@@ -323,7 +342,22 @@
                         style="font-size:18px;font-weight:800;color:#0f0e17;margin-bottom:5px;text-transform:capitalize;">
                         {{ $invoice->student->name }}
                     </div>
-                    <div style="font-size:12px;color:#666;">ICT Professional Training Center</div>
+                    {{-- Was a hardcoded "ICT Professional Training Center" line here —
+                         that's who the invoice is FROM, not a useful fact about the
+                         student it's billed TO, and it's redundant with the "From"
+                         block opposite. Two test accounts both just named "student"
+                         (visible in the staff invoice list) made this obvious: staff
+                         had no way to tell invoices apart without opening each one.
+                         Email/phone actually distinguish the student, so show
+                         whichever contact details are on file instead. --}}
+                    <div style="font-size:12px;color:#666;line-height:1.6;">
+                        @if ($invoice->student->email)
+                            {{ $invoice->student->email }}<br>
+                        @endif
+                        @if ($invoice->student->phone)
+                            {{ $invoice->student->phone }}
+                        @endif
+                    </div>
                     @if ($invoice->staff)
                         <div style="font-size:11px;color:#999;margin-top:6px;">
                             Registered by {{ $invoice->staff->name }}
@@ -334,7 +368,8 @@
                     <div
                         style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:8px;">
                         From</div>
-                    <div style="font-size:18px;font-weight:800;color:#0f0e17;margin-bottom:5px;">ICT Skills Center</div>
+                    <div style="font-size:18px;font-weight:800;color:#0f0e17;margin-bottom:5px;">ICT Professional
+                        Training Center</div>
                     <div style="font-size:12px;color:#666;line-height:1.8;">
                         House No. 240B, Street 132<br>
                         Sangkat Teuk Laok 01, Khan Toul Kork<br>
@@ -413,6 +448,16 @@
                             @php
                                 $pMeta = $paymentMeta($payment->payment_method);
                                 $isGatewayPayment = in_array($payment->payment_method, ['payway', 'online']);
+                                // Half Payment Plan invoices are always
+                                // exactly 2 installments by design (see
+                                // CourseEnrollmentController::applyPlan) —
+                                // labeling by chronological order here (not
+                                // just "first/second record") stays correct
+                                // even if a row gets reordered or a refund/
+                                // correction entry is added later.
+                                $installmentLabel = $invoice->payment_option === 'half'
+                                    ? ($loop->first ? 'Installment 1 of 2' : 'Installment 2 of 2 — Final')
+                                    : null;
                             @endphp
                             <div
                                 style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#f8f8fb;border-radius:10px;">
@@ -426,6 +471,10 @@
                                         @if ($isGatewayPayment)
                                             <span
                                                 style="font-size:10px;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 8px;border-radius:10px;margin-left:6px;">ONLINE</span>
+                                        @endif
+                                        @if ($installmentLabel)
+                                            <span
+                                                style="font-size:10px;font-weight:700;color:#ca8a04;background:#fef9c3;padding:2px 8px;border-radius:10px;margin-left:6px;">{{ $installmentLabel }}</span>
                                         @endif
                                     </div>
                                     <div style="font-size:11px;color:#888;margin-top:2px;">

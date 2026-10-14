@@ -4,6 +4,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ICTCourse;
 use App\Models\ICTCourseCategory;
 use App\Models\ICTCourseEnrollments;
+use App\Models\ICTInvoice;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -87,11 +88,27 @@ class CoursePageController extends Controller
             ->where('title', $course->title)
             ->count();
         $alreadyEnrolled = false;
+        $blockingInvoice = null;
         if (Auth::check()) {
             $alreadyEnrolled = ICTCourseEnrollments::where([
                 'student_id' => Auth::id(),
                 'course_id' => $course->id,
             ])->exists();
+
+            // Mirrors the server-side gate in
+            // CourseEnrollmentController::startEnrollment()/selectSchedule():
+            // a half_paid invoice on a DIFFERENT course means the student
+            // still owes a final installment elsewhere, so the Enroll
+            // button here should already look (and be) disabled instead of
+            // letting them click through only to get bounced back.
+            if (!$alreadyEnrolled) {
+                $blockingInvoice = ICTInvoice::with('course')
+                    ->where('student_id', Auth::id())
+                    ->where('course_id', '!=', $course->id)
+                    ->where('payment_status', 'half_paid')
+                    ->latest()
+                    ->first();
+            }
         }
         return view('frontend.pages.home-new.course-details', [
             'page_title' => 'COURSE DETAILS',
@@ -99,6 +116,7 @@ class CoursePageController extends Controller
             'batches' => $batches,
             'moreCourses' => $moreCourses,
             'alreadyEnrolled' => $alreadyEnrolled,
+            'blockingInvoice' => $blockingInvoice,
             'siblingCount' => $siblingCount,
         ]);
     }
