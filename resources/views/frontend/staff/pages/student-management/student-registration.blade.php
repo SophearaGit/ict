@@ -368,6 +368,270 @@
     background: #fee2e2;
     color: #b91c1c;
   }
+  /* ── Course picker modal ── */
+  .course-modal-backdrop,
+  .student-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 24px;
+  }
+  .course-modal {
+    background: #fff;
+    border-radius: 22px;
+    width: 100%;
+    max-width: 880px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, .35);
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .course-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem 1.75rem 1.1rem;
+    border-bottom: 1px solid #f1f3f5;
+    flex-shrink: 0;
+  }
+  .course-modal-header h5 {
+    margin: 0 0 .2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .course-modal-header p {
+    margin: 0;
+    font-size: .8rem;
+    color: #94a3b8;
+  }
+  .course-modal-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+  .course-modal-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .course-modal-search {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 1.1rem 1.75rem 0;
+    padding: .75rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    flex-shrink: 0;
+  }
+  .course-modal-search:focus-within {
+    border-color: #0ea5e9;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, .1);
+  }
+  .course-modal-search i {
+    color: #94a3b8;
+  }
+  .course-modal-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: .9rem;
+    font-family: 'DM Sans', sans-serif;
+    color: #0f172a;
+  }
+  .course-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.1rem 1.75rem 1.5rem;
+  }
+  .cm-group-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #0ea5e9;
+    margin: 1.4rem 0 .65rem;
+  }
+  .cm-group-label:first-child {
+    margin-top: 0;
+  }
+  .cm-group-label.is-closed {
+    color: #dc2626;
+  }
+  .cm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .65rem;
+  }
+  .cm-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #94a3b8;
+    font-size: .85rem;
+  }
+  .cm-card {
+    position: relative;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: .85rem .9rem .85rem 2.6rem;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    background: #fff;
+  }
+  .cm-card:hover {
+    border-color: #38bdf8;
+  }
+  .cm-card.is-selected {
+    border-color: #0ea5e9;
+    background: #f0f9ff;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, .12);
+  }
+  .cm-card.is-closed.is-selected {
+    border-color: #dc2626;
+    background: #fef2f2;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, .1);
+  }
+  .cm-check {
+    position: absolute;
+    left: .85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: #fff;
+    font-size: 12px;
+    transition: all .15s;
+  }
+  .cm-card.is-selected .cm-check {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+  }
+  .cm-card.is-closed.is-selected .cm-check {
+    background: #dc2626;
+    border-color: #dc2626;
+  }
+  .cm-check i {
+    opacity: 0;
+    transform: scale(.6);
+    transition: all .12s;
+  }
+  .cm-card.is-selected .cm-check i {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .course-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.75rem;
+    border-top: 1px solid #f1f3f5;
+    flex-shrink: 0;
+    background: #f8fafc;
+    flex-wrap: wrap;
+  }
+  .course-modal-summary {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .course-modal-summary .cm-total {
+    color: #0ea5e9;
+    font-family: 'DM Mono', monospace;
+  }
+  .course-modal-actions {
+    display: flex;
+    gap: .6rem;
+  }
+  .btn-modal-ghost {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: .55rem 1.1rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn-modal-ghost:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+  .btn-modal-apply {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    border: none;
+    border-radius: 10px;
+    padding: .6rem 1.4rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, .25);
+    transition: opacity .15s, transform .15s;
+  }
+  .btn-modal-apply:hover {
+    opacity: .92;
+    transform: translateY(-1px);
+  }
+  body.course-modal-open {
+    overflow: hidden;
+  }
+  @media (max-width: 640px) {
+    .course-modal-backdrop,
+    .student-modal-backdrop {
+      padding: 0;
+    }
+    .course-modal {
+      max-width: 100%;
+      max-height: 100dvh;
+      height: 100dvh;
+      border-radius: 0;
+    }
+    .cm-grid {
+      grid-template-columns: 1fr;
+    }
+    .course-modal-footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .course-modal-actions {
+      justify-content: stretch;
+    }
+    .btn-modal-ghost,
+    .btn-modal-apply {
+      flex: 1;
+      text-align: center;
+    }
+  }
   /* ── Student option card (rendered via Select2 templateResult) ── */
   .student-opt {
     display: flex;
@@ -411,6 +675,59 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  /* ── Student picker modal ── */
+  .sm-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .sm-card {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    background: #fff;
+    padding: .3rem .8rem .3rem .3rem;
+  }
+  .sm-card .student-opt {
+    flex: 1;
+    min-width: 0;
+    padding: .55rem .4rem;
+  }
+  .sm-card .student-opt-name,
+  .sm-card .student-opt-meta {
+    white-space: normal;
+  }
+  .sm-card:hover {
+    border-color: #38bdf8;
+    background: #f8fafc;
+  }
+  .sm-card.is-current {
+    border-color: #0ea5e9;
+    background: #f0f9ff;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, .12);
+  }
+  .sm-card.is-current::after {
+    content: "Current";
+    flex-shrink: 0;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #0ea5e9;
+    background: #e0f2fe;
+    padding: .25rem .55rem;
+    border-radius: 999px;
+  }
+  .sm-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #94a3b8;
+    font-size: .85rem;
   }
   /* ── Eye toggle ── */
   .eye-toggle {
@@ -938,6 +1255,39 @@
               <label>Search existing student</label>
             </div>
           </div>
+          {{-- ── STUDENT PICKER MODAL ──
+               Same idea as the course picker: Select2's own dropdown is
+               intercepted (select2:opening, below) and swapped for a
+               roomier dialog. Picking a student here is a single choice,
+               so a card click selects it and closes the dialog right
+               away — no separate Apply step needed like the multi-select
+               course picker. #studentSelect stays the real form field;
+               the modal only ever reads its current <option>s and writes
+               back with .val(id).trigger('change'). --}}
+          <div class="student-modal-backdrop d-none" id="studentModalBackdrop">
+            <div class="course-modal" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
+              <div class="course-modal-header">
+                <div>
+                  <h5 id="studentModalTitle">Select Student</h5>
+                  <p>Search and pick the student to register</p>
+                </div>
+                <button type="button" class="course-modal-close" id="studentModalClose" aria-label="Close">
+                  <i class="ti ti-x"></i>
+                </button>
+              </div>
+              <div class="course-modal-search">
+                <i class="ti ti-search"></i>
+                <input type="text" id="studentModalSearch" placeholder="Search by name, email, or phone…" autocomplete="off">
+              </div>
+              <div class="course-modal-body" id="studentModalBody"></div>
+              <div class="course-modal-footer">
+                <div class="course-modal-summary" id="studentModalSummary">&nbsp;</div>
+                <div class="course-modal-actions">
+                  <button type="button" class="btn-modal-ghost" id="studentModalCancel">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
           {{-- New student fields --}}
           <div id="newStudentWrapper" class="{{ $oldStudentType === 'existing' ? 'd-none' : '' }}">
             <p class="reg-section-label">Basic Information</p>
@@ -1103,6 +1453,45 @@
                 <label>Select Course(s) <span class="text-danger">*</span></label>
               </div>
               <x-input-error :messages="$errors->get('course_ids')" class="field-error" />
+            </div>
+          </div>
+          {{-- ── COURSE PICKER MODAL ──
+               Select2's own dropdown works, but on a list this long and
+               this detailed it's a thin popover fighting for space with
+               the rest of the form — staff asked for something roomier.
+               This intercepts the dropdown open (select2:opening, below)
+               and shows a full dialog instead. #courseSelect stays the
+               real form field throughout; the modal only ever reads its
+               current <option>s/value when it opens and writes back to
+               it with .val([...]).trigger('change') on Apply, so every
+               existing handler (order summary, multi-course discount,
+               totals) keeps working untouched. --}}
+          <div class="course-modal-backdrop d-none" id="courseModalBackdrop">
+            <div class="course-modal" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle">
+              <div class="course-modal-header">
+                <div>
+                  <h5 id="courseModalTitle">Select Courses</h5>
+                  <p>Choose one or more batches for this student</p>
+                </div>
+                <button type="button" class="course-modal-close" id="courseModalClose" aria-label="Close">
+                  <i class="ti ti-x"></i>
+                </button>
+              </div>
+              <div class="course-modal-search">
+                <i class="ti ti-search"></i>
+                <input type="text" id="courseModalSearch" placeholder="Search by course, schedule, or date…" autocomplete="off">
+              </div>
+              <div class="course-modal-body" id="courseModalBody"></div>
+              <div class="course-modal-footer">
+                <div class="course-modal-summary" id="courseModalSummary">No courses selected</div>
+                <div class="course-modal-actions">
+                  <button type="button" class="btn-modal-ghost" id="courseModalClear">Clear</button>
+                  <button type="button" class="btn-modal-ghost" id="courseModalCancel">Cancel</button>
+                  <button type="button" class="btn-modal-apply" id="courseModalApply">
+                    <i class="ti ti-check me-1"></i> Apply Selection
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           {{-- Payment option badges --}}
@@ -1340,6 +1729,143 @@
       templateResult: formatCourseOption,
       templateSelection: formatCourseSelection
     });
+    // ==============================
+    // COURSE PICKER MODAL
+    // Select2's inline dropdown is intercepted (select2:opening, below)
+    // and swapped for a full-size dialog — same course data, same
+    // Open/Closed grouping, just room to actually look at it. The modal
+    // reads #courseSelect's <option>s directly (built once, reused on
+    // every open) rather than duplicating the Blade course list, and only
+    // ever writes back via .val([...]).trigger('change') on Apply, so
+    // every other handler on this field keeps working unmodified.
+    // ==============================
+    var courseModalBuilt = false;
+    var cmSelected = new Set();
+    function buildCourseModalBody() {
+      var html = '';
+      $('#courseSelect optgroup').each(function() {
+        var isClosed = /Closed/.test(this.label);
+        html += '<div class="cm-group-label' + (isClosed ? ' is-closed' : '') + '">' + escapeHtml(this.label) + '</div>';
+        html += '<div class="cm-grid">';
+        $(this).find('option').each(function() {
+          var id = this.value;
+          var price = parseFloat(this.getAttribute('data-price')) || 0;
+          var title = this.getAttribute('data-title') || $(this).text().trim();
+          var schedule = this.getAttribute('data-schedule') || '';
+          var date = this.getAttribute('data-date') || '';
+          var open = (this.getAttribute('data-status') || 'active') === 'active';
+          var searchIndex = (title + ' ' + schedule + ' ' + date).toLowerCase();
+          html += '<div class="cm-card' + (open ? '' : ' is-closed') + '" data-id="' + escapeHtml(id) + '" ' +
+            'data-search="' + escapeHtml(searchIndex) + '">' +
+            '<span class="cm-check"><i class="ti ti-check"></i></span>' +
+            '<div class="course-opt-row">' +
+            '<span class="course-opt-title">' + escapeHtml(title) + '</span>' +
+            '<span class="course-opt-price">$' + price.toFixed(2) + '</span>' +
+            '</div>' +
+            (schedule ? '<div class="course-opt-meta"><i class="ti ti-clock"></i> ' + escapeHtml(schedule) + '</div>' : '') +
+            '<div class="course-opt-foot">' +
+            '<span class="course-opt-date">' +
+            (date ? '<i class="ti ti-calendar-event"></i> ' + escapeHtml(date) : '') +
+            '</span>' +
+            '<span class="course-opt-status ' + (open ? 'is-open' : 'is-closed') + '">' + (open ? 'Open' : 'Closed') + '</span>' +
+            '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+      });
+      $('#courseModalBody').html(html || '<div class="cm-empty">No courses available.</div>');
+      courseModalBuilt = true;
+    }
+    function updateModalSummary() {
+      var count = cmSelected.size;
+      var total = 0;
+      cmSelected.forEach(function(id) {
+        var price = parseFloat($('#courseSelect option[value="' + id + '"]').attr('data-price')) || 0;
+        total += price;
+      });
+      $('#courseModalSummary').html(
+        count === 0
+          ? 'No courses selected'
+          : count + ' course' + (count > 1 ? 's' : '') + ' selected · <span class="cm-total">$' + total.toFixed(2) + '</span>'
+      );
+    }
+    function updateModalSelectionUI() {
+      $('#courseModalBody .cm-card').each(function() {
+        $(this).toggleClass('is-selected', cmSelected.has($(this).attr('data-id')));
+      });
+      updateModalSummary();
+    }
+    function openCourseModal() {
+      if (!courseModalBuilt) {
+        buildCourseModalBody();
+      }
+      cmSelected = new Set($('#courseSelect').val() || []);
+      updateModalSelectionUI();
+      $('#courseModalSearch').val('');
+      $('#courseModalBody .cm-card, .cm-group-label').show();
+      $('#courseModalBackdrop').removeClass('d-none');
+      $('body').addClass('course-modal-open');
+      setTimeout(function() {
+        $('#courseModalSearch').trigger('focus');
+      }, 50);
+    }
+    function closeCourseModal() {
+      $('#courseModalBackdrop').addClass('d-none');
+      $('body').removeClass('course-modal-open');
+    }
+    $('#courseSelect').on('select2:opening', function(e) {
+      e.preventDefault();
+      openCourseModal();
+    });
+    $('#courseModalBody').on('click', '.cm-card', function() {
+      var id = $(this).attr('data-id');
+      if (cmSelected.has(id)) {
+        cmSelected.delete(id);
+      } else {
+        cmSelected.add(id);
+      }
+      updateModalSelectionUI();
+    });
+    $('#courseModalSearch').on('input', function() {
+      var q = $(this).val().toLowerCase().trim();
+      $('#courseModalBody .cm-group-label').each(function() {
+        var $grid = $(this).next('.cm-grid');
+        var anyVisible = false;
+        $grid.find('.cm-card').each(function() {
+          var match = !q || ($(this).attr('data-search') || '').indexOf(q) !== -1;
+          $(this).toggle(match);
+          if (match) {
+            anyVisible = true;
+          }
+        });
+        $(this).toggle(anyVisible);
+      });
+    });
+    $('#courseModalClear').on('click', function() {
+      cmSelected.clear();
+      updateModalSelectionUI();
+    });
+    $('#courseModalApply').on('click', function() {
+      $('#courseSelect').val(Array.from(cmSelected)).trigger('change');
+      closeCourseModal();
+    });
+    $('#courseModalCancel, #courseModalClose').on('click', closeCourseModal);
+    $('#courseModalBackdrop').on('click', function(e) {
+      if (e.target === this) {
+        closeCourseModal();
+      }
+    });
+    $(document).on('keydown', function(e) {
+      if (e.key !== 'Escape') {
+        return;
+      }
+      if (!$('#courseModalBackdrop').hasClass('d-none')) {
+        closeCourseModal();
+      }
+      if (!$('#studentModalBackdrop').hasClass('d-none')) {
+        closeStudentModal();
+      }
+    });
     // Existing-student results get the same card treatment as courses —
     // an initials avatar, the name as the primary line, email/phone as
     // secondary lines — instead of one plain "Name — email" text row.
@@ -1372,6 +1898,101 @@
       width: '100%',
       placeholder: 'Search student by name or email',
       templateResult: formatStudentOption
+    });
+    // ==============================
+    // STUDENT PICKER MODAL
+    // Mirrors the course picker: Select2's inline dropdown is intercepted
+    // (select2:opening — see the existing studentLocked-guarded handler
+    // further below, which this extends) and swapped for a roomier dialog.
+    // Unlike the course modal this field is single-select, so clicking a
+    // card picks that student and closes the dialog immediately — no
+    // separate Apply step. The modal reads #studentSelect's own <option>s
+    // (built once, reused on every open) and only ever writes back via
+    // .val(id).trigger('change'), so every other handler on this field
+    // (including the prefill-lock logic below) keeps working unmodified.
+    // ==============================
+    var studentModalBuilt = false;
+    function buildStudentModalBody() {
+      var rows = '';
+      $('#studentSelect option').each(function() {
+        if (!this.value) return;
+        var id = this.value;
+        var name = this.getAttribute('data-name') || $(this).text().trim();
+        var email = this.getAttribute('data-email') || '';
+        var phone = this.getAttribute('data-phone') || '';
+        var searchIndex = (name + ' ' + email + ' ' + phone).toLowerCase();
+        rows += '<div class="sm-card" data-id="' + escapeHtml(id) + '" data-search="' + escapeHtml(searchIndex) + '">' +
+          '<div class="student-opt">' +
+          '<div class="student-opt-avatar">' + escapeHtml(studentInitials(name)) + '</div>' +
+          '<div class="student-opt-body">' +
+          '<div class="student-opt-name">' + escapeHtml(name) + '</div>' +
+          (email ? '<div class="student-opt-meta"><i class="ti ti-mail"></i> ' + escapeHtml(email) + '</div>' : '') +
+          (phone ? '<div class="student-opt-meta"><i class="ti ti-phone"></i> ' + escapeHtml(phone) + '</div>' : '') +
+          '</div>' +
+          '</div>' +
+          '</div>';
+      });
+      var html = rows
+        ? '<div class="sm-list" id="smList">' + rows + '</div><div class="sm-empty d-none" id="smEmpty">No students match your search.</div>'
+        : '<div class="sm-empty">No students available.</div>';
+      $('#studentModalBody').html(html);
+      studentModalBuilt = true;
+    }
+    function updateStudentModalSummary() {
+      var total = $('#studentModalBody .sm-card').length;
+      var visible = $('#studentModalBody .sm-card:visible').length;
+      $('#studentModalSummary').html(
+        total === 0
+          ? '&nbsp;'
+          : visible + ' of ' + total + ' student' + (total > 1 ? 's' : '')
+      );
+      $('#smEmpty').toggleClass('d-none', total === 0 || visible > 0);
+    }
+    function updateStudentModalSelectionUI() {
+      var currentId = $('#studentSelect').val();
+      $('#studentModalBody .sm-card').each(function() {
+        $(this).toggleClass('is-current', !!currentId && $(this).attr('data-id') === String(currentId));
+      });
+      updateStudentModalSummary();
+    }
+    function openStudentModal() {
+      if (!studentModalBuilt) {
+        buildStudentModalBody();
+      }
+      // Reveal the backdrop BEFORE computing :visible counts below — jQuery's
+      // :visible check walks up through ancestors, so while the backdrop still
+      // carries d-none every card reports as not visible, even once shown.
+      $('#studentModalBackdrop').removeClass('d-none');
+      $('body').addClass('course-modal-open');
+      $('#studentModalSearch').val('');
+      $('#studentModalBody .sm-card').show();
+      updateStudentModalSelectionUI();
+      setTimeout(function() {
+        $('#studentModalSearch').trigger('focus');
+      }, 50);
+    }
+    function closeStudentModal() {
+      $('#studentModalBackdrop').addClass('d-none');
+      $('body').removeClass('course-modal-open');
+    }
+    $('#studentModalBody').on('click', '.sm-card', function() {
+      var id = $(this).attr('data-id');
+      $('#studentSelect').val(id).trigger('change');
+      closeStudentModal();
+    });
+    $('#studentModalSearch').on('input', function() {
+      var q = $(this).val().toLowerCase().trim();
+      $('#studentModalBody .sm-card').each(function() {
+        var match = !q || ($(this).attr('data-search') || '').indexOf(q) !== -1;
+        $(this).toggle(match);
+      });
+      updateStudentModalSummary();
+    });
+    $('#studentModalCancel, #studentModalClose').on('click', closeStudentModal);
+    $('#studentModalBackdrop').on('click', function(e) {
+      if (e.target === this) {
+        closeStudentModal();
+      }
     });
     // ==============================
     // ORDER SUMMARY — SELECTED COURSE PREVIEW
@@ -1453,10 +2074,12 @@
       }
       $('#prefillBanner').removeClass('d-none');
     }
-    // Block the dropdown from opening while locked — value still submits normally
+    // Block the dropdown from opening while locked — value still submits normally.
+    // Otherwise, swap Select2's inline dropdown for the big student-picker modal.
     $('#studentSelect').on('select2:opening', function(e) {
-      if (studentLocked) {
-        e.preventDefault();
+      e.preventDefault();
+      if (!studentLocked) {
+        openStudentModal();
       }
     });
     $('#btnPickOtherStudent').on('click', function() {
