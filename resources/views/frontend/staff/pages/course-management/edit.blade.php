@@ -71,6 +71,50 @@
             --label-color: var(--bs-secondary-color);
         }
 
+        /* ── "What am I doing" badge ─────────────────────
+           The header below ("Edit course") scrolls out of view
+           almost immediately on a form this long — this pins a
+           small reminder in the corner so it's never ambiguous
+           that you're editing an existing course, and which one,
+           even deep in the form. Uses warning (amber) to visually
+           distinguish "editing" from the info-colored "adding"
+           badge on the Create page. */
+        .form-mode-badge {
+            position: fixed;
+            top: 90px;
+            right: 24px;
+            z-index: 1030;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+            max-width: 320px;
+            background: rgba(var(--bs-warning-rgb), .15);
+            color: #a16207;
+            border: 1px solid rgba(var(--bs-warning-rgb), .4);
+        }
+
+        .form-mode-badge .fmb-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .form-mode-badge {
+                top: auto;
+                bottom: 16px;
+                left: 16px;
+                right: 16px;
+                max-width: none;
+                justify-content: center;
+            }
+        }
+
         /* ── Card shell ─────────────────────────────────── */
         .course-card {
             border: none;
@@ -436,6 +480,16 @@
 @endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
+
+    {{-- ── "What am I doing" badge: stays visible while scrolling, since the
+         header below scrolls out of view almost immediately on this long form. ── --}}
+    <div class="form-mode-badge mode-edit" role="status">
+        <i class="ti ti-pencil" aria-hidden="true"></i>
+        <span class="fmb-text">
+            Editing: {{ $course->title }}
+        </span>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="card course-card">

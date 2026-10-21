@@ -172,51 +172,245 @@
   .reg-field .select2-container {
     width: 100% !important;
   }
+  /* These two controls (course + student search) are the most important
+     click target on the whole form — staff said the closed box felt too
+     small/thin to comfortably click given how much detail opens up below
+     it, so it's sized well above the other text inputs on this page:
+     taller, bigger type, a heavier border, so it reads as the primary
+     action it is rather than blending in with Full Name / Phone, etc. */
   .reg-field .select2-container--default .select2-selection--single,
   .reg-field .select2-container--default .select2-selection--multiple {
     font-family: 'DM Sans', sans-serif;
-    font-size: .875rem;
+    font-size: 1rem;
     background: #f8fafc;
-    border: 1.5px solid #e8eaed;
-    border-radius: 12px;
-    min-height: 54px;
-    padding: 1.4rem 1rem .5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    min-height: 72px;
+    padding: 1.6rem 1.2rem .65rem;
     outline: none;
   }
   .reg-field .select2-container--default.select2-container--focus .select2-selection--multiple,
   .reg-field .select2-container--default.select2-container--open .select2-selection--single {
     border-color: #0ea5e9;
     background: #fff;
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, .08);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, .1);
   }
   .reg-field .select2-container--default .select2-selection--multiple .select2-selection__rendered {
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 6px;
   }
   .reg-field .select2-container--default .select2-selection--multiple .select2-selection__choice {
     background: #e0f2fe;
     border: none;
-    border-radius: 6px;
-    padding: 2px 8px;
-    font-size: .75rem;
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: .85rem;
     color: #0369a1;
     font-weight: 500;
   }
   .reg-field .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     color: #7dd3fc;
-    margin-right: 4px;
+    margin-right: 6px;
+    font-size: 1rem;
   }
   .reg-field .select2-container--default .select2-selection--single .select2-selection__rendered {
     padding: 0;
-    font-size: .875rem;
+    font-size: 1rem;
+    font-weight: 500;
     color: #0f172a;
     line-height: 1.4;
   }
   .reg-field .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 54px;
-    right: 10px;
+    height: 72px;
+    right: 14px;
+  }
+  .reg-field .select2-container--default .select2-selection--single .select2-selection__arrow b,
+  .reg-field .select2-container--default .select2-selection--multiple .select2-selection__arrow b {
+    transform: scale(1.4);
+  }
+  .reg-field .select2-selection--multiple .select2-selection__choice .chip-price {
+    font-family: 'DM Mono', monospace;
+    opacity: .75;
+    margin-left: .25rem;
+  }
+  /* ── Select2 dropdown panel (appended to <body>, so not scoped under .reg-field) ── */
+  .select2-dropdown {
+    font-family: 'DM Sans', sans-serif;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, .14);
+  }
+  .select2-search--dropdown {
+    padding: 12px !important;
+    background: #f8fafc;
+  }
+  .select2-search--dropdown .select2-search__field {
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: .8rem 1rem .8rem 2.5rem !important;
+    font-size: 1rem;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: .85rem center;
+  }
+  .select2-search--dropdown .select2-search__field:focus {
+    border-color: #0ea5e9 !important;
+  }
+  /* Select2 reuses the same "select2-results__options" class for the
+     outer scrollable panel AND for each group's own nested <ul> — scoping
+     this to :not(--nested) is essential, otherwise every optgroup's list
+     gets its own 360px max-height with no overflow clipping, so its
+     content keeps rendering past that box and the next optgroup overlaps
+     on top of it (visually, options stack/overlap rather than stacking
+     in order). */
+  .select2-results__options:not(.select2-results__options--nested) {
+    padding: 6px;
+    max-height: 360px;
+  }
+  .select2-results__group {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #0ea5e9;
+    padding: 10px 8px 6px;
+  }
+  .select2-results__option[role="group"]:not(:first-child) .select2-results__group {
+    border-top: 1px solid #f1f3f5;
+    margin-top: 4px;
+    padding-top: 12px;
+  }
+  .select2-results__option {
+    padding: 0 !important;
+    border-radius: 10px;
+    margin-bottom: 2px;
+  }
+  .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: #f0f9ff !important;
+    color: inherit !important;
+  }
+  .select2-container--default .select2-results__option[aria-selected="true"] {
+    background: #e0f2fe !important;
+  }
+  /* ── Course option card (rendered via Select2 templateResult) ── */
+  .course-opt {
+    padding: .6rem .75rem;
+    border-radius: 10px;
+  }
+  .course-opt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: .5rem;
+  }
+  .course-opt-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+  .course-opt-price {
+    font-family: 'DM Mono', monospace;
+    font-size: .76rem;
+    font-weight: 600;
+    color: #0369a1;
+    background: #e0f2fe;
+    padding: .1rem .55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .course-opt-meta {
+    font-size: .72rem;
+    color: #64748b;
+    margin-top: .3rem;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+  .course-opt-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: .4rem;
+  }
+  .course-opt-date {
+    font-size: .7rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+  .course-opt-status {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: .15rem .55rem;
+    border-radius: 999px;
+  }
+  .course-opt-status.is-open {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  .course-opt-status.is-closed {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  .course-opt.course-opt-closed .course-opt-title {
+    color: #7f1d1d;
+  }
+  .course-opt.course-opt-closed .course-opt-price {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  /* ── Student option card (rendered via Select2 templateResult) ── */
+  .student-opt {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .55rem .7rem;
+  }
+  .student-opt-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(14, 165, 233, .16), rgba(99, 102, 241, .16));
+    color: #4f46e5;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .student-opt-body {
+    min-width: 0;
+  }
+  .student-opt-name {
+    font-size: .84rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .student-opt-meta {
+    font-size: .72rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   /* ── Eye toggle ── */
   .eye-toggle {
@@ -233,26 +427,38 @@
   .eye-toggle:hover {
     color: #64748b;
   }
-  /* ── Payment option badges ── */
+  /* ── Payment option cards ── */
   .payment-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: .6rem;
     margin-bottom: 1rem;
   }
   .pay-badge {
     font-family: 'DM Sans', sans-serif;
-    font-size: .75rem;
-    font-weight: 500;
-    padding: .35rem .85rem;
-    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .15rem;
+    padding: .7rem .9rem;
+    border-radius: 14px;
     border: 1.5px solid #e2e8f0;
     background: #f8fafc;
     color: #64748b;
     cursor: pointer;
     transition: all .18s ease;
     user-select: none;
-    white-space: nowrap;
+  }
+  .pay-badge .pb-title {
+    font-size: .8rem;
+    font-weight: 600;
+    color: inherit;
+  }
+  .pay-badge .pb-sub {
+    font-size: .68rem;
+    font-weight: 400;
+    opacity: .7;
+    color: inherit;
   }
   .pay-badge:hover {
     border-color: #0ea5e9;
@@ -263,6 +469,9 @@
     border-color: #0ea5e9;
     background: #0ea5e9;
     color: #fff;
+  }
+  .pay-badge.active .pb-sub {
+    opacity: .85;
   }
   .pay-badge.active.free {
     background: #10b981;
@@ -292,49 +501,166 @@
     opacity: .38;
     pointer-events: none;
   }
-  /* ── Summary cards ── */
-  .summary-grid {
+  /* ── Two-column layout: form + sticky order summary ── */
+  .reg-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 350px;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  .reg-main {
+    min-width: 0;
+  }
+  .reg-aside {
+    position: sticky;
+    top: 88px;
+  }
+  /* ── Section cards (Student / Course & Payment) ── */
+  .reg-section-card {
+    background: #fff;
+    border: 1.5px solid #eef0f2;
+    border-radius: 18px;
+    padding: 1.65rem 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .reg-section-card:last-child {
+    margin-bottom: 0;
+  }
+  .reg-section-label-row {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin-bottom: 1.35rem;
+  }
+  .reg-section-label-row .reg-section-label {
+    margin: 0;
+  }
+  .reg-section-label-row .reg-section-label::after {
+    display: none;
+  }
+  .reg-section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(14, 165, 233, .14), rgba(99, 102, 241, .14));
+    color: #4f46e5;
+    font-size: 1rem;
+  }
+  /* ── Order summary card ── */
+  .order-card {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 20px;
+    padding: 1.6rem 1.5rem;
+    color: #e2e8f0;
+    box-shadow: 0 10px 36px rgba(15, 23, 42, .2);
+  }
+  .order-card-title {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin: 0 0 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .order-courses {
+    margin-bottom: .25rem;
+  }
+  .order-empty {
+    font-size: .78rem;
+    color: #64748b;
+    text-align: center;
+    padding: 1.4rem .5rem;
+    border: 1.5px dashed #334155;
+    border-radius: 14px;
+  }
+  .order-course-item {
+    display: flex;
+    justify-content: space-between;
     gap: .75rem;
-    margin-top: .5rem;
+    font-size: .8rem;
+    padding: .55rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, .14);
+  }
+  .order-course-item:last-child {
+    border-bottom: none;
+  }
+  .order-course-name {
+    color: #e2e8f0;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .order-course-meta {
+    color: #64748b;
+    font-size: .68rem;
+    margin-top: 1px;
+  }
+  .order-course-price {
+    color: #38bdf8;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .order-divider {
+    height: 1px;
+    background: rgba(148, 163, 184, .16);
+    margin: 1rem 0;
+  }
+  .btn-submit-aside {
+    width: 100%;
+    margin-top: 1.4rem;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+  }
+  /* ── Summary rows (sit inside the dark order card) ── */
+  .summary-grid {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
   }
   .summary-card {
-    background: #f8fafc;
-    border: 1.5px solid #e8eaed;
-    border-radius: 14px;
-    padding: .9rem 1rem;
-    transition: border-color .2s;
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid rgba(148, 163, 184, .16);
+    border-radius: 12px;
+    padding: .7rem .9rem;
+    transition: border-color .2s, background .2s;
   }
   .summary-card.highlight {
-    background: #f0f9ff;
-    border-color: #bae6fd;
+    background: rgba(56, 189, 248, .1);
+    border-color: rgba(56, 189, 248, .4);
   }
   .summary-card.highlight-green {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
+    background: rgba(34, 197, 94, .12);
+    border-color: rgba(34, 197, 94, .4);
   }
   .summary-card.highlight-amber {
-    background: #fffbeb;
-    border-color: #fde68a;
+    background: rgba(245, 158, 11, .12);
+    border-color: rgba(245, 158, 11, .4);
   }
   .summary-card-label {
-    font-size: .68rem;
+    font-size: .66rem;
     font-weight: 600;
     letter-spacing: .05em;
     text-transform: uppercase;
     color: #94a3b8;
-    margin-bottom: .3rem;
+    margin-bottom: .25rem;
   }
   .summary-card-value {
     font-family: 'DM Mono', monospace;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 500;
-    color: #0f172a;
-    min-height: 1.6rem;
+    color: #f1f5f9;
+    min-height: 1.5rem;
   }
   .summary-card-value.muted {
-    color: #94a3b8;
+    color: #64748b;
   }
   /* ── Status badge display ── */
   .status-pill {
@@ -459,21 +785,58 @@
     padding-left: .25rem;
   }
   /* ── Responsive ── */
+  @media (max-width: 992px) {
+    .reg-grid {
+      grid-template-columns: 1fr;
+    }
+    .reg-aside {
+      position: static;
+    }
+  }
   @media (max-width: 768px) {
     .reg-body {
-      padding: 1.5rem;
+      padding: 1.25rem;
     }
-    .summary-grid {
-      grid-template-columns: 1fr 1fr;
+    .reg-section-card {
+      padding: 1.25rem;
+      border-radius: 14px;
+    }
+    .order-card {
+      border-radius: 16px;
+      padding: 1.35rem 1.25rem;
     }
     .reg-header {
       flex-direction: column;
       gap: 1rem;
     }
+    .payment-badges {
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+    .select2-results__options:not(.select2-results__options--nested) {
+      max-height: 280px;
+    }
+    .course-opt-title {
+      font-size: .8rem;
+    }
+    .course-opt-meta,
+    .course-opt-date {
+      font-size: .68rem;
+    }
+    .student-opt-name {
+      font-size: .8rem;
+    }
+    .student-opt-meta {
+      font-size: .68rem;
+    }
   }
   @media (max-width: 576px) {
-    .summary-grid {
-      grid-template-columns: 1fr;
+    .payment-badges {
+      grid-template-columns: 1fr 1fr;
+    }
+    .course-opt-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .25rem;
     }
   }
 </style>
@@ -508,8 +871,14 @@
         </div>
         <form action="{{ route('staff.student.registration.submit') }}" method="POST" id="regForm">
           @csrf
+          <div class="reg-grid">
+          <div class="reg-main">
+          <div class="reg-section-card">
           {{-- ── STUDENT SELECTION ── --}}
-          <p class="reg-section-label">Student</p>
+          <div class="reg-section-label-row">
+            <div class="reg-section-icon"><i class="ti ti-user-plus"></i></div>
+            <p class="reg-section-label">Student</p>
+          </div>
           <div class="type-tabs">
             <button type="button" class="type-tab {{ $oldStudentType === 'existing' ? '' : 'active' }}" data-type="new">New Student</button>
             <button type="button" class="type-tab {{ $oldStudentType === 'existing' ? 'active' : '' }}" data-type="existing">Existing Student</button>
@@ -559,7 +928,9 @@
               <select class="form-select" name="student_id" id="studentSelect">
                 <option value="" disabled selected></option>
                 @foreach ($students as $student)
-                <option value="{{ $student->id }}" @selected(old('student_id') == $student->id)>
+                <option value="{{ $student->id }}" data-name="{{ $student->name }}"
+                  data-email="{{ $student->email }}" data-phone="{{ $student->phone }}"
+                  @selected(old('student_id') == $student->id)>
                   {{ $student->name }} — {{ $student->email }}
                 </option>
                 @endforeach
@@ -641,36 +1012,93 @@
               </div>
             </div>
           </div>
-          <div class="reg-divider"></div>
+          </div>{{-- /.reg-section-card (Student) --}}
+          <div class="reg-section-card">
           {{-- ── COURSE & PAYMENT ── --}}
-          <p class="reg-section-label">Course & Payment</p>
+          <div class="reg-section-label-row">
+            <div class="reg-section-icon"><i class="ti ti-books"></i></div>
+            <p class="reg-section-label">Course & Payment</p>
+          </div>
           <div class="row g-3 mb-3">
             <div class="col-12">
               <div class="reg-field">
+                {{-- Two or more rows can share the exact same title (a
+                     course run again as a new batch once the old one
+                     closes, or two batches running at once) — staff
+                     flagged that the flat list made it impossible to
+                     tell which one was the new/open batch vs an old/
+                     closed one with nothing but the title and schedule
+                     to go on. Splitting into "Open" vs "Closed" optgroups
+                     (same OPEN/CLOSE language as the course management
+                     list) plus a start date on every option fixes that:
+                     the open batch a student should actually join is
+                     always in the first group, and a closed one can
+                     still be picked deliberately (e.g. backdating a
+                     late registration) without being mistaken for the
+                     current one. --}}
                 <select id="courseSelect" name="course_ids[]" multiple placeholder=" ">
-                  @foreach ($courses as $course)
                   @php
+                  // Builds both a plain search string (kept as the <option>'s
+                  // text content, so Select2's default search still matches
+                  // against title/schedule/date) and structured data-*
+                  // attributes the custom card renderer below reads from —
+                  // far less fragile than parsing the concatenated string
+                  // back apart in JS.
+                  $courseMeta = function ($course) {
                   $schedule = $course->schedule;
+                  $scheduleText = '';
                   if ($schedule) {
                   $days = collect(explode('-', $schedule->study_day))
                   ->map(fn($d) => ucfirst($d))
                   ->implode(' • ');
                   $shift = ucfirst($schedule->shift);
-                  $start = \Carbon\Carbon::parse($schedule->start_time)->format(
-                  'g:i',
-                  );
+                  $start = \Carbon\Carbon::parse($schedule->start_time)->format('g:i');
                   $end = \Carbon\Carbon::parse($schedule->end_time)->format('g:i A');
+                  $scheduleText = "{$days} · {$shift} ({$start}–{$end})";
                   }
+                  $isOpen = $course->status === 'active';
+                  $dateLabel = $isOpen ? 'Starts' : 'Started';
+                  $dateText = $course->start_date ? "{$dateLabel} " . $course->start_date->format('M j, Y') : '';
+                  $searchText = "\${$course->price} · {$course->title}"
+                  . ($scheduleText ? " · {$scheduleText}" : '')
+                  . ($dateText ? " · {$dateText}" : '');
+                  return [
+                  'title' => $course->title,
+                  'schedule' => $scheduleText,
+                  'date' => $dateText,
+                  'status' => $course->status,
+                  'search' => $searchText,
+                  ];
+                  };
+                  $openBatches = $courses->where('status', 'active');
+                  $closedBatches = $courses->where('status', '!=', 'active');
                   @endphp
-                  <option value="{{ $course->id }}" data-price="{{ $course->price }}"
-                    @selected(in_array($course->id, $oldCourseIds))>
-                    ${{ $course->price }} · {{ $course->title }}
-                    @if ($schedule)
-                    · {{ $days }} · {{ $shift }}
-                    ({{ $start }}–{{ $end }})
-                    @endif
-                  </option>
-                  @endforeach
+                  @if ($openBatches->count())
+                  <optgroup label="Open Batches — accepting enrollment">
+                    @foreach ($openBatches as $course)
+                    @php($meta = $courseMeta($course))
+                    <option value="{{ $course->id }}" data-price="{{ $course->price }}"
+                      data-title="{{ $meta['title'] }}" data-schedule="{{ $meta['schedule'] }}"
+                      data-date="{{ $meta['date'] }}" data-status="{{ $meta['status'] }}"
+                      @selected(in_array($course->id, $oldCourseIds))>
+                      {{ $meta['search'] }}
+                    </option>
+                    @endforeach
+                  </optgroup>
+                  @endif
+                  @if ($closedBatches->count())
+                  <optgroup label="Closed Batches — enroll only if intentional">
+                    @foreach ($closedBatches as $course)
+                    @php($meta = $courseMeta($course))
+                    <option value="{{ $course->id }}" data-price="{{ $course->price }}"
+                      data-title="{{ $meta['title'] }}" data-schedule="{{ $meta['schedule'] }}"
+                      data-date="{{ $meta['date'] }}" data-status="{{ $meta['status'] }}"
+                      @selected(in_array($course->id, $oldCourseIds))>
+                      {{ $meta['search'] }}
+                    </option>
+                    @endforeach
+                  </optgroup>
+                  @endif
                 </select>
                 <label>Select Course(s) <span class="text-danger">*</span></label>
               </div>
@@ -681,12 +1109,24 @@
           <p class="reg-section-label" style="margin-top:1rem">Payment Option</p>
           <input type="hidden" name="payment_option" id="paymentOptionInput" value="{{ $oldPaymentOption }}">
           <div class="payment-badges" id="paymentBadges">
-            <span class="pay-badge normal {{ $oldPaymentOption === 'normal' ? 'active' : '' }}" data-value="normal">Pay Full</span>
-            <span class="pay-badge full {{ $oldPaymentOption === 'full' ? 'active' : '' }}" data-value="full">Full + $10 Off</span>
-            <span class="pay-badge half {{ $oldPaymentOption === 'half' ? 'active' : '' }}" data-value="half">Half + $20 Fee</span>
-            <span class="pay-badge multi {{ $oldPaymentOption === 'multi' ? 'active' : '' }}" data-value="multi">Multi ($25 Off)</span>
-            <span class="pay-badge free {{ $oldPaymentOption === 'free' ? 'active' : '' }}" data-value="free">Free</span>
-            <span class="pay-badge other {{ $oldPaymentOption === 'other' ? 'active' : '' }}" data-value="other">Other / Manual</span>
+            <span class="pay-badge normal {{ $oldPaymentOption === 'normal' ? 'active' : '' }}" data-value="normal">
+              <span class="pb-title">Pay Full</span><span class="pb-sub">No discount</span>
+            </span>
+            <span class="pay-badge full {{ $oldPaymentOption === 'full' ? 'active' : '' }}" data-value="full">
+              <span class="pb-title">Full + Discount</span><span class="pb-sub">$10 off</span>
+            </span>
+            <span class="pay-badge half {{ $oldPaymentOption === 'half' ? 'active' : '' }}" data-value="half">
+              <span class="pb-title">Half Now</span><span class="pb-sub">+$20 fee</span>
+            </span>
+            <span class="pay-badge multi {{ $oldPaymentOption === 'multi' ? 'active' : '' }}" data-value="multi">
+              <span class="pb-title">Multi-Course</span><span class="pb-sub">$25 off</span>
+            </span>
+            <span class="pay-badge free {{ $oldPaymentOption === 'free' ? 'active' : '' }}" data-value="free">
+              <span class="pb-title">Free</span><span class="pb-sub">No charge</span>
+            </span>
+            <span class="pay-badge other {{ $oldPaymentOption === 'other' ? 'active' : '' }}" data-value="other">
+              <span class="pb-title">Other</span><span class="pb-sub">Manual entry</span>
+            </span>
           </div>
           <div id="multiNoteWrapper" class="{{ count($oldCourseIds) >= 2 ? '' : 'd-none' }}">
             <span class="multi-note">
@@ -737,32 +1177,45 @@
                                 </div> --}}
             </div>
           </div>
-          {{-- ── SUMMARY ── --}}
-          <div class="summary-grid" id="summaryGrid" style="margin-top:1.25rem">
-            <div class="summary-card" id="cardTotal">
-              <div class="summary-card-label">Total Amount</div>
-              <div class="summary-card-value muted" id="displayTotal">—</div>
+          </div>{{-- /.reg-section-card (Course & Payment) --}}
+          </div>{{-- /.reg-main --}}
+          {{-- ── ORDER SUMMARY (sticky on desktop, follows the form on mobile) ── --}}
+          <div class="reg-aside">
+            <div class="order-card">
+              <p class="order-card-title"><i class="ti ti-receipt-2"></i> Order Summary</p>
+              <div class="order-courses" id="selectedCoursesPreview">
+                <div class="order-empty">
+                  <i class="ti ti-school" style="font-size:1.3rem;opacity:.5;display:block;margin-bottom:.4rem;"></i>
+                  No courses selected yet
+                </div>
+              </div>
+              <div class="order-divider"></div>
+              <div class="summary-grid" id="summaryGrid">
+                <div class="summary-card" id="cardTotal">
+                  <div class="summary-card-label">Total Amount</div>
+                  <div class="summary-card-value muted" id="displayTotal">—</div>
+                </div>
+                <div class="summary-card" id="cardPaid">
+                  <div class="summary-card-label">Amount to Pay</div>
+                  <div class="summary-card-value muted" id="displayPaid">—</div>
+                </div>
+                <div class="summary-card" id="cardRemaining">
+                  <div class="summary-card-label">Remaining</div>
+                  <div class="summary-card-value muted" id="displayRemaining">—</div>
+                  <div id="statusPillDisplay"></div>
+                </div>
+              </div>
+              {{-- Hidden inputs for form submission --}}
+              <input type="hidden" name="total_amount" id="totalAmount">
+              <input type="hidden" name="paid_amount" id="paidAmount">
+              <input type="hidden" name="payment_status" id="paymentStatus">
+              {{-- ── SUBMIT ── --}}
+              <button type="submit" class="btn-submit btn-submit-aside">
+                <i class="ti ti-send me-2"></i> Submit Registration
+              </button>
             </div>
-            <div class="summary-card" id="cardPaid">
-              <div class="summary-card-label">Amount to Pay</div>
-              <div class="summary-card-value muted" id="displayPaid">—</div>
-            </div>
-            <div class="summary-card" id="cardRemaining">
-              <div class="summary-card-label">Remaining</div>
-              <div class="summary-card-value muted" id="displayRemaining">—</div>
-              <div id="statusPillDisplay"></div>
-            </div>
-          </div>
-          {{-- Hidden inputs for form submission --}}
-          <input type="hidden" name="total_amount" id="totalAmount">
-          <input type="hidden" name="paid_amount" id="paidAmount">
-          <input type="hidden" name="payment_status" id="paymentStatus">
-          {{-- ── SUBMIT ── --}}
-          <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn-submit">
-              <i class="ti ti-send me-2"></i> Submit Registration
-            </button>
-          </div>
+          </div>{{-- /.reg-aside --}}
+          </div>{{-- /.reg-grid --}}
         </form>
       </div>{{-- .reg-body --}}
     </div>{{-- .reg-card-inner --}}
@@ -833,16 +1286,128 @@
       }
     });
     // ==============================
-    // SELECT2
+    // SELECT2 — rich course cards
     // ==============================
+    // Open vs Closed batches are already split into two <optgroup>s
+    // server-side (see the blade markup above). Each <option> also carries
+    // data-title/data-schedule/data-date/data-status (see blade markup) so
+    // the dropdown row and the selected chip can both be rendered as small
+    // structured cards instead of one long run-on string — the option's
+    // plain text content is left untouched so Select2's built-in search
+    // still matches title, schedule, and date normally.
+    function escapeHtml(str) {
+      return $('<div>').text(str == null ? '' : str).html();
+    }
+    function formatCourseOption(option) {
+      if (!option.id || !option.element) {
+        return option.text;
+      }
+      var el = option.element;
+      var price = parseFloat(el.getAttribute('data-price')) || 0;
+      var title = el.getAttribute('data-title') || option.text;
+      var schedule = el.getAttribute('data-schedule') || '';
+      var date = el.getAttribute('data-date') || '';
+      var isOpen = (el.getAttribute('data-status') || 'active') === 'active';
+      var html = '<div class="course-opt' + (isOpen ? '' : ' course-opt-closed') + '">' +
+        '<div class="course-opt-row">' +
+        '<span class="course-opt-title">' + escapeHtml(title) + '</span>' +
+        '<span class="course-opt-price">$' + price.toFixed(2) + '</span>' +
+        '</div>' +
+        (schedule ? '<div class="course-opt-meta"><i class="ti ti-clock"></i> ' + escapeHtml(schedule) + '</div>' : '') +
+        '<div class="course-opt-foot">' +
+        '<span class="course-opt-date">' +
+        (date ? '<i class="ti ti-calendar-event"></i> ' + escapeHtml(date) : '') +
+        '</span>' +
+        '<span class="course-opt-status ' + (isOpen ? 'is-open' : 'is-closed') + '">' +
+        (isOpen ? 'Open' : 'Closed') +
+        '</span>' +
+        '</div>' +
+        '</div>';
+      return $(html);
+    }
+    function formatCourseSelection(option) {
+      if (!option.id || !option.element) {
+        return option.text;
+      }
+      var el = option.element;
+      var price = parseFloat(el.getAttribute('data-price')) || 0;
+      var title = el.getAttribute('data-title') || option.text;
+      return $('<span>' + escapeHtml(title) + ' <span class="chip-price">$' + price.toFixed(2) + '</span></span>');
+    }
     $('#courseSelect').select2({
       width: '100%',
-      placeholder: 'Select one or more courses'
+      placeholder: 'Select one or more courses',
+      templateResult: formatCourseOption,
+      templateSelection: formatCourseSelection
     });
+    // Existing-student results get the same card treatment as courses —
+    // an initials avatar, the name as the primary line, email/phone as
+    // secondary lines — instead of one plain "Name — email" text row.
+    function studentInitials(name) {
+      if (!name) return '?';
+      var parts = name.trim().split(/\s+/);
+      var first = parts[0] ? parts[0][0] : '';
+      var second = parts.length > 1 ? parts[parts.length - 1][0] : '';
+      return (first + second).toUpperCase();
+    }
+    function formatStudentOption(option) {
+      if (!option.id || !option.element) {
+        return option.text;
+      }
+      var el = option.element;
+      var name = el.getAttribute('data-name') || option.text;
+      var email = el.getAttribute('data-email') || '';
+      var phone = el.getAttribute('data-phone') || '';
+      var html = '<div class="student-opt">' +
+        '<div class="student-opt-avatar">' + escapeHtml(studentInitials(name)) + '</div>' +
+        '<div class="student-opt-body">' +
+        '<div class="student-opt-name">' + escapeHtml(name) + '</div>' +
+        (email ? '<div class="student-opt-meta"><i class="ti ti-mail"></i> ' + escapeHtml(email) + '</div>' : '') +
+        (phone ? '<div class="student-opt-meta"><i class="ti ti-phone"></i> ' + escapeHtml(phone) + '</div>' : '') +
+        '</div>' +
+        '</div>';
+      return $(html);
+    }
     $('#studentSelect').select2({
       width: '100%',
-      placeholder: 'Search student by name or email'
+      placeholder: 'Search student by name or email',
+      templateResult: formatStudentOption
     });
+    // ==============================
+    // ORDER SUMMARY — SELECTED COURSE PREVIEW
+    // Mirrors whatever is picked in #courseSelect into the sticky Order
+    // Summary card, so staff can see exactly what's being billed without
+    // re-opening the dropdown. Purely a read-only preview — it never
+    // reads from or writes to the hidden total/paid/status inputs.
+    // ==============================
+    function renderSelectedCourses() {
+      const $selected = $('#courseSelect').find(':selected');
+      const $container = $('#selectedCoursesPreview');
+      if (!$selected.length) {
+        $container.html(
+          '<div class="order-empty">' +
+          '<i class="ti ti-school" style="font-size:1.3rem;opacity:.5;display:block;margin-bottom:.4rem;"></i>' +
+          'No courses selected yet</div>'
+        );
+        return;
+      }
+      let html = '';
+      $selected.each(function() {
+        const price = parseFloat($(this).data('price')) || 0;
+        const title = $(this).attr('data-title') || $(this).text().trim();
+        const schedule = $(this).attr('data-schedule') || '';
+        const date = $(this).attr('data-date') || '';
+        const meta = [schedule, date].filter(Boolean).join(' · ');
+        html += '<div class="order-course-item">' +
+          '<div><div class="order-course-name">' + escapeHtml(title) + '</div>' +
+          (meta ? '<div class="order-course-meta">' + escapeHtml(meta) + '</div>' : '') +
+          '</div>' +
+          '<div class="order-course-price">$' + price.toFixed(2) + '</div>' +
+          '</div>';
+      });
+      $container.html(html);
+    }
+    renderSelectedCourses();
     // ==============================
     // RESTORE STATE AFTER A VALIDATION ERROR
     // The blade markup above already re-renders the previously chosen tab,
@@ -933,6 +1498,7 @@
     // ==============================
     $('#courseSelect').on('change', function() {
       const count = $(this).find(':selected').length;
+      renderSelectedCourses();
       handleMultiCourseUI(count);
       const currentOption = $('#paymentOptionInput').val();
       if (currentOption && currentOption !== 'other') {
