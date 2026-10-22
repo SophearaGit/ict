@@ -233,7 +233,13 @@
                             </li>
                         @endif
                         <li class="dropdown ms-2">
-                            <a class="rounded-circle" href="javascript:;" role="button" id="dropdownUser"
+                            {{-- d-inline-flex: without this, this <a> stays `display: inline`, whose
+                                click/hit-box is only as tall as a line of text (~17px) even though the
+                                40x40 avatar circle inside it renders fully visible — so clicks near the
+                                top/bottom edge of the visible avatar can land outside the anchor's own
+                                box and fail to toggle the dropdown. Matching display to the avatar's
+                                box makes the whole visible circle reliably clickable. --}}
+                            <a class="rounded-circle d-inline-flex align-items-center" href="javascript:;" role="button" id="dropdownUser"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="avatar avatar-md avatar-indicators avatar-online">
                                     <img alt="avatar" src="{{ asset($imgCheck) }}" class="rounded-circle" />

@@ -5,6 +5,7 @@ use App\Traites\FileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 class InternProfileController extends Controller
@@ -28,7 +29,7 @@ class InternProfileController extends Controller
             'alternate_phone' => ['nullable', 'string', 'max:20'],
             'location' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'in:male,female,other'],
-            'dob' => ['nullable', 'date_format:d M Y'],
+            'dob' => ['nullable', 'date_format:d M Y', 'before:today'],
             'nationality' => ['nullable', 'string', 'max:255'],
             'headline' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string'],
@@ -89,6 +90,13 @@ class InternProfileController extends Controller
         }
         $user->update([
             'password' => Hash::make($validated['password']),
+            // Rotate the "Remember Me" token whenever the password actually
+            // changes. Without this, a remember-me cookie captured before the
+            // change keeps silently logging the old session back in, even
+            // though the (new) password itself is correctly required for any
+            // fresh login — this is what was reported as "the system still
+            // accepts the old password after it was changed".
+            'remember_token' => Str::random(60),
         ]);
         return back()->with('success', 'Password updated successfully.')->with('active_tab', 'password');
     }

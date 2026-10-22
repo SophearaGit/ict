@@ -77,7 +77,7 @@ class StudentController extends Controller
             // with an optional leading + and spaces/dashes as separators,
             // 8–20 characters long.
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'dob' => 'nullable|date',
+            'dob' => 'nullable|date|before:today',
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
             'location' => 'nullable|string|max:255',
@@ -146,7 +146,7 @@ class StudentController extends Controller
             // Same as store(): require it to actually look like a phone
             // number instead of accepting any string.
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'dob' => 'nullable|date',
+            'dob' => 'nullable|date|before:today',
             'gender' => 'required|in:male,female,other',
             'password' => 'nullable|min:8|confirmed',
             'location' => 'nullable|string|max:255',

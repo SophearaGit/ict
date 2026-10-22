@@ -64,12 +64,23 @@ class TeacherController extends Controller
             // real, reachable domain. Adding the "dns" check makes it also
             // confirm the domain actually has a DNS record (so "gmail" on
             // its own is rejected, "gmail.com" passes).
-            'email' => 'required|email:rfc,dns|max:255|unique:users,email',
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                'max:255',
+                // email:rfc alone permits international (RFC 6531) addresses, so a
+                // Khmer-script local part still passes it — it only reads as
+                // "syntactically plausible", not "actually ASCII". Require the whole
+                // address to be plain ASCII so Khmer (and any other non-Latin script)
+                // is rejected outright.
+                'regex:/^[\x00-\x7F]+$/',
+                'unique:users,email',
+            ],
             // Was just "string|max:20" — accepted any text, including a bare
             // 4-5 digit fragment. Require it to actually look like a phone
             // number: digits only, optional leading +, 8-20 characters.
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'dob' => 'nullable|date',
+            'dob' => 'nullable|date|before:today',
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
             'location' => 'nullable|string|max:255',
@@ -79,6 +90,7 @@ class TeacherController extends Controller
             'name.regex' => 'Full Name (English) can only contain English letters, spaces, apostrophes, hyphens and periods.',
             'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
             'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
+            'email.regex' => 'Email can only contain standard English letters, numbers and symbols — no Khmer or other non-English characters.',
         ]);
 
         $imagePath = 'no-img.jpg';
@@ -144,12 +156,21 @@ class TeacherController extends Controller
             // Same reasoning as store(): plain email:rfc accepts a
             // dot-less domain like "gmail" as valid, so require a real,
             // resolvable domain too.
-            'email' => 'required|email:rfc,dns|max:255|unique:users,email,' . $id,
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                'max:255',
+                // Same reasoning as store(): email:rfc permits international
+                // (RFC 6531) addresses, so Khmer characters in the local part still
+                // pass it. Require plain ASCII so Khmer script is rejected.
+                'regex:/^[\x00-\x7F]+$/',
+                'unique:users,email,' . $id,
+            ],
             // Same reasoning as store(): require an actual phone-number
             // shape instead of accepting any string.
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'alternate_phone' => 'nullable|string|max:20',
-            'dob' => 'nullable|date',
+            'dob' => 'nullable|date|before:today',
             'gender' => 'required|in:male,female',
             'nationality' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:255',
@@ -180,6 +201,7 @@ class TeacherController extends Controller
             'name.regex' => 'Full Name (English) can only contain English letters, spaces, apostrophes, hyphens and periods.',
             'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
             'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
+            'email.regex' => 'Email can only contain standard English letters, numbers and symbols — no Khmer or other non-English characters.',
         ]);
 
         // Handle image upload
