@@ -41,6 +41,7 @@
             <table class="table search-table align-middle text-nowrap">
                 <thead class="header-item">
                     <tr>
+                        <th>No.</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
@@ -52,6 +53,7 @@
                 <tbody>
                     @forelse($staff as $member)
                         <tr class="search-items">
+                            <td>{{ $staff->firstItem() + $loop->index }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="{{ $member->image == '' || $member->image == 'no-img.jpg'
@@ -102,7 +104,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
+                            <td colspan="7" class="text-center py-4 text-muted">
                                 <i class="ti ti-users-off fs-6 me-1"></i>
                                 No staff found{{ request('search') ? ' for "' . request('search') . '"' : '' }}.
                             </td>
@@ -245,7 +247,7 @@
                                         <div class="mb-3">
                                             <label for="c-dob" class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" id="c-dob" name="dob" class="form-control"
-                                                value="{{ old('dob') }}">
+                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -387,7 +389,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Date of Birth</label>
-                                    <input type="date" name="dob" id="edit-dob" class="form-control">
+                                    <input type="date" name="dob" id="edit-dob" class="form-control" max="{{ date('Y-m-d') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -554,6 +556,12 @@
                 document.getElementById('edit-dob').value = this.dataset.dob ?? '';
                 document.getElementById('edit-location').value = this.dataset.location ?? '';
                 document.getElementById('edit-gender').value = this.dataset.gender ?? '';
+                // Password fields are for setting a NEW password and must never carry
+                // over whatever was typed (but not submitted) for a previously opened
+                // staff member's edit modal — otherwise their password could get
+                // silently overwritten with someone else's leftover input.
+                document.getElementById('edit-password').value = '';
+                document.getElementById('edit-password-confirm').value = '';
                 new bootstrap.Modal(document.getElementById('editContactModal')).show();
             });
         });

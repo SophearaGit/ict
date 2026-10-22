@@ -23,6 +23,12 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            // Only the student profile form submits these three — nullable so the
+            // instructor profile form (which doesn't have these fields at all)
+            // isn't affected by this shared request class.
+            'khmer_name' => ['nullable', 'string', 'max:255'],
+            'dob' => ['nullable', 'date', 'before:today'],
+            'nationality' => ['nullable', 'string', 'max:255'],
             'headline' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
             'bio' => ['nullable', 'string', 'max:255'],

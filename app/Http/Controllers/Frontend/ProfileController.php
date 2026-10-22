@@ -66,6 +66,15 @@ class ProfileController extends Controller
         }
 
         $user->name = $request->name;
+        // These three are only present on the student profile form, but the
+        // field was silently dropped here (validated nowhere, and never
+        // assigned to the model) so student edits to Khmer Name, Date of
+        // Birth, and Nationality never actually persisted — which is why
+        // the staff side kept showing the old values: there were no new
+        // values saved anywhere to show.
+        $user->khmer_name = $request->khmer_name;
+        $user->dob = $request->dob;
+        $user->nationality = $request->nationality;
         $user->headline = $request->headline;
         $user->email = $request->email;
         $user->gender = $request->gender;

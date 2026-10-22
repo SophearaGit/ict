@@ -86,6 +86,7 @@
             <table class="table search-table align-middle text-nowrap">
                 <thead class="header-item">
                     <tr>
+                        <th>No.</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
@@ -97,6 +98,7 @@
                 <tbody>
                     @forelse($instructors as $instructor)
                         <tr class="search-items">
+                            <td>{{ $instructors->firstItem() + $loop->index }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="{{ $instructor->image == 'no-img.jpg'
@@ -156,7 +158,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
+                            <td colspan="7" class="text-center py-4 text-muted">
                                 <i class="ti ti-users-off fs-6 me-1"></i>
                                 No teachers found{{ request('search') ? ' for "' . request('search') . '"' : '' }}.
                             </td>
@@ -321,7 +323,7 @@
                                         <div class="mb-3">
                                             <label for="c-dob" class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" id="c-dob" name="dob" class="form-control"
-                                                value="{{ old('dob') }}">
+                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -533,7 +535,7 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" name="dob" id="edit-dob" class="form-control"
-                                                value="{{ old('dob') }}">
+                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -900,6 +902,14 @@
         restrictToPattern('c-khmer-name', KHMER_NAME_CHAR);
         restrictToPattern('edit-name', ENGLISH_NAME_CHAR);
         restrictToPattern('edit-khmer-name', KHMER_NAME_CHAR);
+        // Email had no script restriction either, so it silently accepted
+        // Khmer characters (e.g. pasted from the Khmer name field) and the
+        // form would submit looking "filled in" even though it was never a
+        // real, deliverable address. Restrict it live to plain ASCII,
+        // mirroring the two restrictions above.
+        const EMAIL_CHAR = /[\x00-\x7F]/;
+        restrictToPattern('c-email', EMAIL_CHAR);
+        restrictToPattern('edit-email', EMAIL_CHAR);
         // ─── Delete ─────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-delete-teacher').forEach(function(btn) {
             btn.addEventListener('click', function() {

@@ -721,9 +721,14 @@
           <span class="status-pill {{ $course->status == 'active' ? 'open' : 'closed' }}">
           {{ strtoupper($course->status == 'active' ? 'Open' : 'Closed') }}
           </span>
-          <a href="{{ route('staff.courses.edit', $course->id) }}" class="btn btn-sm btn-light d-flex align-items-center gap-1" style="font-size:.78rem;">
-            <i class="ti ti-edit fs-5"></i> Edit
-          </a>
+          <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('staff.courses.index') }}" class="btn btn-sm btn-light d-flex align-items-center gap-1" style="font-size:.78rem;" title="Close and return to Courses">
+              <i class="ti ti-x fs-5"></i> Close
+            </a>
+            <a href="{{ route('staff.courses.edit', $course->id) }}" class="btn btn-sm btn-light d-flex align-items-center gap-1" style="font-size:.78rem;">
+              <i class="ti ti-edit fs-5"></i> Edit
+            </a>
+          </div>
         </div>
         <div class="course-hero__bottom">
           <div>

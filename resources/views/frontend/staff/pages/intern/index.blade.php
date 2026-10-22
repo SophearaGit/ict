@@ -39,6 +39,7 @@
             <table class="table search-table align-middle text-nowrap">
                 <thead class="header-item">
                     <tr>
+                        <th>No.</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
@@ -50,6 +51,7 @@
                 <tbody>
                     @forelse($interns as $intern)
                         <tr class="search-items">
+                            <td>{{ $interns->firstItem() + $loop->index }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="{{ $intern->image == '' || $intern->image == 'no-img.jpg'
@@ -235,7 +237,7 @@
                                         <div class="mb-3">
                                             <label for="c-dob" class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" id="c-dob" name="dob" class="form-control"
-                                                value="{{ old('dob') }}">
+                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -393,7 +395,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Date of Birth</label>
-                                    <input type="date" name="dob" id="edit-dob" class="form-control">
+                                    <input type="date" name="dob" id="edit-dob" class="form-control" max="{{ date('Y-m-d') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -547,6 +549,31 @@
             target.attr('type', isPassword ? 'text' : 'password');
             $(this).find('i').toggleClass('ti-eye ti-eye-off');
         });
+        // ─── Email Script Restriction ──────────────────────────────────────────────
+        // Email had no script restriction on either the Add or Edit form, so it
+        // silently accepted Khmer characters (e.g. pasted from the Khmer name
+        // field) and the form would submit looking "filled in" even though it was
+        // never a real, deliverable address. Strip non-ASCII characters live as
+        // the user types, same approach used on the Teacher Add/Edit forms.
+        function restrictToPattern(inputId, allowedCharsRegex) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.addEventListener('input', function() {
+                const cursor = this.selectionStart;
+                const before = this.value;
+                this.value = this.value.split('').filter(ch => allowedCharsRegex.test(ch)).join('');
+                const removed = before.length - this.value.length;
+                if (removed > 0 && cursor !== null) {
+                    this.setSelectionRange(cursor - removed, cursor - removed);
+                }
+            });
+        }
+        const EMAIL_CHAR = /[\x00-\x7F]/;
+        restrictToPattern('c-email', EMAIL_CHAR);
+        restrictToPattern('edit-email', EMAIL_CHAR);
+        const KHMER_CHAR = /[\u1780-\u17FF\s]/;
+        restrictToPattern('c-khmer-name', KHMER_CHAR);
+        restrictToPattern('edit-khmer-name', KHMER_CHAR);
         // ─── Delete ─────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-delete-intern').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -570,6 +597,12 @@
                 document.getElementById('edit-dob').value = this.dataset.dob ?? '';
                 document.getElementById('edit-location').value = this.dataset.location ?? '';
                 document.getElementById('edit-gender').value = this.dataset.gender ?? '';
+                // Password fields are for setting a NEW password and must never carry
+                // over whatever was typed (but not submitted) for a previously opened
+                // intern's edit modal — otherwise their password could get silently
+                // overwritten with someone else's leftover input.
+                document.getElementById('edit-password').value = '';
+                document.getElementById('edit-password-confirm').value = '';
                 new bootstrap.Modal(document.getElementById('editContactModal')).show();
             });
         });

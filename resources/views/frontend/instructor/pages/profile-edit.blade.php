@@ -123,8 +123,8 @@
                                     {{-- bio --}}
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="bio">Bio</label>
-                                        <input type="text" id="bio" name="bio" class="form-control"
-                                            placeholder="" value="{{ auth()->user()->bio }}" required="">
+                                        <textarea id="bio" name="bio" rows="4" class="form-control"
+                                            placeholder="" required="">{{ auth()->user()->bio }}</textarea>
                                         <div class="invalid-feedback">Please enter bio.</div>
                                         <x-input-error :messages="$errors->get('bio')" class="mt-2 text-danger" />
                                     </div>

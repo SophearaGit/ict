@@ -1106,6 +1106,12 @@
       `${(dataset.bio ?? '').length} / 1000`;
     document.getElementById('edit-image-preview').src = dataset.imageUrl ?? '';
     document.getElementById('edit-image-file').value = '';
+    // Password fields are for setting a NEW password and must never carry over
+    // whatever was typed (but not submitted) for a previously opened student's
+    // edit modal — otherwise their password could get silently overwritten
+    // with someone else's leftover input.
+    document.getElementById('edit-password').value = '';
+    document.getElementById('edit-password-confirm').value = '';
     new bootstrap.Modal(document.getElementById('editStudentModal')).show();
   }
   document.querySelectorAll('.btn-edit-student').forEach(function(btn) {
