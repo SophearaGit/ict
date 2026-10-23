@@ -6,13 +6,22 @@
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
 
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{{ route('staff.blogs.index') }}" class="btn btn-outline-secondary">
-            <i class="ti ti-arrow-left me-1"></i> Back to Blogs
+    <div class="blog-form-topbar">
+        <a href="{{ route('staff.blogs.index') }}" class="blog-form-back">
+            <i class="ti ti-arrow-left"></i> Back to Blogs
         </a>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="blog-form-heading">
+                <h1>Edit Blog Post</h1>
+                <p>{{ $blog->title }}</p>
+            </div>
+            <button type="submit" form="blog-form" class="blog-btn-save">
+                <i class="ti ti-check"></i> Update Blog
+            </button>
+        </div>
     </div>
 
-    <form method="POST" action="{{ route('staff.blogs.update', $blog) }}" enctype="multipart/form-data">
+    <form id="blog-form" method="POST" action="{{ route('staff.blogs.update', $blog) }}" enctype="multipart/form-data">
         @method('PUT')
         @include('frontend.staff.pages.blogs._form')
     </form>

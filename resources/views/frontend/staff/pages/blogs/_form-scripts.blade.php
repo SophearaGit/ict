@@ -49,7 +49,9 @@
             tinymce.init({
                 selector: '#content-editor',
                 height: 400,
+                width: '100%',
                 menubar: false,
+                toolbar_mode: 'wrap',
                 plugins: [
                     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                     'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
@@ -136,5 +138,30 @@
                 }
             });
         }
+
+        // --- Thumbnail dropzone: show the chosen filename ---
+        const thumbInput = document.getElementById('thumbnail-input');
+        const thumbFilenameEl = document.getElementById('thumbnail-filename');
+        if (thumbInput && thumbFilenameEl) {
+            thumbInput.addEventListener('change', function() {
+                if (thumbInput.files && thumbInput.files.length > 0) {
+                    thumbFilenameEl.textContent = thumbInput.files[0].name;
+                } else {
+                    thumbFilenameEl.textContent = 'Click to upload an image';
+                }
+            });
+        }
+
+        // --- Character counters (Excerpt / Meta Description) ---
+        document.querySelectorAll('[data-counter-for]').forEach(function(counterEl) {
+            const target = document.getElementById(counterEl.getAttribute('data-counter-for'));
+            const max = counterEl.getAttribute('data-max');
+            if (!target) return;
+            function updateCount() {
+                counterEl.textContent = target.value.length + ' / ' + max;
+            }
+            target.addEventListener('input', updateCount);
+            updateCount();
+        });
     });
 </script>
