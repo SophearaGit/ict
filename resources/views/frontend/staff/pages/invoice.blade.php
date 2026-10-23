@@ -4,17 +4,27 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap');
 
-        /* ── TOOLBAR ── */
+        /* ── ACTION ROW: stat cards + toolbar, side by side so the
+           buttons aren't floating alone in their own row ── */
+        .inv-action-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: stretch;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
         .inv-toolbar {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 14px;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
         }
 
         .inv-toolbar-btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 7px;
             padding: 9px 16px;
             border-radius: 10px;
@@ -22,6 +32,7 @@
             font-weight: 600;
             font-family: 'DM Sans', sans-serif;
             text-decoration: none;
+            white-space: nowrap;
             transition: all 0.15s;
         }
 
@@ -48,11 +59,18 @@
             color: #fff;
         }
 
-        @media (max-width: 575.98px) {
-            .inv-toolbar {
-                margin-bottom: 10px;
+        @media (max-width: 991.98px) {
+            .inv-action-row {
+                grid-template-columns: 1fr;
             }
 
+            .inv-toolbar {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 575.98px) {
             .inv-toolbar-btn {
                 padding: 8px 12px;
                 font-size: 12px;
@@ -62,9 +80,8 @@
         /* ── SUMMARY STATS ── */
         .inv-stat-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
-            margin-bottom: 20px;
         }
 
         .inv-stat-card {
@@ -146,13 +163,17 @@
 
         @media (max-width: 1199.98px) {
             .inv-stat-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (max-width: 575.98px) {
             .inv-stat-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .inv-action-row {
                 gap: 10px;
                 margin-bottom: 14px;
             }
@@ -679,21 +700,14 @@
         ]);
     @endphp
 
-    {{-- ── TOOLBAR ── --}}
-    <div class="inv-toolbar">
-        <a href="{{ route('staff.invoices.export', $exportParams) }}" class="inv-toolbar-btn inv-toolbar-btn-outline">
-            <i class="ti ti-download"></i> <span class="d-none d-sm-inline">Export CSV</span>
-        </a>
-        <a href="{{ route('staff.student.registration') }}" class="inv-toolbar-btn inv-toolbar-btn-solid">
-            <i class="ti ti-user-plus"></i> <span class="d-none d-sm-inline">Register Student</span>
-        </a>
-    </div>
-
-    {{-- ── SUMMARY STATS ── --}}
-    {{-- Each card is a link into the same filters the chips below use, so
-         staff can jump straight from "12 awaiting payment" to that exact
-         list without re-finding it manually. --}}
-    <div class="inv-stat-grid">
+    {{-- ── SUMMARY STATS + TOOLBAR ── --}}
+    {{-- Each stat card is a link into the same filters the chips below use,
+         so staff can jump straight from "12 awaiting payment" to that exact
+         list without re-finding it manually. The toolbar sits beside the
+         stats (not floating alone above them) so Export/Register read as
+         actions tied to this summary, not a disconnected header bar. --}}
+    <div class="inv-action-row">
+        <div class="inv-stat-grid">
         <a href="{{ route('staff.invoices') }}"
             class="inv-stat-card {{ is_null($curStatus) ? 'active' : '' }}"
             style="--accent:#4f46e5;--accent-tint:#f5f4ff;">
@@ -727,17 +741,17 @@
                 <div class="inv-stat-label">Awaiting Payment</div>
             </div>
         </a>
-        <a href="{{ route('staff.invoices', ['status' => 'awaiting']) }}"
-            class="inv-stat-card {{ $curStatus === 'awaiting' ? 'active' : '' }}"
-            style="--accent:#dc2626;--accent-tint:#fff5f5;">
-            <div class="inv-stat-icon" style="background:#fee2e2;color:#dc2626;">
-                <i class="ti ti-cash-banknote"></i>
-            </div>
-            <div class="inv-stat-info">
-                <div class="inv-stat-value">${{ number_format($outstanding_total ?? 0, 2) }}</div>
-                <div class="inv-stat-label">Outstanding Balance</div>
-            </div>
-        </a>
+        </div>
+
+        <div class="inv-toolbar">
+            <a href="{{ route('staff.invoices.export', $exportParams) }}"
+                class="inv-toolbar-btn inv-toolbar-btn-outline">
+                <i class="ti ti-download"></i> <span class="d-none d-sm-inline">Export CSV</span>
+            </a>
+            <a href="{{ route('staff.student.registration') }}" class="inv-toolbar-btn inv-toolbar-btn-solid">
+                <i class="ti ti-user-plus"></i> <span class="d-none d-sm-inline">Register Student</span>
+            </a>
+        </div>
     </div>
 
     <div class="card invoice-application" style="border-radius:16px;">
