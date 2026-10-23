@@ -185,6 +185,7 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
          * INVOICES
          *******************************************************/
         Route::get('/invoices', [IctInvoiceController::class, 'invoices'])->name('invoices');
+        Route::get('/invoices/export', [IctInvoiceController::class, 'exportCsv'])->name('invoices.export');
         Route::get('/invoice-detail/{invoice_id}', [IctInvoiceController::class, 'getInvoiceDetail'])->name('invoice.detail');
         Route::put('/invoice/{invoice_id}/confirm-payment', [IctInvoiceController::class, 'updatePayment'])->name('invoice.confirm-payment');
         Route::delete('/invoice/{invoice_id}', [IctInvoiceController::class, 'destroy'])->name('invoice.destroy');

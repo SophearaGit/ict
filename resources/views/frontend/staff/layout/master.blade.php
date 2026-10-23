@@ -103,6 +103,178 @@
         .text-dark-warning {
             color: #92400e !important;
         }
+
+        /* ============================================================
+         * Page Header Card ("ph-*") -- shared banner used across every
+         * staff page (Student Management, Invoices, Courses, etc).
+         * Built on the active Able Pro theme's CSS variables
+         * (--bs-primary / --bs-info / --bs-light-info-rgb /
+         * --bs-heading-color) so it still looks right if the theme
+         * color is switched from the header's theme picker.
+         * ============================================================ */
+        .ph-card {
+            position: relative;
+            overflow: hidden;
+            border: none;
+            box-shadow: none;
+            border-radius: 16px;
+            background:
+                radial-gradient(130% 180% at 100% -10%, rgba(var(--bs-primary-rgb), 0.16) 0%, rgba(var(--bs-primary-rgb), 0) 55%),
+                linear-gradient(120deg, rgba(var(--bs-light-info-rgb), 1) 0%, rgba(var(--bs-light-primary-rgb), 0.9) 100%);
+            animation: phFadeIn 0.45s ease both;
+        }
+
+        .ph-card::before,
+        .ph-card::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .ph-card::before {
+            width: 220px;
+            height: 220px;
+            right: 10%;
+            top: -100px;
+            background: rgba(var(--bs-primary-rgb), 0.14);
+            filter: blur(8px);
+        }
+
+        .ph-card::after {
+            width: 140px;
+            height: 140px;
+            right: 26%;
+            bottom: -80px;
+            background: rgba(var(--bs-info-rgb), 0.16);
+            filter: blur(4px);
+        }
+
+        .ph-body {
+            position: relative;
+            z-index: 1;
+            padding: 22px 28px;
+        }
+
+        .ph-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .ph-title h4 {
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.01em;
+            color: var(--bs-heading-color);
+        }
+
+        .ph-title-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+            color: #fff;
+            font-size: 17px;
+            box-shadow: 0 8px 16px -6px rgba(var(--bs-primary-rgb), 0.55);
+        }
+
+        .ph-breadcrumb {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.8125rem;
+        }
+
+        .ph-breadcrumb li {
+            display: flex;
+            align-items: center;
+        }
+
+        .ph-breadcrumb a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--bs-body-color);
+            text-decoration: none;
+            padding: 3px 6px;
+            border-radius: 6px;
+            transition: color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .ph-breadcrumb a:hover {
+            color: var(--bs-primary);
+            background: rgba(var(--bs-primary-rgb), 0.08);
+        }
+
+        .ph-sep {
+            display: inline-flex;
+            align-items: center;
+            color: rgba(var(--bs-body-color-rgb), 0.45);
+            font-size: 0.7rem;
+            margin: 0 1px;
+        }
+
+        .ph-current {
+            display: inline-flex;
+            font-weight: 600;
+            color: var(--bs-primary);
+            background: rgba(var(--bs-primary-rgb), 0.1);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .ph-illustration {
+            position: relative;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ph-illustration .ph-disc {
+            position: absolute;
+            width: 118px;
+            height: 118px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85), rgba(var(--bs-primary-rgb), 0.1) 70%);
+        }
+
+        .ph-illustration img {
+            position: relative;
+            max-height: 128px;
+            width: auto;
+            filter: drop-shadow(0 14px 18px rgba(var(--bs-primary-rgb), 0.25));
+        }
+
+        @keyframes phFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .ph-body {
+                padding: 18px 18px;
+            }
+
+            .ph-title h4 {
+                font-size: 1.2rem;
+            }
+        }
     </style>
     @stack('styles')
 </head>
