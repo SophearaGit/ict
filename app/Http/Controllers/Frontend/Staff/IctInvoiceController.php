@@ -169,7 +169,6 @@ class IctInvoiceController extends Controller
             'unpaid_count' => $unpaidCount,
             'free_count' => $freeCount,
             'awaiting_count' => $halfPaidCount + $unpaidCount,
-            'outstanding_total' => (float) ICTInvoice::whereIn('payment_status', ['unpaid', 'half_paid'])->sum('remaining_amount'),
         ]);
     }
     /**
