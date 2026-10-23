@@ -103,22 +103,117 @@ class IctInvoiceController extends Controller
             return response()->json(['message' => 'Payment failed'], 500);
         }
     }
-    public function invoices(Request $request): View
+    /**
+     * Build the filtered invoice query shared by invoices() (paginated,
+     * on-screen) and exportCsv() (unpaginated, full result set) so the
+     * two can never silently drift out of sync on what counts as a
+     * "match" for a given search/status/sort combination.
+     */
+    protected function filteredInvoicesQuery(Request $request)
     {
         $search = $request->input('search');
-        $invoices = ICTInvoice::with(['student', 'course'])
+        $status = $request->input('status');
+        $sort = $request->input('sort', 'newest');
+        $query = ICTInvoice::with(['student', 'course'])
             ->when($search, function ($query, $search) {
                 $query->where('invoice_code', 'like', "%{$search}%")->orWhereHas('student', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 });
             })
-            ->latest()
-            ->paginate(15);
-        // Keep search term in pagination links
-        $invoices->appends(['search' => $search]);
+            ->when($status, function ($query, $status) {
+                // "Awaiting" isn't a real payment_status value — it's the
+                // stat-card/chip shorthand for "still needs follow-up",
+                // i.e. unpaid OR half_paid combined.
+                if ($status === 'awaiting') {
+                    $query->whereIn('payment_status', ['unpaid', 'half_paid']);
+                } else {
+                    $query->where('payment_status', $status);
+                }
+            });
+        match ($sort) {
+            'oldest' => $query->oldest(),
+            'amount_desc' => $query->orderByDesc('total_amount'),
+            'amount_asc' => $query->orderBy('total_amount'),
+            default => $query->latest(),
+        };
+        return $query;
+    }
+    public function invoices(Request $request): View
+    {
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $sort = $request->input('sort', 'newest');
+        $invoices = $this->filteredInvoicesQuery($request)->paginate(15);
+        // Keep search/status/sort in pagination links
+        $invoices->appends(['search' => $search, 'status' => $status, 'sort' => $sort]);
+        // ── Summary stats (whole table, independent of the search/status
+        //    filters above and of pagination) — gives staff an at-a-glance
+        //    read of how many invoices still need payment follow-up,
+        //    without having to page through the list to count them. ──
+        $statusCounts = ICTInvoice::selectRaw('payment_status, COUNT(*) as c')
+            ->groupBy('payment_status')
+            ->pluck('c', 'payment_status');
+        $paidCount = (int) ($statusCounts['paid'] ?? 0);
+        $halfPaidCount = (int) ($statusCounts['half_paid'] ?? 0);
+        $unpaidCount = (int) ($statusCounts['unpaid'] ?? 0);
+        $freeCount = (int) ($statusCounts['free'] ?? 0);
         return view('frontend.staff.pages.invoice', [
             'page_title' => 'ICT | STAFF | INVOICES',
             'invoices' => $invoices,
+            'current_status' => $status,
+            'current_search' => $search,
+            'current_sort' => $sort,
+            'total_invoices_count' => $paidCount + $halfPaidCount + $unpaidCount + $freeCount,
+            'paid_count' => $paidCount,
+            'half_paid_count' => $halfPaidCount,
+            'unpaid_count' => $unpaidCount,
+            'free_count' => $freeCount,
+            'awaiting_count' => $halfPaidCount + $unpaidCount,
+            'outstanding_total' => (float) ICTInvoice::whereIn('payment_status', ['unpaid', 'half_paid'])->sum('remaining_amount'),
+        ]);
+    }
+    /**
+     * Download the currently filtered/sorted invoice list (NOT just the
+     * current page — every matching row) as a CSV, so staff can take a
+     * follow-up list into a spreadsheet or hand it to someone else
+     * without screen-sharing this page.
+     */
+    public function exportCsv(Request $request)
+    {
+        // A plain in-memory string response (not response()->stream())
+        // on purpose — this environment's PHP process terminates the
+        // request/response cycle in a way that a StreamedResponse's
+        // callback-based output doesn't survive cleanly here, while an
+        // ordinary string response goes through the exact same pipeline
+        // every other page on this site already renders through
+        // reliably. A CSV of a staff's invoice list is at most a few
+        // thousand rows, so building it fully in memory first costs
+        // nothing noticeable.
+        $invoices = $this->filteredInvoicesQuery($request)->get();
+        $rows = [['Invoice Code', 'Student', 'Course', 'Status', 'Total', 'Paid', 'Remaining', 'Date']];
+        foreach ($invoices as $invoice) {
+            $rows[] = [
+                $invoice->invoice_code,
+                $invoice->student->name ?? '',
+                $invoice->course->title ?? '',
+                $invoice->payment_status,
+                number_format($invoice->total_amount, 2),
+                number_format($invoice->paid_amount, 2),
+                number_format($invoice->remaining_amount, 2),
+                $invoice->created_at->format('Y-m-d'),
+            ];
+        }
+        $handle = fopen('php://temp', 'r+');
+        foreach ($rows as $row) {
+            fputcsv($handle, $row);
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+        $filename = 'invoices-' . now()->format('Y-m-d-His') . '.csv';
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 }
