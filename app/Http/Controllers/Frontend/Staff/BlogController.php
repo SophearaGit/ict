@@ -21,6 +21,18 @@ class BlogController extends Controller
 
     public function index(Request $request): View
     {
+        // Whole-table status counts (independent of the search/type filters
+        // below and of pagination) power the clickable summary stat cards,
+        // so staff get an at-a-glance read of how many posts are
+        // draft/scheduled/published without paging through the list.
+        $statusCounts = Blog::query()
+            ->selectRaw('status, COUNT(*) as c')
+            ->groupBy('status')
+            ->pluck('c', 'status');
+        $publishedCount = (int) ($statusCounts['published'] ?? 0);
+        $draftCount = (int) ($statusCounts['draft'] ?? 0);
+        $scheduledCount = (int) ($statusCounts['scheduled'] ?? 0);
+
         $data = [
             'page_title' => 'Blogs',
             'blogs' => Blog::query()
@@ -31,6 +43,13 @@ class BlogController extends Controller
                 ->latest()
                 ->paginate(15)
                 ->withQueryString(),
+            'current_search' => $request->input('search'),
+            'current_status' => $request->input('status'),
+            'current_type' => $request->input('type'),
+            'total_count' => $publishedCount + $draftCount + $scheduledCount,
+            'published_count' => $publishedCount,
+            'draft_count' => $draftCount,
+            'scheduled_count' => $scheduledCount,
         ];
 
         return view('frontend.staff.pages.blogs.index', $data);
