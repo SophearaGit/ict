@@ -7,16 +7,17 @@
         </div>
         <div class="modal-body">
             <div class="mb-3">
-                <label class="form-label">Report Content</label>
-                <textarea name="report_content" id="report_content" class="form-control" rows="7"></textarea>
+                <label class="report-modal-label">Report Content</label>
+                <textarea name="report_content" id="report_content" class="form-control report-modal-textarea"
+                    rows="7"></textarea>
                 <div class="invalid-feedback d-block report_content_error"></div>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-light-danger text-danger" data-bs-dismiss="modal">
+            <button type="button" class="report-modal-btn-cancel" data-bs-dismiss="modal">
                 Close
             </button>
-            <button type="submit" class="btn btn-primary submit_report_btn">
+            <button type="submit" class="report-modal-btn-submit submit_report_btn">
                 <span class="btn-text">Submit Report</span>
                 <span class="spinner-border spinner-border-sm d-none" role="status"></span>
             </button>

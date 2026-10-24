@@ -49,6 +49,17 @@ class IctStaffReportController extends Controller
     public function index(Request $request): View
     {
         $perPage = $request->integer('per_page', 10);
+
+        // Whole-table status counts for the current staff member's own
+        // reports (independent of the status filter/pagination below) power
+        // the clickable summary stat cards.
+        $statusCounts = ICTStaffReport::where('reported_by', Auth::id())
+            ->selectRaw('status, COUNT(*) as c')
+            ->groupBy('status')
+            ->pluck('c', 'status');
+        $pendingCount = (int) ($statusCounts['pending'] ?? 0);
+        $reviewedCount = (int) ($statusCounts['reviewed'] ?? 0);
+
         $reports = ICTStaffReport::where('reported_by', Auth::id())
             ->when($request->filled('status'), function ($query) use ($request) {
                 $query->where('status', $request->status);
@@ -68,6 +79,9 @@ class IctStaffReportController extends Controller
         return view('frontend.staff.pages.report.report', [
             'page_title' => 'ICT | Staff | Reports',
             'reports' => $reports,
+            'total_count' => $pendingCount + $reviewedCount,
+            'pending_count' => $pendingCount,
+            'reviewed_count' => $reviewedCount,
         ]);
     }
 

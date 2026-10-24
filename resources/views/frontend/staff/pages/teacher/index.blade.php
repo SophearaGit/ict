@@ -3,31 +3,645 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <style>
+        /* ============ Toolbar / action row ============ */
+        .teacher-action-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .teacher-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .teacher-search-form {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .teacher-search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #e7e8f0;
+            border-radius: 12px;
+            padding: 0 14px;
+            height: 46px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .teacher-search-wrap:focus-within {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+        }
+
+        .teacher-search-wrap i {
+            color: #9397ab;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .teacher-search-input.form-control {
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            height: auto;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .teacher-search-input.form-control:focus {
+            box-shadow: none;
+        }
+
+        .teacher-view-toggle {
+            display: flex;
+            background: #f6f7fb;
+            border-radius: 12px;
+            padding: 4px;
+            border: none;
+            gap: 2px;
+        }
+
+        .teacher-view-toggle .view-btn {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            transition: background .15s, color .15s;
+        }
+
+        .teacher-view-toggle .view-btn.active {
+            background: #fff;
+            color: #1a1a2e;
+            box-shadow: 0 1px 4px rgba(20, 20, 43, .08);
+        }
+
+        .teacher-view-toggle .view-btn:hover:not(.active) {
+            color: #1a1a2e;
+        }
+
+        .teacher-add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0f0e17;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 22px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: background .15s;
+            text-decoration: none;
+        }
+
+        .teacher-add-btn:hover {
+            background: #2749c4;
+            color: #fff;
+        }
+
+        .teacher-add-btn i {
+            font-size: 17px;
+        }
+
+        @media (max-width: 991.98px) {
+            .teacher-action-row {
+                grid-template-columns: 1fr;
+            }
+
+            .teacher-toolbar-left {
+                width: 100%;
+            }
+
+            .teacher-search-form {
+                width: 100%;
+            }
+
+            .teacher-add-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .teacher-toolbar-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .teacher-view-toggle {
+                align-self: flex-start;
+            }
+        }
+
+        /* ============ List view: card + table ============ */
+        .teacher-list-card {
+            background: #fff;
+            border: 1px solid #f0f1f5;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(20, 20, 43, .04);
+            padding: 8px;
+            overflow: hidden;
+        }
+
+        .teacher-table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table.teacher-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        table.teacher-table thead th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #8b8fa3;
+            font-weight: 700;
+            border: none;
+            padding: 14px 16px;
+            background: transparent;
+            white-space: nowrap;
+        }
+
+        table.teacher-table tbody tr {
+            border-top: 1px solid #f3f4f8;
+            transition: background .12s;
+        }
+
+        table.teacher-table tbody tr:hover {
+            background: #fafafe;
+        }
+
+        table.teacher-table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border: none;
+            font-size: 14px;
+            color: #2b2d3d;
+        }
+
+        table.teacher-table .user-name {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a2e;
+        }
+
+        table.teacher-table .user-work {
+            font-size: 12.5px;
+        }
+
+        table.teacher-table img.rounded-circle {
+            border: 2px solid #f0f1f5;
+        }
+
+        table.teacher-table .badge.rounded-pill {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 5px 12px;
+        }
+
+        table.teacher-table .bg-light-primary {
+            background: #eef0fd !important;
+            color: #4f46e5 !important;
+        }
+
+        table.teacher-table .bg-light-danger {
+            background: #fee2e2 !important;
+            color: #dc2626 !important;
+        }
+
+        table.teacher-table .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        table.teacher-table .action-btn a {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            color: #6b7280 !important;
+            transition: background .15s, color .15s;
+        }
+
+        table.teacher-table .action-btn a.btn-edit-teacher:hover {
+            background: #eef0fd;
+            color: #4f46e5 !important;
+        }
+
+        table.teacher-table .action-btn a.btn-delete-teacher:hover {
+            background: #fee2e2;
+            color: #dc2626 !important;
+        }
+
+        #view-list .text-center.text-muted {
+            padding: 56px 20px !important;
+        }
+
+        #view-list .ti-users-off {
+            font-size: 40px;
+            color: #c7cbe0;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        /* ============ Grid view cards ============ */
+        #view-grid .card {
+            border: 1px solid #f0f1f5 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 2px 10px rgba(20, 20, 43, .04) !important;
+            transition: box-shadow .15s, transform .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        #view-grid .card:hover {
+            box-shadow: 0 8px 24px rgba(20, 20, 43, .08) !important;
+            transform: translateY(-2px);
+        }
+
+        #view-grid .card img.rounded-circle {
+            border: 3px solid #f6f7fb !important;
+            box-shadow: none !important;
+        }
+
+        #view-grid .card h6 {
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        #view-grid .card .badge.rounded-pill {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        #view-grid .card .bg-light-primary {
+            background: #eef0fd !important;
+            color: #4f46e5 !important;
+        }
+
+        #view-grid .card .bg-light-danger {
+            background: #fee2e2 !important;
+            color: #dc2626 !important;
+        }
+
+        #view-grid .card .card-footer {
+            border-top: 1px solid #f3f4f8 !important;
+        }
+
+        #view-grid .card .card-footer .btn {
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 12.5px;
+        }
+
+        #view-grid .card .card-footer .btn-outline-info {
+            border-color: #d7dafa;
+            color: #4f46e5;
+        }
+
+        #view-grid .card .card-footer .btn-outline-info:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            color: #fff;
+        }
+
+        #view-grid .card .card-footer .btn-outline-danger {
+            border-color: #fbd0d0;
+            color: #dc2626;
+        }
+
+        #view-grid .card .card-footer .btn-outline-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #fff;
+        }
+
+        #view-grid .text-center.text-muted .ti-users-off {
+            color: #c7cbe0;
+        }
+
+        /* ============ Modals: Add / Edit / Crop / Delete ============ */
+        #addContactModal .modal-content,
+        #editContactModal .modal-content,
+        #cropModal .modal-content,
+        #deleteTeacherModal .modal-content {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        #addContactModal .modal-header,
+        #editContactModal .modal-header,
+        #cropModal .modal-header,
+        #deleteTeacherModal .modal-header {
+            border-bottom: 1px solid #f0f1f5;
+            padding: 20px 24px;
+        }
+
+        #addContactModal .modal-title,
+        #editContactModal .modal-title,
+        #cropModal .modal-title,
+        #deleteTeacherModal .modal-title {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: #1a1a2e;
+        }
+
+        #addContactModal .modal-body,
+        #editContactModal .modal-body {
+            padding: 24px;
+        }
+
+        #addContactModal .modal-footer,
+        #editContactModal .modal-footer,
+        #cropModal .modal-footer,
+        #deleteTeacherModal .modal-footer {
+            border-top: 1px solid #f0f1f5;
+            padding: 16px 24px;
+        }
+
+        #addContactModal .form-label,
+        #editContactModal .form-label {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            color: #3d3f52;
+            margin-bottom: 6px;
+        }
+
+        #addContactModal .form-control,
+        #addContactModal .form-select,
+        #editContactModal .form-control,
+        #editContactModal .form-select {
+            border: 1px solid #e7e8f0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: #1a1a2e;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        #addContactModal .form-control:focus,
+        #addContactModal .form-select:focus,
+        #editContactModal .form-control:focus,
+        #editContactModal .form-select:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+        }
+
+        #addContactModal textarea.form-control,
+        #editContactModal textarea.form-control {
+            resize: vertical;
+        }
+
+        /* Footer buttons */
+        #addContactModal .modal-footer .btn,
+        #editContactModal .modal-footer .btn,
+        #cropModal .modal-footer .btn,
+        #deleteTeacherModal .modal-footer .btn {
+            border-radius: 999px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 10px 22px;
+            border: none;
+        }
+
+        #addContactModal .modal-footer .btn-success,
+        #editContactModal .modal-footer .btn-success {
+            background: #0f0e17;
+            color: #fff;
+        }
+
+        #addContactModal .modal-footer .btn-success:hover,
+        #editContactModal .modal-footer .btn-success:hover {
+            background: #2749c4;
+        }
+
+        #addContactModal .modal-footer .btn-danger,
+        #editContactModal .modal-footer .btn-danger,
+        #deleteTeacherModal .modal-footer .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        #addContactModal .modal-footer .btn-danger:hover,
+        #editContactModal .modal-footer .btn-danger:hover,
+        #deleteTeacherModal .modal-footer .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .teacher-btn-ghost-danger.btn-danger {
+            background: #fff !important;
+            color: #dc2626 !important;
+            border: 1px solid #fbd0d0 !important;
+        }
+
+        .teacher-btn-ghost-danger.btn-danger:hover {
+            background: #fee2e2 !important;
+        }
+
+        #deleteTeacherModal .modal-footer .btn-secondary,
+        #cropModal .modal-footer .btn-secondary {
+            background: #f6f7fb;
+            color: #3d3f52;
+        }
+
+        #deleteTeacherModal .modal-footer .btn-secondary:hover,
+        #cropModal .modal-footer .btn-secondary:hover {
+            background: #eceefa;
+        }
+
+        #cropModal .modal-footer .btn-primary {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        #cropModal .modal-footer .btn-primary:hover {
+            background: #3c35b5;
+        }
+
+        /* Password toggle + input-group */
+        #addContactModal .input-group .form-control,
+        #editContactModal .input-group .form-control {
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        #addContactModal .toggle-password,
+        #editContactModal .toggle-password {
+            border: 1px solid #e7e8f0;
+            border-left: none;
+            background: #fff;
+            color: #8b8fa3;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        #addContactModal .toggle-password:hover,
+        #editContactModal .toggle-password:hover {
+            color: #4f46e5;
+        }
+
+        /* Edit tabs — segmented pill bar */
+        .edit-tabs {
+            border-bottom: none;
+            background: #f6f7fb;
+            border-radius: 12px;
+            padding: 4px;
+            display: inline-flex;
+            gap: 2px;
+            flex-wrap: wrap;
+        }
+
+        .edit-tabs .nav-item {
+            margin: 0;
+        }
+
         .edit-tabs .nav-link {
-            color: #6c757d;
-            font-weight: 500;
+            border: none;
+            border-radius: 9px;
+            padding: 8px 16px;
+            font-family: 'DM Sans', sans-serif;
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 13.5px;
         }
 
         .edit-tabs .nav-link.active {
-            color: #0d6efd;
-            font-weight: 600;
+            background: #fff;
+            color: #1a1a2e;
+            box-shadow: 0 1px 4px rgba(20, 20, 43, .08);
+        }
+
+        .edit-tabs .nav-link:hover:not(.active) {
+            color: #1a1a2e;
+        }
+
+        @media (max-width: 575.98px) {
+            .edit-tabs {
+                display: flex;
+                width: 100%;
+            }
+
+            .edit-tabs .nav-item {
+                flex: 1;
+            }
+
+            .edit-tabs .nav-link {
+                width: 100%;
+                text-align: center;
+                padding: 8px 8px;
+                font-size: 12.5px;
+            }
+        }
+
+        /* Expertise chip list */
+        #edit-expertise-list {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+            margin: 0 0 8px;
+            border: none;
         }
 
         #edit-expertise-list .list-group-item {
-            padding: .5rem .75rem;
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 100%;
+            border: 1px solid #e0e3f3;
+            border-radius: 20px;
+            background: #f6f7fd;
+            padding: 6px 8px 6px 14px;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: #1a1a2e;
         }
 
+        #edit-expertise-list .btn-remove-expertise {
+            border: none;
+            background: #fff;
+            color: #8b8fa3;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            padding: 0;
+        }
+
+        #edit-expertise-list .btn-remove-expertise:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        #btn-add-expertise {
+            border-radius: 0 10px 10px 0;
+            border: 1px solid #d7dafa;
+            border-left: none;
+            color: #4f46e5;
+            background: #fff;
+            font-weight: 600;
+        }
+
+        #btn-add-expertise:hover {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        #edit-expertise-input {
+            border-radius: 10px 0 0 10px;
+        }
+
+        /* Image preview + crop */
         #edit-image-preview-wrap {
             width: 72px;
             height: 72px;
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            border: 1px solid #dee2e6;
+            border: 2px solid #f0f1f5;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f8f9fa;
+            background: #f6f7fb;
         }
 
         #edit-image-preview-wrap img {
@@ -39,52 +653,53 @@
         #crop-target-wrap {
             max-height: 420px;
             overflow: hidden;
+            border-radius: 12px;
         }
 
         #crop-target-wrap img {
             max-width: 100%;
             display: block;
         }
+
+        /* Delete modal */
+        #deleteTeacherModal .ti-alert-triangle {
+            color: #f59e0b !important;
+        }
     </style>
 @endpush
 @section('content')
     @include('frontend.staff.pages.partials.breadcrumb')
     {{-- Toolbar --}}
-    <div class="card card-body">
-        <div class="row align-items-center">
-            <div class="col-md-4 col-xl-3">
-                <form method="GET" action="{{ route('staff.teacher.index') }}" id="search-form">
-                    <div class="position-relative">
-                        <input type="text" name="search" class="form-control product-search ps-5"
-                            placeholder="Search Teachers..." value="{{ request('search') }}">
-                        <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
-                    </div>
-                </form>
-            </div>
-            <div
-                class="col-md-8 col-xl-9 d-flex justify-content-md-end justify-content-center align-items-center gap-2 mt-3 mt-md-0">
-                {{-- View Toggle --}}
-                <div class="btn-group" role="group" id="view-toggle">
-                    <button type="button" class="btn btn-outline-secondary view-btn active" data-view="list"
-                        title="List View">
-                        <i class="ti ti-list fs-5"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary view-btn" data-view="grid" title="Grid View">
-                        <i class="ti ti-layout-grid fs-5"></i>
-                    </button>
+    <div class="teacher-action-row">
+        <div class="teacher-toolbar-left">
+            <form method="GET" action="{{ route('staff.teacher.index') }}" id="search-form"
+                class="teacher-search-form">
+                <div class="teacher-search-wrap">
+                    <i class="ti ti-search"></i>
+                    <input type="text" name="search" class="form-control teacher-search-input"
+                        placeholder="Search Teachers..." value="{{ request('search') }}">
                 </div>
-                <a href="javascript:void(0)" id="btn-add-contact" class="btn btn-info d-flex align-items-center"
-                    data-bs-toggle="modal" data-bs-target="#addContactModal">
-                    <i class="ti ti-users text-white me-1 fs-5"></i> Add Teacher
-                </a>
+            </form>
+            {{-- View Toggle --}}
+            <div class="btn-group teacher-view-toggle" role="group" id="view-toggle">
+                <button type="button" class="btn view-btn active" data-view="list" title="List View">
+                    <i class="ti ti-list fs-5"></i>
+                </button>
+                <button type="button" class="btn view-btn" data-view="grid" title="Grid View">
+                    <i class="ti ti-layout-grid fs-5"></i>
+                </button>
             </div>
         </div>
+        <a href="javascript:void(0)" id="btn-add-contact" class="teacher-add-btn" data-bs-toggle="modal"
+            data-bs-target="#addContactModal">
+            <i class="ti ti-user-plus"></i> Add Teacher
+        </a>
     </div>
     {{-- LIST VIEW --}}
-    <div id="view-list" class="card card-body">
-        <div class="table-responsive">
-            <table class="table search-table align-middle text-nowrap">
-                <thead class="header-item">
+    <div id="view-list" class="teacher-list-card">
+        <div class="teacher-table-scroll">
+            <table class="table teacher-table align-middle">
+                <thead>
                     <tr>
                         <th>No.</th>
                         <th>Name</th>
@@ -97,7 +712,7 @@
                 </thead>
                 <tbody>
                     @forelse($instructors as $instructor)
-                        <tr class="search-items">
+                        <tr>
                             <td>{{ $instructors->firstItem() + $loop->index }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
@@ -415,7 +1030,7 @@
                         onclick="document.getElementById('addContactModalTitle').submit();">
                         <i class="ti ti-user-plus me-1"></i> Add Teacher
                     </button>
-                    <button class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">
+                    <button class="btn btn-danger teacher-btn-ghost-danger rounded-pill px-4" data-bs-dismiss="modal">
                         <i class="ti ti-x me-1"></i> Discard
                     </button>
                 </div>
@@ -761,7 +1376,7 @@
                         onclick="document.getElementById('editTeacherForm').submit();">
                         <i class="ti ti-device-floppy me-1"></i> Save Changes
                     </button>
-                    <button class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal">
+                    <button class="btn btn-danger teacher-btn-ghost-danger rounded-pill px-4" data-bs-dismiss="modal">
                         <i class="ti ti-x me-1"></i> Discard
                     </button>
                 </div>
