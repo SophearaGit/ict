@@ -2,6 +2,22 @@
 @section('page_title', isset($page_title) ? $page_title : 'Page Title Here')
 @php
     $status = $course->studentReports->first()?->approval_status;
+
+    // "Back to courses" should return the admin to the exact list state
+    // they came from (search, status/month/sort filters, schedule
+    // checkboxes, pagination page) instead of a bare/reset index URL —
+    // otherwise every click into a course forces them to re-apply their
+    // filters from scratch. Laravel records the previous *full* request
+    // URL in the session automatically for normal (non-AJAX) GET
+    // requests, so when the admin arrived here from the courses list its
+    // query string is still right there in url()->previous(). Only fall
+    // back to a bare index link when the previous page wasn't actually
+    // the courses list (e.g. a bookmarked/direct link to this page).
+    $coursesIndexUrl = route('admin.courses.realtime.index');
+    $previousUrl = url()->previous();
+    $backToCoursesUrl = parse_url($previousUrl, PHP_URL_PATH) === parse_url($coursesIndexUrl, PHP_URL_PATH)
+        ? $previousUrl
+        : $coursesIndexUrl;
 @endphp
 @push('styles')
     {{-- The old "Student's Attendance" tab (daily mark/view grid) was removed —
@@ -25,7 +41,7 @@
                 <div class="col-xl-7 col-lg-7 col-md-12">
                     <div>
                         {{-- button going back --}}
-                        <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-sm btn-light mb-4">
+                        <a href="{{ $backToCoursesUrl }}" class="btn btn-sm btn-light mb-4">
                             <i class="fe fe-arrow-left me-2"></i>
                             Back to courses
                         </a>
