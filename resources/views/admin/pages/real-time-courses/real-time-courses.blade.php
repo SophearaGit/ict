@@ -13,6 +13,13 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .schedule-header:hover {
+    background-color: var(--gk-list-group-action-hover-bg);
+  }
+  .schedule-card:has(.schedule-checkbox:checked) .schedule-header {
+    background-color: rgba(117, 79, 254, .1);
   }
   .schedule-body {
     padding: 12px 16px;
@@ -36,6 +43,52 @@
   }
   .schedule-header[aria-expanded="true"] .arrow {
     transform: rotate(180deg);
+  }
+
+  /* ── Toolbar: let filter controls wrap instead of overflowing on narrow screens ── */
+  .courses-toolbar-controls {
+    flex-wrap: wrap;
+  }
+  .courses-toolbar-controls > div:not(:first-child) {
+    flex: 1 1 130px;
+    min-width: 110px;
+  }
+  .courses-toolbar-controls .form-select {
+    width: 100% !important;
+  }
+
+  /* ── Grid card: status-colored top accent ── */
+  .course-card {
+    border-top-width: 3px;
+    border-top-style: solid;
+  }
+  .course-card-active {
+    border-top-color: var(--gk-success);
+  }
+  .course-card-inactive {
+    border-top-color: var(--gk-danger);
+  }
+  .course-card-draft {
+    border-top-color: var(--gk-warning);
+  }
+
+  /* ── Mobile list card (List tab, below md) ── */
+  .course-list-card {
+    padding: 1rem 1.25rem;
+    transition: background-color .15s ease;
+  }
+  .course-list-card:hover {
+    background-color: var(--gk-list-group-action-hover-bg);
+  }
+  .course-list-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .5rem;
+  }
+  .course-list-card-grid .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
   }
 </style>
 @endpush
@@ -132,20 +185,22 @@
         @endif
       </div>
       {{-- Controls --}}
-      <div class="d-flex align-items-end gap-2 flex-nowrap">
+      <div class="d-flex align-items-end gap-2 courses-toolbar-controls">
         {{-- Grid / List toggle --}}
-        <div class="nav btn-group flex-nowrap" role="tablist">
-          <button class="btn btn-outline-secondary active" data-bs-toggle="tab" data-bs-target="#tabPaneGrid" role="tab" aria-controls="tabPaneGrid" aria-selected="true" data-tab="grid">
+        <div class="nav btn-group flex-shrink-0" role="tablist">
+          <button class="btn btn-outline-secondary active" data-bs-toggle="tab" data-bs-target="#tabPaneGrid" role="tab" aria-controls="tabPaneGrid" aria-selected="true" data-tab="grid" title="Grid view">
             <span class="fe fe-grid"></span>
           </button>
-          <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList" role="tab" aria-controls="tabPaneList" aria-selected="false" tabindex="-1" data-tab="list">
+          <button class="btn btn-outline-secondary" data-bs-toggle="tab" data-bs-target="#tabPaneList" role="tab" aria-controls="tabPaneList" aria-selected="false" tabindex="-1" data-tab="list" title="List view">
             <span class="fe fe-list"></span>
           </button>
         </div>
         {{-- Month filter --}}
         <div class="d-flex flex-column">
-          <label for="monthFilter" class="form-label small text-muted mb-1">Month</label>
-          <select id="monthFilter" class="form-select flex-shrink-0" style="width:auto;">
+          <label for="monthFilter" class="form-label small text-muted mb-1">
+            <i class="fe fe-calendar me-1"></i>Month
+          </label>
+          <select id="monthFilter" class="form-select flex-shrink-0">
             <option value="">All Months</option>
             @foreach (range(1, 12) as $m)
             <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
@@ -156,8 +211,10 @@
         </div>
         {{-- Sort filter --}}
         <div class="d-flex flex-column">
-          <label for="sortFilter" class="form-label small text-muted mb-1">Sort by</label>
-          <select id="sortFilter" class="form-select flex-shrink-0" style="width:auto;">
+          <label for="sortFilter" class="form-label small text-muted mb-1">
+            <i class="fe fe-bar-chart-2 me-1"></i>Sort by
+          </label>
+          <select id="sortFilter" class="form-select flex-shrink-0">
             <option value="">Default</option>
             <option value="start_asc" {{ request('sort_by') == 'start_asc' ? 'selected' : '' }}>
               Start Date ↑
@@ -181,8 +238,10 @@
         </div>
         {{-- Status filter --}}
         <div class="d-flex flex-column">
-          <label for="statusFilter" class="form-label small text-muted mb-1">Status</label>
-          <select id="statusFilter" class="form-select flex-shrink-0" style="width:auto;">
+          <label for="statusFilter" class="form-label small text-muted mb-1">
+            <i class="fe fe-flag me-1"></i>Status
+          </label>
+          <select id="statusFilter" class="form-select flex-shrink-0">
             <option value="" {{ request('status') == '' ? 'selected' : '' }}>All Status</option>
             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Open</option>
             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Closed
@@ -197,7 +256,12 @@
   <div class="col-xl-3 col-lg-3 col-md-4 col-12 mb-4 mb-lg-0">
     <div class="card">
       <div class="card-header">
-        <h4 class="mb-0">Filter by Schedule</h4>
+        <h4 class="mb-0 d-flex align-items-center gap-2">
+          <span class="icon-shape icon-sm rounded-circle bg-light-primary text-primary">
+            <i class="fe fe-filter"></i>
+          </span>
+          Filter by Schedule
+        </h4>
       </div>
       <div class="card-body">
         <form id="scheduleFilterForm" method="GET" action="{{ route('admin.courses.realtime.index') }}">
@@ -268,8 +332,17 @@
           <div class="px-4">
             <div class="row">
               @forelse ($courses as $course)
+              @php
+              $courseCardAccent = in_array($course->status, ['active', 'inactive', 'draft']) ? $course->status : 'inactive';
+              $statusMap = [
+              'active' => ['label' => 'OPEN', 'class' => 'bg-success-soft text-success', 'icon' => 'fe-check-circle'],
+              'inactive' => ['label' => 'CLOSED', 'class' => 'bg-danger-soft text-danger', 'icon' => 'fe-x-circle'],
+              'draft' => ['label' => 'DRAFT', 'class' => 'bg-warning-soft text-warning', 'icon' => 'fe-edit-3'],
+              ];
+              $statusInfo = $statusMap[$course->status] ?? ['label' => ucfirst($course->status), 'class' => 'bg-secondary-soft text-secondary', 'icon' => 'fe-help-circle'];
+              @endphp
               <div class="col-lg-4 col-md-6 col-12">
-                <div class="card mb-4 card-hover">
+                <div class="card mb-4 card-hover course-card course-card-{{ $courseCardAccent }}">
                   <a href="{{ route('admin.courses.realtime.show', $course->id) }}">
                     <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}" alt="course" class="card-img-top" style="height:180px; object-fit:cover;">
                   </a>
@@ -277,7 +350,6 @@
                     <h4 class="mb-2 text-truncate-line-2">
                       <a href="{{ route('admin.courses.realtime.show', $course->id) }}" class="text-inherit">{{ $course->title }}</a>
                     </h4>
-                    {{-- Instructor --}}
                     {{-- Instructor --}}
                     <div class="d-flex align-items-center justify-content-between mb-2">
                       <div class="d-flex align-items-center gap-2">
@@ -293,19 +365,19 @@
                       @endif
                     </div>
                     <div class="d-flex justify-content-between border-bottom py-2">
-                      <span>Class Start</span>
+                      <span><i class="fe fe-play-circle me-1 text-muted"></i>Class Start</span>
                       <span class="text-dark">
                       {{ $course->start_date ? $course->start_date->format('M d, Y') : '—' }}
                       </span>
                     </div>
                     <div class="d-flex justify-content-between border-bottom py-2">
-                      <span>Class End</span>
+                      <span><i class="fe fe-flag me-1 text-muted"></i>Class End</span>
                       <span class="text-dark">
                       {{ $course->end_date ? $course->end_date->format('M d, Y') : '—' }}
                       </span>
                     </div>
                     <div class="d-flex justify-content-between border-bottom py-2">
-                      <span>Schedule</span>
+                      <span><i class="fe fe-calendar me-1 text-muted"></i>Schedule</span>
                       <span class="text-dark text-end">
                                                         <div class="fw-semibold">{{ $course->schedule->short_days }}</div>
                                                         <div class="text-muted small">
@@ -316,27 +388,21 @@
                     </span>
                   </div>
                   <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                    <span>Status</span>
-                    <span>
-                                                        @if ($course->status == 'active')
-                                                            <span class="badge bg-success">OPEN</span>
-                    @elseif ($course->status == 'inactive')
-                    <span class="badge bg-danger">CLOSED</span>
-                    @elseif ($course->status == 'draft')
-                    <span class="badge bg-info text-white">DRAFT</span>
-                    @endif
+                    <span><i class="fe fe-activity me-1 text-muted"></i>Status</span>
+                    <span class="badge {{ $statusInfo['class'] }} d-inline-flex align-items-center gap-1">
+                      <i class="fe {{ $statusInfo['icon'] }}"></i>{{ $statusInfo['label'] }}
                     </span>
                   </div>
                   <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Students</span>
+                    <span><i class="fe fe-users me-1 text-muted"></i>Students</span>
                     <span class="text-dark">{{ $course->enrollments_count }}</span>
                   </div>
                   <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                    <span>Revenue</span>
+                    <span><i class="fe fe-dollar-sign me-1 text-muted"></i>Revenue</span>
                     <span
                                                         class="text-dark fw-semibold">${{ number_format($course->total_revenue ?? 0, 2) }}</span>
                   </div>
-                  <div class="d-flex justify-content-between pt-2">
+                  <div class="d-flex justify-content-between align-items-center pt-2">
                     <span>Full Price</span>
                     <span
                                                         class="badge bg-primary fs-6 px-3 py-2  fw-semibold">${{ number_format($course->price, 2) }}</span>
@@ -348,7 +414,9 @@
             <div class="col-12">
               <div class="card mb-4">
                 <div class="card-body text-center py-5">
-                  <i class="fe fe-inbox" style="font-size:2.5rem; color:#9ca3af;"></i>
+                  <div class="icon-shape icon-lg rounded-circle bg-light-secondary text-secondary mx-auto mb-3">
+                    <i class="fe fe-inbox fs-3"></i>
+                  </div>
                   <h3 class="mt-3 mb-2">No courses found</h3>
                   <p class="text-muted mb-4">Try adjusting your search or filters.</p>
                   <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-secondary">
@@ -383,8 +451,8 @@
             <input type="hidden" name="month" value="{{ request('month') }}">
           </form>
         </div>
-        {{-- Table --}}
-        <div class="table-responsive border-0">
+        {{-- Desktop / tablet (>= md): table --}}
+        <div class="table-responsive border-0 d-none d-md-block">
           <table class="table mb-0 text-nowrap table-centered table-hover">
             <thead class="table-light">
               <tr>
@@ -401,6 +469,14 @@
             </thead>
             <tbody>
               @forelse ($courses as $course)
+              @php
+              $statusMap = [
+              'active' => ['label' => 'OPEN', 'class' => 'bg-success-soft text-success', 'icon' => 'fe-check-circle'],
+              'inactive' => ['label' => 'CLOSED', 'class' => 'bg-danger-soft text-danger', 'icon' => 'fe-x-circle'],
+              'draft' => ['label' => 'DRAFT', 'class' => 'bg-warning-soft text-warning', 'icon' => 'fe-edit-3'],
+              ];
+              $statusInfo = $statusMap[$course->status] ?? ['label' => ucfirst($course->status), 'class' => 'bg-secondary-soft text-secondary', 'icon' => 'fe-help-circle'];
+              @endphp
               <tr>
                 <td>
                   <div class="d-flex align-items-center">
@@ -443,19 +519,17 @@
                                                     class="badge bg-primary fs-6 px-2 py-1">${{ number_format($course->price, 2) }}</span>
                 </td>
                 <td>
-                  @if ($course->status == 'active')
-                  <span class="badge bg-success">OPEN</span>
-                  @elseif ($course->status == 'inactive')
-                  <span class="badge bg-danger">CLOSED</span>
-                  @elseif ($course->status == 'draft')
-                  <span class="badge bg-info text-white">DRAFT</span>
-                  @endif
+                  <span class="badge {{ $statusInfo['class'] }} d-inline-flex align-items-center gap-1">
+                    <i class="fe {{ $statusInfo['icon'] }}"></i>{{ $statusInfo['label'] }}
+                  </span>
                 </td>
               </tr>
               @empty
               <tr>
                 <td colspan="9" class="text-center py-5">
-                  <i class="fe fe-inbox" style="font-size:2.5rem; color:#9ca3af;"></i>
+                  <div class="icon-shape icon-lg rounded-circle bg-light-secondary text-secondary mx-auto mb-3">
+                    <i class="fe fe-inbox fs-3"></i>
+                  </div>
                   <h3 class="mt-3 mb-2">No courses found</h3>
                   <p class="text-muted mb-4">Try adjusting your search or filters.</p>
                   <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-secondary">
@@ -466,6 +540,79 @@
               @endforelse
             </tbody>
           </table>
+        </div>
+        {{-- Mobile (< md): stacked cards --}}
+        <div class="d-md-none">
+          @forelse ($courses as $course)
+          @php
+          $statusMap = [
+          'active' => ['label' => 'OPEN', 'class' => 'bg-success-soft text-success', 'icon' => 'fe-check-circle'],
+          'inactive' => ['label' => 'CLOSED', 'class' => 'bg-danger-soft text-danger', 'icon' => 'fe-x-circle'],
+          'draft' => ['label' => 'DRAFT', 'class' => 'bg-warning-soft text-warning', 'icon' => 'fe-edit-3'],
+          ];
+          $statusInfo = $statusMap[$course->status] ?? ['label' => ucfirst($course->status), 'class' => 'bg-secondary-soft text-secondary', 'icon' => 'fe-help-circle'];
+          @endphp
+          <div class="course-list-card border-bottom">
+            <div class="d-flex gap-3 mb-2">
+              <img src="{{ asset($course->thumbnail == '' ? '/default-images/staff/no-course-img.png' : $course->thumbnail) }}" alt="" class="rounded flex-shrink-0" style="width:72px;height:54px;object-fit:cover;">
+              <div class="flex-grow-1 min-w-0">
+                <h5 class="mb-1 text-truncate-line-2">
+                  <a href="{{ route('admin.courses.realtime.show', $course->id) }}" class="text-inherit">{{ $course->title }}</a>
+                </h5>
+                <div class="d-flex align-items-center gap-2 small text-muted">
+                  <img src="{{ asset($course->instructor->image == 'no-img.jpg' ? '/default-images/user/both.jpg' : $course->instructor->image) }}" class="rounded-circle flex-shrink-0" style="height:18px;width:18px;object-fit:cover;" alt="">
+                  <span class="text-truncate">{{ $course->instructor ? $course->instructor->name : 'N/A' }}</span>
+                  @if ($course->telegram_group_link)
+                  <a href="{{ $course->telegram_group_link }}" target="_blank" rel="noopener" class="text-info flex-shrink-0" title="Open Telegram group">
+                    <i class="fe fe-send"></i>
+                  </a>
+                  @endif
+                </div>
+              </div>
+              <span class="badge {{ $statusInfo['class'] }} flex-shrink-0 align-self-start d-inline-flex align-items-center gap-1">
+                <i class="fe {{ $statusInfo['icon'] }}"></i>{{ $statusInfo['label'] }}
+              </span>
+            </div>
+            <div class="small text-muted mb-2">
+              <i class="fe fe-calendar me-1"></i>{{ $course->schedule->short_days }}
+              <span class="badge bg-light text-dark ms-1">{{ $course->schedule->shift_label }}</span>
+              {{ $course->schedule->formatted_time }}
+            </div>
+            <div class="course-list-card-grid small mb-2">
+              <div>
+                <div class="label text-muted">Start</div>
+                <div class="fw-semibold">{{ $course->start_date ? $course->start_date->format('M d, Y') : '—' }}</div>
+              </div>
+              <div>
+                <div class="label text-muted">End</div>
+                <div class="fw-semibold">{{ $course->end_date ? $course->end_date->format('M d, Y') : '—' }}</div>
+              </div>
+              <div>
+                <div class="label text-muted">Students</div>
+                <div class="fw-semibold">{{ $course->enrollments_count }}</div>
+              </div>
+              <div>
+                <div class="label text-muted">Revenue</div>
+                <div class="fw-semibold">${{ number_format($course->total_revenue ?? 0, 2) }}</div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">Full Price</span>
+              <span class="badge bg-primary fs-6 px-2 py-1">${{ number_format($course->price, 2) }}</span>
+            </div>
+          </div>
+          @empty
+          <div class="text-center py-5">
+            <div class="icon-shape icon-lg rounded-circle bg-light-secondary text-secondary mx-auto mb-3">
+              <i class="fe fe-inbox fs-3"></i>
+            </div>
+            <h3 class="mt-3 mb-2">No courses found</h3>
+            <p class="text-muted mb-4">Try adjusting your search or filters.</p>
+            <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-secondary">
+              Reset Filters
+            </a>
+          </div>
+          @endforelse
         </div>
         <div class="card-footer">
           @include('admin.pages.real-time-courses.partials.pagination')

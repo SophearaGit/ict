@@ -184,6 +184,62 @@
         .scc-stat-green {
             color: #0d7a43;
         }
+
+        /* ── Mobile sidebar: overlay instead of push ─────────────────────────
+           On phones, the theme pushes #page-content by the sidebar's width
+           when the hamburger menu is toggled open (#db-wrapper.toggled),
+           but #page-content keeps min-width:100vw with no matching width
+           reduction, so content runs off-screen. The sidebar (.navbar-vertical)
+           is already position:fixed, so instead of shrinking the page to fit
+           a ~250px push on a ~390px screen, we keep #page-content in place
+           and let the sidebar overlay it — same pattern the theme's own
+           .offcanvas-backdrop class is built for (wired up below in scripts).
+           z-index keeps the sidebar above that backdrop while open. */
+        @media (max-width: 740px) {
+            #db-wrapper.toggled #page-content {
+                margin-left: 0;
+            }
+
+            #db-wrapper.toggled .navbar-vertical {
+                z-index: 1045;
+            }
+        }
+
+        /* ── Stat card accent ─────────────────────────────────────────────────
+           Thin top-border accent per card, colored with the theme's own CSS
+           variables (--gk-primary / --gk-info / --gk-success / --gk-warning)
+           so it always matches the active theme/dark-mode palette exactly. */
+        .stat-card {
+            border-top-width: 3px;
+            border-top-style: solid;
+        }
+
+        .stat-card-primary {
+            border-top-color: var(--gk-primary);
+        }
+
+        .stat-card-info {
+            border-top-color: var(--gk-info);
+        }
+
+        .stat-card-success {
+            border-top-color: var(--gk-success);
+        }
+
+        .stat-card-warning {
+            border-top-color: var(--gk-warning);
+        }
+
+        /* ── List-group item hover ────────────────────────────────────────────
+           Popular Teachers / Recent Courses / Activity rows: subtle hover
+           affordance using the theme's own list-group-item-action tokens. */
+        .dash-list-item {
+            transition: background-color .15s ease;
+        }
+
+        .dash-list-item:hover {
+            background-color: var(--gk-list-group-action-hover-bg, var(--gk-light));
+        }
     </style>
 @endpush
 @section('content')
@@ -192,8 +248,8 @@
         <div class="col-12">
             <div class="border-bottom pb-3 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h1 class="mb-0 h2 fw-bold">Dashboard</h1>
-                <form method="GET" action="{{ route('admin.dashboard') }}" class="d-flex align-items-center gap-2"
-                    id="month-filter-form">
+                <form method="GET" action="{{ route('admin.dashboard') }}"
+                    class="d-flex align-items-center gap-2 flex-wrap" id="month-filter-form">
                     {{-- Prev button --}}
                     <button class="btn btn-sm btn-outline-secondary px-2" type="button" id="prev-month"
                         aria-label="Previous month">
@@ -208,7 +264,7 @@
                         <i class="fe fe-chevron-right"></i>
                     </button>
                     <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="fe fe-filter me-1"></i> Filter
+                        <i class="fe fe-filter me-1"></i> <span class="d-none d-sm-inline">Filter</span>
                     </button>
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary"
                         title="Reset to current month">
@@ -222,11 +278,13 @@
     <div class="row g-4 mb-4">
         {{-- Sales --}}
         <div class="col-xl-3 col-lg-6 col-md-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover stat-card stat-card-primary">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fs-6 text-uppercase fw-semibold ls-md text-muted">Sales</span>
-                        <span class="fe fe-shopping-bag fs-3 text-primary"></span>
+                        <div class="icon-shape icon-md rounded-circle bg-light-primary text-primary">
+                            <i class="fe fe-shopping-bag"></i>
+                        </div>
                     </div>
                     <h2 class="fw-bold mb-1">${{ $total_revenue }}</h2>
                     <span class="{{ $is_up ? 'text-success' : 'text-danger' }} fw-semibold">
@@ -239,11 +297,13 @@
         </div>
         {{-- Courses --}}
         <div class="col-xl-3 col-lg-6 col-md-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover stat-card stat-card-info">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fs-6 text-uppercase fw-semibold ls-md text-muted">Courses</span>
-                        <span class="fe fe-book-open fs-3 text-primary"></span>
+                        <div class="icon-shape icon-md rounded-circle bg-light-info text-info">
+                            <i class="fe fe-book-open"></i>
+                        </div>
                     </div>
                     <h2 class="fw-bold mb-1">{{ $total_courses }}</h2>
                     <span class="text-info fw-semibold">{{ $pending_courses }}</span>
@@ -253,14 +313,15 @@
         </div>
         {{-- Students --}}
         <div class="col-xl-3 col-lg-6 col-md-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover stat-card stat-card-success">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fs-6 text-uppercase fw-semibold ls-md text-muted">Students</span>
-                        <button type="button" class="btn btn-ghost btn-icon rounded-circle p-0 border-0"
-                            style="width: 32px; height: 32px;" data-bs-toggle="modal"
-                            data-bs-target="#studentsQuickViewModal" title="Quick view students">
-                            <span class="fe fe-users fs-3 text-primary"></span>
+                        <button type="button"
+                            class="icon-shape icon-md rounded-circle bg-light-success text-success border-0 p-0"
+                            data-bs-toggle="modal" data-bs-target="#studentsQuickViewModal"
+                            title="Quick view students">
+                            <i class="fe fe-users"></i>
                         </button>
                     </div>
                     <h2 class="fw-bold mb-1">{{ $total_students }}</h2>
@@ -273,11 +334,13 @@
         </div>
         {{-- Instructors --}}
         <div class="col-xl-3 col-lg-6 col-md-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover stat-card stat-card-warning">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fs-6 text-uppercase fw-semibold ls-md text-muted">Instructors</span>
-                        <span class="fe fe-user-check fs-3 text-primary"></span>
+                        <div class="icon-shape icon-md rounded-circle bg-light-warning text-warning">
+                            <i class="fe fe-user-check"></i>
+                        </div>
                     </div>
                     <h2 class="fw-bold mb-1">{{ $total_instructors }}</h2>
                     <span class="text-success fw-semibold">
@@ -293,14 +356,18 @@
         <div class="col-12">
             <div class="card mb-0">
                 <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="icon-shape icon-sm rounded-circle bg-light-primary text-primary">
+                            <i class="fe fe-calendar"></i>
+                        </div>
                         <h4 class="mb-0">Today's Schedule</h4>
-                        <span class="badge bg-primary rounded-pill">{{ now()->format('l, F j, Y') }}</span>
+                        <span class="badge bg-primary-soft text-primary rounded-pill d-none d-sm-inline">{{ now()->format('l, F j, Y') }}</span>
+                        <span class="badge bg-primary-soft text-primary rounded-pill d-sm-none">{{ now()->format('M j') }}</span>
                         @if (!$todays_courses->isEmpty())
-                            <span class="badge bg-secondary rounded-pill">{{ $todays_courses->count() }} courses</span>
+                            <span class="badge bg-secondary-soft text-secondary rounded-pill">{{ $todays_courses->count() }} courses</span>
                         @endif
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
                         {{-- View toggle --}}
                         <div class="btn-group" role="group" aria-label="View toggle" id="schedule-view-toggle">
                             <button type="button" class="btn btn-sm btn-outline-secondary active" id="btn-list-view"
@@ -313,14 +380,17 @@
                             </button>
                         </div>
                         <a href="{{ route('admin.courses.realtime.index') }}"
-                            class="btn btn-outline-secondary btn-sm">View
-                            all</a>
+                            class="btn btn-outline-secondary btn-sm">
+                            View all <i class="fe fe-arrow-right ms-1"></i>
+                        </a>
                     </div>
                 </div>
                 <div class="card-body p-0" id="schedule-body">
                     @if ($todays_courses->isEmpty())
                         <div class="text-center text-muted py-5">
-                            <i class="fe fe-calendar fs-2 d-block mb-2"></i>
+                            <div class="icon-shape icon-lg rounded-circle bg-light-secondary text-secondary mx-auto mb-3">
+                                <i class="fe fe-calendar fs-3"></i>
+                            </div>
                             <p class="mb-0 small">No courses scheduled for today</p>
                         </div>
                     @else
@@ -514,15 +584,20 @@
     <div class="row g-4 mt-0 ">
         {{-- Popular Teachers --}}
         <div class="col-xl-4 col-lg-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Popular Teachers</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="icon-shape icon-sm rounded-circle bg-light-primary text-primary">
+                            <i class="fe fe-award"></i>
+                        </div>
+                        <h4 class="mb-0">Popular Teachers</h4>
+                    </div>
                     <a href="{{ route('admin.instructor.index') }}" class="btn btn-outline-secondary btn-sm">View all</a>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($new_instructors_list as $index => $instructor)
-                            <li class="list-group-item px-4 py-3">
+                            <li class="list-group-item dash-list-item px-4 py-3">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="avatar avatar-md flex-shrink-0">
                                         <img alt="{{ $instructor['name'] }}" src="{{ $instructor['image'] }}"
@@ -570,16 +645,21 @@
         </div>
         {{-- Recent Courses --}}
         <div class="col-xl-4 col-lg-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Recent Courses</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="icon-shape icon-sm rounded-circle bg-light-info text-info">
+                            <i class="fe fe-book"></i>
+                        </div>
+                        <h4 class="mb-0">Recent Courses</h4>
+                    </div>
                     <a href="{{ route('admin.courses.realtime.index') }}" class="btn btn-outline-secondary btn-sm">View
                         all</a>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($recent_courses as $index => $course)
-                            <li class="list-group-item px-4 py-3">
+                            <li class="list-group-item dash-list-item px-4 py-3">
                                 <div class="d-flex align-items-center gap-3">
                                     <a href="{{ route('admin.courses.realtime.show', $course['id']) }}">
                                         <img src="{{ $course['thumbnail'] }}" alt="{{ $course['title'] }}"
@@ -625,11 +705,16 @@
         </div>
         {{-- Activity --}}
         <div class="col-xl-4 col-lg-12">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 card-hover">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Activity</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="icon-shape icon-sm rounded-circle bg-light-warning text-warning">
+                            <i class="fe fe-bell"></i>
+                        </div>
+                        <h4 class="mb-0">Activity</h4>
+                    </div>
                     @if (auth('admin')->user()->unreadNotifications->count())
-                        <span class="badge bg-danger rounded-pill">
+                        <span class="badge bg-danger-soft text-danger rounded-pill">
                             {{ auth('admin')->user()->unreadNotifications->count() }} new
                         </span>
                     @endif
@@ -637,7 +722,7 @@
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($activities as $activity)
-                            <li class="list-group-item px-4 py-3">
+                            <li class="list-group-item dash-list-item px-4 py-3">
                                 <div class="d-flex align-items-start gap-3">
                                     <div
                                         class="avatar avatar-md flex-shrink-0
@@ -675,8 +760,11 @@
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl"> {{-- was modal-lg --}}
             <div class="modal-content">
-                <div class="modal-header">
-                    <div class="d-flex align-items-center gap-2">
+                <div class="modal-header flex-wrap gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="icon-shape icon-sm rounded-circle bg-light-success text-success">
+                            <i class="fe fe-users"></i>
+                        </div>
                         <h5 class="modal-title mb-0" id="studentsQuickViewLabel">
                             Students Registered
                         </h5>
@@ -684,10 +772,10 @@
                             ({{ \Carbon\Carbon::createFromFormat('Y-m', $selected_month)->format('F Y') }})
                         </span>
                         @if (!$new_students_list->isEmpty())
-                            <span class="badge bg-secondary rounded-pill">{{ $new_students_list->count() }}</span>
+                            <span class="badge bg-secondary-soft text-secondary rounded-pill">{{ $new_students_list->count() }}</span>
                         @endif
                     </div>
-                    <div class="d-flex align-items-center gap-2 ms-auto me-2">
+                    <div class="d-flex align-items-center gap-2 ms-sm-auto me-2">
                         <div class="btn-group" role="group" aria-label="Students view toggle"
                             id="students-view-toggle">
                             <button type="button" class="btn btn-sm btn-outline-secondary active"
@@ -848,6 +936,7 @@
                 </div>
             </div>
         </div>
+    </div>
     @endsection
     @push('scripts')
         <script src="https://npmcdn.com/flatpickr/dist/plugins/monthSelect/index.js"></script>
@@ -927,7 +1016,7 @@
                 const btnGrid = document.getElementById('btn-grid-view');
                 const listView = document.getElementById('schedule-list-view');
                 const gridView = document.getElementById('schedule-grid-view');
-                if (!btnList || !btnGrid) return; // no courses — elements don't exist
+                if (!btnList || !btnGrid || !listView || !gridView) return; // no courses — list/grid containers don't exist
                 const STORAGE_KEY = 'dashboard_schedule_view';
 
                 function setView(mode) {
@@ -953,6 +1042,32 @@
                 setView(saved);
                 btnList.addEventListener('click', () => setView('list'));
                 btnGrid.addEventListener('click', () => setView('grid'));
+            })();
+            // ── Mobile sidebar backdrop (tap outside to close) ─────────────────────
+            // Pairs with the overlay CSS above: reuses the theme's own
+            // .offcanvas-backdrop class, no new styling introduced.
+            (function() {
+                const wrapper = document.getElementById('db-wrapper');
+                if (!wrapper) return;
+                let backdrop = null;
+
+                function sync() {
+                    const open = wrapper.classList.contains('toggled') && window.innerWidth <= 740;
+                    if (open && !backdrop) {
+                        backdrop = document.createElement('div');
+                        backdrop.className = 'offcanvas-backdrop show';
+                        backdrop.addEventListener('click', () => wrapper.classList.remove('toggled'));
+                        document.body.appendChild(backdrop);
+                    } else if (!open && backdrop) {
+                        backdrop.remove();
+                        backdrop = null;
+                    }
+                }
+                new MutationObserver(sync).observe(wrapper, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+                window.addEventListener('resize', sync);
             })();
         </script>
     @endpush
