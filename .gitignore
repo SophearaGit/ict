@@ -26,3 +26,4 @@ pushraa.bat
 pullmaster.bat
 /public/sample
 /Claude outputs
+*.code-workspace
