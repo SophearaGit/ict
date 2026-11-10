@@ -17,7 +17,6 @@ class StaffController extends Controller
             'page_title' => 'ICT | ADMIN | STAFFS',
             'staffs' => User::whereIn('role', ['staff', 'unknown'])
                 ->where('approval_status', 'approved')
-                ->whereNotNull('document')
                 ->when($request->filled('search'), function ($query) use ($request): void {
                     $query->where(function ($q) use ($request) {
                         $q->where('name', 'like', "%{$request->search}%")
@@ -26,7 +25,7 @@ class StaffController extends Controller
                 })
                 ->withCount('reports')
                 ->latest()
-                ->paginate(12)
+                ->paginate(16)
                 ->withQueryString(),
         ];
         return view('admin.pages.user.staff.staff', $data);
