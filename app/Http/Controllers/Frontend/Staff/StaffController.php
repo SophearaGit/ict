@@ -20,7 +20,7 @@ class StaffController extends Controller
                 $query->where('name', 'like', "%{$request->search}%");
             })
             ->latest()
-            ->paginate(8)
+            ->paginate(16)
             ->withQueryString();
         return view('frontend.staff.pages.staff.index', [
             'page_title' => 'ICT | STAFF | STAFF',

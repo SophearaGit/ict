@@ -1,0 +1,958 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 3
+/Kids [ 4 0 R 10 0 R 13 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Contents 5 0 R
+/MediaBox [ 0 0 595.2756 841.8898 ]
+/Resources <<
+/Font <<
+/F1 6 0 R
+/F1-0 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+>>
+/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Annots [ ]
+/Parent 2 0 R
+>>
+endobj
+5 0 obj
+<<
+/Length 7756
+>>
+stream
+q
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.862745 .894118 .945098 RG
+n 48.18898 39.68504 m 547.0866 39.68504 l S
+BT /F1 8 Tf 9.6 TL ET
+.407843 .466667 .560784 rg
+BT 1 0 0 1 48.18898 25.51181 Tm (SuppleCare | Project listing preparation) Tj T* ET
+BT 1 0 0 1 542.6386 25.51181 Tm (1) Tj T* ET
+Q
+q
+1 0 0 1 54.18898 761.5354 cm
+q
+.137255 .231373 .407843 rg
+BT 1 0 0 1 0 5 Tm /F2 24 Tf 29 TL 90.07682 0 Td (SuppleCare Project Listing) Tj T* -90.07682 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 745.5354 cm
+q
+.407843 .466667 .560784 rg
+BT 1 0 0 1 0 4 Tm /F3 9 Tf 13 TL 132.4068 0 Td (Ready-to-enter content for the ICT Center Projects form) Tj T* -132.4068 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 712.5354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Project details) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 526.5354 cm
+q
+.917647 .941176 .988235 rg
+n 0 180 121.8898 -180 re f*
+.972549 .980392 .992157 rg
+n 121.8898 180 411.0236 -180 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 8 162.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Project Title) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 162 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (SuppleCare - Supplement Schedule and Wellness Tracker) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 138.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Category) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 138 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Suggested: Web Application / Health Technology \(select the closest available category\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 114.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Short Excerpt) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 102 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (A bilingual supplement schedule and wellness tracker with reminders, meal planning, health check-ins,) Tj T* (and progress insights.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 78.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Build Duration) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 78 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Not stated in the repository. Enter the actual project duration.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 54.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Status) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 54 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Draft until public demo links, screenshots, and project details are reviewed.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 30.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Featured) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 30 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Off unless the project owner wants it highlighted.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 6.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Featured Label) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 6 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Leave blank unless featured; optional label: Featured Project.) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.862745 .894118 .945098 RG
+.4 w
+n 0 180 m 532.9134 180 l S
+n 0 0 m 532.9134 0 l S
+n 0 0 m 0 180 l S
+n 532.9134 0 m 532.9134 180 l S
+.35 w
+n 0 156 m 532.9134 156 l S
+n 0 132 m 532.9134 132 l S
+n 0 96 m 532.9134 96 l S
+n 0 72 m 532.9134 72 l S
+n 0 48 m 532.9134 48 l S
+n 0 24 m 532.9134 24 l S
+n 121.8898 0 m 121.8898 180 l S
+Q
+Q
+Q
+q
+1 0 0 1 54.18898 519.5354 cm
+Q
+q
+1 0 0 1 54.18898 492.5354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Project overview) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 419.0354 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 58.2 Tm /F1 9.3 Tf 13.5 TL (SuppleCare is a web application that helps people organize their daily supplement routines and related wellness) Tj T* (habits. Users can build a schedule, mark doses as taken, receive reminders, plan meals for the week, record daily) Tj T* (health check-ins, and review adherence over time. The interface supports English and Khmer. A separate) Tj T* (administrator area manages user accounts, the supplement catalog, spacing rules, starter meal plans, and) Tj T* (administrator accounts.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 392.0354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Problem statement) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 332.0354 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 44.7 Tm /F1 9.3 Tf 13.5 TL (People who take several supplements may have difficulty remembering doses, keeping a consistent routine, and) Tj T* (tracking whether they followed their schedule. Product information and timing guidance can also be scattered across) Tj T* -0.00094 Tw (labels and personal notes. SuppleCare brings the schedule, reminders, meal planning, check-ins, and progress history) Tj T* 0 Tw (together in one place, while allowing administrators to maintain the catalog and timing rules.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 305.0354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Challenges and solutions) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 203.0354 cm
+q
+.917647 .941176 .988235 rg
+n 0 96 121.8898 -96 re f*
+.972549 .980392 .992157 rg
+n 121.8898 96 411.0236 -96 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 8 78.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Challenges) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 54 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 27.5 Tm /F1 8.5 Tf 12 TL (Keeping daily routines easy to follow; identifying potentially close supplement timings; supporting English) Tj T* (and Khmer; separating user and administrator access; handling reminders across time zones; and) Tj T* (making photo-based AI suggestions reviewable before they affect a schedule.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 30.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Solutions) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 6 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 27.5 Tm /F1 8.5 Tf 12 TL (A daily dose timeline with one-tap tracking; configurable spacing rules and schedule warnings; localized) Tj T* (user pages; separate web and admin guards; user-local date and time handling; and an AI photo scan) Tj T* (flow that returns a proposed plan for user review before application.) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.862745 .894118 .945098 RG
+.4 w
+n 0 96 m 532.9134 96 l S
+n 0 0 m 532.9134 0 l S
+n 0 0 m 0 96 l S
+n 532.9134 0 m 532.9134 96 l S
+.35 w
+n 0 48 m 532.9134 48 l S
+n 121.8898 0 m 121.8898 96 l S
+Q
+Q
+Q
+q
+1 0 0 1 54.18898 196.0354 cm
+Q
+q
+1 0 0 1 54.18898 169.0354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Technologies used) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 136.0354 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 17.7 Tm /F1 9.3 Tf 13.5 TL (Laravel 12 | PHP 8.2+ | Blade | MySQL | Bootstrap 5 | Vite | JavaScript | AJAX | Chart.js | Flatpickr | DataTables |) Tj T* (Select2 | SweetAlert2 | Laravel Socialite | Telegram Bot API | Anthropic Claude API) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 109.0354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Objectives) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 90.53543 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (Help users create and maintain a clear daily supplement schedule.) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 72.03543 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (Make dose tracking and reminders convenient across web, email, browser, and Telegram options.) Tj T* 8 0 Td ET
+Q
+Q
+ 
+
+Q
+
+q
+0.0 0.0 595.2756 841.8898 re
+W
+n
+1 0 0 1 0 0 cm
+BT
+/F1-0 12 Tf
+14.4 TL
+ET
+1 1 1 rg
+n
+42.51969 14.17323 510.2362 25.51181 re
+f*
+0.407843 0.466667 0.560784 rg
+BT
+/F1-0 8 Tf
+9.6 TL
+ET
+BT
+1 0 0 1 48.18898 25.51181 Tm
+(Prepared by Seth Sopheara \174 SuppleCare project listing) Tj
+T*
+ET
+Q
+
+
+endstream
+endobj
+6 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+7 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+8 0 obj
+<<
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
+/Name /F2
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+9 0 obj
+<<
+/BaseFont /Helvetica-Oblique
+/Encoding /WinAnsiEncoding
+/Name /F3
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+10 0 obj
+<<
+/Contents 11 0 R
+/MediaBox [ 0 0 595.2756 841.8898 ]
+/Resources <<
+/Font <<
+/F1 6 0 R
+/F1-0 12 0 R
+/F2 8 0 R
+/F3 9 0 R
+>>
+/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Annots [ ]
+/Parent 2 0 R
+>>
+endobj
+11 0 obj
+<<
+/Length 8904
+>>
+stream
+q
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.862745 .894118 .945098 RG
+n 48.18898 39.68504 m 547.0866 39.68504 l S
+BT /F1 8 Tf 9.6 TL ET
+.407843 .466667 .560784 rg
+BT 1 0 0 1 48.18898 25.51181 Tm (SuppleCare | Project listing preparation) Tj T* ET
+BT 1 0 0 1 542.6386 25.51181 Tm (2) Tj T* ET
+Q
+q
+1 0 0 1 54.18898 778.0354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (Provide meal planning, daily health check-ins, and adherence summaries alongside supplement routines.) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 759.5354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (Support English and Khmer for user-facing pages.) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 741.0354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (Give administrators tools to manage users, catalog entries, spacing rules, meal templates, and admin accounts.) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 722.5354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (Allow users to scan supplement label photos and review an AI-generated schedule before applying it.) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 695.5354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Development process) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 509.5354 cm
+q
+.917647 .941176 .988235 rg
+n 0 180 121.8898 -180 re f*
+.972549 .980392 .992157 rg
+n 121.8898 180 411.0236 -180 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 8 151 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 14.5 Tm /F2 8.5 Tf 11.5 TL (1. Requirements and) Tj T* (structure) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 150 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Mapped user and administrator workflows, authentication, routes, data models, and supported) Tj T* (languages.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 126.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (2. Core application) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 114 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Built schedule management, daily dose tracking, meal plans, health logs, calendar, profile, and progress) Tj T* (features.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 79 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 14.5 Tm /F2 8.5 Tf 11.5 TL (3. Safety and) Tj T* (administration) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 78 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Added catalog management, configurable spacing rules, separate admin access, and user account) Tj T* (controls.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 54.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (4. Integrations) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 42 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Added optional Google sign-in, scheduled reminders, Telegram reminders, and AI-assisted label) Tj T* (scanning.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 7 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 14.5 Tm /F2 8.5 Tf 11.5 TL (5. Review and) Tj T* (deployment) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 6 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Use the project test suite and deployment configuration before publishing. Confirm public demo,) Tj T* (repository, and documentation links before setting the listing live.) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.862745 .894118 .945098 RG
+.4 w
+n 0 180 m 532.9134 180 l S
+n 0 0 m 532.9134 0 l S
+n 0 0 m 0 180 l S
+n 532.9134 0 m 532.9134 180 l S
+.35 w
+n 0 144 m 532.9134 144 l S
+n 0 108 m 532.9134 108 l S
+n 0 72 m 532.9134 72 l S
+n 0 36 m 532.9134 36 l S
+n 121.8898 0 m 121.8898 180 l S
+Q
+Q
+Q
+q
+1 0 0 1 54.18898 502.5354 cm
+Q
+q
+1 0 0 1 54.18898 475.5354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Links and media) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 301.5354 cm
+q
+.917647 .941176 .988235 rg
+n 0 168 121.8898 -168 re f*
+.972549 .980392 .992157 rg
+n 121.8898 168 411.0236 -168 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 8 150.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Live Demo URL) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 150 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Not provided. The local development address is http://supplecare.test and is not a public demo link.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 126.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (GitHub URL) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 126 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Not provided. Add the public repository URL if one is available.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 102.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Documentation URL) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 90 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Not provided. Add a public documentation URL if available. The repository README is the current setup) Tj T* (guide.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 66.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Thumbnail) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 66 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Upload a clean 8:5 crop of the actual application, ideally the dashboard or daily schedule screen.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 42.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Cover Image) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 42 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (Upload a 21:9 crop of the actual application or a project overview graphic.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 18.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Screenshots Gallery) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 6 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (Recommended: dashboard/today view, supplement schedule, meal plan, progress chart, and) Tj T* (administrator dashboard. Use real app screenshots and remove personal or test-account data.) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.862745 .894118 .945098 RG
+.4 w
+n 0 168 m 532.9134 168 l S
+n 0 0 m 532.9134 0 l S
+n 0 0 m 0 168 l S
+n 532.9134 0 m 532.9134 168 l S
+.35 w
+n 0 144 m 532.9134 144 l S
+n 0 120 m 532.9134 120 l S
+n 0 84 m 532.9134 84 l S
+n 0 60 m 532.9134 60 l S
+n 0 36 m 532.9134 36 l S
+n 121.8898 0 m 121.8898 168 l S
+Q
+Q
+Q
+q
+1 0 0 1 54.18898 294.5354 cm
+Q
+q
+1 0 0 1 54.18898 267.5354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Search metadata) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 201.5354 cm
+q
+.917647 .941176 .988235 rg
+n 0 60 121.8898 -60 re f*
+.972549 .980392 .992157 rg
+n 121.8898 60 411.0236 -60 re f*
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 8 42.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Meta Title) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 42 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 3.5 Tm /F1 8.5 Tf 12 TL (SuppleCare | Supplement Schedule and Wellness Tracker) Tj T* ET
+Q
+Q
+q
+1 0 0 1 8 18.5 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 3 Tm /F2 8.5 Tf 11.5 TL (Meta Description) Tj T* ET
+Q
+Q
+q
+1 0 0 1 129.8898 6 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 15.5 Tm /F1 8.5 Tf 12 TL (SuppleCare helps users organize supplement schedules, reminders, meal plans, health check-ins, and) Tj T* (adherence tracking in English and Khmer.) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.862745 .894118 .945098 RG
+.4 w
+n 0 60 m 532.9134 60 l S
+n 0 0 m 532.9134 0 l S
+n 0 0 m 0 60 l S
+n 532.9134 0 m 532.9134 60 l S
+.35 w
+n 0 36 m 532.9134 36 l S
+n 121.8898 0 m 121.8898 60 l S
+Q
+Q
+Q
+q
+1 0 0 1 54.18898 194.5354 cm
+Q
+q
+1 0 0 1 54.18898 167.5354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Project links for internal reference) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 134.5354 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 17.7 Tm /F1 9.3 Tf 13.5 TL (These local routes are useful while preparing screenshots and a demo. They require the local Laravel app to be) Tj T* (running and are not public URLs:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 116.0354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (http://supplecare.test/ - landing page) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 97.53543 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (http://supplecare.test/dashboard - today and dose tracking \(signed-in user\)) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 79.03543 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (http://supplecare.test/supplements - supplement schedule \(signed-in user\)) Tj T* 8 0 Td ET
+Q
+Q
+ 
+
+Q
+
+q
+0.0 0.0 595.2756 841.8898 re
+W
+n
+1 0 0 1 0 0 cm
+BT
+/F1-0 12 Tf
+14.4 TL
+ET
+1 1 1 rg
+n
+42.51969 14.17323 510.2362 25.51181 re
+f*
+0.407843 0.466667 0.560784 rg
+BT
+/F1-0 8 Tf
+9.6 TL
+ET
+BT
+1 0 0 1 48.18898 25.51181 Tm
+(Prepared by Seth Sopheara \174 SuppleCare project listing) Tj
+T*
+ET
+Q
+
+
+endstream
+endobj
+12 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+13 0 obj
+<<
+/Contents 14 0 R
+/MediaBox [ 0 0 595.2756 841.8898 ]
+/Resources <<
+/Font <<
+/F1 6 0 R
+/F1-0 15 0 R
+/F2 8 0 R
+/F3 9 0 R
+>>
+/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Annots [ ]
+/Parent 2 0 R
+>>
+endobj
+14 0 obj
+<<
+/Length 1746
+>>
+stream
+q
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+.862745 .894118 .945098 RG
+n 48.18898 39.68504 m 547.0866 39.68504 l S
+BT /F1 8 Tf 9.6 TL ET
+.407843 .466667 .560784 rg
+BT 1 0 0 1 48.18898 25.51181 Tm (SuppleCare | Project listing preparation) Tj T* ET
+BT 1 0 0 1 542.6386 25.51181 Tm (3) Tj T* ET
+Q
+q
+1 0 0 1 54.18898 778.0354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (http://supplecare.test/meals - meal plan \(signed-in user\)) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 759.5354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (http://supplecare.test/progress - adherence insights \(signed-in user\)) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 741.0354 cm
+q
+BT 1 0 0 1 12 3.4 Tm -8 0 Td 12.5 TL /F1 9.1 Tf .188235 .227451 .290196 rg (\177) Tj ( ) Tj ( ) Tj (http://supplecare.test/admin/login - administrator sign-in) Tj T* 8 0 Td ET
+Q
+Q
+q
+1 0 0 1 54.18898 714.0354 cm
+q
+.192157 .364706 .658824 rg
+BT 1 0 0 1 0 4 Tm /F2 14 Tf 18 TL (Before publishing) Tj T* ET
+Q
+Q
+q
+1 0 0 1 54.18898 681.0354 cm
+q
+.188235 .227451 .290196 rg
+BT 1 0 0 1 0 17.7 Tm /F1 9.3 Tf 13.5 TL (Replace the missing public URLs with verified links, choose a category that exists in the form, enter the real build) Tj T* -0.060148 Tw (duration, and upload screenshots from the running application. Do not publish the local .test address as a public demo.) Tj T* 0 Tw ET
+Q
+Q
+ 
+
+Q
+
+q
+0.0 0.0 595.2756 841.8898 re
+W
+n
+1 0 0 1 0 0 cm
+BT
+/F1-0 12 Tf
+14.4 TL
+ET
+1 1 1 rg
+n
+42.51969 14.17323 510.2362 25.51181 re
+f*
+0.407843 0.466667 0.560784 rg
+BT
+/F1-0 8 Tf
+9.6 TL
+ET
+BT
+1 0 0 1 48.18898 25.51181 Tm
+(Prepared by Seth Sopheara \174 SuppleCare project listing) Tj
+T*
+ET
+Q
+
+
+endstream
+endobj
+15 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+xref
+0 16
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000127 00000 n 
+0000000176 00000 n 
+0000000429 00000 n 
+0000008237 00000 n 
+0000008344 00000 n 
+0000008451 00000 n 
+0000008563 00000 n 
+0000008678 00000 n 
+0000008934 00000 n 
+0000017891 00000 n 
+0000017999 00000 n 
+0000018255 00000 n 
+0000020054 00000 n 
+trailer
+<<
+/Size 16
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+20162
+%%EOF

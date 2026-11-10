@@ -121,8 +121,7 @@
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h4 class="mb-0">No staffs found.</h4>
-                                        <p class="mb-0">There are currently no approved staffs with uploaded
-                                            documents.</p>
+                                        <p class="mb-0">There are currently no approved staffs matching this search.</p>
                                     </div>
                                 </div>
                             </div>
@@ -294,8 +293,7 @@
                                         <tr>
                                             <td colspan="10" class="text-center">
                                                 <h5 class="mb-0">No staffs found.</h5>
-                                                <p class="mb-0">There are currently no approved staffs with uploaded
-                                                    documents.</p>
+                                                <p class="mb-0">There are currently no approved staffs matching this search.</p>
                                             </td>
                                         </tr>
                                     @endforelse
