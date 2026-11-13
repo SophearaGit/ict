@@ -938,7 +938,8 @@
                                         <div class="mb-3">
                                             <label for="c-dob" class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" id="c-dob" name="dob" class="form-control"
-                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
+                                                min="{{ now()->subYears(100)->format('Y-m-d') }}"
+                                                max="{{ now()->subYears(18)->format('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -1150,7 +1151,8 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" name="dob" id="edit-dob" class="form-control"
-                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
+                                                min="{{ now()->subYears(100)->format('Y-m-d') }}"
+                                                max="{{ now()->subYears(18)->format('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                 </div>

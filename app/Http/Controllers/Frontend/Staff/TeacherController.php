@@ -80,7 +80,7 @@ class TeacherController extends Controller
             // 4-5 digit fragment. Require it to actually look like a phone
             // number: digits only, optional leading +, 8-20 characters.
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'dob' => 'nullable|date|before:today',
+            'dob' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
             'location' => 'nullable|string|max:255',
@@ -91,6 +91,7 @@ class TeacherController extends Controller
             'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
             'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
             'email.regex' => 'Email can only contain standard English letters, numbers and symbols — no Khmer or other non-English characters.',
+            'dob.before_or_equal' => 'Teacher must be at least 18 years old.',
         ]);
 
         $imagePath = 'no-img.jpg';
@@ -170,7 +171,7 @@ class TeacherController extends Controller
             // shape instead of accepting any string.
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'alternate_phone' => 'nullable|string|max:20',
-            'dob' => 'nullable|date|before:today',
+            'dob' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],
             'gender' => 'required|in:male,female',
             'nationality' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:255',
@@ -202,6 +203,7 @@ class TeacherController extends Controller
             'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
             'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
             'email.regex' => 'Email can only contain standard English letters, numbers and symbols — no Khmer or other non-English characters.',
+            'dob.before_or_equal' => 'Teacher must be at least 18 years old.',
         ]);
 
         // Handle image upload
