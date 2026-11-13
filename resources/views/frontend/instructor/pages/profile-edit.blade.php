@@ -108,7 +108,7 @@
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="headline">Headline</label>
                                         <input type="text" id="headline" name="headline" class="form-control"
-                                            placeholder="" value="{{ auth()->user()->headline }}" required="">
+                                            placeholder="" value="{{ auth()->user()->headline }}">
                                         <div class="invalid-feedback">Please enter headline.</div>
                                         <x-input-error :messages="$errors->get('headline')" class="mt-2 text-danger" />
                                     </div>
@@ -124,7 +124,7 @@
                                     <div class="mb-3 col-12 col-md-6">
                                         <label class="form-label" for="bio">Bio</label>
                                         <textarea id="bio" name="bio" rows="4" class="form-control"
-                                            placeholder="" required="">{{ auth()->user()->bio }}</textarea>
+                                            placeholder="">{{ auth()->user()->bio }}</textarea>
                                         <div class="invalid-feedback">Please enter bio.</div>
                                         <x-input-error :messages="$errors->get('bio')" class="mt-2 text-danger" />
                                     </div>

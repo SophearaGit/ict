@@ -237,7 +237,8 @@
                                         <div class="mb-3">
                                             <label for="c-dob" class="form-label fw-semibold">Date of Birth</label>
                                             <input type="date" id="c-dob" name="dob" class="form-control"
-                                                max="{{ date('Y-m-d') }}" value="{{ old('dob') }}">
+                                                min="{{ now()->subYears(100)->format('Y-m-d') }}"
+                                                max="{{ now()->subYears(18)->format('Y-m-d') }}" value="{{ old('dob') }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -395,7 +396,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Date of Birth</label>
-                                    <input type="date" name="dob" id="edit-dob" class="form-control" max="{{ date('Y-m-d') }}">
+                                    <input type="date" name="dob" id="edit-dob" class="form-control" min="{{ now()->subYears(100)->format('Y-m-d') }}" max="{{ now()->subYears(18)->format('Y-m-d') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -574,6 +575,13 @@
         const KHMER_CHAR = /[\u1780-\u17FF\s]/;
         restrictToPattern('c-khmer-name', KHMER_CHAR);
         restrictToPattern('edit-khmer-name', KHMER_CHAR);
+        // Reported bug: the English Name field accepted Khmer characters
+        // too (e.g. pasted from the Khmer name field). Restrict it to
+        // ASCII letters/punctuation the same way the Email fields already
+        // are above.
+        const ENGLISH_NAME_CHAR = /[A-Za-z\s.'-]/;
+        restrictToPattern('c-name', ENGLISH_NAME_CHAR);
+        restrictToPattern('edit-name', ENGLISH_NAME_CHAR);
         // ─── Delete ─────────────────────────────────────────────────────────────────
         document.querySelectorAll('.btn-delete-intern').forEach(function(btn) {
             btn.addEventListener('click', function() {

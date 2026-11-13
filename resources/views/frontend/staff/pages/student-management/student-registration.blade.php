@@ -1311,7 +1311,7 @@
               </div>
               <div class="col-md-6">
                 <div class="reg-field">
-                  <input type="text" name="khmer_name" placeholder=" " value="{{ old('khmer_name') }}"
+                  <input type="text" name="khmer_name" id="reg-khmer-name" placeholder=" " value="{{ old('khmer_name') }}"
                     {{ $oldStudentType === 'existing' ? 'disabled' : '' }}>
                   <label>Full Name (Khmer)</label>
                 </div>
@@ -1650,13 +1650,36 @@
       }
     });
     // ==============================
+    // KHMER-ONLY — FULL NAME (KHMER)
+    // ==============================
+    // Reported bug: the Khmer Name field silently accepted English
+    // characters too. Strip anything that isn't Khmer script or
+    // whitespace live as the user types, same pattern used on the
+    // Intern Add/Edit forms.
+    (function() {
+        const input = document.getElementById('reg-khmer-name');
+        if (!input) return;
+        const KHMER_CHAR = /[\u1780-\u17FF\s]/;
+        input.addEventListener('input', function() {
+            const cursor = this.selectionStart;
+            const before = this.value;
+            this.value = this.value.split('').filter(ch => KHMER_CHAR.test(ch)).join('');
+            const removed = before.length - this.value.length;
+            if (removed > 0 && cursor !== null) {
+                this.setSelectionRange(cursor - removed, cursor - removed);
+            }
+        });
+    })();
+    // ==============================
     // FLATPICKR — DATE OF BIRTH
     // ==============================
     $('#dobInput').flatpickr({
       dateFormat: 'Y-m-d',
       altInput: true,
       altFormat: 'M d, Y',
-      maxDate: 'today',
+      // Students must be at least 16 — keep the picker's own ceiling in
+      // sync with the server-side minimum-age rule instead of just 'today'.
+      maxDate: new Date(new Date().getFullYear() - 16, new Date().getMonth(), new Date().getDate()),
       // A DOB is often decades back — bound the picker to a sane range and
       // jump it to a birth-year-ish decade by default (when nothing is
       // already selected), instead of leaving it on today's month. Without

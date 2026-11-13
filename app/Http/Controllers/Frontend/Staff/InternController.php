@@ -40,7 +40,7 @@ class InternController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s.\'-]+$/'],
             'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]+$/u'],
             // email alone accepts a dot-less domain like "gmail" as valid, and
             // (same issue as the Teacher form) permits international (RFC 6531)
@@ -49,7 +49,7 @@ class InternController extends Controller
             // regex so Khmer (or any other non-Latin script) is rejected outright.
             'email' => ['required', 'email:rfc,dns', 'regex:/^[\x00-\x7F]+$/', 'unique:users,email'],
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'dob' => 'nullable|date|before:today',
+            'dob' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],
             'gender' => 'required|in:male,female,other',
             'password' => 'required|min:8|confirmed',
             'location' => 'nullable|string|max:255',
@@ -57,7 +57,9 @@ class InternController extends Controller
             'document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
+            'name.regex' => 'Full Name (English) can only contain English letters.',
             'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
+            'dob.before_or_equal' => 'Intern must be at least 18 years old.',
         ]);
 
         $image = 'no-img.jpg';
@@ -107,13 +109,13 @@ class InternController extends Controller
         $intern = User::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s.\'-]+$/'],
             'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]+$/u'],
             // Same reasoning as store(): require a real, resolvable domain and
             // plain ASCII so Khmer script in the local part is rejected.
             'email' => ['required', 'email:rfc,dns', 'regex:/^[\x00-\x7F]+$/', 'unique:users,email,' . $id],
             'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'dob' => 'nullable|date|before:today',
+            'dob' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],
             'gender' => 'required|in:male,female,other',
             'password' => 'nullable|min:8|confirmed',
             'location' => 'nullable|string|max:255',
@@ -121,7 +123,9 @@ class InternController extends Controller
             'document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'khmer_name.regex' => 'Full Name (Khmer) can only contain Khmer script.',
+            'name.regex' => 'Full Name (English) can only contain English letters.',
             'phone.regex' => 'Phone must be 8–20 characters and contain only digits, spaces, + or -.',
+            'dob.before_or_equal' => 'Intern must be at least 18 years old.',
         ]);
 
         if ($request->hasFile('image')) {

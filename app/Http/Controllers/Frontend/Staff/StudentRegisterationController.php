@@ -28,7 +28,7 @@ class StudentRegisterationController extends Controller
         if ($request->student_type === 'new') {
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
-                'khmer_name' => ['nullable', 'string', 'max:255'],
+                'khmer_name' => ['nullable', 'string', 'max:255', 'regex:/^[\x{1780}-\x{17FF}\s]*$/u'],
                 // Plain "email" alone accepts a dot-less domain like
                 // "soksan@gmail" as syntactically valid (RFC 5321 technically
                 // allows a bare hostname). Adding "dns" requires the domain
@@ -43,7 +43,9 @@ class StudentRegisterationController extends Controller
                 // admin Add/Edit Student forms.
                 'phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
                 'alternate_phone' => ['nullable', 'regex:/^[0-9+\-\s]{8,20}$/'],
-                'dob' => ['nullable', 'date', 'before:today'],
+                'dob' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(16)->format('Y-m-d')],
+            ], [
+                'dob.before_or_equal' => 'Student must be at least 16 years old.',
             ]);
         } else {
             $request->validate([
