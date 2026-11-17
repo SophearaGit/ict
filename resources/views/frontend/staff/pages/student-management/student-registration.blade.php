@@ -199,21 +199,67 @@
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
   }
+  /* The admin theme's global style.min.css paints BOTH
+     .select2-selection__choice and its __remove child with the same
+     solid blue fill (background-color:#539bff). We override the chip's
+     own background below, but without resetting it here too the remove
+     "×" keeps that opaque blue box and visually sits on top of the chip
+     text — this is what actually broke the selected-course chip. */
   .reg-field .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
     background: #e0f2fe;
-    border: none;
-    border-radius: 8px;
-    padding: 5px 11px;
+    border: 1px solid #bae6fd;
+    border-radius: 999px;
+    padding: .35rem .4rem .35rem 1rem;
     font-size: .85rem;
     color: #0369a1;
-    font-weight: 500;
+    font-weight: 600;
   }
   .reg-field .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    color: #7dd3fc;
-    margin-right: 6px;
-    font-size: 1rem;
+    order: 2;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff !important;
+    border: none !important;
+    border-radius: 50%;
+    color: #0ea5e9;
+    font-size: .85rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .reg-field .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    background: #0ea5e9 !important;
+    color: #fff;
+  }
+  .reg-field .select2-selection--multiple .select2-selection__choice .chip-title-wrap {
+    order: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-width: 0;
+  }
+  .reg-field .select2-selection--multiple .select2-selection__choice .chip-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 220px;
   }
   .reg-field .select2-container--default .select2-selection--single .select2-selection__rendered {
     padding: 0;
@@ -232,8 +278,12 @@
   }
   .reg-field .select2-selection--multiple .select2-selection__choice .chip-price {
     font-family: 'DM Mono', monospace;
-    opacity: .75;
-    margin-left: .25rem;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, .7);
+    padding: .1rem .4rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: .78rem;
   }
   /* ── Select2 dropdown panel (appended to <body>, so not scoped under .reg-field) ── */
   .select2-dropdown {
@@ -332,6 +382,81 @@
     align-items: center;
     gap: .3rem;
   }
+  .cm-teacher {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .55rem;
+    padding-top: .55rem;
+    border-top: 1px solid #f1f5f9;
+  }
+  .cm-teacher-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1.5px solid #fff;
+    box-shadow: 0 0 0 1.5px #e2e8f0;
+  }
+  .cm-teacher-name {
+    font-size: .74rem;
+    color: #334155;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cm-teacher.is-unassigned .cm-teacher-name {
+    color: #94a3b8;
+    font-weight: 500;
+    font-style: italic;
+  }
+  .cm-meter {
+    margin-top: .5rem;
+  }
+  .cm-meter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    font-size: .71rem;
+    color: #64748b;
+    margin-bottom: .3rem;
+  }
+  .cm-meter-label {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+  .cm-meter-count {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+  }
+  .cm-meter-track {
+    height: 6px;
+    border-radius: 999px;
+    background: #eef2f6;
+    overflow: hidden;
+  }
+  .cm-meter-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: #0ea5e9;
+  }
+  .cm-meter-fill.is-full {
+    background: #f59e0b;
+  }
+  .cm-enroll-text {
+    font-size: .72rem;
+    color: #64748b;
+    margin-top: .5rem;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
   .course-opt-foot {
     display: flex;
     justify-content: space-between;
@@ -384,7 +509,7 @@
     background: #fff;
     border-radius: 22px;
     width: 100%;
-    max-width: 880px;
+    max-width: 1240px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -480,8 +605,8 @@
   }
   .cm-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: .65rem;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: .75rem;
   }
   .cm-empty {
     text-align: center;
@@ -491,31 +616,38 @@
   }
   .cm-card {
     position: relative;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 14px;
-    padding: .85rem .9rem .85rem 2.6rem;
+    border: 1.5px solid #e8edf3;
+    border-radius: 16px;
+    padding: 1rem 1.1rem;
     cursor: pointer;
-    transition: border-color .15s, background .15s, box-shadow .15s;
+    transition: border-color .15s, background .15s, box-shadow .15s, transform .15s;
     background: #fff;
   }
   .cm-card:hover {
     border-color: #38bdf8;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .07);
+    transform: translateY(-1px);
   }
   .cm-card.is-selected {
     border-color: #0ea5e9;
     background: #f0f9ff;
     box-shadow: 0 0 0 3px rgba(14, 165, 233, .12);
   }
+  .cm-card.is-selected:hover {
+    transform: none;
+  }
   .cm-card.is-closed.is-selected {
     border-color: #dc2626;
     background: #fef2f2;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, .1);
   }
+  .cm-card .course-opt-row {
+    padding-right: 1.85rem;
+  }
   .cm-check {
     position: absolute;
-    left: .85rem;
-    top: 50%;
-    transform: translateY(-50%);
+    right: .9rem;
+    top: 1rem;
     width: 20px;
     height: 20px;
     border-radius: 6px;
@@ -527,6 +659,7 @@
     color: #fff;
     font-size: 12px;
     transition: all .15s;
+    flex-shrink: 0;
   }
   .cm-card.is-selected .cm-check {
     background: #0ea5e9;
@@ -616,7 +749,8 @@
       height: 100dvh;
       border-radius: 0;
     }
-    .cm-grid {
+    .cm-grid,
+    .sm-list {
       grid-template-columns: 1fr;
     }
     .course-modal-footer {
@@ -678,56 +812,122 @@
   }
   /* ── Student picker modal ── */
   .sm-list {
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: .65rem;
   }
   .sm-card {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: .5rem;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 14px;
+    gap: .75rem;
+    border: 1.5px solid #e8edf3;
+    border-radius: 16px;
     cursor: pointer;
-    transition: border-color .15s, background .15s, box-shadow .15s;
+    transition: border-color .15s, background .15s, box-shadow .15s, transform .15s;
     background: #fff;
-    padding: .3rem .8rem .3rem .3rem;
+    padding: .75rem .85rem;
   }
-  .sm-card .student-opt {
+  .sm-card-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #fff;
+    box-shadow: 0 0 0 1.5px #e2e8f0;
+  }
+  .sm-card-body {
     flex: 1;
     min-width: 0;
-    padding: .55rem .4rem;
   }
-  .sm-card .student-opt-name,
-  .sm-card .student-opt-meta {
-    white-space: normal;
+  .sm-card-name {
+    font-size: .88rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sm-card-meta {
+    font-size: .74rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin-top: .2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sm-card-meta i {
+    color: #94a3b8;
+    flex-shrink: 0;
+  }
+  .sm-card-go {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+    background: #f8fafc;
+    font-size: .8rem;
+    transition: all .15s;
   }
   .sm-card:hover {
     border-color: #38bdf8;
-    background: #f8fafc;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .07);
+    transform: translateY(-1px);
+  }
+  .sm-card:hover .sm-card-go {
+    background: #e0f2fe;
+    color: #0ea5e9;
+    transform: translateX(2px);
   }
   .sm-card.is-current {
     border-color: #0ea5e9;
     background: #f0f9ff;
     box-shadow: 0 0 0 3px rgba(14, 165, 233, .12);
   }
+  .sm-card.is-current:hover {
+    transform: none;
+  }
+  .sm-card.is-current .sm-card-go {
+    background: #0ea5e9;
+    color: #fff;
+  }
   .sm-card.is-current::after {
     content: "Current";
-    flex-shrink: 0;
-    font-size: .65rem;
+    position: absolute;
+    top: -8px;
+    right: 14px;
+    font-size: .62rem;
     font-weight: 700;
     letter-spacing: .04em;
     text-transform: uppercase;
-    color: #0ea5e9;
-    background: #e0f2fe;
-    padding: .25rem .55rem;
+    color: #fff;
+    background: #0ea5e9;
+    padding: .2rem .55rem;
     border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(14, 165, 233, .35);
   }
   .sm-empty {
     text-align: center;
     padding: 2.5rem 1rem;
     color: #94a3b8;
     font-size: .85rem;
+    grid-column: 1 / -1;
   }
   /* ── Eye toggle ── */
   .eye-toggle {
@@ -1409,15 +1609,37 @@
                   $isOpen = $course->status === 'active';
                   $dateLabel = $isOpen ? 'Starts' : 'Started';
                   $dateText = $course->start_date ? "{$dateLabel} " . $course->start_date->format('M j, Y') : '';
+                  $teacherName = $course->instructor->name ?? 'No Teacher Assigned';
+                  $teacherImage = ($course->instructor && $course->instructor->image && $course->instructor->image !== 'no-img.jpg')
+                  ? asset($course->instructor->image)
+                  : asset('/default-images/user/both.jpg');
+                  $enrolledCount = $course->students_count ?? 0;
+                  $hasCapacity = (bool) $course->capacity;
+                  $capacityText = $hasCapacity
+                  ? "{$enrolledCount} / {$course->capacity} enrolled"
+                  : \Illuminate\Support\Str::plural('student', $enrolledCount) . " enrolled";
+                  $enrollPercent = $hasCapacity
+                  ? (int) min(100, round(($enrolledCount / max(1, $course->capacity)) * 100))
+                  : 0;
+                  $isFull = $hasCapacity && $enrolledCount >= $course->capacity;
                   $searchText = "\${$course->price} · {$course->title}"
                   . ($scheduleText ? " · {$scheduleText}" : '')
-                  . ($dateText ? " · {$dateText}" : '');
+                  . ($dateText ? " · {$dateText}" : '')
+                  . " · {$teacherName}";
                   return [
                   'title' => $course->title,
                   'schedule' => $scheduleText,
                   'date' => $dateText,
                   'status' => $course->status,
                   'search' => $searchText,
+                  'teacherName' => $teacherName,
+                  'teacherImage' => $teacherImage,
+                  'capacityText' => $capacityText,
+                  'enrolledCount' => $enrolledCount,
+                  'capacity' => $course->capacity,
+                  'hasCapacity' => $hasCapacity,
+                  'enrollPercent' => $enrollPercent,
+                  'isFull' => $isFull,
                   ];
                   };
                   $openBatches = $courses->where('status', 'active');
@@ -1430,6 +1652,9 @@
                     <option value="{{ $course->id }}" data-price="{{ $course->price }}"
                       data-title="{{ $meta['title'] }}" data-schedule="{{ $meta['schedule'] }}"
                       data-date="{{ $meta['date'] }}" data-status="{{ $meta['status'] }}"
+                      data-teacher-name="{{ $meta['teacherName'] }}" data-teacher-image="{{ $meta['teacherImage'] }}"
+                      data-capacity-text="{{ $meta['capacityText'] }}" data-has-capacity="{{ $meta['hasCapacity'] ? '1' : '0' }}"
+                      data-enroll-percent="{{ $meta['enrollPercent'] }}" data-enroll-full="{{ $meta['isFull'] ? '1' : '0' }}"
                       @selected(in_array($course->id, $oldCourseIds))>
                       {{ $meta['search'] }}
                     </option>
@@ -1443,6 +1668,9 @@
                     <option value="{{ $course->id }}" data-price="{{ $course->price }}"
                       data-title="{{ $meta['title'] }}" data-schedule="{{ $meta['schedule'] }}"
                       data-date="{{ $meta['date'] }}" data-status="{{ $meta['status'] }}"
+                      data-teacher-name="{{ $meta['teacherName'] }}" data-teacher-image="{{ $meta['teacherImage'] }}"
+                      data-capacity-text="{{ $meta['capacityText'] }}" data-has-capacity="{{ $meta['hasCapacity'] ? '1' : '0' }}"
+                      data-enroll-percent="{{ $meta['enrollPercent'] }}" data-enroll-full="{{ $meta['isFull'] ? '1' : '0' }}"
                       @selected(in_array($course->id, $oldCourseIds))>
                       {{ $meta['search'] }}
                     </option>
@@ -1744,7 +1972,10 @@
       var el = option.element;
       var price = parseFloat(el.getAttribute('data-price')) || 0;
       var title = el.getAttribute('data-title') || option.text;
-      return $('<span>' + escapeHtml(title) + ' <span class="chip-price">$' + price.toFixed(2) + '</span></span>');
+      return $('<span class="chip-title-wrap" title="' + escapeHtml(title) + '">' +
+        '<span class="chip-title">' + escapeHtml(title) + '</span>' +
+        '<span class="chip-price">$' + price.toFixed(2) + '</span>' +
+        '</span>');
     }
     $('#courseSelect').select2({
       width: '100%',
@@ -1777,7 +2008,30 @@
           var schedule = this.getAttribute('data-schedule') || '';
           var date = this.getAttribute('data-date') || '';
           var open = (this.getAttribute('data-status') || 'active') === 'active';
-          var searchIndex = (title + ' ' + schedule + ' ' + date).toLowerCase();
+          var teacherName = this.getAttribute('data-teacher-name') || '';
+          var teacherImage = this.getAttribute('data-teacher-image') || '';
+          var capacityText = this.getAttribute('data-capacity-text') || '';
+          var hasCapacity = this.getAttribute('data-has-capacity') === '1';
+          var enrollPercent = Math.max(0, Math.min(100, parseInt(this.getAttribute('data-enroll-percent'), 10) || 0));
+          var isFull = this.getAttribute('data-enroll-full') === '1';
+          var isUnassigned = !teacherName || teacherName === 'No Teacher Assigned';
+          var searchIndex = (title + ' ' + schedule + ' ' + date + ' ' + teacherName).toLowerCase();
+
+          var teacherRow = teacherName ? '<div class="cm-teacher' + (isUnassigned ? ' is-unassigned' : '') + '">' +
+              '<img src="' + escapeHtml(teacherImage) + '" alt="" class="cm-teacher-avatar">' +
+              '<span class="cm-teacher-name">' + escapeHtml(teacherName) + '</span>' +
+              '</div>' : '';
+
+          var enrollRow = hasCapacity
+            ? '<div class="cm-meter">' +
+              '<div class="cm-meter-row">' +
+              '<span class="cm-meter-label"><i class="ti ti-users"></i> Enrolled</span>' +
+              '<span class="cm-meter-count">' + escapeHtml(capacityText) + '</span>' +
+              '</div>' +
+              '<div class="cm-meter-track"><div class="cm-meter-fill' + (isFull ? ' is-full' : '') + '" style="width:' + enrollPercent + '%"></div></div>' +
+              '</div>'
+            : (capacityText ? '<div class="cm-enroll-text"><i class="ti ti-users"></i> ' + escapeHtml(capacityText) + '</div>' : '');
+
           html += '<div class="cm-card' + (open ? '' : ' is-closed') + '" data-id="' + escapeHtml(id) + '" ' +
             'data-search="' + escapeHtml(searchIndex) + '">' +
             '<span class="cm-check"><i class="ti ti-check"></i></span>' +
@@ -1785,7 +2039,9 @@
             '<span class="course-opt-title">' + escapeHtml(title) + '</span>' +
             '<span class="course-opt-price">$' + price.toFixed(2) + '</span>' +
             '</div>' +
+            teacherRow +
             (schedule ? '<div class="course-opt-meta"><i class="ti ti-clock"></i> ' + escapeHtml(schedule) + '</div>' : '') +
+            enrollRow +
             '<div class="course-opt-foot">' +
             '<span class="course-opt-date">' +
             (date ? '<i class="ti ti-calendar-event"></i> ' + escapeHtml(date) : '') +
@@ -1945,14 +2201,13 @@
         var phone = this.getAttribute('data-phone') || '';
         var searchIndex = (name + ' ' + email + ' ' + phone).toLowerCase();
         rows += '<div class="sm-card" data-id="' + escapeHtml(id) + '" data-search="' + escapeHtml(searchIndex) + '">' +
-          '<div class="student-opt">' +
-          '<div class="student-opt-avatar">' + escapeHtml(studentInitials(name)) + '</div>' +
-          '<div class="student-opt-body">' +
-          '<div class="student-opt-name">' + escapeHtml(name) + '</div>' +
-          (email ? '<div class="student-opt-meta"><i class="ti ti-mail"></i> ' + escapeHtml(email) + '</div>' : '') +
-          (phone ? '<div class="student-opt-meta"><i class="ti ti-phone"></i> ' + escapeHtml(phone) + '</div>' : '') +
+          '<div class="sm-card-avatar">' + escapeHtml(studentInitials(name)) + '</div>' +
+          '<div class="sm-card-body">' +
+          '<div class="sm-card-name">' + escapeHtml(name) + '</div>' +
+          (email ? '<div class="sm-card-meta"><i class="ti ti-mail"></i> ' + escapeHtml(email) + '</div>' : '') +
+          (phone ? '<div class="sm-card-meta"><i class="ti ti-phone"></i> ' + escapeHtml(phone) + '</div>' : '') +
           '</div>' +
-          '</div>' +
+          '<span class="sm-card-go"><i class="ti ti-chevron-right"></i></span>' +
           '</div>';
       });
       var html = rows

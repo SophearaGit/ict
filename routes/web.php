@@ -251,6 +251,11 @@ Route::middleware(['auth:web', 'verified', 'check_role:staff'])
             Route::get('/reports/student', [IctStaffReportController::class, 'studentReports'])->name('reports.student');
             Route::get('/reports/staff', [IctStaffReportController::class, 'staffReports'])->name('reports.staff');
             Route::get('/reports/intern', [IctStaffReportController::class, 'internReports'])->name('reports.intern');
+            // JSON events feed the review calendars fetch per-visible-range —
+            // see IctStaffReportController::roleReportEvents().
+            Route::get('/reports/{role}/events', [IctStaffReportController::class, 'roleReportEvents'])
+                ->where('role', 'student|staff|intern')
+                ->name('reports.events');
         });
         // Regular staff's own report CRUD (no grant required).
         Route::resource('/reports', IctStaffReportController::class);

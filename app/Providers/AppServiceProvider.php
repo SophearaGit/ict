@@ -15,7 +15,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TeacherAttendances::observe(TeacherAttendancesObserver::class);
-        View::composer('frontend.*', function ($view) {
+        // Scoped to the public-site layout only — this used to be bound to
+        // 'frontend.*', which also matches every staff/student/instructor/
+        // intern portal view (they all live under resources/views/frontend/),
+        // so these two queries (a category+course join and a full course-table
+        // scan for the "popular courses" widget) ran on EVERY staff page load
+        // even though categories_for_frontend/popularCourses are only ever used
+        // by the public header/footer/mobile-drawer partials, which the public
+        // layout includes. Those partials inherit this layout's composed data
+        // via Blade's @include, so scoping to just the layout view still reaches
+        // them, while no longer firing for every other portal.
+        View::composer('frontend.layouts.new.master', function ($view) {
             $categories = ICTCourseCategory::with([
                 'courses' => function ($q) {
                     $q->frontendVisible()->orderBy('title');

@@ -6,6 +6,7 @@ use App\Models\InternReport;
 use App\Models\User;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -314,6 +315,15 @@ class IctStaffReportController extends Controller
      * Renders as a calendar: reports are handed to the view as FullCalendar-ready
      * events (one bar per report, colored by status) rather than a paginated
      * table, so date navigation replaces the old year/month/week filters.
+     *
+     * This used to also run the full events query here — every report ever
+     * filed for the role, unbounded, on every single page load. That doesn't
+     * scale, and FullCalendar never needed the whole history anyway: it only
+     * ever shows one visible range at a time. roleReportEvents() below now
+     * supplies just that range, fetched by the calendar itself as staff
+     * navigate, so this method only computes the cheap page-chrome bits
+     * (counts are plain COUNT() queries, not row fetches; reporters is an
+     * id+name projection for the account filter dropdown).
      */
     private function roleReportView(Request $request, string $role, string $label): View
     {
@@ -335,21 +345,99 @@ class IctStaffReportController extends Controller
             'reviewed' => (clone $baseQuery)->where('status', 'reviewed')->count(),
         ];
 
-        $reports = (clone $baseQuery)
+        // Human-readable chips for whatever filters are currently active, so the
+        // view can render them as removable pills.
+        $activeFilters = [];
+        if ($request->filled('search')) {
+            $activeFilters['search'] = 'Search: "' . $request->search . '"';
+        }
+        if ($request->filled('account') && $request->account !== 'all') {
+            $accountName = optional($reporterUsers->firstWhere('id', (int) $request->account))->name ?? 'Unknown';
+            $activeFilters['account'] = 'Account: ' . $accountName;
+        }
+
+        return view('frontend.staff.pages.report.review', [
+            'page_title' => 'ICT | Staff | ' . $label,
+            'heading' => $label,
+            'role' => $role,
+            'counts' => $counts,
+            'reporters' => $reporterUsers,
+            'activeFilters' => $activeFilters,
+            'eventsUrl' => route('staff.reports.events', ['role' => $role]),
+            'search' => $request->search,
+            'account' => $request->account,
+        ]);
+    }
+
+    /**
+     * JSON events feed for the FullCalendar instance on the review screens.
+     * FullCalendar calls this automatically with `start`/`end` on initial
+     * render and every time staff navigate to a different month/week, so
+     * only the reports whose period overlaps that window are ever fetched —
+     * the fix for roleReportView() having previously loaded every report
+     * ever filed for the role on every page load.
+     */
+    public function roleReportEvents(Request $request, string $role): JsonResponse
+    {
+        abort_unless(array_key_exists($role, self::ROLE_MODEL), 404);
+
+        $validated = $request->validate([
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date', 'after:start'],
+        ]);
+
+        // Same projection used by roleReportView()'s account dropdown, plus
+        // the extra columns each event's extendedProps needs — fetched once
+        // here and reused for every report below instead of a second
+        // whereIn() lookup keyed off whichever reporters happen to have a
+        // report in range.
+        $reporterUsers = User::where('role', $role)->get(['id', 'name', 'image', 'designation']);
+        $reporterIds = $reporterUsers->pluck('id');
+        $reportersById = $reporterUsers->keyBy('id');
+
+        $modelClass = self::ROLE_MODEL[$role] ?? ICTStaffReport::class;
+        $start = $validated['start'];
+        $end = $validated['end'];
+
+        $reports = $modelClass::whereIn('reported_by', $reporterIds)
+            ->where('reported_by', '!=', Auth::id())
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('report_content', 'like', '%' . $request->search . '%');
             })
             ->when($request->filled('account') && $request->account !== 'all', function ($q) use ($request) {
                 $q->where('reported_by', $request->account);
             })
+            // Overlap test against the visible [start, end) window — mirrors
+            // the same period_start/period_end -> created_at fallback used in
+            // mapReportsToEvents() below when formatting each event's dates,
+            // just expressed as SQL instead of PHP: a report's bar intersects
+            // the window if its start falls inside it, its end falls inside
+            // it, it spans across the whole window, or (no period set at all)
+            // its created_at — the single-day fallback — falls inside it.
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('period_start', [$start, $end])
+                    ->orWhereBetween('period_end', [$start, $end])
+                    ->orWhere(function ($q2) use ($start, $end) {
+                        $q2->where('period_start', '<=', $start)->where('period_end', '>=', $end);
+                    })
+                    ->orWhere(function ($q2) use ($start, $end) {
+                        $q2->whereNull('period_start')->whereBetween('created_at', [$start, $end]);
+                    });
+            })
             ->orderByDesc('created_at')
             ->get();
 
-        $reportersById = User::whereIn('id', $reports->pluck('reported_by')->unique())
-            ->get()
-            ->keyBy('id');
+        return response()->json($this->mapReportsToEvents($reports, $reportersById, $role));
+    }
 
-        $events = $reports->map(function ($report) use ($reportersById, $role) {
+    /**
+     * Shared report -> FullCalendar event mapping, used by roleReportEvents()
+     * above. $reportersById must already carry id/name/image/designation for
+     * every reporter the given $reports collection could reference.
+     */
+    private function mapReportsToEvents($reports, $reportersById, string $role): array
+    {
+        return $reports->map(function ($report) use ($reportersById, $role) {
             $reporter = $reportersById->get($report->reported_by);
             $style = self::STATUS_STYLE[$report->status] ?? ['hex' => '#5A6A85', 'class' => 'secondary'];
 
@@ -390,27 +478,6 @@ class IctStaffReportController extends Controller
                     'submittedAt' => $report->created_at->format('M d, Y \a\t h:i A'),
                 ],
             ];
-        })->values();
-
-        // Human-readable chips for whatever filters are currently active, so the
-        // view can render them as removable pills.
-        $activeFilters = [];
-        if ($request->filled('search')) {
-            $activeFilters['search'] = 'Search: "' . $request->search . '"';
-        }
-        if ($request->filled('account') && $request->account !== 'all') {
-            $accountName = optional($reporterUsers->firstWhere('id', (int) $request->account))->name ?? 'Unknown';
-            $activeFilters['account'] = 'Account: ' . $accountName;
-        }
-
-        return view('frontend.staff.pages.report.review', [
-            'page_title' => 'ICT | Staff | ' . $label,
-            'heading' => $label,
-            'role' => $role,
-            'counts' => $counts,
-            'reporters' => $reporterUsers,
-            'activeFilters' => $activeFilters,
-            'events' => $events,
-        ]);
+        })->values()->all();
     }
 }

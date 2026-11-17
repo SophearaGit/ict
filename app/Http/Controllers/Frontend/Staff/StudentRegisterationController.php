@@ -16,7 +16,7 @@ class StudentRegisterationController extends Controller
 {
     public function studentRegistration()
     {
-        $courses = ICTCourse::with('schedule')->where('status', '!=', 'draft')->get();
+        $courses = ICTCourse::with(['schedule', 'instructor'])->withCount('students')->where('status', '!=', 'draft')->get();
         $students = User::where('role', 'student')->get();
         return view('frontend.staff.pages.student-management.student-registration', compact('courses', 'students'));
     }
