@@ -23,8 +23,16 @@ class StaffController extends Controller
                             ->orWhere('email', 'like', "%{$request->search}%");
                     });
                 })
-                ->withCount('reports')
-                ->latest()
+                // The Reports column was removed from the staff list view, so
+                // withCount('reports') (an extra query) no longer earns its
+                // keep here.
+                // Enabled before Disabled (role === 'unknown' is this app's
+                // "disabled" sentinel — see the role column check in the
+                // view), then access-Granted before Not Granted within that,
+                // then alphabetical by name as the final tie-breaker.
+                ->orderByRaw("role = 'unknown' asc")
+                ->orderByDesc('admin_approval_edit_staff')
+                ->orderBy('name')
                 ->paginate(16)
                 ->withQueryString(),
         ];
