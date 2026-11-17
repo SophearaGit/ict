@@ -210,13 +210,14 @@
                 @endif
             </div>
 
-            @if ($events->isEmpty())
-                <div class="report-empty-banner mb-3">
-                    <i class="ti ti-info-circle me-1"></i>
-                    No {{ strtolower($role) }} reports match your current filters. The calendar below will be empty
-                    until that changes.
-                </div>
-            @endif
+            {{-- Populated client-side once the calendar's first fetch for the
+                 visible month comes back empty — see eventsSet() below. The
+                 old version of this decided server-side from the full,
+                 unbounded report history, which no longer exists here. --}}
+            <div class="report-empty-banner mb-3 d-none" id="reportEmptyBanner">
+                <i class="ti ti-info-circle me-1"></i>
+                No {{ strtolower($role) }} reports match your current filters for this range.
+            </div>
 
             <div id="reviewCalendar"></div>
         </div>
@@ -265,12 +266,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const allEvents = @json($events);
+            // Reports are no longer sent with the page — the calendar pulls
+            // just the reports that overlap whatever range it's currently
+            // showing from this JSON feed, re-fetching on every prev/next/
+            // today/view change. search/account are baked in from the
+            // current filter-bar state so they keep applying across range
+            // changes without a full page reload.
+            const eventsUrl = @json($eventsUrl);
+            const extraParams = {
+                search: @json($search ?? ''),
+                account: @json($account ?? ''),
+            };
             const statusStyles = {
                 pending: 'bg-light-warning text-warning',
                 reviewed: 'bg-light-success text-success',
             };
             const activeStatuses = new Set(['pending', 'reviewed']);
+            const emptyBanner = document.getElementById('reportEmptyBanner');
+            // eventsSet() fires after every render pass, including right
+            // after a failed fetch (with zero events) — without this flag it
+            // would immediately stomp the "could not load" message below
+            // with the generic "no reports match" one.
+            let hasLoadError = false;
 
             const calendarEl = document.getElementById('reviewCalendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -282,7 +299,35 @@
                 },
                 height: 720,
                 dayMaxEvents: false,
-                events: allEvents.filter(e => activeStatuses.has(e.extendedProps.status)),
+                loading: function (isLoading) {
+                    if (isLoading) {
+                        hasLoadError = false;
+                    }
+                },
+                events: {
+                    url: eventsUrl,
+                    method: 'GET',
+                    extraParams: extraParams,
+                    failure: function () {
+                        hasLoadError = true;
+                        emptyBanner.textContent = 'Could not load reports for this range — please try again.';
+                        emptyBanner.classList.remove('d-none');
+                    },
+                },
+                eventSourceSuccess: function (rawEvents) {
+                    // Status is a client-side toggle (the legend chips), so it
+                    // still filters after fetch rather than being sent to the
+                    // server — the fetched set for a range is small enough
+                    // that this costs nothing.
+                    return rawEvents.filter(e => activeStatuses.has(e.extendedProps.status));
+                },
+                eventsSet: function (currentEvents) {
+                    if (hasLoadError) {
+                        return;
+                    }
+                    emptyBanner.textContent = 'No ' + @json(strtolower($role)) + ' reports match your current filters for this range.';
+                    emptyBanner.classList.toggle('d-none', currentEvents.length > 0);
+                },
                 eventClassNames: function (arg) {
                     const status = arg.event.extendedProps.status;
                     return ['rd-event-pill', 'rd-status-' + status];
@@ -342,8 +387,10 @@
                 icon.className = isFullscreen ? 'ti ti-arrows-minimize' : 'ti ti-arrows-maximize';
             });
 
-            // Legend chips act as a live, client-side filter — no reload needed
-            // since every matching report is already on the page.
+            // Legend chips toggle which statuses show. refetchEvents() re-hits
+            // the JSON feed for the same visible range (cheap — it's already
+            // scoped to one month/week) and eventSourceSuccess above applies
+            // the current activeStatuses filter to the result.
             document.querySelectorAll('.status-legend').forEach(function (chip) {
                 chip.addEventListener('click', function () {
                     const status = chip.dataset.status;
@@ -354,8 +401,7 @@
                         activeStatuses.add(status);
                         chip.classList.remove('is-off');
                     }
-                    calendar.removeAllEvents();
-                    calendar.addEventSource(allEvents.filter(e => activeStatuses.has(e.extendedProps.status)));
+                    calendar.refetchEvents();
                 });
             });
         });

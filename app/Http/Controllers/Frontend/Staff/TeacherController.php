@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend\Staff;
 
 use App\Http\Controllers\Controller;
-use App\Models\ICTCourse;
 use App\Models\User;
 use App\Traites\FileUpload;
 use Illuminate\Http\Request;
@@ -17,8 +16,11 @@ class TeacherController extends Controller
      */
     public function index(Request $request)
     {
-        $instructors = User::with(['courses'])
-            ->where('role', 'instructor')
+        // 'courses' was eager-loaded here and a full `$subjects` scan of
+        // every course title ran on every page load, but
+        // frontend.staff.pages.teacher.index never references either one —
+        // both were dead weight on this listing.
+        $instructors = User::where('role', 'instructor')
             ->where('approval_status', 'approved')
             ->whereNotNull('document')
             // 🔍 Search
@@ -29,12 +31,9 @@ class TeacherController extends Controller
             ->paginate(8)
             ->withQueryString(); // 🔥 VERY IMPORTANT
 
-        $subjects = ICTCourse::pluck('title')->unique();
-
         return view('frontend.staff.pages.teacher.index', [
             'page_title' => 'ICT | ADMIN | INSTRUCTORS',
             'instructors' => $instructors,
-            'subjects' => $subjects,
         ]);
     }
 
